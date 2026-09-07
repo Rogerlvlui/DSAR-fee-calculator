@@ -1,0 +1,1555 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found]){display:none!important}</style></head><body>
+<title>DSAR Fee Assessment Screens</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    /* cool institutional neutrals, faint blue bias */
+    --ground: #eef0f2;
+    --surface: #ffffff;
+    --surface-sunk: #f5f6f8;
+    --line: #d8dce1;
+    --line-soft: #e6e9ed;
+    --ink: #171b22;
+    --ink-2: #3c4450;
+    --ink-3: #6b7480;
+    --ink-4: #8f97a2;
+
+    /* accent: legal seal oxblood, spent sparingly */
+    --seal: #7c2334;
+    --seal-ink: #5e1a27;
+    --seal-wash: #f7ecee;
+
+    /* semantic, deliberately not the accent */
+    --ok: #1c6146;
+    --ok-wash: #e8f2ed;
+    --warn: #8a5a06;
+    --warn-wash: #fbf1de;
+    --warn-edge: #e0b869;
+    --deny: #565f6c;
+    --deny-wash: #eceef1;
+    --stop: #a32020;
+    --stop-wash: #fbecec;
+
+    --shadow-lift: 0 1px 2px rgba(20,26,34,.06), 0 8px 24px -12px rgba(20,26,34,.18);
+
+    --sans: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    --serif: "Newsreader", ui-serif, Georgia, "Times New Roman", serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #10131a;
+      --surface: #181c25;
+      --surface-sunk: #14181f;
+      --line: #2c323d;
+      --line-soft: #232833;
+      --ink: #e7eaee;
+      --ink-2: #c0c6cf;
+      --ink-3: #8d96a3;
+      --ink-4: #6c757f;
+
+      --seal: #d98a99;
+      --seal-ink: #eab8c2;
+      --seal-wash: #2b1a1f;
+
+      --ok: #6fc39c;
+      --ok-wash: #14261e;
+      --warn: #d9a850;
+      --warn-wash: #2a2113;
+      --warn-edge: #6b5424;
+      --deny: #98a2af;
+      --deny-wash: #1d222b;
+      --stop: #e08a8a;
+      --stop-wash: #2b1717;
+
+      --shadow-lift: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground: #10131a;
+    --surface: #181c25;
+    --surface-sunk: #14181f;
+    --line: #2c323d;
+    --line-soft: #232833;
+    --ink: #e7eaee;
+    --ink-2: #c0c6cf;
+    --ink-3: #8d96a3;
+    --ink-4: #6c757f;
+
+    --seal: #d98a99;
+    --seal-ink: #eab8c2;
+    --seal-wash: #2b1a1f;
+
+    --ok: #6fc39c;
+    --ok-wash: #14261e;
+    --warn: #d9a850;
+    --warn-wash: #2a2113;
+    --warn-edge: #6b5424;
+    --deny: #98a2af;
+    --deny-wash: #1d222b;
+    --stop: #e08a8a;
+    --stop-wash: #2b1717;
+
+    --shadow-lift: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .num { font-variant-numeric: tabular-nums; }
+  .mono { font-family: var(--mono); }
+
+  /* ─── mockup chrome ─────────────────────────────────────────── */
+
+  .mockbar {
+    background: var(--ink);
+    color: #f2f4f6;
+    padding: 7px 20px;
+    font-size: 11.5px;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .mockbar strong { font-weight: 600; }
+  .mockbar span { color: #a8b0ba; text-transform: none; letter-spacing: 0; font-size: 12px; }
+
+  .shell { max-width: 1240px; margin: 0 auto; padding: 0 20px 72px; }
+
+  header.app {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    padding: 22px 0 14px;
+  }
+  .wordmark {
+    font-family: var(--serif);
+    font-size: 21px;
+    font-weight: 500;
+    letter-spacing: -.01em;
+  }
+  .wordmark em {
+    font-style: normal;
+    color: var(--seal);
+  }
+  .whoami { font-size: 12.5px; color: var(--ink-3); }
+  .whoami b { color: var(--ink-2); font-weight: 600; }
+
+  /* screen switcher — mockup navigation, not product UI */
+  nav.screens { display: flex; gap: 2px; flex-wrap: wrap; }
+  nav.screens button {
+    font: inherit;
+    font-size: 12.5px;
+    font-weight: 500;
+    padding: 7px 13px;
+    background: transparent;
+    color: var(--ink-3);
+    border: 1px solid transparent;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  nav.screens button:hover { color: var(--ink); background: var(--surface-sunk); }
+  nav.screens button[aria-current="true"] {
+    background: var(--surface);
+    color: var(--ink);
+    border-color: var(--line);
+    box-shadow: 0 1px 0 var(--line-soft);
+  }
+
+  /* ─── layer 2: persistent status strip ──────────────────────── */
+
+  .strip {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-wrap: wrap;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--warn-edge);
+    border-radius: 3px;
+    padding: 0;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  .strip > div {
+    padding: 9px 16px;
+    border-right: 1px solid var(--line-soft);
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .strip > div:last-child { border-right: 0; margin-left: auto; }
+  .strip dt {
+    font-size: 10px;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    color: var(--ink-4);
+    font-weight: 600;
+  }
+  .strip dd { margin: 0; font-size: 12.5px; color: var(--ink-2); font-weight: 500; }
+  .strip .due { color: var(--warn); font-weight: 600; }
+
+  /* ─── generic pieces ────────────────────────────────────────── */
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+  }
+  .panel > h2, .panel > .phead {
+    margin: 0;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--line-soft);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .01em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .step {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--surface);
+    background: var(--ink-2);
+    width: 19px; height: 19px;
+    display: grid; place-items: center;
+    border-radius: 2px;
+    flex: none;
+  }
+  .panel[data-locked="true"] { opacity: .55; }
+  .panel[data-locked="true"] .step { background: var(--ink-4); }
+  .locknote {
+    margin-left: auto;
+    font-size: 11.5px;
+    font-weight: 500;
+    color: var(--ink-4);
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  .pbody { padding: 18px; display: flex; flex-direction: column; gap: 16px; }
+
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+
+  label.f { display: flex; flex-direction: column; gap: 5px; }
+  label.f > span.lb {
+    font-size: 11px;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    font-weight: 600;
+  }
+  input.t, select.t, textarea.t {
+    font: inherit;
+    font-size: 13.5px;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 7px 9px;
+    width: 100%;
+  }
+  input.t:focus-visible, select.t:focus-visible, textarea.t:focus-visible, button:focus-visible {
+    outline: 2px solid var(--seal);
+    outline-offset: 1px;
+  }
+  input.t[readonly] { background: var(--surface-sunk); color: var(--ink-3); }
+  .hint { font-size: 11.5px; color: var(--ink-3); }
+  .hint.stern { color: var(--stop); }
+
+  /* jurisdiction posture warning */
+  .posture {
+    border: 1px solid var(--warn-edge);
+    background: var(--warn-wash);
+    border-radius: 3px;
+    padding: 12px 14px;
+    font-size: 13px;
+    color: var(--ink);
+  }
+  .posture b { color: var(--warn); }
+
+  /* attestations */
+  .attest { display: flex; flex-direction: column; gap: 13px; }
+  .attest .row { display: grid; grid-template-columns: 18px 1fr; gap: 10px; align-items: start; }
+  .attest input[type="checkbox"] { margin: 2px 0 0; width: 16px; height: 16px; accent-color: var(--seal); }
+  .attest .why { font-size: 11.5px; color: var(--ink-3); margin-top: 2px; }
+
+  /* expense repeater */
+  .lines { display: flex; flex-direction: column; gap: 10px; }
+  .eline {
+    border: 1px solid var(--line-soft);
+    background: var(--surface-sunk);
+    border-radius: 3px;
+    padding: 12px;
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 1.5fr 2fr .55fr .7fr .8fr .9fr;
+    align-items: end;
+  }
+  .eline .amt {
+    text-align: right;
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 7px 9px;
+    border: 1px dashed var(--line);
+    border-radius: 3px;
+    color: var(--ink-2);
+    background: transparent;
+  }
+  .eline .xtra { grid-column: span 2; }
+  .xtrarow {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: auto 1fr 1fr;
+    gap: 12px;
+    align-items: end;
+    padding-top: 4px;
+    border-top: 1px dotted var(--line);
+  }
+  @media (max-width: 860px) { .xtrarow { grid-template-columns: 1fr; } }
+  .chk {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 12.5px; color: var(--ink-2); white-space: nowrap; padding-bottom: 7px;
+  }
+  .chk input { width: 15px; height: 15px; accent-color: var(--seal); }
+  .catnote {
+    grid-column: 1 / -1;
+    font-size: 12px;
+    color: var(--ink-2);
+    border-left: 2px solid var(--warn-edge);
+    padding: 4px 0 4px 10px;
+    background: none;
+  }
+  .catnote b { color: var(--warn); font-weight: 600; }
+
+  .claimfoot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    border-top: 1px solid var(--line);
+    background: var(--surface-sunk);
+    padding: 14px 18px;
+    border-radius: 0 0 4px 4px;
+  }
+  .claimfoot .lbl { font-size: 12.5px; color: var(--ink-3); max-width: 46ch; }
+  .claimfoot .fig { font-family: var(--mono); font-size: 20px; font-weight: 600; }
+
+  /* buttons */
+  button.btn {
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 15px;
+    border-radius: 3px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink);
+    cursor: pointer;
+  }
+  button.btn:hover:not(:disabled) { border-color: var(--ink-3); }
+  button.btn.primary {
+    background: var(--seal);
+    border-color: var(--seal);
+    color: #fff;
+  }
+  :root[data-theme="dark"] button.btn.primary,
+  html:not([data-theme="light"]) button.btn.primary { color: #fff; }
+  button.btn.primary:hover:not(:disabled) { background: var(--seal-ink); border-color: var(--seal-ink); }
+  button.btn:disabled { opacity: .45; cursor: not-allowed; }
+  button.btn.sm { font-size: 12px; padding: 6px 11px; font-weight: 500; }
+  button.btn.deny { color: var(--stop); }
+
+  .blockreason {
+    font-size: 12px;
+    color: var(--ink-3);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* ─── legal review: three regions ───────────────────────────── */
+
+  .review { display: grid; grid-template-columns: 262px minmax(0,1fr) 268px; gap: 18px; align-items: start; }
+  @media (max-width: 1080px) { .review { grid-template-columns: 1fr; } }
+
+  aside.rail { position: sticky; top: 12px; display: flex; flex-direction: column; gap: 14px; }
+  @media (max-width: 1080px) { aside.rail { position: static; } }
+
+  .ctx { padding: 0; }
+  .ctx dl { margin: 0; padding: 4px 0; }
+  .ctx .kv {
+    display: flex; justify-content: space-between; gap: 10px;
+    padding: 6px 16px;
+    font-size: 12.5px;
+  }
+  .ctx .kv dt { color: var(--ink-3); }
+  .ctx .kv dd { margin: 0; font-weight: 500; text-align: right; }
+  .ctx hr { border: 0; border-top: 1px solid var(--line-soft); margin: 6px 0; }
+
+  .litflag {
+    margin: 6px 12px 12px;
+    border: 1px solid var(--stop);
+    background: var(--stop-wash);
+    border-radius: 3px;
+    padding: 10px 12px;
+  }
+  .litflag .t {
+    font-size: 11px; letter-spacing: .07em; text-transform: uppercase;
+    font-weight: 700; color: var(--stop); margin-bottom: 4px;
+  }
+  .litflag p { margin: 0; font-size: 12px; color: var(--ink-2); }
+
+  .packcard .phead { font-size: 12px; }
+  .packver { font-family: var(--mono); font-size: 12.5px; font-weight: 600; }
+  .packcard .kv { font-size: 12px; }
+  .oq { padding: 10px 16px 14px; border-top: 1px solid var(--line-soft); }
+  .oq h3 {
+    margin: 0 0 6px; font-size: 10.5px; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--ink-4); font-weight: 700;
+  }
+  .oq ul { margin: 0; padding-left: 15px; display: flex; flex-direction: column; gap: 5px; }
+  .oq li { font-size: 12px; color: var(--ink-2); }
+
+  .advisory {
+    font-size: 11.5px;
+    color: var(--ink-3);
+    padding: 10px 16px;
+    border-top: 1px solid var(--line-soft);
+  }
+  .advisory b { color: var(--warn); }
+
+  /* verdict cards */
+  .cards { display: flex; flex-direction: column; gap: 12px; }
+  .bulkbar {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 4px; padding: 11px 14px;
+  }
+  .bulkbar .note { font-size: 11.5px; color: var(--ink-3); }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    border-left: 3px solid var(--line);
+    padding: 0;
+  }
+  .card[data-v="FLAG"] { border-left-color: var(--warn-edge); box-shadow: var(--shadow-lift); }
+  .card[data-v="ALLOW"] { border-left-color: var(--ok); }
+  .card[data-v="ALLOW_CAPPED"] { border-left-color: var(--ok); }
+  .card[data-v="DISALLOW"] { border-left-color: var(--deny); }
+  .card[data-done="true"] { opacity: .62; box-shadow: none; }
+
+  .chead {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    padding: 11px 15px 0;
+  }
+  .badge {
+    font-size: 10.5px; letter-spacing: .07em; text-transform: uppercase;
+    font-weight: 700; padding: 3px 7px; border-radius: 2px; white-space: nowrap;
+  }
+  .badge.flag { background: var(--warn-wash); color: var(--warn); border: 1px solid var(--warn-edge); }
+  .badge.allow { background: var(--ok-wash); color: var(--ok); border: 1px solid transparent; }
+  .badge.cap { background: var(--ok-wash); color: var(--ok); border: 1px solid var(--ok); }
+  .badge.disallow { background: var(--deny-wash); color: var(--deny); border: 1px solid transparent; }
+  .badge.unver { background: transparent; color: var(--warn); border: 1px dashed var(--warn-edge); }
+  .badge.ai { background: transparent; color: var(--ink-3); border: 1px dashed var(--line); text-transform: none; letter-spacing: 0; font-weight: 500; }
+  .badge.done { background: var(--ink-2); color: var(--surface); }
+
+  .cseq { font-family: var(--mono); font-size: 11.5px; color: var(--ink-4); }
+  .ctitle { font-weight: 600; font-size: 13.5px; }
+  .cbody { padding: 10px 15px 14px; display: flex; flex-direction: column; gap: 11px; }
+
+  .hrsaid {
+    font-size: 13px;
+    color: var(--ink-2);
+    border-left: 2px solid var(--line);
+    padding-left: 11px;
+  }
+  .hrsaid .q { font-family: var(--serif); font-size: 14.5px; font-style: italic; color: var(--ink); }
+  .hrsaid .who { font-size: 11px; letter-spacing: .07em; text-transform: uppercase; color: var(--ink-4); font-weight: 600; }
+
+  .calc {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--ink-2);
+    display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap;
+  }
+  .calc b { color: var(--ink); font-weight: 600; }
+  .calc s { color: var(--ink-4); }
+
+  .whyyou { background: var(--warn-wash); border-radius: 3px; padding: 10px 12px; }
+  .whyyou h4 {
+    margin: 0 0 5px; font-size: 10.5px; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--warn); font-weight: 700;
+  }
+  .whyyou ul { margin: 0; padding-left: 16px; display: flex; flex-direction: column; gap: 3px; }
+  .whyyou li { font-size: 12.5px; color: var(--ink); }
+
+  .prov { border-top: 1px dotted var(--line); padding-top: 10px; display: flex; flex-direction: column; gap: 5px; }
+  .prov .ruleid { font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--ink-2); }
+  .prov .basis { font-size: 12.5px; color: var(--ink-2); max-width: 68ch; }
+  .prov .cite { font-size: 11.5px; color: var(--ink-3); }
+  .prov .cite b { font-weight: 600; color: var(--ink-2); }
+
+  .suggest {
+    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+    font-size: 12.5px; color: var(--ink-2);
+    border: 1px dashed var(--line);
+    border-radius: 3px;
+    padding: 9px 11px;
+    margin-top: 4px;
+  }
+  .suggest b { color: var(--ink); font-weight: 600; }
+  .suggest button { margin-left: auto; }
+  .controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .amtin { display: flex; align-items: center; gap: 5px; }
+  .amtin span { font-size: 12px; color: var(--ink-3); font-family: var(--mono); }
+  .amtin input {
+    font-family: var(--mono);
+    font-size: 13px;
+    width: 86px;
+    padding: 6px 8px;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    background: var(--surface);
+    color: var(--ink);
+    text-align: right;
+  }
+  .reasonwrap { display: flex; flex-direction: column; gap: 4px; }
+  .reasonwrap label {
+    font-size: 11px; letter-spacing: .07em; text-transform: uppercase;
+    color: var(--ink-3); font-weight: 600;
+  }
+  .reasonwrap .req { color: var(--stop); }
+  .reasonwrap textarea { resize: vertical; min-height: 40px; }
+  .reasonwrap .count { font-size: 11px; color: var(--ink-4); font-family: var(--mono); }
+
+  .resolved {
+    display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap;
+    font-size: 12.5px; color: var(--ink-2);
+    background: var(--surface-sunk); border-radius: 3px; padding: 9px 12px;
+  }
+  .resolved .said { font-style: italic; color: var(--ink-3); }
+  .resolved button { margin-left: auto; }
+
+  /* totals rail */
+  .totals { padding: 0; }
+  .totals .tl {
+    display: flex; justify-content: space-between; gap: 10px;
+    padding: 7px 16px; font-size: 12.5px;
+  }
+  .totals .tl dt { color: var(--ink-2); }
+  .totals .tl dd { margin: 0; font-family: var(--mono); font-weight: 500; }
+  .totals .tl.sub dt, .totals .tl.sub dd { color: var(--ink-3); font-size: 11.5px; }
+  .totals .tl.indent { padding-top: 0; padding-bottom: 3px; }
+  .totals .tl.indent dt { padding-left: 10px; }
+  .totals .rule { border-top: 1px solid var(--line-soft); margin: 6px 0; }
+  .totals .head {
+    padding: 10px 16px 4px;
+    font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--ink-4); font-weight: 700;
+  }
+  .totals .flagged dt, .totals .flagged dd { color: var(--warn); font-weight: 600; }
+
+  .headline {
+    margin: 8px 12px;
+    border: 1px solid var(--line);
+    background: var(--surface-sunk);
+    border-radius: 3px;
+    padding: 14px;
+    text-align: center;
+  }
+  .headline .k {
+    font-size: 10.5px; letter-spacing: .09em; text-transform: uppercase;
+    color: var(--ink-4); font-weight: 700;
+  }
+  .headline .hidden {
+    font-family: var(--serif);
+    font-size: 17px;
+    color: var(--ink-3);
+    font-style: italic;
+    margin-top: 5px;
+  }
+  .headline .v {
+    font-family: var(--mono);
+    font-size: 25px;
+    font-weight: 600;
+    margin-top: 4px;
+    letter-spacing: -.02em;
+  }
+  .headline .sub { font-size: 11.5px; color: var(--warn); margin-top: 6px; font-weight: 600; }
+  .headline.ready { border-color: var(--ok); background: var(--ok-wash); }
+  .headline.ready .v { color: var(--ok); }
+
+  .signwrap { padding: 4px 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+
+  /* sign-off panel */
+  .signoff { margin-top: 14px; }
+  .signoff .phead { background: var(--seal-wash); color: var(--seal-ink); border-bottom-color: var(--seal); }
+  :root[data-theme="dark"] .signoff .phead { color: var(--seal); }
+  .attestbox {
+    font-family: var(--serif);
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--ink);
+    background: var(--surface-sunk);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--seal);
+    border-radius: 3px;
+    padding: 14px 16px;
+    max-width: 66ch;
+  }
+  .attestbox b { font-weight: 600; }
+  .ackrow { display: grid; grid-template-columns: 18px 1fr; gap: 10px; align-items: start; }
+  .ackrow input { width: 16px; height: 16px; margin: 2px 0 0; accent-color: var(--seal); }
+  .ackrow p { margin: 0; font-size: 12.5px; color: var(--ink-2); }
+  .ackrow p b { color: var(--stop); }
+
+  .tally { display: flex; gap: 18px; flex-wrap: wrap; }
+  .tally div { display: flex; flex-direction: column; }
+  .tally dt {
+    font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--ink-4); font-weight: 700;
+  }
+  .tally dd { margin: 0; font-family: var(--mono); font-size: 16px; font-weight: 600; }
+
+  /* first-use notice */
+  .notice { max-width: 62ch; margin: 0 auto; }
+  .notice .panel { box-shadow: var(--shadow-lift); }
+  .notice h1 {
+    font-family: var(--serif);
+    font-size: 27px;
+    font-weight: 500;
+    letter-spacing: -.015em;
+    margin: 0 0 4px;
+  }
+  .notice .kicker {
+    font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--seal); font-weight: 700; margin-bottom: 10px;
+  }
+  .notice .lede { font-family: var(--serif); font-size: 17px; color: var(--ink-2); margin: 0 0 18px; }
+  .notice ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 13px; }
+  .notice ul li {
+    display: grid; grid-template-columns: 15px 1fr; gap: 11px;
+    font-size: 14px; color: var(--ink-2); line-height: 1.55;
+  }
+  .notice ul li::before {
+    content: "";
+    width: 7px; height: 7px;
+    margin-top: 7px;
+    border: 1.5px solid var(--seal);
+    border-radius: 50%;
+  }
+  .notice ul li b { color: var(--ink); font-weight: 600; }
+  .notice .typein { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 20px; }
+  .notice .typein input { width: 190px; }
+  .why-layered {
+    margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line-soft);
+    font-size: 12px; color: var(--ink-3);
+  }
+
+  .caption {
+    font-size: 12px;
+    color: var(--ink-3);
+    max-width: 76ch;
+    margin: 0 0 16px;
+  }
+  .caption b { color: var(--ink-2); font-weight: 600; }
+
+  h1.screen {
+    font-family: var(--serif);
+    font-size: 24px;
+    font-weight: 500;
+    letter-spacing: -.015em;
+    margin: 0 0 4px;
+    text-wrap: balance;
+  }
+
+  [hidden] { display: none !important; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .card, .headline, button.btn { transition: opacity .18s ease, background-color .18s ease, border-color .18s ease; }
+  }
+
+  @media (max-width: 860px) {
+    .eline { grid-template-columns: 1fr 1fr; }
+    .strip > div:last-child { margin-left: 0; }
+  }
+</style>
+
+<div class="mockbar">
+  <strong>Mockup</strong>
+  <span>Annex A to the DSAR Fee Assessment Agent PRD — illustrative screens, not a working system. Figures are example data.</span>
+</div>
+
+<div class="shell">
+  <header class="app">
+    <div>
+      <div class="wordmark">DSAR Fee Assessment<em>.</em></div>
+      <div class="whoami" id="whoami">Signed in as <b>Priya Menon</b> · HR Shared Services · role <b>HR_PREPARER</b></div>
+    </div>
+    <nav class="screens" aria-label="Mockup screens">
+      <button type="button" data-go="intake" aria-current="true">1 · HR intake</button>
+      <button type="button" data-go="review">2 · Legal review</button>
+      <button type="button" data-go="notice">First-use notice</button>
+    </nav>
+  </header>
+
+  <div class="strip" role="group" aria-label="Rule pack status">
+    <div><dt>Jurisdiction</dt><dd>Singapore</dd></div>
+    <div><dt>Rule pack</dt><dd class="mono">SG-PDPA 2026.09.1</dd></div>
+    <div><dt>Authored / reviewed by</dt><dd>W. Tan, Advocate &amp; Solicitor</dd></div>
+    <div><dt>Reviewed</dt><dd>12 Mar 2026</dd></div>
+    <div><dt>Review due</dt><dd class="due">1 Oct 2026 · in 24 days</dd></div>
+  </div>
+
+  <!-- ══════════════════ SCREEN 1 — HR INTAKE ══════════════════ -->
+  <section id="intake">
+    <h1 class="screen">New fee claim — DSAR-2026-0142</h1>
+    <p class="caption">HR records what the response actually cost. <b>HR never sees a draft figure</b> — the claim goes to Legal, and HR sees a fee only once a lawyer has signed it off.</p>
+
+    <div style="display:flex; flex-direction:column; gap:16px;">
+
+      <div class="panel">
+        <div class="phead"><span class="step">1</span> Matter details</div>
+        <div class="pbody">
+          <div class="grid2">
+            <label class="f"><span class="lb">Matter reference</span><input class="t" value="DSAR-2026-0142" readonly></label>
+            <label class="f"><span class="lb">Jurisdiction</span>
+              <select class="t" id="juris">
+                <option selected>Singapore — PDPA</option>
+                <option>Hong Kong SAR — PDPO</option>
+                <option>Australia — Privacy Act</option>
+                <option>New Zealand — Privacy Act 2020</option>
+                <option>Japan — APPI</option>
+                <option>South Korea — PIPA</option>
+                <option data-posture="none">China — PIPL</option>
+                <option data-posture="none">India — DPDP</option>
+                <option data-posture="none">Vietnam — PDPL</option>
+              </select>
+            </label>
+            <label class="f"><span class="lb">Employing entity</span><input class="t" value="Acme Asia Services Pte Ltd"></label>
+            <label class="f"><span class="lb">Controller type</span>
+              <select class="t" id="ctype"><option value="PRIVATE_ORGANISATION" selected>Private organisation</option><option value="PUBLIC_AGENCY">Public agency</option></select>
+            </label>
+            <label class="f"><span class="lb">Request received</span><input class="t" type="date" value="2026-08-20"></label>
+            <label class="f"><span class="lb">Currency</span><select class="t"><option selected>SGD</option><option>HKD</option><option>AUD</option></select></label>
+          </div>
+          <div class="posture" id="posture" hidden>
+            <b>Heads up — <span id="postureJ">China</span>.</b> <span id="postureMsg">Our rule pack records no clear legal basis for charging a fee for a data access request in this jurisdiction. You can still record the costs, but the likely outcome is that Legal advises charging nothing. Talk to Legal before spending time on this.</span>
+          </div>
+          <p class="hint">Requestor class: <b>former employee</b>. There is no field for the requestor's name or ID anywhere in this tool — see §12.1 of the PRD.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="phead"><span class="step">2</span> Attestations</div>
+        <div class="pbody">
+          <div class="attest">
+            <div class="row">
+              <input type="checkbox" id="a1" checked>
+              <div>
+                <label for="a1">The requestor's identity has been verified.</label>
+                <div class="why">Verification happens in your existing process. This tool only records that it happened.</div>
+                <input class="t" style="margin-top:7px;max-width:380px" value="Verified 21 Aug — see IDV log ref 0142-A" maxlength="200">
+                <div class="hint stern" style="margin-top:4px">Do not enter the requestor's name, NRIC/FIN or any personal data here. Reference your verification record instead.</div>
+              </div>
+            </div>
+            <div class="row">
+              <input type="checkbox" id="a2" checked>
+              <div>
+                <label for="a2">The scope of the request is clear, or clarifications have been resolved.</label>
+                <div class="why">If items are still ambiguous, resolve them with the requestor before claiming the cost of retrieving them.</div>
+              </div>
+            </div>
+            <div class="row">
+              <input type="checkbox" id="a3" checked>
+              <div>
+                <label for="a3">This requestor is, to my knowledge, in a dispute or litigation with the company.</label>
+                <div class="why">Checking this doesn't stop anything. It tells the reviewing lawyer that a fee which is defensible in principle may still be unwise here.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="phead"><span class="step">3</span> What the response cost <span class="locknote">6 lines</span></div>
+        <div class="pbody">
+          <div class="lines">
+
+            <div class="eline">
+              <label class="f"><span class="lb">Category</span>
+                <select class="t"><option selected>Staff time — locating and retrieving</option></select>
+              </label>
+              <label class="f"><span class="lb">What this cost was for</span>
+                <input class="t" value="Searching HRIS, shared drives and archived mail, 2019–2022">
+              </label>
+              <label class="f"><span class="lb">Qty</span><input class="t num" value="4"></label>
+              <label class="f"><span class="lb">Unit</span><select class="t"><option selected>Hours</option></select></label>
+              <label class="f"><span class="lb">Rate</span><input class="t num" value="40.00"></label>
+              <div><div class="lb" style="font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin-bottom:5px">Amount</div><div class="amt">160.00</div></div>
+              <label class="f xtra"><span class="lb">Staff grade</span>
+                <select class="t"><option>Admin</option><option selected>Executive</option><option>Manager</option><option>Senior manager</option><option>Specialist</option></select>
+              </label>
+            </div>
+
+            <div class="eline">
+              <label class="f"><span class="lb">Category</span>
+                <select class="t"><option selected>Staff time — collating the response</option></select>
+              </label>
+              <label class="f"><span class="lb">What this cost was for</span>
+                <input class="t" value="Collating and paginating the response pack">
+              </label>
+              <label class="f"><span class="lb">Qty</span><input class="t num" value="2"></label>
+              <label class="f"><span class="lb">Unit</span><select class="t"><option selected>Hours</option></select></label>
+              <label class="f"><span class="lb">Rate</span><input class="t num" value="40.00"></label>
+              <div><div class="lb" style="font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin-bottom:5px">Amount</div><div class="amt">80.00</div></div>
+            </div>
+
+            <div class="eline">
+              <label class="f"><span class="lb">Category</span>
+                <select class="t"><option selected>Staff time — deciding what may be withheld</option></select>
+              </label>
+              <label class="f"><span class="lb">What this cost was for</span>
+                <input class="t" value="Reviewing manager comments for material that could be withheld">
+              </label>
+              <label class="f"><span class="lb">Qty</span><input class="t num" value="3"></label>
+              <label class="f"><span class="lb">Unit</span><select class="t"><option selected>Hours</option></select></label>
+              <label class="f"><span class="lb">Rate</span><input class="t num" value="40.00"></label>
+              <div><div class="lb" style="font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin-bottom:5px">Amount</div><div class="amt">120.00</div></div>
+              <div class="catnote"><b>Often not recoverable.</b> Several regimes treat the cost of <em>deciding</em> what to withhold as the controller's own cost, even though the work is real. Record it if you incurred it — Legal will decide.</div>
+            </div>
+
+            <div class="eline">
+              <label class="f"><span class="lb">Category</span>
+                <select class="t"><option selected>Photocopying and printing</option></select>
+              </label>
+              <label class="f"><span class="lb">What this cost was for</span>
+                <input class="t" value="Printed response pack, single-sided A4">
+              </label>
+              <label class="f"><span class="lb">Qty</span><input class="t num" value="220"></label>
+              <label class="f"><span class="lb">Unit</span><select class="t"><option selected>Pages</option></select></label>
+              <label class="f"><span class="lb">Rate</span><input class="t num" value="0.15"></label>
+              <div><div class="lb" style="font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin-bottom:5px">Amount</div><div class="amt">33.00</div></div>
+            </div>
+
+            <div class="eline">
+              <label class="f"><span class="lb">Category</span>
+                <select class="t"><option selected>Third-party payroll / tax vendor charge</option></select>
+              </label>
+              <label class="f"><span class="lb">What this cost was for</span>
+                <input class="t" value="Vendor extract of 2019–2022 payslips and IR8A records from archive">
+              </label>
+              <label class="f"><span class="lb">Qty</span><input class="t num" value="3"></label>
+              <label class="f"><span class="lb">Unit</span><select class="t"><option selected>Items</option></select></label>
+              <label class="f"><span class="lb">Rate</span><input class="t num" value="150.00"></label>
+              <div><div class="lb" style="font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin-bottom:5px">Amount</div><div class="amt">450.00</div></div>
+              <div class="xtrarow">
+                <label class="chk"><input type="checkbox"> Third-party invoiced?</label>
+                <label class="f"><span class="lb">Vendor</span><input class="t" value="PayServe Asia Pte Ltd"></label>
+                <label class="f"><span class="lb">Invoice / DMS reference</span><input class="t" placeholder="e.g. INV-88421 or DMS/0142/07"></label>
+              </div>
+              <div class="catnote"><b>Invoice reference missing.</b> Third-party charges need the invoice box ticked and a reference. Add both, or Legal will have to refer this back to you.</div>
+            </div>
+
+            <div class="eline">
+              <label class="f"><span class="lb">Category</span>
+                <select class="t"><option selected>Something else (referred to Legal)</option></select>
+              </label>
+              <label class="f"><span class="lb">What this cost was for</span>
+                <input class="t" value="Meeting room and refreshments for the internal review session">
+              </label>
+              <label class="f"><span class="lb">Qty</span><input class="t num" value="1"></label>
+              <label class="f"><span class="lb">Unit</span><select class="t"><option selected>Fixed</option></select></label>
+              <label class="f"><span class="lb">Rate</span><input class="t num" value="45.00"></label>
+              <div><div class="lb" style="font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin-bottom:5px">Amount</div><div class="amt">45.00</div></div>
+              <div class="catnote"><b>Always referred to Legal.</b> Anything in this category is flagged for a lawyer's decision and is never scored automatically.</div>
+            </div>
+
+          </div>
+          <div><button class="btn sm" type="button">+ Add a cost line</button></div>
+        </div>
+        <div class="claimfoot">
+          <div class="lbl">Total you are claiming — <b>not the fee.</b> Legal decides what can actually be charged, and will strike anything local law doesn't support.</div>
+          <div style="text-align:right">
+            <div class="fig num">SGD 888.00</div>
+            <div style="margin-top:8px"><button class="btn primary" type="button" data-go="review">Submit to Legal</button></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════ SCREEN 2 — LEGAL REVIEW ══════════════════ -->
+  <section id="review" hidden>
+    <h1 class="screen">Fee assessment — DSAR-2026-0142</h1>
+    <p class="caption">Try it: disposition the two flagged items below. <b>The recommended fee stays hidden until every line has your decision</b> — that gate is the anti-rubber-stamp mechanism in §9.4, not a loading state.</p>
+
+    <div class="review">
+
+      <!-- LEFT RAIL -->
+      <aside class="rail">
+        <div class="panel ctx">
+          <div class="phead">Matter</div>
+          <dl>
+            <div class="kv"><dt>Reference</dt><dd class="mono">DSAR-2026-0142</dd></div>
+            <div class="kv"><dt>Jurisdiction</dt><dd>Singapore</dd></div>
+            <div class="kv"><dt>Entity</dt><dd>Acme Asia Services</dd></div>
+            <div class="kv"><dt>Controller</dt><dd>Private org.</dd></div>
+            <div class="kv"><dt>Received</dt><dd>20 Aug 2026</dd></div>
+            <div class="kv"><dt>Requestor</dt><dd>Former employee</dd></div>
+            <hr>
+            <div class="kv"><dt>Identity verified</dt><dd>Yes — log 0142-A</dd></div>
+            <div class="kv"><dt>Scope clarified</dt><dd>Yes</dd></div>
+          </dl>
+          <div class="litflag">
+            <div class="t">Known dispute · acknowledge to sign off</div>
+            <p>This requestor is in a known dispute with the company. A fee that is defensible in principle may still be unwise here, and may be characterised as obstructive.</p>
+          </div>
+          <div class="litflag" style="border-color:var(--warn-edge);background:var(--warn-wash)">
+            <div class="t" style="color:var(--warn)">Rule pack review due · acknowledge to sign off</div>
+            <p>SG-PDPA 2026.09.1 is due for review on 1 Oct 2026, in 24 days. It is still usable, but the law may have moved since 12 Mar 2026.</p>
+          </div>
+          <div class="advisory">Response due <b>19 Sep 2026 — 12 days</b> (received + 30). <b>Advisory only.</b> This tool is not the deadline system of record. This pack sets no separate fee-notification deadline, but requires a written estimate before any fee is charged.</div>
+        </div>
+
+        <div class="panel packcard">
+          <div class="phead">Rule pack</div>
+          <dl>
+            <div class="kv"><dt>Pack</dt><dd class="packver">SG-PDPA 2026.09.1</dd></div>
+            <div class="kv"><dt>Posture</dt><dd>Reasonable fee</dd></div>
+            <div class="kv"><dt>Authored</dt><dd>W. Tan</dd></div>
+            <div class="kv"><dt>Reviewed</dt><dd>12 Mar 2026</dd></div>
+            <div class="kv"><dt>Review due</dt><dd class="due" style="color:var(--warn);font-weight:600">1 Oct 2026</dd></div>
+          </dl>
+          <div class="oq">
+            <h3>This pack's open questions</h3>
+            <ul>
+              <li>Is staff time costed at incremental cost, or at a loaded charge-out rate? A loaded rate carrying a profit element is not defensible.</li>
+              <li>Does any element relate to assessing exceptions rather than providing access?</li>
+              <li>Apportionment where a vendor invoice covers more than the requested data.</li>
+            </ul>
+          </div>
+        </div>
+      </aside>
+
+      <!-- CENTRE -->
+      <div class="cards">
+
+        <div class="bulkbar">
+          <button class="btn sm" type="button" id="bulk">Accept verified supported lines (1)</button>
+          <span class="note">Not available for capped, unverified or flagged lines.</span>
+        </div>
+
+        <!-- FLAG 1 -->
+        <article class="card" data-v="FLAG" data-line="5" data-claim="450.00">
+          <div class="chead">
+            <span class="badge flag">Needs your decision</span>
+            <span class="cseq">Line 5</span>
+            <span class="ctitle">Third-party payroll / tax vendor charge</span>
+          </div>
+          <div class="cbody">
+            <div class="hrsaid">
+              <div class="who">HR's description</div>
+              <div class="q">“Vendor extract of 2019–2022 payslips and IR8A records from archive”</div>
+            </div>
+            <div class="calc">Claimed <b>3 items × SGD 150.00 = SGD 450.00</b></div>
+            <div class="whyyou">
+              <h4>Why this needs you</h4>
+              <ul>
+                <li>Conditions not met — no invoice or DMS evidence reference supplied.</li>
+                <li>Materiality — this line is 51% of the total claim.</li>
+              </ul>
+            </div>
+            <div class="prov">
+              <div class="ruleid">SG-PDPA.VENDOR_PAYROLL <span class="badge unver">unverified rule</span></div>
+              <div class="basis">Out-of-pocket charge actually paid to a third party to obtain data the employer does not itself hold, where invoiced and evidenced.</div>
+              <div class="cite"><b>Citation:</b> PDPA 2012 s.21; Personal Data Protection Regulations 2021 reg. 7 — “a reasonable fee for services provided … to enable the organisation to respond”.</div>
+            </div>
+            <div class="controls">
+              <span class="amtin"><span>Allow SGD</span><input class="num" value="450.00" data-amt></span>
+              <button class="btn sm" type="button" data-act="allow">Allow</button>
+              <button class="btn sm deny" type="button" data-act="strike">Strike</button>
+              <button class="btn sm" type="button" data-act="ask">Ask HR</button>
+            </div>
+            <div class="reasonwrap">
+              <label>Reason <span class="req">required</span></label>
+              <textarea class="t" rows="2" placeholder="e.g. Vendor invoice sighted separately; apportioned to the requested records only."></textarea>
+              <div class="count">0 / 10 characters minimum</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- FLAG 2 -->
+        <article class="card" data-v="FLAG" data-line="6" data-claim="45.00">
+          <div class="chead">
+            <span class="badge flag">Needs your decision</span>
+            <span class="cseq">Line 6</span>
+            <span class="ctitle">Something else — referred to Legal</span>
+          </div>
+          <div class="cbody">
+            <div class="hrsaid">
+              <div class="who">HR's description</div>
+              <div class="q">“Meeting room and refreshments for the internal review session”</div>
+            </div>
+            <div class="calc">Claimed <b>1 fixed × SGD 45.00 = SGD 45.00</b></div>
+            <div class="whyyou">
+              <h4>Why this needs you</h4>
+              <ul>
+                <li>Uncategorised cost. The rule pack cannot place it, so it is not scored.</li>
+              </ul>
+            </div>
+            <div class="prov">
+              <div class="ruleid">SG-PDPA.OTHER_UNCLASSIFIED</div>
+              <div class="basis">Uncategorised cost. Legal to determine whether it is a service provided to enable the organisation to respond to the request.</div>
+              <div class="cite"><b>Citation:</b> Personal Data Protection Regulations 2021 reg. 7.</div>
+              <div class="cite"><span class="badge ai">AI-drafted wording — figures and rule from the engine</span></div>
+              <div class="suggest">
+                The assistant suggests this may belong in <b>General administrative overhead</b>. Advisory only — the line stays flagged until you accept it, and accepting re-runs the engine against that category's rule.
+                <button class="btn sm" type="button" id="acceptSuggest">Accept suggestion &amp; recompute</button>
+              </div>
+            </div>
+            <div class="controls">
+              <span class="amtin"><span>Allow SGD</span><input class="num" value="45.00" data-amt></span>
+              <button class="btn sm" type="button" data-act="allow">Allow</button>
+              <button class="btn sm deny" type="button" data-act="strike">Strike</button>
+              <button class="btn sm" type="button" data-act="ask">Ask HR</button>
+            </div>
+            <div class="reasonwrap">
+              <label>Reason <span class="req">required</span></label>
+              <textarea class="t" rows="2" placeholder="e.g. General overhead, not a service provided to enable the response. Struck."></textarea>
+              <div class="count">0 / 10 characters minimum</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- CAPPED -->
+        <article class="card" data-v="ALLOW_CAPPED" data-line="4" data-claim="33.00" data-engine="26.40">
+          <div class="chead">
+            <span class="badge cap">Supported — reduced to cap</span>
+            <span class="cseq">Line 4</span>
+            <span class="ctitle">Photocopying and printing</span>
+          </div>
+          <div class="cbody">
+            <div class="hrsaid">
+              <div class="who">HR's description</div>
+              <div class="q">“Printed response pack, single-sided A4”</div>
+            </div>
+            <div class="calc">Claimed <s>220 pages × SGD 0.15 = SGD 33.00</s> → cap SGD 0.12/page → <b>SGD 26.40</b></div>
+            <div class="prov">
+              <div class="ruleid">SG-PDPA.PHOTOCOPY_PRINT <span class="badge unver">unverified rule</span></div>
+              <div class="basis">Reproduction cost at a standard per-page rate, not exceeding the entity's actual direct copying cost.</div>
+              <div class="cite"><b>Citation:</b> PDP Regulations 2021 reg. 7. <b>Note:</b> per-page cap is entity-specific and must not exceed actual direct cost — confirm before activation.</div>
+            </div>
+            <div class="controls">
+              <button class="btn sm" type="button" data-act="accept">Accept SGD 26.40</button>
+              <span class="amtin"><span>Reduce to SGD</span><input class="num" value="26.40" data-amt></span>
+              <button class="btn sm" type="button" data-act="allow">Reduce</button>
+              <button class="btn sm deny" type="button" data-act="strike">Strike</button>
+            </div>
+            <div class="reasonwrap">
+              <label>Reason <span class="req">required if you change the amount</span></label>
+              <textarea class="t" rows="2" placeholder="Only needed if you reduce or strike."></textarea>
+              <div class="count">0 / 10 characters minimum</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- DISALLOW -->
+        <article class="card" data-v="DISALLOW" data-line="3" data-claim="120.00" data-engine="0.00">
+          <div class="chead">
+            <span class="badge disallow">Not supported</span>
+            <span class="cseq">Line 3</span>
+            <span class="ctitle">Staff time — deciding what may be withheld</span>
+          </div>
+          <div class="cbody">
+            <div class="hrsaid">
+              <div class="who">HR's description</div>
+              <div class="q">“Reviewing manager comments for material that could be withheld”</div>
+            </div>
+            <div class="calc">Claimed <s>3 hours × SGD 40.00 = SGD 120.00</s> → <b>SGD 0.00</b></div>
+            <div class="prov">
+              <div class="ruleid">SG-PDPA.STAFF_TIME_ASSESS_EXEMPTIONS</div>
+              <div class="basis">Time spent assessing whether an exception applies is the organisation's own compliance cost, not a service provided to enable the response.</div>
+              <div class="cite"><b>Citation:</b> PDPA 2012 s.21; PDP Regulations 2021 reg. 7.</div>
+            </div>
+            <div class="controls">
+              <button class="btn sm" type="button" data-act="accept">Accept — not chargeable</button>
+              <span class="amtin"><span>Allow anyway SGD</span><input class="num" value="120.00" data-amt></span>
+              <button class="btn sm" type="button" data-act="allow">Allow anyway</button>
+            </div>
+            <div class="reasonwrap">
+              <label>Reason <span class="req">required to allow anyway</span></label>
+              <textarea class="t" rows="2" placeholder="Only needed if you depart from the rule."></textarea>
+              <div class="count">0 / 10 characters minimum</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- ALLOW unverified -->
+        <article class="card" data-v="ALLOW" data-line="2" data-claim="80.00" data-engine="80.00">
+          <div class="chead">
+            <span class="badge allow">Supported by rule</span>
+            <span class="cseq">Line 2</span>
+            <span class="ctitle">Staff time — collating the response</span>
+          </div>
+          <div class="cbody">
+            <div class="hrsaid">
+              <div class="who">HR's description · category chosen by HR</div>
+              <div class="q">“Collating and paginating the response pack”</div>
+            </div>
+            <div class="calc">Claimed <b>2 hours × SGD 40.00 = SGD 80.00</b> → allowed <b>SGD 80.00</b></div>
+            <div class="prov">
+              <div class="ruleid">SG-PDPA.STAFF_TIME_COLLATE <span class="badge unver">unverified rule</span></div>
+              <div class="basis">Compiling and paginating the response is a service provided to the applicant to enable the organisation to respond.</div>
+              <div class="cite"><b>Citation:</b> PDP Regulations 2021 reg. 7.</div>
+            </div>
+            <div class="controls">
+              <button class="btn sm" type="button" data-act="accept">Accept SGD 80.00</button>
+              <span class="amtin"><span>Reduce to SGD</span><input class="num" value="80.00" data-amt></span>
+              <button class="btn sm" type="button" data-act="allow">Reduce</button>
+              <button class="btn sm deny" type="button" data-act="strike">Strike</button>
+            </div>
+            <div class="reasonwrap">
+              <label>Reason <span class="req">required if you change the amount</span></label>
+              <textarea class="t" rows="2" placeholder="Only needed if you reduce or strike."></textarea>
+              <div class="count">0 / 10 characters minimum</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- ALLOW verified -->
+        <article class="card" data-v="ALLOW" data-line="1" data-claim="160.00" data-engine="160.00" data-verified="true">
+          <div class="chead">
+            <span class="badge allow">Supported by rule</span>
+            <span class="cseq">Line 1</span>
+            <span class="ctitle">Staff time — locating and retrieving</span>
+          </div>
+          <div class="cbody">
+            <div class="hrsaid">
+              <div class="who">HR's description · category chosen by HR</div>
+              <div class="q">“Searching HRIS, shared drives and archived mail, 2019–2022”</div>
+            </div>
+            <div class="calc">Claimed <b>4 hours × SGD 40.00 = SGD 160.00</b> → allowed <b>SGD 160.00</b> · Executive grade, within ceiling</div>
+            <div class="prov">
+              <div class="ruleid">SG-PDPA.STAFF_TIME_SEARCH</div>
+              <div class="basis">Locating and retrieving the requested personal data is a service provided to the applicant to enable the organisation to respond.</div>
+              <div class="cite"><b>Citation:</b> PDPA 2012 s.21; PDP Regulations 2021 reg. 7.</div>
+            </div>
+            <div class="controls">
+              <button class="btn sm" type="button" data-act="accept">Accept SGD 160.00</button>
+              <span class="amtin"><span>Reduce to SGD</span><input class="num" value="160.00" data-amt></span>
+              <button class="btn sm" type="button" data-act="allow">Reduce</button>
+              <button class="btn sm deny" type="button" data-act="strike">Strike</button>
+            </div>
+            <div class="reasonwrap">
+              <label>Reason <span class="req">required if you change the amount</span></label>
+              <textarea class="t" rows="2" placeholder="Only needed if you reduce or strike."></textarea>
+              <div class="count">0 / 10 characters minimum</div>
+            </div>
+          </div>
+        </article>
+
+      </div>
+
+      <!-- RIGHT RAIL -->
+      <aside class="rail">
+        <div class="panel totals">
+          <div class="phead">Running totals</div>
+          <dl style="margin:0;padding-bottom:6px">
+            <div class="tl"><dt>Claimed by HR</dt><dd id="tClaim">SGD 888.00</dd></div>
+            <div class="rule"></div>
+            <div class="tl"><dt>Supported by rules</dt><dd id="tOk">SGD 0.00</dd></div>
+            <div class="tl sub indent"><dt>↳ resting on unverified rules</dt><dd id="tUnver">SGD 0.00</dd></div>
+            <div class="tl"><dt>Allowed by you, not by a rule</dt><dd id="tLaw">SGD 0.00</dd></div>
+            <div class="tl"><dt>Not supported</dt><dd id="tNo">– SGD 0.00</dd></div>
+            <div class="tl flagged"><dt>Needs your decision</dt><dd id="tFlag">SGD 495.00</dd></div>
+            <div class="tl sub indent"><dt>↳ excluded from every total</dt><dd id="tFlagN">2 items</dd></div>
+          </dl>
+          <div class="headline" id="headline">
+            <div class="k">Recommended fee</div>
+            <div class="hidden" id="hlHidden">— hidden —</div>
+            <div class="v num" id="hlValue" hidden>SGD 0.00</div>
+            <div class="sub" id="hlSub">6 lines still need your decision</div>
+          </div>
+          <div class="signwrap">
+            <button class="btn primary" type="button" id="signBtn" disabled style="width:100%">Sign off</button>
+            <div class="blockreason" id="blockWhy">Every line needs a decision before you can sign off.</div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- SIGN-OFF PANEL -->
+    <div class="panel signoff" id="signPanel" hidden>
+      <div class="phead">Sign off — DSAR-2026-0142</div>
+      <div class="pbody">
+        <dl class="tally">
+          <div><dt>Accepted as assessed</dt><dd id="sAcc">0</dd></div>
+          <div><dt>Reduced by you</dt><dd id="sRed">0</dd></div>
+          <div><dt>Struck by you</dt><dd id="sStr">0</dd></div>
+          <div><dt>Allowed by you</dt><dd id="sLaw">0</dd></div>
+          <div><dt>Final fee</dt><dd id="sFinal">SGD 0.00</dd></div>
+        </dl>
+        <div class="ackrow">
+          <input type="checkbox" id="ackLit" data-ack>
+          <p><b>Known dispute — acknowledgement required.</b> This requestor is in a known dispute with the company. A fee that is defensible in principle may still be unwise here, and may be characterised as obstructive. Confirm you have considered whether to charge at all.</p>
+        </div>
+        <div class="ackrow">
+          <input type="checkbox" id="ackStale" data-ack>
+          <p><b>Rule pack review due — acknowledgement required.</b> SG-PDPA 2026.09.1 was reviewed on 12 March 2026 and is due for review on 1 October 2026. Confirm you are content to rely on it as it stands.</p>
+        </div>
+        <div class="attestbox">
+          I am reviewing this fee assessment as a qualified lawyer for <b>Singapore</b>. I have considered each line item and the flagged items individually. I have applied my own judgement to the amounts I have allowed, and I do not rely on the tool's calculation as legal advice. Rule pack <b>SG-PDPA 2026.09.1</b>, reviewed <b>12 March 2026</b>.
+        </div>
+        <div class="grid2" style="max-width:560px">
+          <label class="f"><span class="lb">Lawyer</span><input class="t" value="Roger Lui" readonly></label>
+          <label class="f"><span class="lb">Qualification</span><input class="t" value="Advocate &amp; Solicitor, Singapore" readonly></label>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <button class="btn primary" type="button" id="confirmSign" disabled>Sign off and release to HR</button>
+          <span class="blockreason" id="signWhy">Acknowledge the dispute flag to continue.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════ SCREEN 3 — FIRST-USE NOTICE ══════════════════ -->
+  <section id="notice" hidden>
+    <div class="notice">
+      <div class="panel">
+        <div class="pbody" style="padding:28px">
+          <div class="kicker">Layer 1 · shown once per user, and again on every material change</div>
+          <h1>Before you use this tool</h1>
+          <p class="lede">This tool applies fee rules that our lawyers have written down for each jurisdiction. It is a calculator, not a lawyer.</p>
+          <ul>
+            <li><span></span><div>It does <b>not know the law</b>. It applies a rule pack that a named lawyer authored and dated. If that rule pack is wrong or out of date, this tool will be confidently wrong.</div></li>
+            <li><span></span><div>It does <b>not decide anything</b>. Every figure it produces is a draft until a qualified lawyer reviews it and signs it off by name.</div></li>
+            <li><span></span><div>It <b>cannot see your matter</b>. It has no access to the request itself, the requestor, or the personal data being retrieved. It sees only the cost lines you type in.</div></li>
+            <li><span></span><div>Where the rules are unclear, or the information is thin, it will <b>refuse to decide</b> and refer the item to Legal. That is the tool working correctly, not failing.</div></li>
+            <li><span></span><div>Parts of the output are <b>drafted by an AI language model</b>. Those parts are labelled. They may be wrong in wording even where the figures are right.</div></li>
+          </ul>
+          <div class="typein">
+            <label class="f" style="flex:none"><span class="lb">Type “I understand” to continue</span><input class="t" id="ackType" placeholder="I understand" autocomplete="off"></label>
+            <button class="btn primary" type="button" id="ackBtn" disabled style="align-self:end">Continue</button>
+          </div>
+          <p class="why-layered">A one-time click-through is read once and never again, so it is not the only disclosure. It is backed by the status strip on every screen, per-line rule provenance and citations, and a warning embedded in both generated documents — the places where a document like this actually goes wrong.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  var screens = { intake: document.getElementById('intake'), review: document.getElementById('review'), notice: document.getElementById('notice') };
+  var navBtns = Array.prototype.slice.call(document.querySelectorAll('nav.screens button'));
+  var whoami = document.getElementById('whoami');
+
+  var WHO = {
+    intake: 'Signed in as <b>Priya Menon</b> · HR Shared Services · role <b>HR_PREPARER</b>',
+    review: 'Signed in as <b>Roger Lui</b> · Legal · role <b>LEGAL_REVIEWER</b> (Singapore)',
+    notice: 'Signed in as <b>Priya Menon</b> · HR Shared Services · first session'
+  };
+
+  function go(name) {
+    Object.keys(screens).forEach(function (k) { screens[k].hidden = (k !== name); });
+    navBtns.forEach(function (b) { b.setAttribute('aria-current', b.dataset.go === name ? 'true' : 'false'); });
+    whoami.innerHTML = WHO[name];
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest('[data-go]');
+    if (t) { go(t.dataset.go); }
+  });
+
+  /* ── jurisdiction posture warning ─────────────────────────── */
+  var juris = document.getElementById('juris');
+  var ctype = document.getElementById('ctype');
+  var posture = document.getElementById('posture');
+  var postureJ = document.getElementById('postureJ');
+  var postureMsg = document.getElementById('postureMsg');
+
+  var NO_AUTHORITY = ['China', 'India', 'Vietnam'];
+  var AGENCY_PROHIBITED = ['Australia', 'New Zealand'];
+
+  var MSG = {
+    none: 'Our rule pack records no clear legal basis for charging a fee for a data access request in this jurisdiction. You can still record the costs, but the likely outcome is that Legal advises charging nothing. Talk to Legal before spending time on this.',
+    agency: 'Our rule pack records no fee as chargeable by a public agency in this jurisdiction. A claim here cannot be submitted — change the controller type if that is wrong, or speak to Legal.'
+  };
+
+  function checkPosture() {
+    var name = juris.options[juris.selectedIndex].textContent.split(' — ')[0];
+    var agency = ctype.value === 'PUBLIC_AGENCY';
+    if (NO_AUTHORITY.indexOf(name) !== -1) {
+      postureJ.textContent = name;
+      postureMsg.textContent = MSG.none;
+      posture.hidden = false;
+    } else if (agency && AGENCY_PROHIBITED.indexOf(name) !== -1) {
+      postureJ.textContent = name + ', public agency';
+      postureMsg.textContent = MSG.agency;
+      posture.hidden = false;
+    } else if (agency) {
+      postureJ.textContent = name + ', public agency';
+      postureMsg.textContent = 'Our rule pack has no authored position for a public agency in this jurisdiction, so nothing can be assessed. Contact Legal.';
+      posture.hidden = false;
+    } else {
+      posture.hidden = true;
+    }
+  }
+  juris.addEventListener('change', checkPosture);
+  ctype.addEventListener('change', checkPosture);
+
+  /* ── first-use acknowledgement ────────────────────────────── */
+  var ackType = document.getElementById('ackType');
+  var ackBtn = document.getElementById('ackBtn');
+  ackType.addEventListener('input', function () {
+    ackBtn.disabled = ackType.value.trim().toLowerCase() !== 'i understand';
+  });
+  ackBtn.addEventListener('click', function () { go('intake'); });
+
+  /* ── review: per-line disposition ─────────────────────────── */
+  // Canonical stop-list — one constant, shared by client and server (AC-23).
+  var STOP = ['ok', 'okay', 'fine', 'agreed', 'yes', 'no', 'n/a', 'na', 'noted', 'as above', 'same'];
+
+  var suggestBtn = document.getElementById('acceptSuggest');
+  if (suggestBtn) {
+    suggestBtn.addEventListener('click', function () {
+      alert('Mockup: accepting the suggestion re-runs the engine with category ADMIN_OVERHEAD. Under the SG pack that rule proposes DISALLOW, so the line would come back as “Not supported” rather than flagged — and the suggestion itself never sets an amount.');
+    });
+  }
+  var cards = Array.prototype.slice.call(document.querySelectorAll('#review .card'));
+  var state = {};
+  cards.forEach(function (c) {
+    state[c.dataset.line] = { disposition: 'PENDING', amount: 0, verdict: c.dataset.v, claim: parseFloat(c.dataset.claim), engine: parseFloat(c.dataset.engine || '0'), verified: c.dataset.verified === 'true' };
+  });
+
+  function money(n) { return 'SGD ' + n.toFixed(2); }
+
+  function reasonOk(txt) {
+    var v = (txt || '').trim();
+    return v.replace(/\s+/g, '').length >= 10 && STOP.indexOf(v.toLowerCase()) === -1;
+  }
+
+  function wireCard(card) {
+    var ta = card.querySelector('textarea');
+    var count = card.querySelector('.count');
+    var line = card.dataset.line;
+
+    if (ta) {
+      ta.addEventListener('input', function () {
+        var n = ta.value.trim().replace(/\s+/g, '').length;
+        count.textContent = n + ' / 10 characters minimum';
+        count.style.color = n >= 10 ? 'var(--ok)' : 'var(--ink-4)';
+      });
+    }
+
+    card.querySelectorAll('[data-act]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var act = btn.dataset.act;
+        var s = state[line];
+        var amtEl = card.querySelector('[data-amt]');
+        var amt = amtEl ? parseFloat(amtEl.value) || 0 : 0;
+
+        if (act === 'ask') {
+          alert('Mockup: this would move the matter to INFO_REQUEST, collate your queries for HR, and return you to your queue.');
+          return;
+        }
+
+        var needsReason = false;
+        var label = '';
+        if (act === 'accept') {
+          s.disposition = 'ACCEPTED';
+          s.amount = s.engine;
+          label = 'Accepted as assessed — ' + money(s.engine);
+        } else if (act === 'strike') {
+          s.disposition = 'STRUCK'; s.amount = 0; needsReason = true; label = 'Struck by you — SGD 0.00';
+        } else if (act === 'allow') {
+          needsReason = true;
+          if (s.verdict === 'FLAG') { s.disposition = 'ALLOWED_BY_LAWYER'; label = 'Allowed by you — ' + money(amt); }
+          else if (amt < s.engine) { s.disposition = 'REDUCED'; label = 'Reduced by you — ' + money(amt); }
+          else if (s.verdict === 'DISALLOW') { s.disposition = 'ALLOWED_BY_LAWYER'; label = 'Allowed against the rule — ' + money(amt); }
+          else { s.disposition = 'ACCEPTED'; label = 'Accepted as assessed — ' + money(amt); needsReason = false; }
+          s.amount = amt;
+        }
+
+        if (needsReason && !reasonOk(ta && ta.value)) {
+          ta.focus();
+          ta.style.borderColor = 'var(--stop)';
+          count.style.color = 'var(--stop)';
+          count.textContent = 'A reason of at least 10 characters is required — “ok” will not do.';
+          s.disposition = 'PENDING';
+          return;
+        }
+
+        resolve(card, label, needsReason ? ta.value.trim() : null);
+        render();
+      });
+    });
+  }
+
+  function resolve(card, label, reason) {
+    var body = card.querySelector('.cbody');
+    card.dataset.done = 'true';
+    card.querySelector('.controls').remove();
+    var rw = card.querySelector('.reasonwrap');
+    if (rw) { rw.remove(); }
+    var badge = card.querySelector('.chead .badge');
+    var box = document.createElement('div');
+    box.className = 'resolved';
+    box.innerHTML = '<span class="badge done">' + label + '</span>' +
+      (reason ? '<span class="said">“' + reason.replace(/</g, '&lt;') + '”</span>' : '') +
+      '<button class="btn sm" type="button">Undo</button>';
+    box.querySelector('button').addEventListener('click', function () {
+      alert('Mockup: undo before sign-off is permitted and audited. After sign-off the assessment is immutable — a change is a new assessment that supersedes it.');
+    });
+    body.appendChild(box);
+    if (badge) { badge.style.opacity = '.7'; }
+  }
+
+  var els = {
+    ok: document.getElementById('tOk'), no: document.getElementById('tNo'),
+    law: document.getElementById('tLaw'),
+    flag: document.getElementById('tFlag'), flagN: document.getElementById('tFlagN'),
+    unver: document.getElementById('tUnver'),
+    headline: document.getElementById('headline'), hlHidden: document.getElementById('hlHidden'),
+    hlValue: document.getElementById('hlValue'), hlSub: document.getElementById('hlSub'),
+    signBtn: document.getElementById('signBtn'), blockWhy: document.getElementById('blockWhy'),
+    signPanel: document.getElementById('signPanel'),
+    sAcc: document.getElementById('sAcc'), sRed: document.getElementById('sRed'),
+    sStr: document.getElementById('sStr'), sLaw: document.getElementById('sLaw'),
+    sFinal: document.getElementById('sFinal'),
+    bulk: document.getElementById('bulk')
+  };
+
+  function render() {
+    var pending = 0, ok = 0, law = 0, no = 0, flag = 0, flagN = 0, unver = 0;
+    var acc = 0, red = 0, str = 0, byLawyer = 0;
+
+    cards.forEach(function (c) {
+      var s = state[c.dataset.line];
+      if (s.disposition === 'PENDING') {
+        pending++;
+        if (s.verdict === 'FLAG') { flag += s.claim; flagN++; }
+        else if (s.verdict === 'DISALLOW') { no += s.claim; }
+        else { ok += s.engine; if (!s.verified) { unver += s.engine; } }
+        return;
+      }
+      // Dispositioned. Keep engine-supported money separate from money the
+      // lawyer allowed where no rule supported it — the labels assert different
+      // things and pooling them would misdescribe the second as rule-supported.
+      if (s.disposition === 'ALLOWED_BY_LAWYER') {
+        law += s.amount;
+        byLawyer++;
+        if (s.amount < s.claim) { no += (s.claim - s.amount); }
+      } else {
+        ok += s.amount;
+        if (!s.verified && s.amount > 0) { unver += s.amount; }
+        if (s.amount < s.claim) { no += (s.claim - s.amount); }
+        if (s.disposition === 'REDUCED') { red++; }
+        else if (s.disposition === 'STRUCK') { str++; }
+        else { acc++; }
+      }
+    });
+
+    els.ok.textContent = money(ok);
+    els.law.textContent = money(law);
+    els.no.textContent = '– ' + money(no);
+    els.flag.textContent = money(flag);
+    els.flagN.textContent = flagN + (flagN === 1 ? ' item' : ' items');
+    els.unver.textContent = money(unver);
+
+    var bulkable = cards.filter(function (c) {
+      var s = state[c.dataset.line];
+      return s.disposition === 'PENDING' && s.verdict === 'ALLOW' && s.verified;
+    }).length;
+    els.bulk.disabled = bulkable === 0;
+    els.bulk.textContent = 'Accept verified supported lines (' + bulkable + ')';
+
+    var total = ok + law;
+
+    if (pending > 0) {
+      els.hlHidden.hidden = false;
+      els.hlValue.hidden = true;
+      els.headline.classList.remove('ready');
+      els.hlSub.textContent = pending + (pending === 1 ? ' line still needs' : ' lines still need') + ' your decision';
+      els.signBtn.disabled = true;
+      els.blockWhy.textContent = 'Every line needs a decision before you can sign off.';
+      els.signPanel.hidden = true;
+    } else {
+      els.hlHidden.hidden = true;
+      els.hlValue.hidden = false;
+      els.hlValue.textContent = money(total);
+      els.headline.classList.add('ready');
+      els.hlSub.textContent = 'Not yet signed off';
+      els.signBtn.disabled = false;
+      els.blockWhy.textContent = 'Sign-off names you on both documents.';
+    }
+
+    els.sAcc.textContent = acc;
+    els.sRed.textContent = red;
+    els.sStr.textContent = str;
+    els.sLaw.textContent = byLawyer;
+    els.sFinal.textContent = money(total);
+  }
+
+  els.bulk.addEventListener('click', function () {
+    cards.forEach(function (c) {
+      var s = state[c.dataset.line];
+      if (s.disposition === 'PENDING' && s.verdict === 'ALLOW' && s.verified) {
+        s.disposition = 'ACCEPTED';
+        s.amount = s.engine;
+        resolve(c, 'Accepted as assessed — ' + money(s.engine), null);
+      }
+    });
+    render();
+  });
+
+  els.signBtn.addEventListener('click', function () {
+    els.signPanel.hidden = false;
+    els.signPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  var acks = Array.prototype.slice.call(document.querySelectorAll('[data-ack]'));
+  var confirmSign = document.getElementById('confirmSign');
+  var signWhy = document.getElementById('signWhy');
+  function ackState() {
+    var outstanding = acks.filter(function (a) { return !a.checked; }).length;
+    confirmSign.disabled = outstanding > 0;
+    signWhy.textContent = outstanding === 0
+      ? 'This records your name, qualification, the attestation and the pack version in the audit log.'
+      : 'Acknowledge ' + outstanding + (outstanding === 1 ? ' flag' : ' flags') + ' to continue.';
+  }
+  acks.forEach(function (a) { a.addEventListener('change', ackState); });
+  ackState();
+  confirmSign.addEventListener('click', function () {
+    alert('Mockup: the assessment becomes immutable. HR now sees the fee, the itemisation including what you struck, and a requestor-facing notice draft — but not your reasoning.');
+  });
+
+  cards.forEach(wireCard);
+  render();
+})();
+</script>
+
+</body></html>
