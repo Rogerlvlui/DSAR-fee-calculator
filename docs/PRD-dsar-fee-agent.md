@@ -19,6 +19,7 @@ Non-negotiables, in priority order, when this document is ambiguous:
 - **When in doubt, the engine flags rather than decides.** A flagged line contributes nothing to any total until a lawyer dispositions it.
 - **Every agent in the pipeline recommends; only a named lawyer decides.** As identity-verification, correspondence-drafting, and audit agents are added around this one (§16), none of them acts autonomously or notifies HR or the requestor directly. Each hands its output to Legal for review, exactly as the fee engine does now. See §3.1.
 If a requirement here conflicts with one of those five, the five win. If you cannot satisfy a requirement, stop and raise it rather than inventing a legal rule.
+
 ---
 ## 1. Problem
 When an ex-employee makes a data subject access request ("DSAR"), HR retrieves and collates the personal data, incurring real costs: staff time, photocopying, secure delivery, and third-party charges (typically the payroll vendor, for salary and tax records). Several Asian privacy regimes permit the employer, as controller, to recover some of those costs from the requestor. Others permit nothing. The rules differ by regime on *whether* a fee may be charged, *which* cost items are recoverable, *what standard* applies ("reasonable", "not excessive", "actual cost"), and *when* the fee must be notified.
@@ -125,6 +126,7 @@ type MatterStatus =
 | `SIGNED_OFF` | `CLOSED` | HR marks the requestor-facing notice as sent; records the date only (no email — NS-3) |
 | `SIGNED_OFF` or `CLOSED` | `SUPERSEDED` | a new assessment is raised on the same matter; the old one is retained verbatim |
 `SIGNED_OFF` records are immutable. A correction is a new assessment that supersedes, never an edit. (AC-33)
+
 ---
 ## 6. Data model
 TypeScript / zod. Generate JSON Schema from these for the LLM boundary in §8.2.
@@ -327,6 +329,7 @@ type AuditEvent = {
 };
 ```
 Record, on every `LINE_DISPOSITIONED` and `SIGNED_OFF` event, the elapsed time from when the reviewer first opened the assessment. This is not surveillance of the lawyer; it is the only reliable signal of automation bias, and it feeds M2 and the QA sample in §9.6.
+
 ---
 ## 7. Rule packs — rules as versioned data
 ### 7.1 Why the rules are data, not prompt text
@@ -618,6 +621,7 @@ The five treatments used by the examples in §10.3, §14 and Annex A, all `NEEDS
 | `SG-PDPA.PHOTOCOPY_PRINT` | `ALLOW_WITH_CAP`, `PER_UNIT` 12 minor units / `PAGE` | Reproduction at a standard per-page rate not exceeding the entity's actual direct cost. The figure is entity-specific (§17 q.4). |
 | `SG-PDPA.VENDOR_PAYROLL` | `ALLOW_IF` (`isThirdPartyInvoiced` true, `evidenceRef` not null) | Out-of-pocket charge paid to a third party for data the employer does not hold, where invoiced and evidenced. |
 `SG-PDPA.OTHER_UNCLASSIFIED` is `FLAG` in every pack (AC-19). The remaining 15 categories ship with a proposed treatment on the same footing and are not reproduced here.
+
 ---
 ## 8. Agent architecture
 ### 8.1 The engine (deterministic — `packages/engine`)
@@ -673,6 +677,7 @@ Hard constraints on this package:
 - The LLM is never given the requestor's personal data, because the system never holds it (§12.1).
 ### 8.3 Why this split matters
 A lawyer can defend "the engine applied rule HK-PDPO.STAFF_TIME_REDACT_EXEMPT, version 2026.09.1, authored by X on date Y, and struck the line". A lawyer cannot defend "the model assessed the claim". The split is not architectural fussiness — it is what makes the output usable as a legal work product.
+
 ---
 ## 9. Risk disclosure and user warnings
 This is one of the two questions this PRD exists to answer, so it is specified as literal requirements and literal copy, not as principles.
@@ -727,6 +732,7 @@ Where the pack is `STALE`, append: *"I am aware this rule pack is past its revie
 ### 9.6 Monitoring — a static report, not the NS-6 agent
 To be clear on the boundary: what follows is a scheduled SQL-backed report over the audit log, in scope for v1. NS-6's sampling *agent* — which would re-examine signed-off assessments and form a view on them — is not. This report counts things; it does not assess anything.
 Monthly report to the DPO and product owner: assessments by jurisdiction; lawyer change rate (M2) per lawyer and per jurisdiction; median review duration; flag rate by category; `NEEDS_VERIFICATION` exposure as a share of signed-off value; packs approaching review date. If M2 for any lawyer is below 5% over 20+ assessments, that is escalated as a process issue.
+
 ---
 ## 10. UI / UX specification
 Web application, desk-first, tablet-tolerable for the review screen. See **Annex A** for the HTML mockup of screens 10.2 and 10.3; match its structure and hierarchy, not necessarily its exact styling.
@@ -971,6 +977,7 @@ Stack: TypeScript throughout, Postgres, Prisma, Next.js, Tailwind, Playwright, V
 4. **Which entity's cost rates** feed the sanity ceilings, and who maintains them?
 5. **Retention** for signed-off assessments and audit events — confirm with the DPO.
 6. **Does charging a fee affect the response clock** in any of the nine? If it does in some, that belongs in `constraints` as a per-pack field and should be added before build rather than after.
+
 ---
 ## Annex A — UI mockup
 Supplied separately as `dsar-fee-agent-mockup.html`: the HR intake screen and the Legal review screen, clickable between states, showing the status strip, verdict cards, flag reasons, mandatory reason fields, hidden-total behaviour and the sign-off gate. Match its information hierarchy; styling is a starting point, not a specification.
