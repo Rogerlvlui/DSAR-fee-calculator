@@ -24,3 +24,7 @@ Thumbs.db
 # Test + eval output
 playwright-report/
 test-results/
+
+# Personal working notes — kept locally, never pushed. Removed from history
+# on 9 Sep 2026 before the first push.
+To do*.docx
