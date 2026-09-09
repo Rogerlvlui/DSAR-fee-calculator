@@ -1,2 +1,26 @@
+# Office lock/temp files
 ~$*
 *.tmp
+
+# Node / build (PRD §15 stack: TypeScript, Next.js, Prisma, Vitest, Playwright)
+node_modules/
+.next/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+
+# Env and secrets — never commit a rule pack reviewer's credentials or a DB URL
+.env
+.env.*
+!.env.example
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+
+# Test + eval output
+playwright-report/
+test-results/
