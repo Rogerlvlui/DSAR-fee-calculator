@@ -116,7 +116,7 @@ type MatterStatus =
 **Transition rules (implement as a guarded state machine, not as ad-hoc status fields):**
 | From | To | Guard |
 |---|---|---|
-| `DRAFT` | `COMPUTING` | ≥1 expense line; jurisdiction set; active non-stale rule pack exists for that jurisdiction; HR attestations addressed (§10.2) |
+| `DRAFT` | `COMPUTING` | ≥1 expense line; jurisdiction set; active non-stale rule pack exists for that jurisdiction; `matter.currency` equals that jurisdiction's designated currency (§6.0); HR attestations addressed (§10.2) |
 | `COMPUTING` | `LEGAL_REVIEW` | engine returned a complete assessment for every line |
 | `COMPUTING` | `DRAFT` | engine error, or rule pack failed validation — surface the reason |
 | `LEGAL_REVIEW` | `INFO_REQUEST` | lawyer raises a query on ≥1 line |
@@ -125,6 +125,7 @@ type MatterStatus =
 | `LEGAL_REVIEW` | `SIGNED_OFF` | **zero** lines in `PENDING` disposition; every matter-level flag acknowledged; lawyer identity recorded; rule pack version pinned |
 | `SIGNED_OFF` | `CLOSED` | HR marks the requestor-facing notice as sent; records the date only (no email — NS-3) |
 | `SIGNED_OFF` or `CLOSED` | `SUPERSEDED` | a new assessment is raised on the same matter; the old one is retained verbatim |
+**Recompute is a mutation, not a new record.** When a lawyer elects to recompute against a newer pack version (`LEGAL_REVIEW` → `COMPUTING`), the existing `Assessment` row is updated in place — same `id`, new `rulePackVersion`, `engineVersion`, `computedAt`, lines and totals, with all dispositions cleared — rather than a new `Assessment` being created. This is permitted only because the record has not yet reached `SIGNED_OFF`; it has no bearing on `SUPERSEDED`, which exists solely for corrections *after* sign-off (AC-33).
 `SIGNED_OFF` records are immutable. A correction is a new assessment that supersedes, never an edit. (AC-33)
 
 ---
@@ -139,6 +140,14 @@ type ISODateTime = string;          // server-generated, UTC
 type Minor = number & { __brand: 'Minor' };   // integer minor units; see §15
 type JurisdictionCode = 'SG' | 'HK' | 'AU' | 'NZ' | 'JP' | 'KR' | 'CN' | 'IN' | 'VN';
 type CurrencyCode = 'SGD' | 'HKD' | 'AUD' | 'NZD' | 'JPY' | 'KRW' | 'CNY' | 'INR' | 'VND';
+// Each jurisdiction has exactly one designated currency. A Matter's currency must
+// equal this mapping's value for its jurisdictionCode — see §8.1 step 1 and AC-42.
+// This is deliberately not a per-pack field: it is a property of the jurisdiction,
+// not of any one rule pack version.
+const JURISDICTION_CURRENCY: Record<JurisdictionCode, CurrencyCode> = {
+  SG: 'SGD', HK: 'HKD', AU: 'AUD', NZ: 'NZD', JP: 'JPY',
+  KR: 'KRW', CN: 'CNY', IN: 'INR', VN: 'VND',
+};
 type ControllerType = 'PRIVATE_ORGANISATION' | 'PUBLIC_AGENCY';
 type Role = 'HR_PREPARER' | 'LEGAL_REVIEWER' | 'RULEPACK_AUTHOR' | 'DPO_ADMIN';
 type StaffGrade = 'ADMIN' | 'EXECUTIVE' | 'MANAGER' | 'SENIOR_MANAGER' | 'SPECIALIST';
@@ -199,7 +208,8 @@ type Matter = {
   controllerType: 'PRIVATE_ORGANISATION' | 'PUBLIC_AGENCY';
   requestReceivedOn: string;        // ISO date
   requestorClass: 'FORMER_EMPLOYEE' | 'CURRENT_EMPLOYEE' | 'OTHER';
-  currency: CurrencyCode;           // ISO 4217, one per matter
+  currency: CurrencyCode;           // ISO 4217, one per matter; must equal
+                                     // JURISDICTION_CURRENCY[jurisdictionCode] (§6.0, AC-42)
   // Attestations by HR. Booleans only — NEVER the underlying evidence. See §12.1.
   identityVerified: boolean;                // NS-1: attested, not performed here
   identityVerifiedNote: string | null;       // max 200 chars, no personal data
@@ -635,7 +645,7 @@ function assess(input: {
 }): Assessment
 ```
 Algorithm:
-1. **Preconditions.** Pack `ACTIVE` and not past `reviewDueOn`; `matter.controllerType` ∈ `pack.appliesTo`; matter currency consistent. Any failure → no assessment, typed error surfaced in the UI.
+1. **Preconditions.** Pack `ACTIVE` and not past `reviewDueOn`; `matter.controllerType` ∈ `pack.appliesTo`; `matter.currency === JURISDICTION_CURRENCY[matter.jurisdictionCode]` (§6.0) — a matter cannot be, say, jurisdiction `SG` with currency `JPY`. Any failure → no assessment, typed error surfaced in the UI, naming the expected currency.
 2. **Posture gate.** If `feePosture` is `PROHIBITED` → every line `DISALLOW`. If `NO_EXPRESS_AUTHORITY` → every line `FLAG` with reason `NO_FEE_AUTHORITY`. Skip to step 6.
 3. **Per-line evaluation.** Find the `CategoryRule` for the line's `categoryCode` (exhaustive, so always found). Evaluate `conditions` against the line and matter. Then:
    - `ALLOW` → `engineAmount = claimedAmount`
@@ -839,7 +849,7 @@ List with jurisdiction, version, status, author, reviewer, reviewed date, review
 | Engine error | Matter returns to `DRAFT` with the typed error. Never a partial assessment. |
 | LLM unavailable | Everything works. Template text used. Note shown: *"AI-drafted wording unavailable; standard wording used."* (AC-28) |
 | Zero allowable | Recommended fee SGD 0.00 with a notice draft that says no fee is charged. This is a valid, common outcome — not an error state. (AC-14) |
-| Currency mismatch | Blocked at intake. One currency per matter. |
+| Currency mismatch | Blocked at intake, two distinct cases: (a) a matter may only carry one currency across all its expense lines; (b) that currency must equal the jurisdiction's designated currency (§6.0) — HR cannot select `JPY` for an `SG` matter. Both name the expected currency in the error. (AC-42) |
 ---
 ## 11. Non-functional requirements
 - **Performance.** Engine assessment of 50 lines < 100ms. Review screen interactive < 1.5s on corporate hardware.
@@ -919,6 +929,7 @@ Testable. Each maps to at least one automated test.
 - **AC-39** A pack past `reviewDueOn` is `STALE`: submission in that jurisdiction returns 409 naming the reason; in-flight review shows the red notice and the extended attestation.
 - **AC-40** Activating a new pack version does not alter any existing assessment's `rulePackVersion`, verdicts, or amounts.
 - **AC-41** Two assertions. (a) Activation is blocked where the activating user is the last editor, unless they hold `RULEPACK_AUTHOR` and confirm sole authorship; the confirmation is audited. (b) A user who activated a pack version cannot sign off an assessment pinned to that version within the same session; the block names the reason and points to another reviewer.
+- **AC-42** A matter whose `currency` does not equal `JURISDICTION_CURRENCY[jurisdictionCode]` (§6.0) cannot leave `DRAFT`: `POST /matters/{id}/submit` returns 409, and the typed error names both the selected currency and the expected one. Also enforced at intake as a form-level validation, not only server-side.
 ## 14. Test strategy
 - **Engine unit tests.** Every `treatment` × every `Cap` type × boundary cases (zero quantity, cap exactly equal to claim, cap below claim, negative rate rejected).
 - **Golden-file pack tests.** For each pack, a directory of `input.json` / `expected.json` fixtures. Changing a pack must break its golden files — that is the point. Include at minimum, per pack: an all-allowable claim; a claim of only disallowed categories; a mixed claim with one `OTHER`; a claim with a cap biting; a claim tripping duplicate, materiality and rate-sanity flags; and a claim against a `NO_EXPRESS_AUTHORITY` pack.
