@@ -1,0 +1,1 @@
+{"content":"Next.js's Data Access Layer pattern: authorization enforced at the data-fetching function, not middleware. Middleware is UX-only, never a security boundary (CVE-2025-29927).","source":"web","provider":"websearch","confidence":"HIGH","fetched_at":"2026-09-13T06:52:57.054Z","ttl":86400000,"kind":"web"}

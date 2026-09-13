@@ -1,0 +1,1 @@
+{"content":"Prisma Int columns are typed plain number; the Minor brand must be re-asserted at a repository/mapper layer plus a bespoke type-aware ESLint rule for AC-07(a), since no off-the-shelf package checks identifier-name-pattern-to-type.","source":"web","provider":"websearch","confidence":"MEDIUM","fetched_at":"2026-09-13T06:52:53.527Z","ttl":86400000,"kind":"web"}
