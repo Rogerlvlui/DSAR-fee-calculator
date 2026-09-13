@@ -236,17 +236,128 @@ Explicitly excluded. Documented to prevent scope creep.
 
 ## Traceability
 
-Populated during roadmap creation.
+Every v1 requirement maps to exactly one phase in `.planning/ROADMAP.md`.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| *(pending roadmap)* | — | Pending |
+| SCHEMA-01 | Phase 1 | Pending |
+| SCHEMA-02 | Phase 1 | Pending |
+| SCHEMA-03 | Phase 1 | Pending |
+| SCHEMA-04 | Phase 1 | Pending |
+| SCHEMA-05 | Phase 1 | Pending |
+| SCHEMA-06 | Phase 1 | Pending |
+| SCHEMA-07 | Phase 1 | Pending |
+| STATE-01 | Phase 1 | Pending |
+| STATE-02 | Phase 4 | Pending |
+| STATE-03 | Phase 4 | Pending |
+| STATE-04 | Phase 4 | Pending |
+| STATE-05 | Phase 4 | Pending |
+| ENGINE-01 | Phase 2 | Pending |
+| ENGINE-02 | Phase 2 | Pending |
+| ENGINE-03 | Phase 2 | Pending |
+| ENGINE-04 | Phase 2 | Pending |
+| ENGINE-05 | Phase 2 | Pending |
+| ENGINE-06 | Phase 2 | Pending |
+| ENGINE-07 | Phase 2 | Pending |
+| ENGINE-08 | Phase 2 | Pending |
+| ENGINE-09 | Phase 2 | Pending |
+| ENGINE-10 | Phase 2 | Pending |
+| ENGINE-11 | Phase 2 | Pending |
+| ENGINE-12 | Phase 2 | Pending |
+| ENGINE-13 | Phase 2 | Pending |
+| ENGINE-14 | Phase 6 | Pending |
+| ENGINE-15 | Phase 2 | Pending |
+| ENGINE-16 | Phase 2 | Pending |
+| ENGINE-17 | Phase 2 | Pending |
+| PACK-01 | Phase 3 | Pending |
+| PACK-02 | Phase 3 | Pending |
+| PACK-03 | Phase 3 | Pending |
+| PACK-04 | Phase 3 | Pending |
+| PACK-05 | Phase 3 | Pending |
+| PACK-06 | Phase 3 | Pending |
+| PACK-07 | Phase 3 | Pending |
+| PACK-08 | Phase 7 | Pending |
+| PACK-09 | Phase 3 | Pending |
+| PACK-10 | Phase 3 | Pending |
+| PACK-11 | Phase 3 | Pending |
+| PACK-12 | Phase 3 | Pending |
+| ACCESS-01 | Phase 1 | Pending |
+| ACCESS-02 | Phase 6 | Pending |
+| ACCESS-03 | Phase 6 | Pending |
+| ACCESS-04 | Phase 7 | Pending |
+| ACCESS-05 | Phase 7 | Pending |
+| ACCESS-06 | Phase 1 | Pending |
+| ACCESS-07 | Phase 6 | Pending |
+| ACCESS-08 | Phase 1 | Pending |
+| BOUND-01 | Phase 1 | Pending |
+| BOUND-02 | Phase 1 | Pending |
+| BOUND-03 | Phase 5 | Pending |
+| BOUND-04 | Phase 5 | Pending |
+| BOUND-05 | Phase 4 | Pending |
+| INTAKE-01 | Phase 5 | Pending |
+| INTAKE-02 | Phase 5 | Pending |
+| INTAKE-03 | Phase 5 | Pending |
+| INTAKE-04 | Phase 5 | Pending |
+| INTAKE-05 | Phase 5 | Pending |
+| INTAKE-06 | Phase 5 | Pending |
+| INTAKE-07 | Phase 5 | Pending |
+| INTAKE-08 | Phase 5 | Pending |
+| INTAKE-09 | Phase 5 | Pending |
+| NAV-01 | Phase 6 | Pending |
+| NAV-02 | Phase 5 | Pending |
+| NAV-03 | Phase 6 | Pending |
+| REVIEW-01 | Phase 6 | Pending |
+| REVIEW-02 | Phase 6 | Pending |
+| REVIEW-03 | Phase 6 | Pending |
+| REVIEW-04 | Phase 6 | Pending |
+| REVIEW-05 | Phase 6 | Pending |
+| REVIEW-06 | Phase 6 | Pending |
+| REVIEW-07 | Phase 6 | Pending |
+| REVIEW-08 | Phase 6 | Pending |
+| REVIEW-09 | Phase 6 | Pending |
+| REVIEW-10 | Phase 6 | Pending |
+| REVIEW-11 | Phase 6 | Pending |
+| REVIEW-12 | Phase 6 | Pending |
+| SIGNOFF-01 | Phase 7 | Pending |
+| SIGNOFF-02 | Phase 7 | Pending |
+| SIGNOFF-03 | Phase 7 | Pending |
+| SIGNOFF-04 | Phase 7 | Pending |
+| SIGNOFF-05 | Phase 7 | Pending |
+| SIGNOFF-06 | Phase 7 | Pending |
+| DOC-01 | Phase 7 | Pending |
+| DOC-02 | Phase 7 | Pending |
+| DOC-03 | Phase 7 | Pending |
+| DOC-04 | Phase 7 | Pending |
+| DOC-05 | Phase 7 | Pending |
+| AUDIT-01 | Phase 4 | Pending |
+| AUDIT-02 | Phase 1 | Pending |
+| AUDIT-03 | Phase 4 | Pending |
+| AUDIT-04 | Phase 4 | Pending |
+| DISC-01 | Phase 5 | Pending |
+| DISC-02 | Phase 5 | Pending |
+| DISC-03 | Phase 5 | Pending |
+| DISC-04 | Phase 6 | Pending |
+| DISC-05 | Phase 5 | Pending |
+| DISC-06 | Phase 7 | Pending |
+| LLM-01 | Phase 8 | Pending |
+| LLM-02 | Phase 8 | Pending |
+| LLM-03 | Phase 8 | Pending |
+| LLM-04 | Phase 8 | Pending |
+| LLM-05 | Phase 8 | Pending |
+| LLM-06 | Phase 8 | Pending |
+| LLM-07 | Phase 8 | Pending |
+| LLM-08 | Phase 8 | Pending |
+| LLM-09 | Phase 8 | Pending |
+| LLM-10 | Phase 8 | Pending |
 
 **Coverage:**
 - v1 requirements: 109 total
-- Mapped to phases: 0
-- Unmapped: 109 ⚠️
+- Mapped to phases: 109
+- Unmapped: 0 ✓
+- Duplicated across phases: 0 ✓
+
+**Phase totals:** Phase 1 — 14 · Phase 2 — 16 · Phase 3 — 11 · Phase 4 — 8 · Phase 5 — 16 · Phase 6 — 19 · Phase 7 — 15 · Phase 8 — 10
 
 ---
 *Requirements defined: 2026-09-13*
-*Last updated: 2026-09-13 after initial definition*
+*Last updated: 2026-09-13 after roadmap creation*
