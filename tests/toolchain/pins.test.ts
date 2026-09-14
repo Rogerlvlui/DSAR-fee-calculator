@@ -23,7 +23,7 @@ describe("toolchain pins (T-1-SC-PRERELEASE)", () => {
     const version = allDeps["typescript"];
     expect(version).toBeDefined();
     expect(version).toMatch(EXACT_VERSION);
-    expect(version.split(".")[0]).toBe("6");
+    expect(version?.split(".")[0]).toBe("6");
   });
 
   it("pins prisma to an exact version (never a range or prerelease)", () => {

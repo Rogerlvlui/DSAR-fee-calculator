@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { cruise } from "dependency-cruiser";
+import type { IFlattenedRuleSet, IRegularForbiddenRuleType } from "dependency-cruiser";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
@@ -8,20 +9,22 @@ const ROOT = path.resolve(fileURLToPath(import.meta.url), "../../..");
 const CONFIG_PATH = path.join(ROOT, ".dependency-cruiser.cjs");
 const require = createRequire(import.meta.url);
 
-interface ForbiddenRule {
-  name: string;
-  from: { path: string };
-  [key: string]: unknown;
-}
-
-function loadConfig(): { forbidden: ForbiddenRule[]; options?: Record<string, unknown> } {
+// Every rule in .dependency-cruiser.cjs is a plain `from`/`to` rule (not a
+// reachability or dependents rule), so the narrower `IRegularForbiddenRuleType`
+// — dependency-cruiser's own exported type, not a hand-rolled stand-in — is
+// the accurate shape here and structurally requires the same `to` restriction
+// the real config already provides.
+function loadConfig(): {
+  forbidden: IRegularForbiddenRuleType[];
+  options?: Record<string, unknown>;
+} {
   delete require.cache[require.resolve(CONFIG_PATH)];
   return require(CONFIG_PATH);
 }
 
 async function runCruise(
   targets: string[],
-  ruleSet: { forbidden: ForbiddenRule[]; options?: Record<string, unknown> }
+  ruleSet: IFlattenedRuleSet
 ): Promise<{ exitCode: number; output: string }> {
   const result = await cruise(
     targets,
