@@ -3,16 +3,16 @@ gsd_state_version: "1.0"
 current_phase: 01
 current_phase_name: Schemas Freeze and Walking Skeleton
 status: executing
-stopped_at: Completed 01-05-PLAN.md
-last_updated: "2026-09-14T22:35:00.411Z"
+stopped_at: Completed 01-06-PLAN.md
+last_updated: "2026-09-14T22:52:53.610Z"
 last_activity: 2026-09-14
 last_activity_desc: Phase 01 execution started
-state_head: d4d31e1ad1aa5629757df11cc1e8af1b62533f78
+state_head: 078695256e215185de4fa1453ad33add97c18ac0
 progress:
   total_phases: 10
   completed_phases: 0
   total_plans: 9
-  completed_plans: 4
+  completed_plans: 5
   percent: 0
 ---
 
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-09-13)
 ## Current Position
 
 Phase: 01 (Schemas Freeze and Walking Skeleton) — EXECUTING
-Plan: 5 of 6
+Plan: 6 of 6
 Status: Ready to execute
 Last activity: 2026-09-14 — Phase 01 execution started
 
@@ -62,6 +62,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01 P02 | 25min | 3 tasks | 10 files |
 | Phase 01 P03 | 20min | 2 tasks | 13 files |
 | Phase 01 P05 | 25min | 3 tasks | 6 files |
+| Phase 01 P06 | 30min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -83,6 +84,7 @@ Recent decisions affecting current work:
 - [Phase 01]: claimedAmount validated via superRefine, not transform (reconfirmed for Matter/ExpenseLine) — AC-08 needs a load-time invariant check, and it sidesteps zod 4's changed transform/default type inference — 01-RESEARCH.md Pattern 1; CONTEXT.md Claude's Discretion
 - [Phase 01]: AUDIT_PAYLOAD_KEYS fixed as [entityId, field, before, after, elapsedReviewMs]; AuditPayloadSchema is a z.strictObject() derived from it, rejecting any undeclared key by name — PRD section6.5 and section12.1; Phase 4's AUDIT-01 and BOUND-05 build directly on this closed set
 - [Phase 01]: PRD section6.1 Matter has 16 fields, not the 15 the plan's own acceptance criteria stated (plan miscount) — implemented all 16 per the PRD — CLAUDE.md: PRD is the source of truth; freeze is transcription, not design
+- [Phase 01]: D-02 confirmed extend-now without currency: FlatFeeSchema is new design (no PRD section 7.2 basis), attached to RulePack as optional flatFee with no currency sub-field per PRD section 6.0
 
 ### Pending Todos
 
@@ -108,6 +110,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-09-14T22:35:00.383Z
-Stopped at: Completed 01-05-PLAN.md
+Last session: 2026-09-14T22:52:40.365Z
+Stopped at: Completed 01-06-PLAN.md
 Resume file: None
