@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "matterId": {
+      "type": "string"
+    },
+    "seq": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "categoryCode": {
+      "type": "string",
+      "enum": [
+        "STAFF_TIME_SEARCH",
+        "STAFF_TIME_COLLATE",
+        "STAFF_TIME_REDACT_THIRD_PARTY",
+        "STAFF_TIME_REDACT_EXEMPT",
+        "STAFF_TIME_ASSESS_EXEMPTIONS",
+        "STAFF_TIME_LEGAL_REVIEW",
+        "PROFESSIONAL_REVIEW",
+        "PHOTOCOPY_PRINT",
+        "MEDIA_MATERIALS",
+        "POSTAGE_COURIER",
+        "SECURE_TRANSFER",
+        "IT_EXTRACTION",
+        "VENDOR_PAYROLL",
+        "VENDOR_ARCHIVE",
+        "VENDOR_OTHER",
+        "TRANSLATION",
+        "TRANSCRIPTION_CONVERSION",
+        "IDENTITY_VERIFICATION",
+        "ADMIN_OVERHEAD",
+        "RECORDS_REMEDIATION",
+        "OTHER_UNCLASSIFIED"
+      ]
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 300
+    },
+    "quantity": {
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "maximum": 9007199254740991
+    },
+    "unit": {
+      "type": "string",
+      "enum": [
+        "HOUR",
+        "PAGE",
+        "ITEM",
+        "GIGABYTE",
+        "FIXED"
+      ]
+    },
+    "unitRate": {
+      "type": "integer",
+      "minimum": -9007199254740991,
+      "maximum": 9007199254740991
+    },
+    "claimedAmount": {
+      "type": "integer",
+      "minimum": -9007199254740991,
+      "maximum": 9007199254740991
+    },
+    "incurredByGrade": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "ADMIN",
+            "EXECUTIVE",
+            "MANAGER",
+            "SENIOR_MANAGER",
+            "SPECIALIST"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "isThirdPartyInvoiced": {
+      "type": "boolean"
+    },
+    "vendorName": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "evidenceRef": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "hrNote": {
+      "anyOf": [
+        {
+          "type": "string",
+          "maxLength": 500
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "id",
+    "matterId",
+    "seq",
+    "categoryCode",
+    "description",
+    "quantity",
+    "unit",
+    "unitRate",
+    "claimedAmount",
+    "incurredByGrade",
+    "isThirdPartyInvoiced",
+    "vendorName",
+    "evidenceRef",
+    "hrNote"
+  ],
+  "additionalProperties": false
+}

@@ -8,5 +8,9 @@
   },
   "dependencies": {
     "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "26.5.1",
+    "fast-check": "4.10.0"
   }
 }
