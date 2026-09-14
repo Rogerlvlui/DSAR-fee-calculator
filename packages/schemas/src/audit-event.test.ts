@@ -7,6 +7,7 @@
 
 import { describe, expect, it } from "vitest";
 import { AUDIT_PAYLOAD_KEYS, AuditEventSchema } from "./audit-event.ts";
+import { InstrumentSchema } from "./primitives.ts";
 
 function validEvent() {
   return {
@@ -115,5 +116,19 @@ describe("AuditEventSchema", () => {
 
   it("fails on an empty object", () => {
     expect(AuditEventSchema.safeParse({}).success).toBe(false);
+  });
+});
+
+describe("SCHEMA-01 ordering edge (array-valued fields preserve input order)", () => {
+  it("Instrument.provisions preserves input order through parse — zod performs no reordering", () => {
+    const provisions = ["s.28(3)", "s.28(2)", "DPP6"]; // deliberately not alphabetical/sorted
+    const result = InstrumentSchema.safeParse({
+      title: "Personal Data Protection Act",
+      provisions,
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.provisions).toEqual(provisions);
+    }
   });
 });
