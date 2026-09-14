@@ -9,7 +9,9 @@
   },
   "scripts": {
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "depcruise": "depcruise --config .dependency-cruiser.cjs packages/engine packages/schemas"
   },
   "dependencies": {
     "@prisma/client": "7.10.0",
