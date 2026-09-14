@@ -7,6 +7,7 @@
 
 import { describe, expect, it } from "vitest";
 import { ExpenseLineSchema, ExpenseUnitSchema } from "./expense-line.ts";
+import { MatterSchema } from "./matter.ts";
 
 function validLine() {
   return {
@@ -129,5 +130,35 @@ describe("ExpenseLineSchema", () => {
 describe("ExpenseUnitSchema", () => {
   it("has exactly 5 members", () => {
     expect(ExpenseUnitSchema.options.length).toBe(5);
+  });
+});
+
+describe("SCHEMA-01 adjacency edge (reverse direction)", () => {
+  it("fails to parse a Matter-shaped object against ExpenseLineSchema", () => {
+    const matter = {
+      id: "01ARZ3NDEKTSV4RRFFQ69G5FAV",
+      reference: "DSAR-2026-0142",
+      jurisdictionCode: "SG",
+      legalEntity: "Acme Pte Ltd",
+      controllerType: "PRIVATE_ORGANISATION",
+      requestReceivedOn: "2026-08-20",
+      requestorClass: "FORMER_EMPLOYEE",
+      currency: "SGD",
+      identityVerified: true,
+      identityVerifiedNote: null,
+      scopeClarified: true,
+      isRepeatRequestWithin12Months: false,
+      isKnownDisputeOrLitigation: false,
+      createdBy: {
+        id: "01ARZ3NDEKTSV4RRFFQ69G5FAW",
+        displayName: "Jane HR",
+        email: "jane@example.com",
+      },
+      createdAt: "2026-08-20T03:14:15Z",
+    };
+    // Sanity: this object is itself a valid Matter, ruling out "both fail
+    // because the fixture is malformed" as an explanation.
+    expect(MatterSchema.safeParse(matter).success).toBe(true);
+    expect(ExpenseLineSchema.safeParse(matter).success).toBe(false);
   });
 });
