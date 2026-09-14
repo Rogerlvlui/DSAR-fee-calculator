@@ -38,12 +38,31 @@ export type ISODateTime = z.infer<typeof IsoDateTimeSchema>;
 // Minor — branded integer money type (PRD §6.0, §15)
 // ---------------------------------------------------------------------------
 
+// Every Minor-typed Prisma column (prisma/schema.prisma) is declared `Int` —
+// Postgres's 4-byte `integer`, range ±2,147,483,647 — not `BigInt`. Bounding
+// MinorSchema to match (WR-03) means a too-large value fails here, at the
+// zod boundary, with a readable message, instead of surfacing as a raw
+// Postgres integer-overflow error at the write. Widening the columns to
+// `BigInt` was considered and rejected: it would reintroduce a second
+// numeric representation into a codebase whose stated design goal is
+// "integer minor units, no floats, one representation" end-to-end, and the
+// largest legitimate fee here is a few thousand units of currency — 32 bits
+// is ample headroom.
+export const MINOR_MIN = -2_147_483_648;
+export const MINOR_MAX = 2_147_483_647;
+
 // PRD: `type Minor = number & { __brand: 'Minor' }`. zod 4's `.brand()`
 // produces a structurally equivalent branded type — a bare `number` is not
 // assignable to `Minor` without going through `MinorSchema.parse()` /
 // `toMinor()` below. `.int()` rejects a non-integer input as a parse error;
-// it is never silently rounded or coerced.
-export const MinorSchema = z.number().int().brand<"Minor">();
+// it is never silently rounded or coerced. `.min()`/`.max()` bound it to the
+// 32-bit signed range every Minor-typed Prisma `Int` column actually has.
+export const MinorSchema = z
+  .number()
+  .int()
+  .min(MINOR_MIN, `Minor must be >= ${MINOR_MIN} (Postgres Int column floor)`)
+  .max(MINOR_MAX, `Minor must be <= ${MINOR_MAX} (Postgres Int column ceiling)`)
+  .brand<"Minor">();
 export type Minor = z.infer<typeof MinorSchema>;
 
 // The single sanctioned conversion point from a plain number to `Minor`.

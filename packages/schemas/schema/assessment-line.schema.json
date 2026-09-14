@@ -19,8 +19,8 @@
     },
     "engineAmount": {
       "type": "integer",
-      "minimum": -9007199254740991,
-      "maximum": 9007199254740991
+      "minimum": -2147483648,
+      "maximum": 2147483647
     },
     "appliedRuleId": {
       "type": "string"
@@ -38,8 +38,8 @@
                 },
                 "amount": {
                   "type": "integer",
-                  "minimum": -9007199254740991,
-                  "maximum": 9007199254740991
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
                 },
                 "unit": {
                   "type": "string",
@@ -68,8 +68,8 @@
                 },
                 "amount": {
                   "type": "integer",
-                  "minimum": -9007199254740991,
-                  "maximum": 9007199254740991
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
                 }
               },
               "required": [
@@ -87,8 +87,8 @@
                 },
                 "amount": {
                   "type": "integer",
-                  "minimum": -9007199254740991,
-                  "maximum": 9007199254740991
+                  "minimum": -2147483648,
+                  "maximum": 2147483647
                 }
               },
               "required": [
@@ -194,8 +194,8 @@
       "anyOf": [
         {
           "type": "integer",
-          "minimum": -9007199254740991,
-          "maximum": 9007199254740991
+          "minimum": -2147483648,
+          "maximum": 2147483647
         },
         {
           "type": "null"

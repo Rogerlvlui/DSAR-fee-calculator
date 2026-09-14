@@ -8,6 +8,8 @@ import {
   JURISDICTION_CURRENCY,
   JurisdictionCodeSchema,
   MatterFlagCodeSchema,
+  MINOR_MAX,
+  MINOR_MIN,
   MinorSchema,
   UlidSchema,
 } from "./primitives.ts";
@@ -23,6 +25,28 @@ describe("MinorSchema", () => {
 
   it("rejects NaN", () => {
     expect(MinorSchema.safeParse(Number.NaN).success).toBe(false);
+  });
+
+  // WR-03: every Minor-typed Prisma column is a 4-byte `Int`
+  // (±2,147,483,647); a value outside that range must fail here, at the zod
+  // boundary, rather than surface as a raw Postgres integer-overflow error.
+  it("accepts the 32-bit signed integer boundary values (MINOR_MIN, MINOR_MAX)", () => {
+    expect(MinorSchema.safeParse(MINOR_MIN).success).toBe(true);
+    expect(MinorSchema.safeParse(MINOR_MAX).success).toBe(true);
+  });
+
+  it("rejects one past the 32-bit signed integer ceiling", () => {
+    expect(MinorSchema.safeParse(MINOR_MAX + 1).success).toBe(false);
+  });
+
+  it("rejects one past the 32-bit signed integer floor", () => {
+    expect(MinorSchema.safeParse(MINOR_MIN - 1).success).toBe(false);
+  });
+
+  it("rejects a value that would previously have passed as a safe integer (product-overflow shape, AC-08-adjacent)", () => {
+    // The exact WR-03 scenario: quantity 50_000_000 * unitRate 100, which is
+    // a valid JS safe integer but far outside Postgres's Int32 range.
+    expect(MinorSchema.safeParse(50_000_000 * 100).success).toBe(false);
   });
 });
 

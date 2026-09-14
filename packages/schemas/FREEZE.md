@@ -69,3 +69,33 @@ policy plus PRD §14's reference fixture, which specifies the expected
 `finalAmount` `null`. If Phase 2 finds this frozen shape cannot express a
 correct `assess()` output for that fixture, that is D-10's escalation
 signal firing — not a reason to quietly retype `Assessment` inside Phase 2.
+
+## Post-freeze amendment: `Minor`/`quantity` bounded to Postgres's Int32 range (WR-03)
+
+Before Phase 3.2 applies the first migration — the last point at which this
+counts as a same-phase correction rather than a D-09 escalation —
+`MinorSchema` (`primitives.ts`) was narrowed from the full JS safe-integer
+range to the 32-bit signed range (`MINOR_MIN`/`MINOR_MAX`,
+`±2,147,483,647`), matching every Minor-typed Prisma column, which is
+declared `Int`, not `BigInt`. `ExpenseLineSchema.quantity` (`expense-line.ts`)
+was given a matching sane ceiling (`EXPENSE_LINE_QUANTITY_MAX`, 1,000,000) so
+`quantity * unitRate` cannot lose precision or silently overflow the column
+before either field's own bound gets a chance to reject it. This is a
+narrowing of accepted values, not a rename/retype/removal of a frozen field —
+no downstream package that was relying on the documented shape (a branded
+integer `Minor`; an integer `quantity`) is broken by it, and the committed
+JSON Schema artifacts under `packages/schemas/schema/*.schema.json` were
+regenerated (`pnpm schema:json`) to reflect the new bounds. Recorded here so
+the freeze record stays true, per the 01-REVIEW.md WR-03 fix.
+
+## Post-freeze amendment: `AuditEvent.type` is now a native Postgres enum (WR-02)
+
+`prisma/schema.prisma`'s `AuditEvent.type` column changed from `String` to a
+native `enum AuditEventType`, mirroring the frozen `AuditEventTypeSchema`
+(`primitives.ts`) member-for-member (verified 17/17, same order). No
+`packages/schemas` module changed — `AuditEventTypeSchema` itself is
+untouched — only the Prisma column's DB-level enforcement was tightened to
+match a type this freeze already declared closed. Recorded here for the same
+reason as the amendment above: the freeze record should account for every
+change to a frozen entity's storage shape, not only to `packages/schemas`
+source. See the 01-REVIEW.md WR-02 fix.

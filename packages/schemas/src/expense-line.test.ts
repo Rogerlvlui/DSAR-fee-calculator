@@ -6,7 +6,7 @@
 // fields.
 
 import { describe, expect, it } from "vitest";
-import { ExpenseLineSchema, ExpenseUnitSchema } from "./expense-line.ts";
+import { EXPENSE_LINE_QUANTITY_MAX, ExpenseLineSchema, ExpenseUnitSchema } from "./expense-line.ts";
 import { MatterSchema } from "./matter.ts";
 
 function validLine() {
@@ -114,6 +114,30 @@ describe("ExpenseLineSchema", () => {
       evidenceRef: null,
     });
     expect(result.success).toBe(true);
+  });
+
+  it("accepts quantity at EXPENSE_LINE_QUANTITY_MAX", () => {
+    const result = ExpenseLineSchema.safeParse({
+      ...validLine(),
+      quantity: EXPENSE_LINE_QUANTITY_MAX,
+      unitRate: 0,
+      claimedAmount: 0,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  // WR-03: a data-entry typo like quantity 50,000,000 must be rejected here,
+  // at the schema boundary, rather than silently passing zod (well within
+  // Number.MAX_SAFE_INTEGER) and only failing later at the Prisma write when
+  // quantity * unitRate overflows the Int32 column.
+  it("rejects quantity one past EXPENSE_LINE_QUANTITY_MAX", () => {
+    const result = ExpenseLineSchema.safeParse({
+      ...validLine(),
+      quantity: EXPENSE_LINE_QUANTITY_MAX + 1,
+      unitRate: 0,
+      claimedAmount: 0,
+    });
+    expect(result.success).toBe(false);
   });
 
   it("parses when quantity * unitRate is exactly 0 and claimedAmount is also 0", () => {
