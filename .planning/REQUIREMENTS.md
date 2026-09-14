@@ -12,8 +12,8 @@
 ### Schemas and shared primitives
 
 - [ ] **SCHEMA-01**: Every core type — `Matter`, `ExpenseLine`, `RulePack`, `Assessment`, `AssessmentLine`, `AuditEvent` — is defined as a zod schema with an inferred TypeScript type (§6, §7.2)
-- [ ] **SCHEMA-02**: Money is a branded integer `Minor` type, and a lint rule rejects a bare `number` for any identifier matching `/(amount|total|rate|fee|cap)$/i` inside `packages/engine` and `packages/schemas` (AC-07a)
-- [ ] **SCHEMA-03**: A `MINOR_UNIT_DECIMALS` map records decimal places per currency, and every conversion and formatting helper is currency-aware — correct for zero-decimal JPY, KRW and VND as well as two-decimal SGD and HKD *(research: not in the PRD)*
+- [x] **SCHEMA-02**: Money is a branded integer `Minor` type, and a lint rule rejects a bare `number` for any identifier matching `/(amount|total|rate|fee|cap)$/i` inside `packages/engine` and `packages/schemas` (AC-07a)
+- [x] **SCHEMA-03**: A `MINOR_UNIT_DECIMALS` map records decimal places per currency, and every conversion and formatting helper is currency-aware — correct for zero-decimal JPY, KRW and VND as well as two-decimal SGD and HKD *(research: not in the PRD)*
 - [ ] **SCHEMA-04**: `JURISDICTION_CURRENCY` maps each of the nine jurisdictions to exactly one currency, and a matter's currency must equal its jurisdiction's (§6.0)
 - [ ] **SCHEMA-05**: JSON Schema is generated from the zod schemas for use at the LLM boundary (§6)
 - [ ] **SCHEMA-06**: State-machine guards are pure functions over a typed `GuardInput` that structurally excludes advisory deadline fields — a guard reaching for one is a compile error (AC-15b)
@@ -241,8 +241,8 @@ Every v1 requirement maps to exactly one phase in `.planning/ROADMAP.md`.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | SCHEMA-01 | Phase 1 | Pending |
-| SCHEMA-02 | Phase 1 | Pending |
-| SCHEMA-03 | Phase 1 | Pending |
+| SCHEMA-02 | Phase 1 | Complete |
+| SCHEMA-03 | Phase 1 | Complete |
 | SCHEMA-04 | Phase 1 (schema) + 3.2 (database) | Pending |
 | SCHEMA-05 | Phase 1 | Pending |
 | SCHEMA-06 | Phase 1 | Pending |
@@ -351,6 +351,7 @@ Every v1 requirement maps to exactly one phase in `.planning/ROADMAP.md`.
 | LLM-10 | Phase 8 | Pending |
 
 **Coverage:**
+
 - v1 requirements: 109 total
 - Mapped to phases: 109
 - Unmapped: 0 ✓

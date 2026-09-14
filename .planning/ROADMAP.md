@@ -40,7 +40,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. No Prisma field name matches the personal-data deny-list, read via `@prisma/internals` `getDMMF()` against the schema file, and the DOM half of the same check is proven live by a canary fixture rather than passing vacuously while no form yet exists (AC-06)
   5. The cross-field invariants hold in the schema layer: a `Matter` whose `currency` is not its jurisdiction's designated currency fails zod validation naming both codes (AC-42's first layer), and `MatterStatus` is a closed set of seven
 
-**Plans**: 1/6 plans executed across 5 waves
+**Plans**: 2/6 plans executed across 5 waves
 
 Plans:
 **Wave 1**
@@ -49,7 +49,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 01-02-PLAN.md — Shared primitives, branded money, the currency maps and the closed enums
+- [x] 01-02-PLAN.md — Shared primitives, branded money, the currency maps and the closed enums
 - [ ] 01-03-PLAN.md — Prisma data-model freeze and the personal-data field deny-list
 
 **Wave 3** *(blocked on Wave 2 completion)*
@@ -236,7 +236,7 @@ Where capacity allows, Phases 2, 3, 4 and 5 may run concurrently — they have z
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Schemas Freeze and Walking Skeleton | 1/6 | In Progress|  |
+| 1. Schemas Freeze and Walking Skeleton | 2/6 | In Progress|  |
 | 2. Deterministic Fee Engine | 0/TBD | Not started | - |
 | 3. Rule Packs and Pack Admin | 0/TBD | Not started | - |
 | 3.1 Demo Slice — In-Memory Determination Pipeline | 0/TBD | Not started | - |

@@ -3,16 +3,16 @@ gsd_state_version: "1.0"
 current_phase: 01
 current_phase_name: Schemas Freeze and Walking Skeleton
 status: executing
-stopped_at: Completed 01-01-PLAN.md
-last_updated: "2026-09-14T18:11:25.009Z"
+stopped_at: Completed 01-02-PLAN.md
+last_updated: "2026-09-14T18:26:20.860Z"
 last_activity: 2026-09-14
 last_activity_desc: Phase 01 execution started
-state_head: 6efd6235f719fbcfc82971fe7e6044ec7c6602f8
+state_head: 8a54a7d236d22ee573782b4dcf397249f19509c3
 progress:
   total_phases: 10
   completed_phases: 0
   total_plans: 9
-  completed_plans: 1
+  completed_plans: 2
   percent: 0
 ---
 
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-09-13)
 ## Current Position
 
 Phase: 01 (Schemas Freeze and Walking Skeleton) — EXECUTING
-Plan: 2 of 6
+Plan: 3 of 6
 Status: Ready to execute
 Last activity: 2026-09-14 — Phase 01 execution started
 
@@ -59,6 +59,7 @@ Progress: [░░░░░░░░░░] 0%
 | Plan | Duration | Tasks | Files |
 |------|----------|-------|-------|
 | Phase 01 P01 | 40min | 3 tasks | 15 files |
+| Phase 01 P02 | 25min | 3 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -74,6 +75,8 @@ Recent decisions affecting current work:
 - [Roadmap]: ACCESS-08 and BOUND-01/BOUND-02 start in Phase 1 as glob-driven standing obligations that every later phase inherits automatically.
 - [Phase 01]: pnpm 12.4.1 crashes with SIGILL on this machine (verified environment-wide, not repo-specific); substituted pnpm 11.27.0
 - [Phase 01]: Corrected researched VariableDeclarator ESLint selector shape (type annotation lives on the id Identifier, not the declarator) via TDD RED-phase fixture
+- [Phase 01]: Zod-first authoring shape (z.infer derives types) and subpath exports with no barrel index.ts, both per CONTEXT.md's Claude's Discretion — Avoids a shared-file bottleneck across four plans authoring entity modules in packages/schemas, and sidesteps zod's circular-import hazard between cross-referencing schemas
+- [Phase 01]: MatterFlagRule and Condition deferred to plan 01-06 alongside RulePack — Condition.field: keyof ExpenseLine | keyof Matter cannot be frozen until those two entities exist; keeps the dependency pointing one way
 
 ### Pending Todos
 
@@ -99,6 +102,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-09-14T18:11:24.980Z
-Stopped at: Completed 01-01-PLAN.md
+Last session: 2026-09-14T18:26:20.832Z
+Stopped at: Completed 01-02-PLAN.md
 Resume file: None
