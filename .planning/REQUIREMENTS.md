@@ -21,7 +21,7 @@
 
 ### State machine
 
-- [ ] **STATE-01**: `MatterStatus` is a closed set of seven states, and no other status value exists anywhere in the system (§5)
+- [x] **STATE-01**: `MatterStatus` is a closed set of seven states, and no other status value exists anywhere in the system (§5)
 - [ ] **STATE-02**: Every transition is evaluated by a guarded state machine implementing §5's guard table, not by ad-hoc status writes (§5)
 - [ ] **STATE-03**: Recompute before sign-off (`LEGAL_REVIEW` → `COMPUTING`) mutates the existing `Assessment` in place — same `id`, new pack and engine version, all dispositions cleared — rather than creating a new row (§5)
 - [ ] **STATE-04**: A write to a `SIGNED_OFF` assessment fails at the database, not only at the API, which returns 409 (AC-33)
@@ -76,7 +76,7 @@
 ### Personal-data boundary
 
 - [ ] **BOUND-01**: No file-upload endpoint exists, and a multipart POST to any endpoint returns 415 (AC-05)
-- [ ] **BOUND-02**: No Prisma field and no form input name matches the personal-data deny-list, asserted over the generated client's field names and over the rendered DOM of every form route (AC-06)
+- [x] **BOUND-02**: No Prisma field and no form input name matches the personal-data deny-list, asserted over the generated client's field names and over the rendered DOM of every form route (AC-06)
 - [ ] **BOUND-03**: Free-text fields enforce their length limits — 300, 500, 200, 1000 characters — and carry explicit warnings against entering personal data (§12.1)
 - [ ] **BOUND-04**: A pattern check warns, and never blocks, on likely personal data in intake notes and in `lawyerReason` on the review screen (§12.1)
 - [ ] **BOUND-05**: `AuditEvent.payload` stores only changed fields from the closed declared set, and an undeclared key is a validation error (§12.1)
@@ -247,7 +247,7 @@ Every v1 requirement maps to exactly one phase in `.planning/ROADMAP.md`.
 | SCHEMA-05 | Phase 1 | Pending |
 | SCHEMA-06 | Phase 1 | Pending |
 | SCHEMA-07 | Phase 1 | Pending |
-| STATE-01 | Phase 1 (schema) + 3.2 (database) | Pending |
+| STATE-01 | Phase 1 (schema) + 3.2 (database) | Complete |
 | STATE-02 | Phase 4 | Pending |
 | STATE-03 | Phase 4 | Pending |
 | STATE-04 | Phase 4 | Pending |
@@ -290,7 +290,7 @@ Every v1 requirement maps to exactly one phase in `.planning/ROADMAP.md`.
 | ACCESS-07 | Phase 6 | Pending |
 | ACCESS-08 | Phase 3.2 | Pending |
 | BOUND-01 | Phase 3.2 | Pending |
-| BOUND-02 | Phase 1 | Pending |
+| BOUND-02 | Phase 1 | Complete |
 | BOUND-03 | Phase 5 | Pending |
 | BOUND-04 | Phase 5 | Pending |
 | BOUND-05 | Phase 4 | Pending |
