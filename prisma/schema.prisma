@@ -162,6 +162,31 @@ enum CurrencyCode {
   VND
 }
 
+// Mirrors packages/schemas/src/primitives.ts AuditEventTypeSchema, member for
+// member (all seventeen values). AUDIT-02 makes this table append-only via a
+// DB-level UPDATE/DELETE/TRUNCATE revoke (Phase 3.2) — a bad row here can
+// never be corrected, only worked around forever, so this is the one table
+// where a native enum matters most, not least (WR-02).
+enum AuditEventType {
+  MATTER_CREATED
+  LINE_ADDED
+  LINE_EDITED
+  LINE_DELETED
+  SUBMITTED
+  COMPUTED
+  COMPUTE_FAILED
+  LINE_DISPOSITIONED
+  DISPOSITION_UNDONE
+  INFO_REQUESTED
+  FLAG_ACKNOWLEDGED
+  SIGNED_OFF
+  NOTICE_MARKED_SENT
+  SUPERSEDED
+  PACK_ACTIVATED
+  PACK_EDITED
+  CAPABILITY_STATEMENT_ACKNOWLEDGED
+}
+
 // ---------------------------------------------------------------------------
 // User — the UserRef shape the role guard and the audit actor need. Carries
 // no requestor-side data (BOUND-02).
@@ -173,12 +198,12 @@ model User {
   email       String @unique
   role        Role
 
-  createdMatters            Matter[]           @relation("MatterCreatedBy")
-  signOffAssessments        Assessment[]       @relation("AssessmentSignOffLawyer")
-  dispositionedLines        AssessmentLine[]   @relation("AssessmentLineDispositionedBy")
-  rulePackVersionsAuthored  RulePackVersion[]  @relation("RulePackVersionAuthoredBy")
-  rulePackVersionsReviewed  RulePackVersion[]  @relation("RulePackVersionReviewedBy")
-  auditEvents               AuditEvent[]       @relation("AuditEventActor")
+  createdMatters           Matter[]          @relation("MatterCreatedBy")
+  signOffAssessments       Assessment[]      @relation("AssessmentSignOffLawyer")
+  dispositionedLines       AssessmentLine[]  @relation("AssessmentLineDispositionedBy")
+  rulePackVersionsAuthored RulePackVersion[] @relation("RulePackVersionAuthoredBy")
+  rulePackVersionsReviewed RulePackVersion[] @relation("RulePackVersionReviewedBy")
+  auditEvents              AuditEvent[]      @relation("AuditEventActor")
 }
 
 // ---------------------------------------------------------------------------
@@ -186,28 +211,28 @@ model User {
 // ---------------------------------------------------------------------------
 
 model Matter {
-  id                            String          @id
-  reference                     String          @unique
+  id                            String           @id
+  reference                     String           @unique
   jurisdictionCode              JurisdictionCode
   legalEntity                   String
   controllerType                ControllerType
-  requestReceivedOn             DateTime        @db.Date
+  requestReceivedOn             DateTime         @db.Date
   requestorClass                RequestorClass
   currency                      CurrencyCode
   // Attestations by HR. Booleans only — NEVER the underlying evidence (§12.1).
-  identityVerified               Boolean
-  identityVerifiedNote           String?         @db.VarChar(200)
-  scopeClarified                 Boolean
-  isRepeatRequestWithin12Months  Boolean
-  isKnownDisputeOrLitigation     Boolean
-  status                         MatterStatus    @default(DRAFT)
-  createdById                    String
-  createdBy                      User            @relation("MatterCreatedBy", fields: [createdById], references: [id], onDelete: Restrict, onUpdate: Restrict)
-  createdAt                      DateTime        @default(now())
+  identityVerified              Boolean
+  identityVerifiedNote          String?          @db.VarChar(200)
+  scopeClarified                Boolean
+  isRepeatRequestWithin12Months Boolean
+  isKnownDisputeOrLitigation    Boolean
+  status                        MatterStatus     @default(DRAFT)
+  createdById                   String
+  createdBy                     User             @relation("MatterCreatedBy", fields: [createdById], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  createdAt                     DateTime         @default(now())
 
-  expenseLines  ExpenseLine[]
-  assessments   Assessment[]
-  auditEvents   AuditEvent[]
+  expenseLines ExpenseLine[]
+  assessments  Assessment[]
+  auditEvents  AuditEvent[]
 }
 
 // ---------------------------------------------------------------------------
@@ -246,9 +271,9 @@ model ExpenseLine {
 // ---------------------------------------------------------------------------
 
 model Assessment {
-  id                       String    @id
+  id                       String   @id
   matterId                 String
-  matter                   Matter    @relation(fields: [matterId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  matter                   Matter   @relation(fields: [matterId], references: [id], onDelete: Restrict, onUpdate: Restrict)
   // Pinned at compute time, immutable copies of the pack identity — never a
   // live FK to RulePackVersion, so a later pack edit cannot retroactively
   // change what an already-computed assessment says it applied.
@@ -268,13 +293,13 @@ model Assessment {
   finalAmount              Int?
 
   // SignOff, inlined (nullable until sign-off).
-  signOffLawyerId       String?
-  signOffLawyer         User?     @relation("AssessmentSignOffLawyer", fields: [signOffLawyerId], references: [id], onDelete: Restrict, onUpdate: Restrict)
-  signOffLawyerName     String?
-  signOffQualification  String?
-  signedAt              DateTime?
-  acknowledgedFlags     Json?
-  attestationVersion    String?
+  signOffLawyerId      String?
+  signOffLawyer        User?     @relation("AssessmentSignOffLawyer", fields: [signOffLawyerId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  signOffLawyerName    String?
+  signOffQualification String?
+  signedAt             DateTime?
+  acknowledgedFlags    Json?
+  attestationVersion   String?
 
   lines AssessmentLine[]
 }
@@ -284,21 +309,21 @@ model Assessment {
 // ---------------------------------------------------------------------------
 
 model AssessmentLine {
-  id               String       @id
-  assessmentId     String
-  assessment       Assessment   @relation(fields: [assessmentId], references: [id], onDelete: Restrict, onUpdate: Restrict)
-  expenseLineId    String
-  expenseLine      ExpenseLine  @relation(fields: [expenseLineId], references: [id], onDelete: Restrict, onUpdate: Restrict)
-  verdict          Verdict
-  engineAmount     Int
-  appliedRuleId    String
-  appliedCap       Json?
-  basis            String       @db.VarChar(240)
-  citation         Json
-  flagReasons      Json
-  disposition      Disposition  @default(PENDING)
-  lawyerAmount     Int?
-  lawyerReason     String?      @db.VarChar(1000)
+  id                String      @id
+  assessmentId      String
+  assessment        Assessment  @relation(fields: [assessmentId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  expenseLineId     String
+  expenseLine       ExpenseLine @relation(fields: [expenseLineId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  verdict           Verdict
+  engineAmount      Int
+  appliedRuleId     String
+  appliedCap        Json?
+  basis             String      @db.VarChar(240)
+  citation          Json
+  flagReasons       Json
+  disposition       Disposition @default(PENDING)
+  lawyerAmount      Int?
+  lawyerReason      String?     @db.VarChar(1000)
   dispositionedById String?
   dispositionedBy   User?       @relation("AssessmentLineDispositionedBy", fields: [dispositionedById], references: [id], onDelete: Restrict, onUpdate: Restrict)
   dispositionedAt   DateTime?
@@ -310,21 +335,21 @@ model AssessmentLine {
 // ---------------------------------------------------------------------------
 
 model RulePackVersion {
-  id                String         @id
-  packId            String
-  version           String
-  status            RulePackStatus
-  jurisdictionCode  JurisdictionCode
-  authoredById      String?
-  authoredBy        User?          @relation("RulePackVersionAuthoredBy", fields: [authoredById], references: [id], onDelete: Restrict, onUpdate: Restrict)
-  reviewedById      String?
-  reviewedBy        User?          @relation("RulePackVersionReviewedBy", fields: [reviewedById], references: [id], onDelete: Restrict, onUpdate: Restrict)
-  reviewedOn        DateTime?      @db.Date
-  reviewDueOn       DateTime       @db.Date
+  id               String           @id
+  packId           String
+  version          String
+  status           RulePackStatus
+  jurisdictionCode JurisdictionCode
+  authoredById     String?
+  authoredBy       User?            @relation("RulePackVersionAuthoredBy", fields: [authoredById], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  reviewedById     String?
+  reviewedBy       User?            @relation("RulePackVersionReviewedBy", fields: [reviewedById], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  reviewedOn       DateTime?        @db.Date
+  reviewDueOn      DateTime         @db.Date
   // The full authored pack body (Phase 3 writes content; Phase 1 freezes
   // only the shape via this column, not any pack content).
-  content           Json
-  createdAt         DateTime       @default(now())
+  content          Json
+  createdAt        DateTime         @default(now())
 
   @@unique([packId, version])
 }
@@ -338,18 +363,21 @@ model RulePackVersion {
 // ---------------------------------------------------------------------------
 
 model AuditEvent {
-  id              BigInt   @id @default(autoincrement())
+  id              BigInt         @id @default(autoincrement())
   matterId        String
-  matter          Matter   @relation(fields: [matterId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  matter          Matter         @relation(fields: [matterId], references: [id], onDelete: Restrict, onUpdate: Restrict)
   actorId         String
-  actor           User     @relation("AuditEventActor", fields: [actorId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  actor           User           @relation("AuditEventActor", fields: [actorId], references: [id], onDelete: Restrict, onUpdate: Restrict)
   actorRole       Role
-  at              DateTime @default(now())
-  // Validated against the frozen AuditEventType union at the writer
-  // (packages/schemas AuditEventTypeSchema) — kept as a plain String column
-  // here rather than a native enum so packages/audit's writer owns the
-  // validation, matching PRD §6.5.
-  type            String
+  at              DateTime       @default(now())
+  // Native enum, mirroring the frozen AuditEventTypeSchema member-for-member
+  // (WR-02): this is the one table AUDIT-02 makes append-only (Phase 3.2
+  // revokes UPDATE/DELETE/TRUNCATE from dsar_runtime), so a bad row here can
+  // never be corrected — DB-level rejection of an out-of-set value matters
+  // more on this table than on any of the others, not less. Every other
+  // closed set in this file already gets a native enum; this was the one
+  // deliberate exception, and the exception did not hold up.
+  type            AuditEventType
   payload         Json
   rulePackVersion String?
   engineVersion   String?
