@@ -15,7 +15,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import prismaInternals from "@prisma/internals";
-import { findDenyListViolations } from "./denylist-scanner";
+import { findDenyListViolations } from "./denylist-scanner.ts";
 
 const { getDMMF } = prismaInternals;
 

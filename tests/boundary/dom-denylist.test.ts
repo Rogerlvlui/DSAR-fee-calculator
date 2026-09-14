@@ -19,8 +19,8 @@ import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { findDenyListViolations } from "./denylist-scanner";
-import { DenylistCanaryFixture } from "../fixtures/denylist-canary.fixture";
+import { findDenyListViolations } from "./denylist-scanner.ts";
+import { DenylistCanaryFixture } from "../fixtures/denylist-canary.fixture.tsx";
 
 const ROOT = path.resolve(fileURLToPath(import.meta.url), "../../..");
 const APP_ROOT = path.join(ROOT, "apps", "web", "app");

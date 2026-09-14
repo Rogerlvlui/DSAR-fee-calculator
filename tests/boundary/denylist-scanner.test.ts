@@ -6,7 +6,7 @@
 // list widens both checks automatically.
 
 import { describe, expect, it } from "vitest";
-import { findDenyListViolations, normalizeFieldName } from "./denylist-scanner";
+import { findDenyListViolations, normalizeFieldName } from "./denylist-scanner.ts";
 import { PERSONAL_DATA_DENY_LIST } from "@dsar/schemas/constants";
 
 describe("normalizeFieldName", () => {
