@@ -1,0 +1,30 @@
+# docker-compose.yml
+#
+# Local Postgres for development and for the migration/Testcontainers work
+# in Phase 3.2 (plans 03.2-01 and 03.2-02). This plan (01-03) does not apply
+# any migration and does not require this service to be running — schema
+# validation and client generation both work with no database available.
+#
+# The two roles this database will host (dsar_migrator / dsar_runtime, D-06)
+# are created by a hand-edited Phase 3.2 migration, not by this file.
+
+services:
+  postgres:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: dsar_migrator
+      POSTGRES_PASSWORD: local-dev-only-change-me
+      POSTGRES_DB: dsar
+    ports:
+      - "5432:5432"
+    volumes:
+      - dsar_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dsar_migrator -d dsar"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  dsar_postgres_data:

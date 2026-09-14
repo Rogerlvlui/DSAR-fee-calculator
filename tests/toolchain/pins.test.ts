@@ -40,6 +40,11 @@ describe("toolchain pins (T-1-SC-PRERELEASE)", () => {
 
   it("has no ranged (^, ~, >, latest) versions anywhere in dependencies/devDependencies", () => {
     for (const [name, version] of Object.entries(allDeps)) {
+      // Internal pnpm workspace packages (e.g. @dsar/schemas) are linked by
+      // the workspace protocol, not resolved off the npm registry — they
+      // cannot drift to an unreviewed major the way a caret/latest range on
+      // an external package can, which is what this test guards against.
+      if (version.startsWith("workspace:")) continue;
       expect(version, `${name} must be an exact version, got "${version}"`).toMatch(
         EXACT_VERSION
       );
