@@ -37,7 +37,17 @@ describe("AuditEventSchema", () => {
   });
 
   it("parses a payload containing only declared keys", () => {
-    const payload = Object.fromEntries(AUDIT_PAYLOAD_KEYS.map((k) => [k, "x"]));
+    const payload = {
+      entityId: "01ARZ3NDEKTSV4RRFFQ69G5FAX",
+      field: "claimedAmount",
+      before: 100,
+      after: 120,
+      elapsedReviewMs: 4200,
+    };
+    // Sanity: every key in the fixture is one of the declared keys.
+    expect(Object.keys(payload).every((k) => (AUDIT_PAYLOAD_KEYS as readonly string[]).includes(k))).toBe(
+      true
+    );
     const result = AuditEventSchema.safeParse({ ...validEvent(), payload });
     expect(result.success).toBe(true);
   });
