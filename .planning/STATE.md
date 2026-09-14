@@ -2,17 +2,17 @@
 gsd_state_version: "1.0"
 current_phase: 01
 current_phase_name: Schemas Freeze and Walking Skeleton
-status: executing
-stopped_at: Completed 01-06-PLAN.md
-last_updated: "2026-09-14T22:52:53.610Z"
+status: verifying
+stopped_at: Completed 01-07-PLAN.md
+last_updated: "2026-09-14T23:17:51.053Z"
 last_activity: 2026-09-14
 last_activity_desc: Phase 01 execution started
-state_head: 078695256e215185de4fa1453ad33add97c18ac0
+state_head: 644af1e9a276cad9545afcda718710ecd58edf4b
 progress:
   total_phases: 10
   completed_phases: 0
   total_plans: 9
-  completed_plans: 5
+  completed_plans: 6
   percent: 0
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-09-13)
 
 Phase: 01 (Schemas Freeze and Walking Skeleton) — EXECUTING
 Plan: 6 of 6
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-09-14 — Phase 01 execution started
 
 Progress: [░░░░░░░░░░] 0%
@@ -63,6 +63,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01 P03 | 20min | 2 tasks | 13 files |
 | Phase 01 P05 | 25min | 3 tasks | 6 files |
 | Phase 01 P06 | 30min | 3 tasks | 4 files |
+| Phase 01 P07 | 25min | 3 tasks | 17 files |
 
 ## Accumulated Context
 
@@ -85,6 +86,10 @@ Recent decisions affecting current work:
 - [Phase 01]: AUDIT_PAYLOAD_KEYS fixed as [entityId, field, before, after, elapsedReviewMs]; AuditPayloadSchema is a z.strictObject() derived from it, rejecting any undeclared key by name — PRD section6.5 and section12.1; Phase 4's AUDIT-01 and BOUND-05 build directly on this closed set
 - [Phase 01]: PRD section6.1 Matter has 16 fields, not the 15 the plan's own acceptance criteria stated (plan miscount) — implemented all 16 per the PRD — CLAUDE.md: PRD is the source of truth; freeze is transcription, not design
 - [Phase 01]: D-02 confirmed extend-now without currency: FlatFeeSchema is new design (no PRD section 7.2 basis), attached to RulePack as optional flatFee with no currency sub-field per PRD section 6.0
+- [Phase 01]: SignOffSchema.attestationVersion added beyond PRD §6.4 (per plan action, records §9.5 wording verbatim by version)
+- [Phase 01]: GuardInput authored as its own literal type (11 members), never Omit</Pick<-derived, so AC-15b's compile-time exclusion stays structural
+- [Phase 01]: z.toJSONSchema() (zod 4 native) generates 3 committed JSON Schema artifacts under packages/schemas/schema/; drift test proves byte-identical regeneration
+- [Phase 01]: fast-check property harness (seed 20260915) proves the money-integer invariant over hand-constructed Assessment values; Phase 2 re-points it at real assess() output
 
 ### Pending Todos
 
@@ -110,6 +115,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-09-14T22:52:40.365Z
-Stopped at: Completed 01-06-PLAN.md
+Last session: 2026-09-14T23:17:51.026Z
+Stopped at: Completed 01-07-PLAN.md
 Resume file: None

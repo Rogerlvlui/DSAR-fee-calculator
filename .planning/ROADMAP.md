@@ -40,7 +40,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. No Prisma field name matches the personal-data deny-list, read via `@prisma/internals` `getDMMF()` against the schema file, and the DOM half of the same check is proven live by a canary fixture rather than passing vacuously while no form yet exists (AC-06)
   5. The cross-field invariants hold in the schema layer: a `Matter` whose `currency` is not its jurisdiction's designated currency fails zod validation naming both codes (AC-42's first layer), and `MatterStatus` is a closed set of seven
 
-**Plans**: 5/6 plans executed across 5 waves
+**Plans**: 6/6 plans executed across 5 waves
 
 Plans:
 **Wave 1**
@@ -62,7 +62,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 01-07-PLAN.md — Assessment, GuardInput, the JSON Schema artifact and the freeze policy
+- [x] 01-07-PLAN.md — Assessment, GuardInput, the JSON Schema artifact and the freeze policy
 
 Scope discipline: this phase now runs start to finish with **no Docker and no database**. The three plans that needed one — the tracer (was 01-04), the database invariants (was 01-08) and the standing route/role/multipart harnesses (was 01-09) — moved to **Phase 3.2** along with the five requirements only they could discharge: ACCESS-01, ACCESS-06, ACCESS-08, BOUND-01 and AUDIT-02. SCHEMA-04 and STATE-01 remain here for their schema layer and are completed at the database layer in 3.2. ACCESS-08 ("every endpoint tested against every role, asserting on bodies") therefore begins as a standing obligation in Phase 3.2 rather than here.
 
@@ -236,7 +236,7 @@ Where capacity allows, Phases 2, 3, 4 and 5 may run concurrently — they have z
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Schemas Freeze and Walking Skeleton | 5/6 | In Progress|  |
+| 1. Schemas Freeze and Walking Skeleton | 6/6 | In Progress|  |
 | 2. Deterministic Fee Engine | 0/TBD | Not started | - |
 | 3. Rule Packs and Pack Admin | 0/TBD | Not started | - |
 | 3.1 Demo Slice — In-Memory Determination Pipeline | 0/TBD | Not started | - |
