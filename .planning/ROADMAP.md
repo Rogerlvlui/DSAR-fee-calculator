@@ -40,12 +40,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. No Prisma field name matches the personal-data deny-list, read via `@prisma/internals` `getDMMF()` against the schema file, and the DOM half of the same check is proven live by a canary fixture rather than passing vacuously while no form yet exists (AC-06)
   5. The cross-field invariants hold in the schema layer: a `Matter` whose `currency` is not its jurisdiction's designated currency fails zod validation naming both codes (AC-42's first layer), and `MatterStatus` is a closed set of seven
 
-**Plans**: 6 plans across 5 waves
+**Plans**: 1/6 plans executed across 5 waves
 
 Plans:
 **Wave 1**
 
-- [ ] 01-01-PLAN.md — Workspace, pinned toolchain, money-branding lint gate and engine purity gate
+- [x] 01-01-PLAN.md — Workspace, pinned toolchain, money-branding lint gate and engine purity gate
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -121,16 +121,19 @@ PACK-08's sign-off-side block (a user who activated a pack version cannot sign o
 Scope discipline: throwaway **only** in the persistence layer — the screens and the engine wiring are production-quality and carry forward into Phases 5 and 6 rather than being rebuilt. Out of scope here and still owned by their home phases: the audit backbone (Phase 4), the pack admin screen and the HK flat fee (Phase 3), the internal-record PDF (Phase 7), and anything touching the LLM (Phase 8). Inserted because Docker is unavailable on the build machine and the product owner needs something demonstrable before infrastructure is settled; the database is required only for persistence and the AC-34 audit-immutability guarantee, neither of which a demo exercises.
 
 ### Phase 03.2: Database Boundary and Audit Immutability (INSERTED)
+
 **Goal**: The three Docker-dependent plans deferred out of Phase 1 are executed, so the migrator/runtime role split holds, an audit row cannot be altered by the application role, and every route is asserted against every role on response bodies
 **Depends on**: Phase 1 (its six non-Docker plans), and Docker or an equivalent real Postgres being available. Sequenced after Phase 3.1 because the presentation comes first — the numbering is 3.2 rather than 1.1 purely so numeric execution order matches that intent.
 **Parallel with**: Phase 4, which extends the same audit backbone. If Docker arrives before the demo, this phase can run at any point after Phase 1 without disturbing Phase 3.1.
 **Requirements**: ACCESS-01, ACCESS-06, ACCESS-08, BOUND-01, SCHEMA-04, STATE-01, AUDIT-02 — carried over from Phase 1, which cannot fully discharge them without a database
 **Success Criteria** (what must be TRUE):
+
   1. The three plans deferred from Phase 1 — the tracer (01-04), the database invariants (01-08) and the standing route/role/multipart harnesses (01-09) — are executed against a real Postgres, with their existing acceptance criteria unchanged
   2. An `UPDATE` against the audit table from `dsar_runtime` fails at the database rather than only at the API (AC-34), and the application fails fast on boot if `SELECT current_user` returns the migrator role
   3. The currency check constraint (AC-42) and the native `MatterStatus` enum reject at the database what the zod schemas reject in the application, each falsified by a test that attempts the invalid write
   4. Every discovered route is asserted against every role on response bodies and not only status codes (ACCESS-08), and a multipart POST to every globbed route returns 415 (AC-05)
   5. Phase 3.1's in-memory repository implementation is replaced by a Prisma-backed one behind the same interface, with no screen and no engine call site changed — the swap that Phase 3.1's success criterion 4 was designed to make possible
+
 **Plans**: 3 plans across 2 waves — moved intact from Phase 1, already planned and checker-verified (was 01-04, 01-08, 01-09)
 
 Why this exists: Docker is unavailable on the build machine and the presentation comes first, so Phase 1's three Docker-dependent plans were deferred here rather than deleted. **AC-34 is unproven until this phase runs** — the append-only audit guarantee is a PRD §0 non-negotiable, so no pilot deployment may follow the demo while this phase is outstanding. The other six Phase 1 plans discharge the schemas freeze on their own and are unaffected.
@@ -233,7 +236,7 @@ Where capacity allows, Phases 2, 3, 4 and 5 may run concurrently — they have z
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Schemas Freeze and Walking Skeleton | 0/6 | Planned | - |
+| 1. Schemas Freeze and Walking Skeleton | 1/6 | In Progress|  |
 | 2. Deterministic Fee Engine | 0/TBD | Not started | - |
 | 3. Rule Packs and Pack Admin | 0/TBD | Not started | - |
 | 3.1 Demo Slice — In-Memory Determination Pipeline | 0/TBD | Not started | - |
