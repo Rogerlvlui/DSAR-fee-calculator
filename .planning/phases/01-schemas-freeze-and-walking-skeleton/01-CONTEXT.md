@@ -27,13 +27,15 @@ Freeze every core type from PRD §6 and §7.2 so no downstream package has to re
 
 ### Walking-skeleton routes
 
-- **D-04:** The skeleton is **one read per role area plus one write that audits**:
+> **[informational] — no longer tracked against Phase 1.** D-04 and D-05 moved to **Phase 3.2 (Database Boundary and Audit Immutability)** on 2026-09-14, together with the three plans that implemented them (was 01-04, 01-08, 01-09), when Docker turned out to be unavailable on the build machine. Neither decision was reversed or re-opened — the authoritative copy now lives in `.planning/phases/03.2-database-boundary-and-audit-immutability/03.2-CONTEXT.md`, and both are still cited in those plans' `must_haves`. They are kept here verbatim so the Phase 1 discussion record stays whole.
+
+- **D-04 [informational]:** Moved to Phase 3.2 with its plans — see `03.2-CONTEXT.md`. The skeleton is **one read per role area plus one write that audits**:
   - `/hr/matters`, `/legal/queue`, `/admin/rulepacks` each read through Prisma as `dsar_runtime`. Empty result sets are a passing outcome — the point is that the query executes under the restricted role.
   - One POST creates a `DRAFT` matter and emits a `MATTER_CREATED` audit event.
 
   This proves guard → Prisma → runtime role → audit write end to end over real HTTP, rather than proving the guard and the database separately. The three list surfaces are Phase 3/5/6 deliverables anyway (`/hr/matters` is INTAKE-09's matter list, `/legal/queue` is NAV-01's reviewer queue, `/admin/rulepacks` is PACK-07's admin screen), so part of the skeleton survives rather than being discarded. — **Reversibility:** reversible.
 
-- **D-05:** Skeleton scope discipline holds regardless: the POST is a bare typed endpoint, **not** Phase 5's intake form. No disclosure shell, no capability statement, no status strip, no repeater, no autosave — those are DISC-01..03 and INTAKE-01..09, and belong to Phase 5. Phase 5 is expected to rewrite this POST against the real form and its validation.
+- **D-05 [informational]:** Moved to Phase 3.2 with its plans — see `03.2-CONTEXT.md`. Skeleton scope discipline holds regardless: the POST is a bare typed endpoint, **not** Phase 5's intake form. No disclosure shell, no capability statement, no status strip, no repeater, no autosave — those are DISC-01..03 and INTAKE-01..09, and belong to Phase 5. Phase 5 is expected to rewrite this POST against the real form and its validation.
 
 ### Database-level invariants
 

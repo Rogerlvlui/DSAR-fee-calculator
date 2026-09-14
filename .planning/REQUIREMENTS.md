@@ -243,11 +243,11 @@ Every v1 requirement maps to exactly one phase in `.planning/ROADMAP.md`.
 | SCHEMA-01 | Phase 1 | Pending |
 | SCHEMA-02 | Phase 1 | Pending |
 | SCHEMA-03 | Phase 1 | Pending |
-| SCHEMA-04 | Phase 1 | Pending |
+| SCHEMA-04 | Phase 1 (schema) + 3.2 (database) | Pending |
 | SCHEMA-05 | Phase 1 | Pending |
 | SCHEMA-06 | Phase 1 | Pending |
 | SCHEMA-07 | Phase 1 | Pending |
-| STATE-01 | Phase 1 | Pending |
+| STATE-01 | Phase 1 (schema) + 3.2 (database) | Pending |
 | STATE-02 | Phase 4 | Pending |
 | STATE-03 | Phase 4 | Pending |
 | STATE-04 | Phase 4 | Pending |
@@ -281,15 +281,15 @@ Every v1 requirement maps to exactly one phase in `.planning/ROADMAP.md`.
 | PACK-10 | Phase 3 | Pending |
 | PACK-11 | Phase 3 | Pending |
 | PACK-12 | Phase 3 | Pending |
-| ACCESS-01 | Phase 1 | Pending |
+| ACCESS-01 | Phase 3.2 | Pending |
 | ACCESS-02 | Phase 6 | Pending |
 | ACCESS-03 | Phase 6 | Pending |
 | ACCESS-04 | Phase 7 | Pending |
 | ACCESS-05 | Phase 7 | Pending |
-| ACCESS-06 | Phase 1 | Pending |
+| ACCESS-06 | Phase 3.2 | Pending |
 | ACCESS-07 | Phase 6 | Pending |
-| ACCESS-08 | Phase 1 | Pending |
-| BOUND-01 | Phase 1 | Pending |
+| ACCESS-08 | Phase 3.2 | Pending |
+| BOUND-01 | Phase 3.2 | Pending |
 | BOUND-02 | Phase 1 | Pending |
 | BOUND-03 | Phase 5 | Pending |
 | BOUND-04 | Phase 5 | Pending |
@@ -330,7 +330,7 @@ Every v1 requirement maps to exactly one phase in `.planning/ROADMAP.md`.
 | DOC-04 | Phase 7 | Pending |
 | DOC-05 | Phase 7 | Pending |
 | AUDIT-01 | Phase 4 | Pending |
-| AUDIT-02 | Phase 1 | Pending |
+| AUDIT-02 | Phase 3.2 | Pending |
 | AUDIT-03 | Phase 4 | Pending |
 | AUDIT-04 | Phase 4 | Pending |
 | DISC-01 | Phase 5 | Pending |

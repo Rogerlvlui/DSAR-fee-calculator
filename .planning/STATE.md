@@ -4,12 +4,12 @@ current_phase: 1
 current_phase_name: Schemas Freeze and Walking Skeleton
 status: executing
 stopped_at: Phase 1 context gathered
-last_updated: "2026-09-14T14:06:13.609Z"
+last_updated: "2026-09-14T14:53:49.588Z"
 last_activity: 2026-09-13
 last_activity_desc: Roadmap created; 109/109 v1 requirements mapped across 8 phases
-state_head: 667f9cf7b84575253ff6026e43ff2351f4e80227
+state_head: ef0eda1ad144136f3f980b6bfbc1438cffd00b03
 progress:
-  total_phases: 8
+  total_phases: 9
   completed_phases: 0
   total_plans: 9
   completed_plans: 0
@@ -77,6 +77,10 @@ None yet.
 - PACK-09 authoring is legal work, not code, and gates Phase 6's golden files. If it slips, Phase 2 must not wait on it — the engine is built against the PRD §14 fixture pack by design.
 - Two product-owner decisions recorded in PROJECT.md are now load-bearing on Phase 2: aggregate-cap residue allocation (ENGINE-07) and pack-content immutability enforcement (PACK-06).
 - Phases 3 and 5 both add routes to `apps/web`. Low collision risk on the Phase 1 shell, but worth sequencing the shell-level changes if both run concurrently.
+
+### Roadmap Evolution
+
+- Phase 3.1 inserted after Phase 3: Demo Slice - In-Memory Determination Pipeline: live determination with no database, for a stakeholder presentation ~2 weeks out. Docker unavailable on the build machine; DB needed only for persistence and AC-34, neither exercised by a demo. (URGENT)
 
 ## Deferred Items
 

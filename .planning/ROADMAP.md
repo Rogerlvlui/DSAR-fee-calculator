@@ -13,9 +13,11 @@ The build starts with the one thing that genuinely blocks everything else — fr
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Schemas Freeze and Walking Skeleton** - Freeze every core type, then prove the layers connect end to end with throwaway-thin scaffolding
+- [ ] **Phase 1: Schemas Freeze** - Freeze every core type and author the data model; the walking skeleton moved to Phase 3.2 with the database
 - [ ] **Phase 2: Deterministic Fee Engine** - `assess()` against hand-built fixture packs, with purity and money correctness proven by CI
 - [ ] **Phase 3: Rule Packs and Pack Admin** - Loader, validator, nine packs with HK and SG authored in full, and the audited activation gate
+- [ ] **Phase 3.1: Demo Slice — In-Memory Determination Pipeline** (INSERTED) - The whole determination running as live software with no database, for a stakeholder presentation
+- [ ] **Phase 3.2: Database Boundary and Audit Immutability** (INSERTED) - The three Docker-dependent plans deferred out of Phase 1, run once Docker exists
 - [ ] **Phase 4: Workflow and Audit Backbone** - Guarded transitions, immutable sign-off, and the append-only event log every later phase writes to
 - [ ] **Phase 5: HR Intake and Disclosure Shell** - HR can itemise a claim inside a shell that states what the tool is and is not
 - [ ] **Phase 6: Convergence and Legal Review** - Golden files pass, then the line-by-line review screen with its automation-bias controls
@@ -26,19 +28,19 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 ### Phase 1: Schemas Freeze and Walking Skeleton
 
-**Goal**: Every core type is frozen so nothing downstream has to re-open it, and a thin route through each role-scoped area proves the layers actually connect
+**Goal**: Every core type is frozen so nothing downstream has to re-open it, and the data model is authored and validated ready for the database boundary in Phase 3.2
 **Depends on**: Nothing (first phase)
 **Parallel with**: Nothing — this is hard serialization point #1. No other phase compiles until the core types exist.
-**Requirements**: SCHEMA-01, SCHEMA-02, SCHEMA-03, SCHEMA-04, SCHEMA-05, SCHEMA-06, SCHEMA-07, STATE-01, ACCESS-01, ACCESS-06, ACCESS-08, BOUND-01, BOUND-02, AUDIT-02
+**Requirements**: SCHEMA-01, SCHEMA-02, SCHEMA-03, SCHEMA-04, SCHEMA-05, SCHEMA-06, SCHEMA-07, STATE-01, BOUND-02
 **Success Criteria** (what must be TRUE):
 
   1. A downstream package can import `Matter`, `ExpenseLine`, `RulePack`, `Assessment`, `AssessmentLine`, `AuditEvent` and the seven-value `MatterStatus` and compile without redefining a field — and the frozen `RulePack` schema already carries the HK flat-fee extension, so neither Phase 2 nor Phase 3 has to re-open the freeze
   2. Money cannot go wrong silently: a bare `number` named `*amount|total|rate|fee|cap` inside `packages/engine` or `packages/schemas` fails lint (AC-07a), a 10,000-case property test shows every money field of a returned `Assessment` is an integer (AC-07b), and formatting the same integer as JPY and as SGD produces zero and two decimal places respectively
-  3. A seeded HR user reaching `/legal/*` and a seeded lawyer reaching `/admin/*` are both refused server-side, with the refusal asserted on the response body and not only the status code, and replacing the stub identity provider changes no guard
-  4. A multipart POST to every route found by glob returns 415, and no Prisma DMMF field name and no rendered form input name matches the personal-data deny-list (AC-05, AC-06) — both tests enumerate generated artifacts, so every route and field added in Phases 3 through 8 is covered without anyone editing the test
-  5. One audit event round-trips through the `dsar_runtime` role, and an `UPDATE` against the audit table from that role fails at the database rather than only at the API (AC-34)
+  3. All six core entities plus `User` are authored in `prisma/schema.prisma` with native enums and no cascading deletes, the schema validates, and the client generates — none of which needs a running database
+  4. No Prisma field name matches the personal-data deny-list, read via `@prisma/internals` `getDMMF()` against the schema file, and the DOM half of the same check is proven live by a canary fixture rather than passing vacuously while no form yet exists (AC-06)
+  5. The cross-field invariants hold in the schema layer: a `Matter` whose `currency` is not its jurisdiction's designated currency fails zod validation naming both codes (AC-42's first layer), and `MatterStatus` is a closed set of seven
 
-**Plans**: 9 plans across 5 waves
+**Plans**: 6 plans across 5 waves
 
 Plans:
 **Wave 1**
@@ -52,20 +54,17 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 01-04-PLAN.md — Tracer: two Postgres roles, one guarded route, one audited write, end to end
 - [ ] 01-05-PLAN.md — Matter, ExpenseLine and AuditEvent zod schemas
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
 - [ ] 01-06-PLAN.md — Condition and the RulePack freeze including the HK flat-fee extension
-- [ ] 01-08-PLAN.md — Database invariants: currency check constraint, native enum and privilege matrix
-- [ ] 01-09-PLAN.md — Walking-skeleton completion and the standing route/role/multipart harnesses
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
 - [ ] 01-07-PLAN.md — Assessment, GuardInput, the JSON Schema artifact and the freeze policy
 
-Scope discipline: the walking skeleton is explicitly throwaway-tolerant. It exists to prove that Postgres-in-Docker with the migrator/runtime split, Prisma, the server-side role guard and the audit write all connect — not to deliver engine or review behaviour early. ACCESS-08 ("every endpoint tested against every role, asserting on bodies") starts here as a standing obligation that every later phase inherits.
+Scope discipline: this phase now runs start to finish with **no Docker and no database**. The three plans that needed one — the tracer (was 01-04), the database invariants (was 01-08) and the standing route/role/multipart harnesses (was 01-09) — moved to **Phase 3.2** along with the five requirements only they could discharge: ACCESS-01, ACCESS-06, ACCESS-08, BOUND-01 and AUDIT-02. SCHEMA-04 and STATE-01 remain here for their schema layer and are completed at the database layer in 3.2. ACCESS-08 ("every endpoint tested against every role, asserting on bodies") therefore begins as a standing obligation in Phase 3.2 rather than here.
 
 ### Phase 2: Deterministic Fee Engine
 
@@ -101,6 +100,40 @@ Scope discipline: the walking skeleton is explicitly throwaway-tolerant. It exis
 **UI hint**: yes
 
 PACK-08's sign-off-side block (a user who activated a pack version cannot sign off an assessment pinned to it in the same session) is delivered in Phase 7, where sign-off exists.
+
+### Phase 03.1: Demo Slice — In-Memory Determination Pipeline (INSERTED)
+
+**Goal**: A stakeholder can watch a complete determination run as live software — HR itemises a claim, the real engine applies the real SG pack, a lawyer dispositions each line and signs off — with no database, no Docker and no network
+**Depends on**: Phase 1's six non-Docker plans only (01-01, 01-02, 01-03, 01-05, 01-06, 01-07 — the schemas freeze; 01-04, 01-08 and 01-09 are Docker-dependent and are explicitly NOT prerequisites), Phase 2 (the engine), and Phase 3's PACK-09 SG authoring cut down to at minimum the six categories in the PRD §14 reference fixture
+**Parallel with**: Nothing on its own path. Phase 4's audit backbone and Phase 1's three Docker-dependent plans may proceed alongside if Docker becomes available, but neither gates this phase.
+**Requirements**: None newly assigned. This phase delivers a demo-grade subset of INTAKE-\*, REVIEW-\* and DISC-\* which remain **owned and undischarged** by Phases 5, 6 and 7 — a demo must not tick off a requirement the production screens still have to satisfy.
+**Success Criteria** (what must be TRUE):
+
+  1. From a cold checkout, one documented command starts the app and a presenter drives the whole path in a browser with no database, no Docker and no network: create a matter, itemise the PRD §14 reference fixture's six lines, submit, disposition every line, sign off, and read the notice
+  2. Every figure is computed, never hardcoded — the numbers come from `packages/engine` applying the authored SG-PDPA pack, and the reference fixture reproduces its §14 expected values exactly: `claimedTotal` 888.00, `draftBaseline` 266.40, `disallowedTotal` 126.60, `flaggedTotal` 495.00 across 2 items, `restingOnUnverifiedRules` 106.40, and `finalAmount` `null` until sign-off
+  3. The anti-automation-bias controls are real rather than staged: no headline total renders while any line is PENDING, every disposition demands its reason, bulk accept is offered only for ALLOW lines with VERIFIED rules, and every line shows its rule ID, pack-authored basis and citation without further interaction
+  4. Persistence is the only throwaway: matters and assessments sit behind a repository interface whose in-memory implementation can be swapped for a Prisma one without touching a screen or the engine — proven by the interface module having no import from any store implementation
+  5. The demo never overstates itself — the capability statement and status strip are present, the notice is watermarked DRAFT, and the running build carries a visible marker that it holds no persistent data
+
+**Plans**: TBD
+**UI hint**: yes
+
+Scope discipline: throwaway **only** in the persistence layer — the screens and the engine wiring are production-quality and carry forward into Phases 5 and 6 rather than being rebuilt. Out of scope here and still owned by their home phases: the audit backbone (Phase 4), the pack admin screen and the HK flat fee (Phase 3), the internal-record PDF (Phase 7), and anything touching the LLM (Phase 8). Inserted because Docker is unavailable on the build machine and the product owner needs something demonstrable before infrastructure is settled; the database is required only for persistence and the AC-34 audit-immutability guarantee, neither of which a demo exercises.
+
+### Phase 03.2: Database Boundary and Audit Immutability (INSERTED)
+**Goal**: The three Docker-dependent plans deferred out of Phase 1 are executed, so the migrator/runtime role split holds, an audit row cannot be altered by the application role, and every route is asserted against every role on response bodies
+**Depends on**: Phase 1 (its six non-Docker plans), and Docker or an equivalent real Postgres being available. Sequenced after Phase 3.1 because the presentation comes first — the numbering is 3.2 rather than 1.1 purely so numeric execution order matches that intent.
+**Parallel with**: Phase 4, which extends the same audit backbone. If Docker arrives before the demo, this phase can run at any point after Phase 1 without disturbing Phase 3.1.
+**Requirements**: ACCESS-01, ACCESS-06, ACCESS-08, BOUND-01, SCHEMA-04, STATE-01, AUDIT-02 — carried over from Phase 1, which cannot fully discharge them without a database
+**Success Criteria** (what must be TRUE):
+  1. The three plans deferred from Phase 1 — the tracer (01-04), the database invariants (01-08) and the standing route/role/multipart harnesses (01-09) — are executed against a real Postgres, with their existing acceptance criteria unchanged
+  2. An `UPDATE` against the audit table from `dsar_runtime` fails at the database rather than only at the API (AC-34), and the application fails fast on boot if `SELECT current_user` returns the migrator role
+  3. The currency check constraint (AC-42) and the native `MatterStatus` enum reject at the database what the zod schemas reject in the application, each falsified by a test that attempts the invalid write
+  4. Every discovered route is asserted against every role on response bodies and not only status codes (ACCESS-08), and a multipart POST to every globbed route returns 415 (AC-05)
+  5. Phase 3.1's in-memory repository implementation is replaced by a Prisma-backed one behind the same interface, with no screen and no engine call site changed — the swap that Phase 3.1's success criterion 4 was designed to make possible
+**Plans**: 3 plans across 2 waves — moved intact from Phase 1, already planned and checker-verified (was 01-04, 01-08, 01-09)
+
+Why this exists: Docker is unavailable on the build machine and the presentation comes first, so Phase 1's three Docker-dependent plans were deferred here rather than deleted. **AC-34 is unproven until this phase runs** — the append-only audit guarantee is a PRD §0 non-negotiable, so no pilot deployment may follow the demo while this phase is outstanding. The other six Phase 1 plans discharge the schemas freeze on their own and are unaffected.
 
 ### Phase 4: Workflow and Audit Backbone
 
@@ -192,15 +225,19 @@ DISC-06 sweeps §10.7 end to end here. Individual rows are implemented in their 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
+Phases execute in numeric order: 1 → 2 → 3 → 3.1 → 3.2 → 4 → 5 → 6 → 7 → 8
 
 Where capacity allows, Phases 2, 3, 4 and 5 may run concurrently — they have zero ordering between them once Phase 1's types are frozen. Phase 3's PACK-09 authoring should be kicked off first regardless, as the likely schedule long pole.
 
+**The demo path (Phase 3.1) does not need the whole of Phases 1 and 3.** It needs Phase 1's six non-Docker plans, Phase 2 entire, and enough of PACK-09 to cover the PRD §14 reference fixture. Phase 1's three Docker-dependent plans moved out to **Phase 3.2**, which runs once Docker exists — deferred past the presentation, not cancelled. **AC-34's audit-immutability guarantee is unproven until Phase 3.2 runs**, and since it is a PRD §0 non-negotiable, no pilot deployment may follow the demo while 3.2 is outstanding.
+
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Schemas Freeze and Walking Skeleton | 0/9 | Planned | - |
+| 1. Schemas Freeze and Walking Skeleton | 0/6 | Planned | - |
 | 2. Deterministic Fee Engine | 0/TBD | Not started | - |
 | 3. Rule Packs and Pack Admin | 0/TBD | Not started | - |
+| 3.1 Demo Slice — In-Memory Determination Pipeline | 0/TBD | Not started | - |
+| 3.2 Database Boundary and Audit Immutability | 0/3 | Planned (inherited from Phase 1) | - |
 | 4. Workflow and Audit Backbone | 0/TBD | Not started | - |
 | 5. HR Intake and Disclosure Shell | 0/TBD | Not started | - |
 | 6. Convergence and Legal Review | 0/TBD | Not started | - |
