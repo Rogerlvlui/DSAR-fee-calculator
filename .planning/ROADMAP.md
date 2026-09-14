@@ -34,7 +34,18 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. A seeded HR user reaching `/legal/*` and a seeded lawyer reaching `/admin/*` are both refused server-side, with the refusal asserted on the response body and not only the status code, and replacing the stub identity provider changes no guard
   4. A multipart POST to every route found by glob returns 415, and no Prisma DMMF field name and no rendered form input name matches the personal-data deny-list (AC-05, AC-06) — both tests enumerate generated artifacts, so every route and field added in Phases 3 through 8 is covered without anyone editing the test
   5. One audit event round-trips through the `dsar_runtime` role, and an `UPDATE` against the audit table from that role fails at the database rather than only at the API (AC-34)
-**Plans**: TBD
+**Plans**: 9 plans across 5 waves
+
+Plans:
+- [ ] 01-01-PLAN.md — Workspace, pinned toolchain, money-branding lint gate and engine purity gate
+- [ ] 01-02-PLAN.md — Shared primitives, branded money, the currency maps and the closed enums
+- [ ] 01-03-PLAN.md — Prisma data-model freeze and the personal-data field deny-list
+- [ ] 01-04-PLAN.md — Tracer: two Postgres roles, one guarded route, one audited write, end to end
+- [ ] 01-05-PLAN.md — Matter, ExpenseLine and AuditEvent zod schemas
+- [ ] 01-06-PLAN.md — Condition and the RulePack freeze including the HK flat-fee extension
+- [ ] 01-07-PLAN.md — Assessment, GuardInput, the JSON Schema artifact and the freeze policy
+- [ ] 01-08-PLAN.md — Database invariants: currency check constraint, native enum and privilege matrix
+- [ ] 01-09-PLAN.md — Walking-skeleton completion and the standing route/role/multipart harnesses
 
 Scope discipline: the walking skeleton is explicitly throwaway-tolerant. It exists to prove that Postgres-in-Docker with the migrator/runtime split, Prisma, the server-side role guard and the audit write all connect — not to deliver engine or review behaviour early. ACCESS-08 ("every endpoint tested against every role, asserting on bodies") starts here as a standing obligation that every later phase inherits.
 
@@ -148,7 +159,7 @@ Where capacity allows, Phases 2, 3, 4 and 5 may run concurrently — they have z
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Schemas Freeze and Walking Skeleton | 0/TBD | Not started | - |
+| 1. Schemas Freeze and Walking Skeleton | 0/9 | Planned | - |
 | 2. Deterministic Fee Engine | 0/TBD | Not started | - |
 | 3. Rule Packs and Pack Admin | 0/TBD | Not started | - |
 | 4. Workflow and Audit Backbone | 0/TBD | Not started | - |
