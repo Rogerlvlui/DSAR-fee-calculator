@@ -1,0 +1,12 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+allowBuilds:
+  '@prisma/engines': true
+  cpu-features: true
+  prisma: true
+  protobufjs: true
+  ssh2: true
+minimumReleaseAgeExclude:
+  - dependency-cruiser@18.3.0
+  - zod@4.6.5
