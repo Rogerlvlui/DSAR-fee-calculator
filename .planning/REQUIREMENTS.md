@@ -29,23 +29,23 @@
 
 ### Engine
 
-- [ ] **ENGINE-01**: `assess()` is pure — no I/O, no network, no LLM import, and no clock read outside the injected `now` (§8.1)
+- [x] **ENGINE-01**: `assess()` is pure — no I/O, no network, no LLM import, and no clock read outside the injected `now` (§8.1)
 - [x] **ENGINE-02**: Preconditions reject a stale or non-active pack, a controller type outside `appliesTo`, and a currency that is not the jurisdiction's — each as a typed error naming the reason and the expected value (AC-12, AC-42)
 - [x] **ENGINE-03**: The posture gate returns every line `DISALLOW` for `PROHIBITED` and `PERMITTED_NARROW_EXCEPTION`, and every line `FLAG` with reason `NO_FEE_AUTHORITY` for `NO_EXPRESS_AUTHORITY`, with `draftBaseline` zero (AC-13, AC-14)
 - [x] **ENGINE-04**: Per-line evaluation handles all five treatments — `ALLOW`, `ALLOW_WITH_CAP`, `ALLOW_IF`, `DISALLOW`, `FLAG` — with `ALLOW_IF` producing `CONDITIONS_NOT_MET` listing which conditions failed (§8.1)
 - [x] **ENGINE-05**: `applyCap` supports `PER_UNIT`, `PER_LINE`, `PER_MATTER` and `PERCENT_OF_CLAIM`, and always rounds down (AC-07c)
 - [x] **ENGINE-06**: Cross-line checks raise a flag and never a silent adjustment — duplicate category with near-identical description, staff rate above the pack ceiling, any line at 40% or more of the claim, implausible magnitude, and a third-party line not marked invoiced (§8.1)
 - [x] **ENGINE-07**: An aggregate cap is applied pro-rata with each line rounded down and the residue left unallocated, and the assessment flags that the cap bit *(decision: PROJECT.md — the PRD does not specify residue allocation)*
-- [ ] **ENGINE-08**: Totals are computed per §8.1 step 6, and `finalAmount` is `null` until sign-off — unrepresentable as a number before then, never defaulted to `draftBaseline` (AC-25)
+- [x] **ENGINE-08**: Totals are computed per §8.1 step 6, and `finalAmount` is `null` until sign-off — unrepresentable as a number before then, never defaulted to `draftBaseline` (AC-25)
 - [x] **ENGINE-09**: `FLAG` lines contribute zero to `draftBaseline`, and their claimed value appears only in `flaggedTotal` (AC-11)
 - [x] **ENGINE-10**: `restingOnUnverifiedRules` equals the sum of allowed amounts whose applied rule is `NEEDS_VERIFICATION`, and is a subset of `draftBaseline` (AC-22)
 - [x] **ENGINE-11**: Matter-level flags are evaluated from `matterFlagRules`, plus `LITIGATION_POSTURE`, `REPEAT_REQUEST` and `STALE_PACK_WARNING` (§8.1)
 - [x] **ENGINE-12**: An `OTHER_UNCLASSIFIED` line always returns `FLAG`, regardless of pack, description or LLM suggestion, except where the posture gate has already forced every line to `DISALLOW` (AC-19)
 - [x] **ENGINE-13**: A stored `claimedAmount` that does not equal `quantity × unitRate` on load raises a hard error and blocks submission (AC-08)
 - [ ] **ENGINE-14**: Golden-file fixtures for the SG and HK packs reproduce exactly the expected verdicts, amounts, flags and totals, and changing a pack breaks its golden files (AC-09, §14)
-- [ ] **ENGINE-15**: Engine tests pass identically under at least two timezone and locale combinations, proving no hidden locale or clock dependence *(research)*
+- [x] **ENGINE-15**: Engine tests pass identically under at least two timezone and locale combinations, proving no hidden locale or clock dependence *(research)*
 - [x] **ENGINE-16**: For a pack carrying a flat fee, the engine computes both the itemised baseline and the flat figure, and reports whether the flat figure exceeds itemised direct cost *(decision: PROJECT.md, PRD §17 q.2)*
-- [ ] **ENGINE-17**: An assessment of 50 lines completes in under 100ms (§11)
+- [x] **ENGINE-17**: An assessment of 50 lines completes in under 100ms (§11)
 
 ### Rule packs
 
@@ -252,23 +252,23 @@ Every v1 requirement maps to exactly one phase in `.planning/ROADMAP.md`.
 | STATE-03 | Phase 4 | Pending |
 | STATE-04 | Phase 4 | Pending |
 | STATE-05 | Phase 4 | Pending |
-| ENGINE-01 | Phase 2 | Pending |
+| ENGINE-01 | Phase 2 | Complete |
 | ENGINE-02 | Phase 2 | Complete |
 | ENGINE-03 | Phase 2 | Complete |
 | ENGINE-04 | Phase 2 | Complete |
 | ENGINE-05 | Phase 2 | Complete |
 | ENGINE-06 | Phase 2 | Complete |
 | ENGINE-07 | Phase 2 | Complete |
-| ENGINE-08 | Phase 2 | Pending |
+| ENGINE-08 | Phase 2 | Complete |
 | ENGINE-09 | Phase 2 | Complete |
 | ENGINE-10 | Phase 2 | Complete |
 | ENGINE-11 | Phase 2 | Complete |
 | ENGINE-12 | Phase 2 | Complete |
 | ENGINE-13 | Phase 2 | Complete |
 | ENGINE-14 | Phase 6 | Pending |
-| ENGINE-15 | Phase 2 | Pending |
+| ENGINE-15 | Phase 2 | Complete |
 | ENGINE-16 | Phase 2 | Complete |
-| ENGINE-17 | Phase 2 | Pending |
+| ENGINE-17 | Phase 2 | Complete |
 | PACK-01 | Phase 3 | Pending |
 | PACK-02 | Phase 3 | Pending |
 | PACK-03 | Phase 3 | Pending |

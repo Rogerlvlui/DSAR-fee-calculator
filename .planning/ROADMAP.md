@@ -80,7 +80,7 @@ Scope discipline: this phase now runs start to finish with **no Docker and no da
   4. Totals cannot be read early or inflated: `finalAmount` is `null` and unrepresentable as a number before sign-off (AC-25), `FLAG` lines contribute zero to `draftBaseline` with their claimed value appearing only in `flaggedTotal` (AC-11), and `restingOnUnverifiedRules` is a strict subset of `draftBaseline` (AC-22)
   5. A 50-line assessment completes in under 100ms (§11), a stored `claimedAmount` that does not equal `quantity × unitRate` raises a hard error and blocks submission (AC-08), and for a flat-fee-bearing pack the engine returns both the itemised baseline and the flat figure plus whether the flat figure exceeds itemised direct cost
 
-**Plans**: 6/7 plans executed across 5 waves
+**Plans**: 7/7 plans executed across 5 waves
 
 Plans:
 **Wave 1**
@@ -103,7 +103,7 @@ Plans:
 
 **Wave 5** *(blocked on 02-06)*
 
-- [ ] 02-07-PLAN.md — Timezone invariance, the 100ms budget, the 10,000-run money property, and the engine's own language
+- [x] 02-07-PLAN.md — Timezone invariance, the 100ms budget, the 10,000-run money property, and the engine's own language
 
 Gate integrity: every gate this phase adds ships with a fixture it must catch and an assertion observing the catch — a violating lint fixture, a timezone control that must differ, a timing control that must exceed the budget, a banned-word control that must be caught. A clean run is not evidence a gate works.
 
@@ -262,7 +262,7 @@ Where capacity allows, Phases 2, 3, 4 and 5 may run concurrently — they have z
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Schemas Freeze and Walking Skeleton | 6/6 | Complete    | 2026-09-15 |
-| 2. Deterministic Fee Engine | 6/7 | In Progress|  |
+| 2. Deterministic Fee Engine | 7/7 | In Progress|  |
 | 3. Rule Packs and Pack Admin | 0/TBD | Not started | - |
 | 3.1 Demo Slice — In-Memory Determination Pipeline | 0/TBD | Not started | - |
 | 3.2 Database Boundary and Audit Immutability | 0/3 | Planned (inherited from Phase 1) | - |

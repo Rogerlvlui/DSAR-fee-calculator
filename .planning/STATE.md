@@ -2,17 +2,17 @@
 gsd_state_version: "1.0"
 current_phase: 02
 current_phase_name: Deterministic Fee Engine
-status: executing
-stopped_at: Completed 02-06-PLAN.md
-last_updated: "2026-09-15T10:54:05.366Z"
+status: verifying
+stopped_at: Completed 02-07-PLAN.md
+last_updated: "2026-09-15T11:33:10.667Z"
 last_activity: 2026-09-15
 last_activity_desc: Phase 02 execution started
-state_head: 7032e0941f9f59d3d6e100a83435d19c7c2c83b2
+state_head: 6c615ea6215350a4f84bb1e9176fb5d3d05ca6e7
 progress:
   total_phases: 10
   completed_phases: 0
   total_plans: 16
-  completed_plans: 12
+  completed_plans: 13
   percent: 0
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-09-13)
 
 Phase: 02 (Deterministic Fee Engine) — EXECUTING
 Plan: 7 of 7
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-09-15 — Phase 02 execution started
 
 Progress: [░░░░░░░░░░] 0%
@@ -70,6 +70,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 02 P04 | 95min | 3 tasks | 14 files |
 | Phase 02 P05 | 40min | 3 tasks | 11 files |
 | Phase 02 P06 | 48min | 3 tasks | 9 files |
+| Phase 02 P07 | 23min | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -109,6 +110,9 @@ Recent decisions affecting current work:
 - [Phase 02]: Aggregate cap pro-rata allocation floors each line's share once and leaves the remainder unallocated (never largest-remainder or by-sequence), per PROJECT.md's settled residue policy
 - [Phase 02]: [Phase 02 P06]: D-12's flat-fee schema field consumed cleanly (no impedance mismatch); computeFlatFeeComparison is a direct mapping, computed last from the finalised draftBaseline
 - [Phase 02]: [Phase 02 P06]: Derived matter flags composed from a declared DERIVED_MATTER_FLAG_SPECS array (not a sequence of if-statements) so the output order is a reviewable constant; composeMatterLevelFlags owns final ordering: derived, then aggregate-cap flag, then pack flags
+- [Phase 02]: [Phase 02 P07]: Banned-word matching is case-sensitive on word boundaries, not case-insensitive — messages.ts and taxonomy.ts both legitimately use capitalised 'Legal' as the department's proper noun; a case-insensitive matcher was empirically shown to break 6 of 21 real message templates during this plan's own RED phase
+- [Phase 02]: [Phase 02 P07]: RED phase used deliberately-backwards test assertions rather than a broken production stub, for all three TDD tasks — calendar-math.ts/totals.ts/messages.ts were already correct from prior plans in this phase; injecting a genuine purity/correctness bug into production source to manufacture RED would have briefly shipped the exact defect these tests exist to prevent
+- [Phase 02]: [Phase 02 P07]: packages/engine/tsconfig.json gained types:[node], matching packages/schemas/tsconfig.json's existing entry — tsc could not resolve node:perf_hooks in perf.test.ts without it, even though @types/node is a root devDependency
 
 ### Pending Todos
 
@@ -134,6 +138,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-09-15T10:54:05.295Z
-Stopped at: Completed 02-06-PLAN.md
+Last session: 2026-09-15T11:33:10.610Z
+Stopped at: Completed 02-07-PLAN.md
 Resume file: None
