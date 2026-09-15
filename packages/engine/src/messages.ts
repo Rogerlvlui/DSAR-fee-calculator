@@ -49,3 +49,11 @@ export function claimedAmountMismatchMessage(
 export function negativeUnitRateMessage(lineId: string, unitRate: Minor): string {
   return `Expense line '${lineId}' has a negative unitRate (${unitRate}); unitRate must not be negative.`;
 }
+
+// Plan 02-04 Task 1 — applyCap's EngineComputationFailure. PER_MATTER is the
+// aggregate-cap variant (PRD §8.1 step 5); it cannot be evaluated correctly
+// by a function that only sees one line, so applyCap refuses it outright
+// rather than misapplying it as a per-line figure.
+export function perMatterCapOnLineMessage(): string {
+  return "Cap type 'PER_MATTER' cannot be applied to a single line by applyCap(); it is the aggregate cap evaluated once across every allowed line, not a per-CategoryRule cap.";
+}

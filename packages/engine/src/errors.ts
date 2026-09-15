@@ -57,3 +57,32 @@ export class AssessPreconditionFailure extends Error {
     this.detail = error.detail;
   }
 }
+
+// Plan 02-04 (Task 1) — a second, distinct typed-error family for failures
+// discovered mid-computation rather than at the step-1 precondition gate.
+// `applyCap` throws this (never AssessPreconditionFailure, which is
+// reserved for step 1's six input refusals) when it is handed a
+// `PER_MATTER` cap: that cap type is the aggregate-cap variant evaluated
+// once across every allowed line (PRD §8.1 step 5, plan 02-05), and a
+// function that only ever sees one line's data cannot evaluate it
+// correctly — refusing outright is the only safe option (02-RESEARCH.md
+// Pattern 2). Phase 3's pack validator should also reject this combination
+// at build time, so this runtime refusal is a backstop, not the only gate.
+export type EngineComputationError = {
+  code: "PER_MATTER_CAP_ON_LINE";
+  detail: { capType: "PER_MATTER" };
+};
+
+export type EngineComputationErrorCode = EngineComputationError["code"];
+
+export class EngineComputationFailure extends Error {
+  readonly code: EngineComputationErrorCode;
+  readonly detail: EngineComputationError["detail"];
+
+  constructor(error: EngineComputationError, message: string) {
+    super(message);
+    this.name = "EngineComputationFailure";
+    this.code = error.code;
+    this.detail = error.detail;
+  }
+}
