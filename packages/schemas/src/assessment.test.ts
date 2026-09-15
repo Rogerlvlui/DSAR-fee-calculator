@@ -14,6 +14,7 @@ import {
   VerdictSchema,
 } from "./assessment.ts";
 import { FREE_TEXT_LIMITS } from "./constants.ts";
+import { MINOR_MAX } from "./primitives.ts";
 
 function validLine(overrides: Record<string, unknown> = {}) {
   return {
@@ -142,6 +143,102 @@ describe("AssessmentLineSchema — flagReasons/FLAG cross-field refinement", () 
         flagReasons: [{ code: "UNCATEGORISED", message: "Line is unclassified." }],
       })
     );
+    expect(result.success).toBe(true);
+  });
+});
+
+// D-12: an additive, optional flat-fee comparison block on TotalsSchema,
+// carrying the pack's flat figure, the itemised direct cost (= draftBaseline,
+// per D-12's definition), and whether the flat figure exceeds it. Optional,
+// not nullable-required, so a pack with no flat fee omits the key entirely —
+// every existing six-key Totals assertion above keeps passing unmodified.
+describe("TotalsSchema — flatFeeComparison (D-12)", () => {
+  it("a Totals object with the six existing keys and no comparison key parses, with no comparison property on the result", () => {
+    const result = TotalsSchema.safeParse(validTotals());
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(Object.prototype.hasOwnProperty.call(result.data, "flatFeeComparison")).toBe(false);
+    }
+  });
+
+  it("a Totals object carrying the comparison block parses, with the flat amount branded and the boolean present", () => {
+    const result = TotalsSchema.safeParse(
+      validTotals({
+        flatFeeComparison: {
+          flatFeeAmount: 50000,
+          itemisedDirectCostAmount: 26640,
+          flatFeeExceedsItemisedCost: true,
+        },
+      })
+    );
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.flatFeeComparison?.flatFeeAmount).toBe(50000);
+      expect(result.data.flatFeeComparison?.flatFeeExceedsItemisedCost).toBe(true);
+    }
+  });
+
+  it("rejects a comparison block whose flat amount is a non-integer", () => {
+    const result = TotalsSchema.safeParse(
+      validTotals({
+        flatFeeComparison: {
+          flatFeeAmount: 500.5,
+          itemisedDirectCostAmount: 26640,
+          flatFeeExceedsItemisedCost: true,
+        },
+      })
+    );
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects a comparison block whose flat amount is outside the Minor bounds", () => {
+    const result = TotalsSchema.safeParse(
+      validTotals({
+        flatFeeComparison: {
+          flatFeeAmount: MINOR_MAX + 1,
+          itemisedDirectCostAmount: 26640,
+          flatFeeExceedsItemisedCost: true,
+        },
+      })
+    );
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects a comparison block missing the boolean", () => {
+    const result = TotalsSchema.safeParse(
+      validTotals({
+        flatFeeComparison: {
+          flatFeeAmount: 50000,
+          itemisedDirectCostAmount: 26640,
+        },
+      })
+    );
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects a comparison block carrying an undeclared extra key", () => {
+    const result = TotalsSchema.safeParse(
+      validTotals({
+        flatFeeComparison: {
+          flatFeeAmount: 50000,
+          itemisedDirectCostAmount: 26640,
+          flatFeeExceedsItemisedCost: true,
+          currency: "SGD",
+        },
+      })
+    );
+    expect(result.success).toBe(false);
+  });
+
+  it("still rejects a missing finalAmount key (AC-25 unaffected)", () => {
+    const { finalAmount: _drop, ...withoutFinalAmount } = validTotals();
+    void _drop;
+    const result = TotalsSchema.safeParse(withoutFinalAmount);
+    expect(result.success).toBe(false);
+  });
+
+  it("still accepts finalAmount: null (AC-25 unaffected)", () => {
+    const result = TotalsSchema.safeParse(validTotals({ finalAmount: null }));
     expect(result.success).toBe(true);
   });
 });
