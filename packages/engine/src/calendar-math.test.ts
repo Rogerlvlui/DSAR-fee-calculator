@@ -74,7 +74,18 @@ describe("calendar-math", () => {
         (yearA, monthA, dayA, yearB, monthB, dayB, n) => {
           const numA = civilToDayNumber(yearA, monthA, dayA);
           const numB = civilToDayNumber(yearB, monthB, dayB);
-          expect(numB - numA).toBe(-(numA - numB));
+          // Antisymmetry. `-(numA - numB)` evaluates to `-0` when the two
+          // dates coincide, and `.toBe` is `Object.is`, which separates `-0`
+          // from `+0` — so the strict matcher rejects a genuinely
+          // antisymmetric result roughly once every few hundred full-suite
+          // runs, whenever fast-check (which deliberately biases toward
+          // repeated values) draws the same date twice. `===` is the correct
+          // equality for this claim: it is the mathematical statement itself,
+          // and it treats the two signed zeros as equal.
+          expect(
+            numB - numA === -(numA - numB),
+            `antisymmetry failed: numA=${numA}, numB=${numB}`
+          ).toBe(true);
 
           const shifted = civilFromDayNumber(numA + n);
           const shiftedNum = civilToDayNumber(shifted.year, shifted.month, shifted.day);

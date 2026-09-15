@@ -49,6 +49,16 @@ export default defineConfig({
           name: "toolchain",
           environment: "node",
           include: ["tests/toolchain/**/*.test.ts"],
+          // These gates instantiate a real ESLint and a real dependency-cruiser
+          // rather than asserting against a stub, so the first test in each file
+          // pays a cold start of roughly 750ms on its own. Vitest's 5s default
+          // leaves under 7x headroom, which the full suite can exhaust when all
+          // seven projects contend for CPU — observed twice as `lint-money-brand`
+          // and `lint-engine-determinism` timing out together while every
+          // assertion in them still held. A gate that reddens CI for load rather
+          // than for a real violation trains people to re-run it, which is how a
+          // gate stops being read at all.
+          testTimeout: 30000,
         },
       },
       {
