@@ -184,6 +184,22 @@ export const MatterFlagCodeSchema = z.enum([
   "STALE_PACK_WARNING",
   "NO_FEE_AUTHORITY_POSTURE",
   "PACK_FLAG", // PACK_FLAG = from matterFlagRules
+  // D-11 (Phase 2 post-freeze amendment, packages/schemas/FREEZE.md) — NOT a
+  // PRD §6.0 transcription. PRD §6.0 lists AGGREGATE_CAP_APPLIED among the
+  // *line-level* FlagReasonCode values, and it stays there unmoved — this is
+  // an additive sibling at matter level, not a relocation. It exists because
+  // Phase 1's AssessmentLineSchema.superRefine is bidirectional (flagReasons
+  // must be empty unless verdict is FLAG, and vice versa), so a line reduced
+  // by the pack's aggregate cap cannot carry a line-level reason without
+  // also being forced to verdict FLAG — which would drop its reduced amount
+  // out of draftBaseline entirely (AC-11), silently changing the computed
+  // fee rather than merely noting how it was computed. Loosening the
+  // refinement was rejected: it would blur the property every later phase
+  // relies on, that a non-empty flagReasons array means the line is flagged
+  // and contributes nothing. Resolving the conflict additively — giving the
+  // aggregate-cap notice a matter-level home instead — leaves the line-level
+  // refinement, and the ALLOW_CAPPED verdict it protects, untouched.
+  "AGGREGATE_CAP_APPLIED",
 ]);
 export type MatterFlagCode = z.infer<typeof MatterFlagCodeSchema>;
 
