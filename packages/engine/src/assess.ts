@@ -5,8 +5,12 @@
 // (all five per-line treatments, plus the AC-19 unclassified override) are
 // plan 02-04's, in posture-gate.ts/evaluate-line.ts. Step 4 (cross-line
 // checks, cross-line-checks.ts) and step 5 (the aggregate cap,
-// aggregate-cap.ts) are plan 02-05's. The rest of step 7 (matter flags
-// beyond the aggregate cap's own) is a later plan in this phase.
+// aggregate-cap.ts) are plan 02-05's, which also raises step 7's
+// AGGREGATE_CAP_APPLIED matter flag as part of the cap step itself. Step 7's
+// remaining matter-level flags — the pack's own matterFlagRules and the
+// four derived codes (LITIGATION_POSTURE, REPEAT_REQUEST,
+// STALE_PACK_WARNING, NO_FEE_AUTHORITY_POSTURE) — are plan 02-06's, in
+// matter-flags.ts.
 //
 // assess() never calls .parse() on its own output — validation at the
 // boundary is the caller's job, and the ENGINE-17 100ms/50-line budget is
@@ -23,6 +27,7 @@ import { computeTotals } from "./totals.ts";
 import { evaluateLine } from "./evaluate-line.ts";
 import { computeCrossLineFlagReasons, type CrossLineCheckLine } from "./cross-line-checks.ts";
 import { applyAggregateCapStep } from "./aggregate-cap.ts";
+import { composeMatterLevelFlags, computeDerivedMatterFlags, evaluatePackFlagRules } from "./matter-flags.ts";
 
 export const ENGINE_VERSION = "0.1.0";
 
@@ -156,6 +161,16 @@ export function assess(input: AssessInput): Assessment {
 
   const totals = computeTotals(assessmentLines, expenseLinesById, appliedRuleById);
 
+  // §8.1 step 7 — matter-level flags. composeMatterLevelFlags() owns the
+  // final array's ordering: the derived codes first (declared order,
+  // matter-flags.ts), then plan 02-05's aggregate-cap flag if it fired, then
+  // the pack's own matterFlagRules in the order they appear in the pack.
+  const matterLevelFlags = composeMatterLevelFlags({
+    derivedFlags: computeDerivedMatterFlags(matter, pack, now),
+    aggregateCapFlag: aggregateCapResult.matterFlag,
+    packFlags: evaluatePackFlagRules(pack, matter, lines),
+  });
+
   return {
     id: assessmentId,
     matterId: matter.id,
@@ -164,7 +179,7 @@ export function assess(input: AssessInput): Assessment {
     engineVersion: ENGINE_VERSION,
     computedAt: now,
     lines: assessmentLines,
-    matterLevelFlags: aggregateCapResult.matterFlag ? [aggregateCapResult.matterFlag] : [],
+    matterLevelFlags,
     totals,
     signOff: null,
   };

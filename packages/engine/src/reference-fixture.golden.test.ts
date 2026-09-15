@@ -24,9 +24,13 @@
 //     STAFF_TIME_COLLATE and PHOTOCOPY_PRINT are NEEDS_VERIFICATION here;
 //     STAFF_TIME_SEARCH is VERIFIED).
 //
-// Matter flags beyond the aggregate cap (LITIGATION_POSTURE/REPEAT_REQUEST/
-// STALE_PACK_WARNING, matterFlagRules) are plan 02-06's, which extends this
-// same file further — not asserted here.
+// Plan 02-06 extends this file further with §8.1 step 7's matter-level
+// flags: REFERENCE_FIXTURE_PACK's matterFlagRules (three informational SG
+// flags, reference-pack.ts) plus the derived LITIGATION_POSTURE (matter.
+// isKnownDisputeOrLitigation is true) and STALE_PACK_WARNING (reviewDueOn is
+// 16 days out, inside the 30-day window) — REPEAT_REQUEST and
+// NO_FEE_AUTHORITY_POSTURE do not fire on this fixture (isRepeatRequest...
+// is false; the posture is PERMITTED_REASONABLE, not NO_EXPRESS_AUTHORITY).
 //
 // Plan 02-05 extends this file with §8.1 steps 4 and 5: the cross-line
 // checks (line 5 gains MATERIALITY alongside its existing CONDITIONS_NOT_MET
@@ -121,6 +125,74 @@ describe("PRD §14 reference fixture (SG-shaped)", () => {
   it("produces a schema-valid Assessment end to end", () => {
     const result = runReferenceFixture();
     expect(() => AssessmentSchema.parse(result)).not.toThrow();
+  });
+
+  it("reproduces the exact five matter-level flags — LITIGATION_POSTURE and STALE_PACK_WARNING (both requiring acknowledgement), plus the three informational SG pack flags", () => {
+    const result = runReferenceFixture();
+
+    expect(result.matterLevelFlags).toEqual([
+      {
+        id: "LITIGATION_POSTURE",
+        code: "LITIGATION_POSTURE",
+        message:
+          "This requestor is in a known dispute with the company. A fee that is defensible in principle may still be unwise here, and may be characterised as obstructive. Confirm you have considered whether to charge at all.",
+        requiresAcknowledgement: true,
+      },
+      {
+        id: "STALE_PACK_WARNING",
+        code: "STALE_PACK_WARNING",
+        message:
+          "The rule pack's review is due on '2026-10-01' (16 day(s) from now) — confirm the pack's current position before relying on this assessment.",
+        requiresAcknowledgement: true,
+      },
+      {
+        id: "SG.WRITTEN_ESTIMATE",
+        code: "PACK_FLAG",
+        message:
+          "A written estimate of the fee must be given to the applicant before the fee is charged. If the eventual fee will exceed the estimate, a further written estimate is required.",
+        requiresAcknowledgement: false,
+      },
+      {
+        id: "SG.RESPOND_30_DAYS",
+        code: "PACK_FLAG",
+        message:
+          "Respond within 30 days. If that is not possible, notify the applicant in writing of the time by which a response will be provided.",
+        requiresAcknowledgement: false,
+      },
+      {
+        id: "SG.NOT_A_DETERRENT",
+        code: "PACK_FLAG",
+        message:
+          "The fee must be reasonable and must not be used to discourage the applicant from pursuing the request. The Commission may review the reasonableness of the fee.",
+        requiresAcknowledgement: false,
+      },
+    ]);
+  });
+
+  it("matterLevelFlags is toEqual-identical across two consecutive assess() calls — the array's order is deterministic", () => {
+    const first = runReferenceFixture();
+    const second = runReferenceFixture();
+    expect(first.matterLevelFlags).toEqual(second.matterLevelFlags);
+  });
+});
+
+describe("§8.1 step 7 — the NO_FEE_AUTHORITY_POSTURE matter-level code", () => {
+  it("fires alongside every line being flagged, under a NO_EXPRESS_AUTHORITY posture", () => {
+    const noAuthorityPack: RulePack = {
+      ...buildReferencePack(),
+      feePosture: { PRIVATE_ORGANISATION: "NO_EXPRESS_AUTHORITY", PUBLIC_AGENCY: "NO_EXPRESS_AUTHORITY" },
+    };
+
+    const result = assess({
+      matter: REFERENCE_MATTER,
+      lines: [REFERENCE_LINE],
+      pack: noAuthorityPack,
+      now: REFERENCE_NOW,
+    });
+
+    expect(result.lines[0]?.verdict).toBe("FLAG");
+    expect(result.lines[0]?.flagReasons.map((reason) => reason.code)).toEqual(["NO_FEE_AUTHORITY"]);
+    expect(result.matterLevelFlags.some((flag) => flag.code === "NO_FEE_AUTHORITY_POSTURE")).toBe(true);
   });
 });
 

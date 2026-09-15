@@ -156,3 +156,37 @@ export function aggregateCapAppliedMessage(): string {
 export function aggregateCapInvalidTypeMessage(capType: string): string {
   return `Rule pack constraints.aggregateCap has type '${capType}', which has no matter-wide meaning; only 'PER_MATTER' or 'PERCENT_OF_CLAIM' may be used as an aggregate cap.`;
 }
+
+// Plan 02-06 — §8.1 step 7's derived matter-level flags and the pack's own
+// matterFlagRules (evaluatePackFlagRules() in matter-flags.ts reuses the
+// pack-authored `message` text verbatim and does not go through this
+// module — see that function's own comment).
+
+// PRD §9.4 quotes this verbatim (AC-24) — recorded exactly, not paraphrased,
+// since the PRD specifies the literal copy the lawyer must acknowledge.
+export function litigationPostureMessage(): string {
+  return "This requestor is in a known dispute with the company. A fee that is defensible in principle may still be unwise here, and may be characterised as obstructive. Confirm you have considered whether to charge at all.";
+}
+
+// PRD §8.1 step 7 names the code (REPEAT_REQUEST) but not literal copy for
+// it, unlike LITIGATION_POSTURE's PRD §9.4 quote — authored here in the same
+// register as the other engine-authored messages in this module.
+export function repeatRequestMessage(): string {
+  return "This requestor has made another request within the last 12 months; consider whether that affects this assessment.";
+}
+
+// PRD §9.3: "within 30 days of reviewDueOn" triggers a warning rather than a
+// block — names both the due date and the days remaining, per this module's
+// own convention of never saying "invalid input" without specifics.
+export function stalePackWarningMessage(reviewDueOn: string, daysRemaining: number): string {
+  return `The rule pack's review is due on '${reviewDueOn}' (${daysRemaining} day(s) from now) — confirm the pack's current position before relying on this assessment.`;
+}
+
+// The matter-level twin of noFeeAuthorityMessage() above — that one is
+// carried on each individual line's flagReasons; this one is the
+// once-per-matter statement of the same fact at matter level (AC-13's
+// scenario needs both, so a lawyer sees a single explanation rather than
+// having to infer it from twenty repeated per-line reasons).
+export function noFeeAuthorityPostureMessage(): string {
+  return "The rule pack records no express authority to charge a fee for this controller type; every line in this matter is referred to Legal rather than assessed.";
+}

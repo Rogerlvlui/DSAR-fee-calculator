@@ -12,10 +12,16 @@
 
 import { describe, expect, it } from "vitest";
 import { MatterFlagSchema } from "@dsar/schemas/primitives";
+import type { Matter } from "@dsar/schemas/matter";
 import type { MatterFlagRule, RulePack } from "@dsar/schemas/rule-pack";
 import { ExpenseLineSchema, type ExpenseLine } from "@dsar/schemas/expense-line";
-import { evaluatePackFlagRules } from "./matter-flags.ts";
-import { REFERENCE_MATTER, buildReferencePack } from "./__fixtures__/reference-matter.ts";
+import {
+  composeMatterLevelFlags,
+  computeDerivedMatterFlags,
+  DERIVED_MATTER_FLAG_ORDER,
+  evaluatePackFlagRules,
+} from "./matter-flags.ts";
+import { REFERENCE_MATTER, REFERENCE_NOW, buildReferencePack } from "./__fixtures__/reference-matter.ts";
 
 interface RawExpenseLineInput {
   id?: string;
@@ -187,5 +193,125 @@ describe("matterFlagRules — evaluatePackFlagRules", () => {
     expect(() =>
       evaluatePackFlagRules(buildPack([malformedRule]), REFERENCE_MATTER, [buildExpenseLine()])
     ).toThrow();
+  });
+});
+
+// Task 2 — the four derived matter-flag codes and the full array
+// composition (ENGINE-11, §8.1 step 7's second half).
+describe("matter flags — derived and composed", () => {
+  function matterWith(overrides: Partial<Matter>): Matter {
+    return { ...REFERENCE_MATTER, ...overrides };
+  }
+
+  it("LITIGATION_POSTURE fires when isKnownDisputeOrLitigation is true, requiring acknowledgement", () => {
+    const disputeMatter = matterWith({ isKnownDisputeOrLitigation: true });
+    const flags = computeDerivedMatterFlags(disputeMatter, buildReferencePack(), REFERENCE_NOW);
+    const flag = flags.find((f) => f.code === "LITIGATION_POSTURE");
+    expect(flag).toBeDefined();
+    expect(flag?.requiresAcknowledgement).toBe(true);
+  });
+
+  it("LITIGATION_POSTURE is absent when isKnownDisputeOrLitigation is false", () => {
+    const noDisputeMatter = matterWith({ isKnownDisputeOrLitigation: false });
+    const flags = computeDerivedMatterFlags(noDisputeMatter, buildReferencePack(), REFERENCE_NOW);
+    expect(flags.find((f) => f.code === "LITIGATION_POSTURE")).toBeUndefined();
+  });
+
+  it("REPEAT_REQUEST fires when isRepeatRequestWithin12Months is true, NOT requiring acknowledgement", () => {
+    const repeatMatter = matterWith({ isRepeatRequestWithin12Months: true, isKnownDisputeOrLitigation: false });
+    const flags = computeDerivedMatterFlags(repeatMatter, buildReferencePack(), REFERENCE_NOW);
+    const flag = flags.find((f) => f.code === "REPEAT_REQUEST");
+    expect(flag).toBeDefined();
+    expect(flag?.requiresAcknowledgement).toBe(false);
+  });
+
+  it("REPEAT_REQUEST is absent when isRepeatRequestWithin12Months is false", () => {
+    const notRepeatMatter = matterWith({ isRepeatRequestWithin12Months: false });
+    const flags = computeDerivedMatterFlags(notRepeatMatter, buildReferencePack(), REFERENCE_NOW);
+    expect(flags.find((f) => f.code === "REPEAT_REQUEST")).toBeUndefined();
+  });
+
+  it("STALE_PACK_WARNING fires at exactly 30 days from reviewDueOn, requiring acknowledgement", () => {
+    const packDueIn30Days: RulePack = { ...buildReferencePack(), reviewDueOn: "2026-10-15" };
+    const flags = computeDerivedMatterFlags(REFERENCE_MATTER, packDueIn30Days, REFERENCE_NOW);
+    const flag = flags.find((f) => f.code === "STALE_PACK_WARNING");
+    expect(flag).toBeDefined();
+    expect(flag?.requiresAcknowledgement).toBe(true);
+  });
+
+  it("STALE_PACK_WARNING does NOT fire at 31 days from reviewDueOn", () => {
+    const packDueIn31Days: RulePack = { ...buildReferencePack(), reviewDueOn: "2026-10-16" };
+    const flags = computeDerivedMatterFlags(REFERENCE_MATTER, packDueIn31Days, REFERENCE_NOW);
+    expect(flags.find((f) => f.code === "STALE_PACK_WARNING")).toBeUndefined();
+  });
+
+  it("NO_FEE_AUTHORITY_POSTURE fires when the pack's posture for the matter's controllerType is NO_EXPRESS_AUTHORITY", () => {
+    const noAuthorityPack: RulePack = {
+      ...buildReferencePack(),
+      feePosture: { PRIVATE_ORGANISATION: "NO_EXPRESS_AUTHORITY", PUBLIC_AGENCY: "NO_EXPRESS_AUTHORITY" },
+    };
+    const flags = computeDerivedMatterFlags(REFERENCE_MATTER, noAuthorityPack, REFERENCE_NOW);
+    const flag = flags.find((f) => f.code === "NO_FEE_AUTHORITY_POSTURE");
+    expect(flag).toBeDefined();
+    expect(flag?.requiresAcknowledgement).toBe(false);
+  });
+
+  it("NO_FEE_AUTHORITY_POSTURE is absent under a permitting posture", () => {
+    const flags = computeDerivedMatterFlags(REFERENCE_MATTER, buildReferencePack(), REFERENCE_NOW);
+    expect(flags.find((f) => f.code === "NO_FEE_AUTHORITY_POSTURE")).toBeUndefined();
+  });
+
+  it("the derived-flag order is a declared constant: LITIGATION_POSTURE, REPEAT_REQUEST, STALE_PACK_WARNING, NO_FEE_AUTHORITY_POSTURE", () => {
+    expect(DERIVED_MATTER_FLAG_ORDER).toEqual([
+      "LITIGATION_POSTURE",
+      "REPEAT_REQUEST",
+      "STALE_PACK_WARNING",
+      "NO_FEE_AUTHORITY_POSTURE",
+    ]);
+  });
+
+  it("computeDerivedMatterFlags produces flags in DERIVED_MATTER_FLAG_ORDER's order when several fire at once", () => {
+    const allFireMatter = matterWith({ isKnownDisputeOrLitigation: true, isRepeatRequestWithin12Months: true });
+    const allFirePack: RulePack = {
+      ...buildReferencePack(),
+      reviewDueOn: "2026-10-15",
+      feePosture: { PRIVATE_ORGANISATION: "NO_EXPRESS_AUTHORITY", PUBLIC_AGENCY: "NO_EXPRESS_AUTHORITY" },
+    };
+    const flags = computeDerivedMatterFlags(allFireMatter, allFirePack, REFERENCE_NOW);
+    expect(flags.map((f) => f.code)).toEqual([
+      "LITIGATION_POSTURE",
+      "REPEAT_REQUEST",
+      "STALE_PACK_WARNING",
+      "NO_FEE_AUTHORITY_POSTURE",
+    ]);
+  });
+
+  it("composeMatterLevelFlags orders derived flags, then the aggregate-cap flag, then pack flags", () => {
+    const derivedFlags = [
+      { id: "LITIGATION_POSTURE", code: "LITIGATION_POSTURE" as const, message: "d", requiresAcknowledgement: true },
+    ];
+    const aggregateCapFlag = {
+      id: "AGGREGATE_CAP_APPLIED",
+      code: "AGGREGATE_CAP_APPLIED" as const,
+      message: "cap",
+      requiresAcknowledgement: true,
+    };
+    const packFlags = [
+      { id: "SG.WRITTEN_ESTIMATE", code: "PACK_FLAG" as const, message: "p", requiresAcknowledgement: false },
+    ];
+    const composed = composeMatterLevelFlags({ derivedFlags, aggregateCapFlag, packFlags });
+    expect(composed.map((f) => f.id)).toEqual(["LITIGATION_POSTURE", "AGGREGATE_CAP_APPLIED", "SG.WRITTEN_ESTIMATE"]);
+  });
+
+  it("composeMatterLevelFlags omits the aggregate-cap flag entirely when null", () => {
+    const composed = composeMatterLevelFlags({ derivedFlags: [], aggregateCapFlag: null, packFlags: [] });
+    expect(composed).toEqual([]);
+  });
+
+  it("two consecutive computeDerivedMatterFlags calls over the same input produce toEqual-identical arrays", () => {
+    const pack = buildReferencePack();
+    const first = computeDerivedMatterFlags(REFERENCE_MATTER, pack, REFERENCE_NOW);
+    const second = computeDerivedMatterFlags(REFERENCE_MATTER, pack, REFERENCE_NOW);
+    expect(first).toEqual(second);
   });
 });

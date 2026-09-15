@@ -16,8 +16,15 @@ import type { Matter } from "@dsar/schemas/matter";
 import type { ExpenseLine } from "@dsar/schemas/expense-line";
 import type { MatterFlagRule, RulePack } from "@dsar/schemas/rule-pack";
 import { CONDITION_FIELDS, type Condition, type ConditionField } from "@dsar/schemas/condition";
-import type { MatterFlag } from "@dsar/schemas/primitives";
+import type { MatterFlag, MatterFlagCode } from "@dsar/schemas/primitives";
 import { evaluateConditions } from "./conditions.ts";
+import { daysUntil } from "./calendar-math.ts";
+import {
+  litigationPostureMessage,
+  noFeeAuthorityPostureMessage,
+  repeatRequestMessage,
+  stalePackWarningMessage,
+} from "./messages.ts";
 
 // Matter-only fields from the closed CONDITION_FIELDS vocabulary
 // (condition.ts's own comment already splits the list this way). Used to
@@ -131,4 +138,108 @@ export function evaluatePackFlagRules(
     }
   }
   return flags;
+}
+
+// ---------------------------------------------------------------------------
+// Task 2 — the four derived matter-flag codes (§8.1 step 7, ENGINE-11)
+// ---------------------------------------------------------------------------
+
+type DerivedMatterFlagCode =
+  | "LITIGATION_POSTURE"
+  | "REPEAT_REQUEST"
+  | "STALE_PACK_WARNING"
+  | "NO_FEE_AUTHORITY_POSTURE";
+
+interface DerivedFlagSpec {
+  code: DerivedMatterFlagCode;
+  requiresAcknowledgement: boolean;
+  fires: (matter: Matter, pack: RulePack, now: string) => boolean;
+  message: (matter: Matter, pack: RulePack, now: string) => string;
+}
+
+// The declared order every derived flag is evaluated and, if it fires,
+// appended in — a fixed constant rather than the incidental order of a
+// series of `if` statements, so this array is reviewable on its own and a
+// golden-file `toEqual` over the produced array is stable (T-2-27). PRD
+// §8.1 step 7's own prose order (LITIGATION_POSTURE, REPEAT_REQUEST,
+// STALE_PACK_WARNING) is preserved; NO_FEE_AUTHORITY_POSTURE — not named in
+// step 7's prose but a real MatterFlagCode member (PRD §6.0) — is appended
+// last.
+const DERIVED_MATTER_FLAG_SPECS: readonly DerivedFlagSpec[] = [
+  {
+    code: "LITIGATION_POSTURE",
+    // AC-24: requires acknowledgement.
+    requiresAcknowledgement: true,
+    fires: (matter) => matter.isKnownDisputeOrLitigation,
+    message: () => litigationPostureMessage(),
+  },
+  {
+    code: "REPEAT_REQUEST",
+    // AC-24: informational — does not block sign-off.
+    requiresAcknowledgement: false,
+    fires: (matter) => matter.isRepeatRequestWithin12Months,
+    message: () => repeatRequestMessage(),
+  },
+  {
+    code: "STALE_PACK_WARNING",
+    // AC-24: requires acknowledgement.
+    requiresAcknowledgement: true,
+    // §9.3: "within 30 days of reviewDueOn" — inclusive of day 30. A
+    // negative result (past due) cannot occur here: plan 02-01's
+    // checkPreconditions() already refuses a past-due pack outright before
+    // assess() ever reaches step 7 (AC-39, §9.3's "a block, not a banner")
+    // — do not add a redundant `>= 0` guard on the strength of that.
+    // RED (deliberate, Task 2 red phase): off-by-one — <= 31 instead of the
+    // inclusive-of-30 window §9.3 specifies, so a pack due in 31 days
+    // incorrectly fires this flag.
+    fires: (_matter, pack, now) => daysUntil(now, pack.reviewDueOn) <= 31,
+    message: (_matter, pack, now) => stalePackWarningMessage(pack.reviewDueOn, daysUntil(now, pack.reviewDueOn)),
+  },
+  {
+    code: "NO_FEE_AUTHORITY_POSTURE",
+    // AC-24: informational at matter level — the per-line NO_FEE_AUTHORITY
+    // FlagReason is what actually blocks each line's amount; this is the
+    // once-per-matter statement of the same fact (see messages.ts's note).
+    requiresAcknowledgement: false,
+    fires: (matter, pack) => pack.feePosture[matter.controllerType] === "NO_EXPRESS_AUTHORITY",
+    message: () => noFeeAuthorityPostureMessage(),
+  },
+];
+
+// Exposed so a test can assert the declared order directly, rather than
+// only inferring it from a produced array — the order itself is what T-2-27
+// exists to keep stable.
+export const DERIVED_MATTER_FLAG_ORDER: readonly MatterFlagCode[] = DERIVED_MATTER_FLAG_SPECS.map(
+  (spec) => spec.code
+);
+
+// §8.1 step 7 (second half) / ENGINE-11 — the four derived matter-flag
+// codes, in DERIVED_MATTER_FLAG_SPECS's declared order. Each derived flag's
+// `id` is its own code: unlike a pack-authored flag (whose id is the pack's
+// own `flagId`), a derived flag has no pack-authored identity to carry, and
+// the code itself is already a stable, unique string.
+export function computeDerivedMatterFlags(matter: Matter, pack: RulePack, now: string): MatterFlag[] {
+  return DERIVED_MATTER_FLAG_SPECS.filter((spec) => spec.fires(matter, pack, now)).map((spec) => ({
+    id: spec.code,
+    code: spec.code,
+    message: spec.message(matter, pack, now),
+    requiresAcknowledgement: spec.requiresAcknowledgement,
+  }));
+}
+
+export interface ComposeMatterLevelFlagsInput {
+  derivedFlags: readonly MatterFlag[];
+  aggregateCapFlag: MatterFlag | null;
+  packFlags: readonly MatterFlag[];
+}
+
+// §8.1 step 7's final array composition and ordering, owned in exactly one
+// place: derived flags (DERIVED_MATTER_FLAG_SPECS's declared order) first,
+// then plan 02-05's aggregate-cap flag if it fired, then the pack's own
+// matterFlagRules in the order they appear in the pack. PRD §14's expected
+// five flags (the two derived ones, then the three SG pack flags) match
+// this order exactly.
+export function composeMatterLevelFlags(input: ComposeMatterLevelFlagsInput): MatterFlag[] {
+  const { derivedFlags, aggregateCapFlag, packFlags } = input;
+  return [...derivedFlags, ...(aggregateCapFlag ? [aggregateCapFlag] : []), ...packFlags];
 }
