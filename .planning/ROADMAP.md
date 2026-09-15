@@ -80,7 +80,32 @@ Scope discipline: this phase now runs start to finish with **no Docker and no da
   4. Totals cannot be read early or inflated: `finalAmount` is `null` and unrepresentable as a number before sign-off (AC-25), `FLAG` lines contribute zero to `draftBaseline` with their claimed value appearing only in `flaggedTotal` (AC-11), and `restingOnUnverifiedRules` is a strict subset of `draftBaseline` (AC-22)
   5. A 50-line assessment completes in under 100ms (§11), a stored `claimedAmount` that does not equal `quantity × unitRate` raises a hard error and blocks submission (AC-08), and for a flat-fee-bearing pack the engine returns both the itemised baseline and the flat figure plus whether the flat figure exceeds itemised direct cost
 
-**Plans**: TBD
+**Plans**: 7 plans across 5 waves
+
+Plans:
+**Wave 1**
+
+- [ ] 02-01-PLAN.md — Engine spine: one ALLOW line end-to-end through `assess()`, typed preconditions, the `Totals` formulas, Date-free calendar arithmetic
+- [ ] 02-02-PLAN.md — Determinism and purity gates: the clock/random/locale ban over `packages/engine`, each proven to fire against a violating fixture
+- [ ] 02-03-PLAN.md — Additive schema changes: the matter-level aggregate-cap flag code (D-11) and the flat-fee comparison block on `Totals` (D-12)
+
+**Wave 2** *(blocked on 02-01)*
+
+- [ ] 02-04-PLAN.md — Posture gate, five treatments, `applyCap`, and PRD §14's reference fixture with its golden test
+
+**Wave 3** *(blocked on 02-04, 02-03)*
+
+- [ ] 02-05-PLAN.md — Cross-line checks and the pro-rata aggregate cap with the residue left unallocated
+
+**Wave 4** *(blocked on 02-05, 02-03)*
+
+- [ ] 02-06-PLAN.md — Matter-level flags (§8.1 step 7) and the flat-fee comparison (ENGINE-16)
+
+**Wave 5** *(blocked on 02-06)*
+
+- [ ] 02-07-PLAN.md — Timezone invariance, the 100ms budget, the 10,000-run money property, and the engine's own language
+
+Gate integrity: every gate this phase adds ships with a fixture it must catch and an assertion observing the catch — a violating lint fixture, a timezone control that must differ, a timing control that must exceed the budget, a banned-word control that must be caught. A clean run is not evidence a gate works.
 
 ### Phase 3: Rule Packs and Pack Admin
 
