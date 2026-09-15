@@ -8,11 +8,13 @@ import {
   JURISDICTION_CURRENCY,
   JurisdictionCodeSchema,
   MatterFlagCodeSchema,
+  MatterFlagSchema,
   MINOR_MAX,
   MINOR_MIN,
   MinorSchema,
   UlidSchema,
 } from "./primitives.ts";
+import { AssessmentLineSchema } from "./assessment.ts";
 
 describe("MinorSchema", () => {
   it("accepts 0", () => {
@@ -115,7 +117,86 @@ describe("FlagReasonCodeSchema / MatterFlagCodeSchema cardinality", () => {
     expect(FlagReasonCodeSchema.options).toHaveLength(9);
   });
 
-  it("MatterFlagCodeSchema has exactly 5 members", () => {
-    expect(MatterFlagCodeSchema.options).toHaveLength(5);
+  it("MatterFlagCodeSchema has exactly 6 members (D-11 adds AGGREGATE_CAP_APPLIED)", () => {
+    expect(MatterFlagCodeSchema.options).toHaveLength(6);
+  });
+});
+
+// D-11: AGGREGATE_CAP_APPLIED is added to MatterFlagCode as a matter-level
+// flag so ENGINE-07's "flag that the cap bit" has somewhere to go without a
+// capped line giving up its ALLOW_CAPPED verdict or its contribution to
+// draftBaseline. The frozen AssessmentLineSchema.superRefine (flagReasons
+// empty unless verdict is FLAG, and vice versa) is untouched by this change.
+describe("MatterFlagCodeSchema (D-11)", () => {
+  it("parses the new AGGREGATE_CAP_APPLIED cap code", () => {
+    expect(MatterFlagCodeSchema.safeParse("AGGREGATE_CAP_APPLIED").success).toBe(true);
+  });
+
+  it.each([
+    "LITIGATION_POSTURE",
+    "REPEAT_REQUEST",
+    "STALE_PACK_WARNING",
+    "NO_FEE_AUTHORITY_POSTURE",
+    "PACK_FLAG",
+  ])("still parses the pre-existing code %s", (code) => {
+    expect(MatterFlagCodeSchema.safeParse(code).success).toBe(true);
+  });
+});
+
+describe("MatterFlagSchema — AGGREGATE_CAP_APPLIED (D-11)", () => {
+  it("a MatterFlag using the new code parses with a message and requiresAcknowledgement: false", () => {
+    const result = MatterFlagSchema.safeParse({
+      id: "matter-1.AGGREGATE_CAP_APPLIED",
+      code: "AGGREGATE_CAP_APPLIED",
+      message: "The pack's aggregate cap reduced one or more lines.",
+      requiresAcknowledgement: false,
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.requiresAcknowledgement).toBe(false);
+    }
+  });
+});
+
+// D-11 proof that the bidirectional line-level refinement is demonstrably
+// unchanged: a capped line still cannot carry a line-level flag reason, and
+// a FLAG line still cannot have an empty flagReasons array. The matter-level
+// addition above does not touch this invariant.
+describe("AssessmentLineSchema.superRefine — unchanged by the MatterFlag D-11 addition", () => {
+  function validLine(overrides: Record<string, unknown> = {}) {
+    return {
+      id: "line-1",
+      expenseLineId: "expense-1",
+      verdict: "ALLOW",
+      engineAmount: 16000,
+      appliedRuleId: "SG-PDPA.STAFF_TIME_SEARCH",
+      appliedCap: null,
+      basis: "Direct labour cost of locating the requested data.",
+      citation: { instrument: "PDPA", provision: "s.10" },
+      flagReasons: [],
+      disposition: "PENDING",
+      lawyerAmount: null,
+      lawyerReason: null,
+      dispositionedBy: null,
+      dispositionedAt: null,
+      ...overrides,
+    };
+  }
+
+  it("an ALLOW_CAPPED line with a non-empty flagReasons array still fails to parse", () => {
+    expect(() =>
+      AssessmentLineSchema.parse(
+        validLine({
+          verdict: "ALLOW_CAPPED",
+          flagReasons: [{ code: "AGGREGATE_CAP_APPLIED", message: "Capped by aggregate cap." }],
+        })
+      )
+    ).toThrow();
+  });
+
+  it("a FLAG line with an empty flagReasons array still fails to parse", () => {
+    expect(() =>
+      AssessmentLineSchema.parse(validLine({ verdict: "FLAG", engineAmount: 0, flagReasons: [] }))
+    ).toThrow();
   });
 });
