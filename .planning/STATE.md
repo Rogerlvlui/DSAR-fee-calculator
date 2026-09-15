@@ -3,16 +3,16 @@ gsd_state_version: "1.0"
 current_phase: 02
 current_phase_name: Deterministic Fee Engine
 status: executing
-stopped_at: Completed 02-01-PLAN.md
-last_updated: "2026-09-15T06:23:42.070Z"
+stopped_at: Completed 02-02-PLAN.md
+last_updated: "2026-09-15T06:44:17.076Z"
 last_activity: 2026-09-15
 last_activity_desc: Phase 02 execution started
-state_head: b3521404db36775dd0e83c0f90705013246ea657
+state_head: 82941ba56912c57ef61963200b9154267598c65e
 progress:
   total_phases: 10
   completed_phases: 0
   total_plans: 16
-  completed_plans: 7
+  completed_plans: 8
   percent: 0
 ---
 
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-09-13)
 ## Current Position
 
 Phase: 02 (Deterministic Fee Engine) — EXECUTING
-Plan: 2 of 7
+Plan: 3 of 7
 Status: Ready to execute
 Last activity: 2026-09-15 — Phase 02 execution started
 
@@ -65,6 +65,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01 P06 | 30min | 3 tasks | 4 files |
 | Phase 01 P07 | 25min | 3 tasks | 17 files |
 | Phase 02 P01 | 35min | 3 tasks | 12 files |
+| Phase 02 P02 | 45min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -94,6 +95,8 @@ Recent decisions affecting current work:
 - [Phase 02]: [Phase 02 P01]: Trimmed errors.ts/messages.ts back to Task 1's three precondition codes after a RED-phase scope leak into Task 3's codes tripped the AC-07a money-branding lint rule; Task 3 re-added the remaining three with correctly Minor-typed detail fields
 - [Phase 02]: [Phase 02 P01]: gsd-tools check tdd-red-evidence's classifier expects Node --test's TAP summary lines, which Vitest's tap/tap-flat reporters do not emit; RED evidence captured by appending a manually-counted (never fabricated) summary line to the real vitest output before classification
 - [Phase 02]: [Phase 02 P01]: computeTotals' appliedRuleById is keyed by AssessmentLine.id, not CategoryRule.ruleId, so it stays unambiguous even when two lines share a rule
+- [Phase 02]: Locale-formatting positive case uses (1234).toLocaleString() rather than .toLocaleDateString() (Number has no such method); the ban's selector matches any toLocale* property name regardless — Representative instance of the same construct, not a narrower rule
+- [Phase 02]: RED evidence for TDD tasks captured via vitest tap-flat plus a hand-appended TAP summary line — Continues 02-01's documented workaround for gsd-tools check tdd-red-evidence's Node-test-runner-shaped parser
 
 ### Pending Todos
 
@@ -119,6 +122,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-09-15T06:23:41.996Z
-Stopped at: Completed 02-01-PLAN.md
+Last session: 2026-09-15T06:44:17.005Z
+Stopped at: Completed 02-02-PLAN.md
 Resume file: None
