@@ -1,18 +1,18 @@
 ---
 gsd_state_version: "1.0"
-current_phase: 2
+current_phase: 02
 current_phase_name: Deterministic Fee Engine
 status: executing
-stopped_at: Phase 1 complete, ready to plan Phase 2
-last_updated: "2026-09-15T04:59:11.423Z"
+stopped_at: Completed 02-01-PLAN.md
+last_updated: "2026-09-15T06:23:42.070Z"
 last_activity: 2026-09-15
-last_activity_desc: Phase 1 complete, transitioned to Phase 2
-state_head: 6fe48620bcb297f5446522f0fd2a850032fa9538
+last_activity_desc: Phase 02 execution started
+state_head: b3521404db36775dd0e83c0f90705013246ea657
 progress:
   total_phases: 10
-  completed_phases: 1
+  completed_phases: 0
   total_plans: 16
-  completed_plans: 6
+  completed_plans: 7
   percent: 0
 ---
 
@@ -23,14 +23,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-13)
 
 **Core value:** A lawyer can defend the output by saying "the engine applied rule HK-PDPO.STAFF_TIME_REDACT_EXEMPT, version 2026.09.1, authored by X on date Y, and struck the line" — never "the model assessed the claim."
-**Current focus:** Phase 01 — Schemas Freeze and Walking Skeleton
+**Current focus:** Phase 02 — Deterministic Fee Engine
 
 ## Current Position
 
-Phase: 2 (Deterministic Fee Engine) — READY TO EXECUTE
-Plan: Not started
+Phase: 02 (Deterministic Fee Engine) — EXECUTING
+Plan: 2 of 7
 Status: Ready to execute
-Last activity: 2026-09-15 — Phase 1 complete, transitioned to Phase 2
+Last activity: 2026-09-15 — Phase 02 execution started
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -64,6 +64,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01 P05 | 25min | 3 tasks | 6 files |
 | Phase 01 P06 | 30min | 3 tasks | 4 files |
 | Phase 01 P07 | 25min | 3 tasks | 17 files |
+| Phase 02 P01 | 35min | 3 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -90,6 +91,9 @@ Recent decisions affecting current work:
 - [Phase 01]: GuardInput authored as its own literal type (11 members), never Omit</Pick<-derived, so AC-15b's compile-time exclusion stays structural
 - [Phase 01]: z.toJSONSchema() (zod 4 native) generates 3 committed JSON Schema artifacts under packages/schemas/schema/; drift test proves byte-identical regeneration
 - [Phase 01]: fast-check property harness (seed 20260915) proves the money-integer invariant over hand-constructed Assessment values; Phase 2 re-points it at real assess() output
+- [Phase 02]: [Phase 02 P01]: Trimmed errors.ts/messages.ts back to Task 1's three precondition codes after a RED-phase scope leak into Task 3's codes tripped the AC-07a money-branding lint rule; Task 3 re-added the remaining three with correctly Minor-typed detail fields
+- [Phase 02]: [Phase 02 P01]: gsd-tools check tdd-red-evidence's classifier expects Node --test's TAP summary lines, which Vitest's tap/tap-flat reporters do not emit; RED evidence captured by appending a manually-counted (never fabricated) summary line to the real vitest output before classification
+- [Phase 02]: [Phase 02 P01]: computeTotals' appliedRuleById is keyed by AssessmentLine.id, not CategoryRule.ruleId, so it stays unambiguous even when two lines share a rule
 
 ### Pending Todos
 
@@ -115,6 +119,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-09-14T23:17:51.026Z
-Stopped at: Phase 1 complete, ready to plan Phase 2
+Last session: 2026-09-15T06:23:41.996Z
+Stopped at: Completed 02-01-PLAN.md
 Resume file: None

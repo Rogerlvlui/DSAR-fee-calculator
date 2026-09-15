@@ -30,7 +30,7 @@
 ### Engine
 
 - [ ] **ENGINE-01**: `assess()` is pure — no I/O, no network, no LLM import, and no clock read outside the injected `now` (§8.1)
-- [ ] **ENGINE-02**: Preconditions reject a stale or non-active pack, a controller type outside `appliesTo`, and a currency that is not the jurisdiction's — each as a typed error naming the reason and the expected value (AC-12, AC-42)
+- [x] **ENGINE-02**: Preconditions reject a stale or non-active pack, a controller type outside `appliesTo`, and a currency that is not the jurisdiction's — each as a typed error naming the reason and the expected value (AC-12, AC-42)
 - [ ] **ENGINE-03**: The posture gate returns every line `DISALLOW` for `PROHIBITED` and `PERMITTED_NARROW_EXCEPTION`, and every line `FLAG` with reason `NO_FEE_AUTHORITY` for `NO_EXPRESS_AUTHORITY`, with `draftBaseline` zero (AC-13, AC-14)
 - [ ] **ENGINE-04**: Per-line evaluation handles all five treatments — `ALLOW`, `ALLOW_WITH_CAP`, `ALLOW_IF`, `DISALLOW`, `FLAG` — with `ALLOW_IF` producing `CONDITIONS_NOT_MET` listing which conditions failed (§8.1)
 - [ ] **ENGINE-05**: `applyCap` supports `PER_UNIT`, `PER_LINE`, `PER_MATTER` and `PERCENT_OF_CLAIM`, and always rounds down (AC-07c)
@@ -41,7 +41,7 @@
 - [ ] **ENGINE-10**: `restingOnUnverifiedRules` equals the sum of allowed amounts whose applied rule is `NEEDS_VERIFICATION`, and is a subset of `draftBaseline` (AC-22)
 - [ ] **ENGINE-11**: Matter-level flags are evaluated from `matterFlagRules`, plus `LITIGATION_POSTURE`, `REPEAT_REQUEST` and `STALE_PACK_WARNING` (§8.1)
 - [ ] **ENGINE-12**: An `OTHER_UNCLASSIFIED` line always returns `FLAG`, regardless of pack, description or LLM suggestion, except where the posture gate has already forced every line to `DISALLOW` (AC-19)
-- [ ] **ENGINE-13**: A stored `claimedAmount` that does not equal `quantity × unitRate` on load raises a hard error and blocks submission (AC-08)
+- [x] **ENGINE-13**: A stored `claimedAmount` that does not equal `quantity × unitRate` on load raises a hard error and blocks submission (AC-08)
 - [ ] **ENGINE-14**: Golden-file fixtures for the SG and HK packs reproduce exactly the expected verdicts, amounts, flags and totals, and changing a pack breaks its golden files (AC-09, §14)
 - [ ] **ENGINE-15**: Engine tests pass identically under at least two timezone and locale combinations, proving no hidden locale or clock dependence *(research)*
 - [ ] **ENGINE-16**: For a pack carrying a flat fee, the engine computes both the itemised baseline and the flat figure, and reports whether the flat figure exceeds itemised direct cost *(decision: PROJECT.md, PRD §17 q.2)*
@@ -253,7 +253,7 @@ Every v1 requirement maps to exactly one phase in `.planning/ROADMAP.md`.
 | STATE-04 | Phase 4 | Pending |
 | STATE-05 | Phase 4 | Pending |
 | ENGINE-01 | Phase 2 | Pending |
-| ENGINE-02 | Phase 2 | Pending |
+| ENGINE-02 | Phase 2 | Complete |
 | ENGINE-03 | Phase 2 | Pending |
 | ENGINE-04 | Phase 2 | Pending |
 | ENGINE-05 | Phase 2 | Pending |
@@ -264,7 +264,7 @@ Every v1 requirement maps to exactly one phase in `.planning/ROADMAP.md`.
 | ENGINE-10 | Phase 2 | Pending |
 | ENGINE-11 | Phase 2 | Pending |
 | ENGINE-12 | Phase 2 | Pending |
-| ENGINE-13 | Phase 2 | Pending |
+| ENGINE-13 | Phase 2 | Complete |
 | ENGINE-14 | Phase 6 | Pending |
 | ENGINE-15 | Phase 2 | Pending |
 | ENGINE-16 | Phase 2 | Pending |
