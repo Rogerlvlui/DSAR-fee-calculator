@@ -50,11 +50,7 @@ const WORKED_CATEGORY_RULES: CategoryRule[] = [
     conditions: [],
     basis: "Locating and retrieving the requested data is a service provided to the applicant to enable the organisation to respond.",
     citation: { instrument: "PDPA", provision: "s.21" },
-    // RED (plan 02-04 Task 3): deliberately NEEDS_VERIFICATION here,
-    // copying §7.6's "all 21 categories ship NEEDS_VERIFICATION" description
-    // of the REAL production pack — the exact mistake 02-RESEARCH.md
-    // Pattern 1 warns against. GREEN fixes this to VERIFIED.
-    verificationStatus: "NEEDS_VERIFICATION",
+    verificationStatus: "VERIFIED",
     verificationNote: null,
   },
   {
