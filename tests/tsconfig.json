@@ -4,7 +4,6 @@
     "composite": true,
     "rootDir": ".",
     "outDir": "../dist/tests",
-    "allowImportingTsExtensions": true,
     "jsx": "react-jsx",
     "types": ["node"]
   },

@@ -17,6 +17,13 @@ export default defineConfig({
       },
       {
         test: {
+          name: "engine",
+          environment: "node",
+          include: ["packages/engine/src/**/*.test.ts"],
+        },
+      },
+      {
+        test: {
           name: "routes",
           environment: "node",
           include: ["tests/routes/**/*.test.ts"],
