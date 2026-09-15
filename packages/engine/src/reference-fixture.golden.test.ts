@@ -4,11 +4,12 @@
 // instruction; every formula in this phase is checked against its
 // published numbers rather than against reasoning about the spec. Every
 // expected value below is a literal, hand-transcribed from §14's table,
-// compared with `toEqual` — never `toMatchSnapshot`/`toMatchInlineSnapshot`
-// anywhere in this file. §14's own point is that changing a pack must
-// break its golden files; a snapshot is designed to be regenerated with a
-// flag, which is the exact failure mode that instruction exists to
-// prevent.
+// compared with `toEqual`. This file deliberately contains no
+// vitest snapshot matcher of any kind (the auto-updatable "matches the
+// last recorded output" family) — §14's own point is that changing a pack
+// must break its golden files, and a snapshot is designed to be
+// regenerated with a CLI flag, which is the exact failure mode that
+// instruction exists to prevent.
 //
 // The two figures most likely to regress, and what their failure looks
 // like (02-RESEARCH.md Pitfalls 1 and 3):
