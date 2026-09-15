@@ -1,7 +1,7 @@
 ---
 phase: 01-schemas-freeze-and-walking-skeleton
 verified: 2026-09-15T09:30:00Z
-status: verified
+status: passed
 status_history: gaps_found (2026-09-15T08:00Z) -> verified (2026-09-15T08:40Z, gap closed in c9442d9 and re-verified independently by the orchestrator) -> verified (2026-09-15T09:30Z, staleness re-verification at HEAD after WR-01/02/03 + gap-closure commits, re-run independently — no regression found)
 gap_status: closed
 gap_closed_at: 2026-09-15T08:15:00Z
