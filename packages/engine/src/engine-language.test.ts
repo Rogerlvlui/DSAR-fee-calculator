@@ -32,11 +32,9 @@ import { LEGAL_CONCLUSION_BANNED_WORDS } from "@dsar/schemas/constants";
 import * as messages from "./messages.ts";
 
 function findBannedWord(text: string): string | null {
-  // RED: deliberately naive — case-INsensitive substring match, no word
-  // boundary. Fixed to case-sensitive + \b-anchored below for GREEN.
-  const lower = text.toLowerCase();
   for (const word of LEGAL_CONCLUSION_BANNED_WORDS) {
-    if (lower.includes(word)) return word;
+    const pattern = new RegExp(`\\b${word}\\b`); // case-sensitive by default, word-boundary anchored
+    if (pattern.test(text)) return word;
   }
   return null;
 }

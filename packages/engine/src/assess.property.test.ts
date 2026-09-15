@@ -145,7 +145,7 @@ describe("assess() money-integrity property (AC-07b, AC-22, AC-25)", () => {
           ...result.lines.map((line) => line.engineAmount),
         ];
         for (const value of moneyFields) {
-          expect(Number.isInteger(value)).toBe(false); // RED: deliberately backwards — every money field IS an integer
+          expect(Number.isInteger(value)).toBe(true);
           expect(Number.isNaN(value)).toBe(false);
         }
 
