@@ -80,7 +80,7 @@ Scope discipline: this phase now runs start to finish with **no Docker and no da
   4. Totals cannot be read early or inflated: `finalAmount` is `null` and unrepresentable as a number before sign-off (AC-25), `FLAG` lines contribute zero to `draftBaseline` with their claimed value appearing only in `flaggedTotal` (AC-11), and `restingOnUnverifiedRules` is a strict subset of `draftBaseline` (AC-22)
   5. A 50-line assessment completes in under 100ms (§11), a stored `claimedAmount` that does not equal `quantity × unitRate` raises a hard error and blocks submission (AC-08), and for a flat-fee-bearing pack the engine returns both the itemised baseline and the flat figure plus whether the flat figure exceeds itemised direct cost
 
-**Plans**: 3/7 plans executed across 5 waves
+**Plans**: 4/7 plans executed across 5 waves
 
 Plans:
 **Wave 1**
@@ -91,7 +91,7 @@ Plans:
 
 **Wave 2** *(blocked on 02-01)*
 
-- [ ] 02-04-PLAN.md — Posture gate, five treatments, `applyCap`, and PRD §14's reference fixture with its golden test
+- [x] 02-04-PLAN.md — Posture gate, five treatments, `applyCap`, and PRD §14's reference fixture with its golden test
 
 **Wave 3** *(blocked on 02-04, 02-03)*
 
@@ -262,7 +262,7 @@ Where capacity allows, Phases 2, 3, 4 and 5 may run concurrently — they have z
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Schemas Freeze and Walking Skeleton | 6/6 | Complete    | 2026-09-15 |
-| 2. Deterministic Fee Engine | 3/7 | In Progress|  |
+| 2. Deterministic Fee Engine | 4/7 | In Progress|  |
 | 3. Rule Packs and Pack Admin | 0/TBD | Not started | - |
 | 3.1 Demo Slice — In-Memory Determination Pipeline | 0/TBD | Not started | - |
 | 3.2 Database Boundary and Audit Immutability | 0/3 | Planned (inherited from Phase 1) | - |

@@ -3,16 +3,16 @@ gsd_state_version: "1.0"
 current_phase: 02
 current_phase_name: Deterministic Fee Engine
 status: executing
-stopped_at: Completed 02-03-PLAN.md
-last_updated: "2026-09-15T09:07:05.062Z"
+stopped_at: Completed 02-04-PLAN.md
+last_updated: "2026-09-15T09:44:20.755Z"
 last_activity: 2026-09-15
 last_activity_desc: Phase 02 execution started
-state_head: 7e8df5709251124aca495f468dd0e018133fbc38
+state_head: 9cf17d1f9be1f6f0189f48c5852bcc81fea766fb
 progress:
   total_phases: 10
   completed_phases: 0
   total_plans: 16
-  completed_plans: 9
+  completed_plans: 10
   percent: 0
 ---
 
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-09-13)
 ## Current Position
 
 Phase: 02 (Deterministic Fee Engine) — EXECUTING
-Plan: 4 of 7
+Plan: 5 of 7
 Status: Ready to execute
 Last activity: 2026-09-15 — Phase 02 execution started
 
@@ -67,6 +67,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 02 P01 | 35min | 3 tasks | 12 files |
 | Phase 02 P02 | 45min | 3 tasks | 6 files |
 | Phase 02 P03 | 20min | 3 tasks | 6 files |
+| Phase 02 P04 | 95min | 3 tasks | 14 files |
 
 ## Accumulated Context
 
@@ -100,6 +101,8 @@ Recent decisions affecting current work:
 - [Phase 02]: RED evidence for TDD tasks captured via vitest tap-flat plus a hand-appended TAP summary line — Continues 02-01's documented workaround for gsd-tools check tdd-red-evidence's Node-test-runner-shaped parser
 - [Phase 02]: [Phase 02 P03]: D-11/D-12 implemented additively — MatterFlagCode gains AGGREGATE_CAP_APPLIED, Totals gains optional flatFeeComparison; AssessmentLineSchema.superRefine re-proven unchanged in both directions
 - [Phase 02]: [Phase 02 P03]: Pre-existing TotalsSchema shape-cardinality test updated (6 to 7 keys) — any optional field addition changes z.object's declared shape, so an exact-length assertion is inherently incompatible with the additive-only freeze policy; the parse-behavior guarantee (six-key object still parses, no comparison property) is the invariant that actually matters and is separately tested
+- [Phase 02]: PERMITTED_NARROW_EXCEPTION is treated identically to PROHIBITED (forces DISALLOW) rather than inventing a narrow-exception mechanism the PRD's step 2 prose does not itself describe
+- [Phase 02]: A CategoryRule authored with plain treatment FLAG on a category other than OTHER_UNCLASSIFIED reuses the UNCATEGORISED FlagReasonCode with distinct message text -- flagged as a candidate for a dedicated code if a real pack ever needs to distinguish the two
 
 ### Pending Todos
 
@@ -125,6 +128,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-09-15T09:07:04.991Z
-Stopped at: Completed 02-03-PLAN.md
+Last session: 2026-09-15T09:44:20.684Z
+Stopped at: Completed 02-04-PLAN.md
 Resume file: None
