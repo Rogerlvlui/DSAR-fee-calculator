@@ -24,15 +24,25 @@
 //     STAFF_TIME_COLLATE and PHOTOCOPY_PRINT are NEEDS_VERIFICATION here;
 //     STAFF_TIME_SEARCH is VERIFIED).
 //
-// Matter flags and cross-line flag reasons (MATERIALITY, POSSIBLE_DUPLICATE,
-// RATE_ABOVE_EXPECTED, VENDOR_EVIDENCE_MISSING, the aggregate cap, and
-// LITIGATION_POSTURE/REPEAT_REQUEST/STALE_PACK_WARNING) are plans 02-05 and
-// 02-06's, which extend this same file — not asserted here.
+// Matter flags beyond the aggregate cap (LITIGATION_POSTURE/REPEAT_REQUEST/
+// STALE_PACK_WARNING, matterFlagRules) are plan 02-06's, which extends this
+// same file further — not asserted here.
+//
+// Plan 02-05 extends this file with §8.1 steps 4 and 5: the cross-line
+// checks (line 5 gains MATERIALITY alongside its existing CONDITIONS_NOT_MET
+// — 450.00/888.00 is 50.7%, over the 40% threshold) and the aggregate cap
+// (REFERENCE_FIXTURE_PACK's own aggregateCap stays null, so this fixture
+// never exercises a binding cap — that is aggregate-cap.test.ts's job on its
+// own dedicated fixture). The six published totals are re-asserted below to
+// prove steps 4 and 5 moved nothing that PRD §14 didn't already specify.
 
 import { describe, expect, it } from "vitest";
 import { AssessmentSchema } from "@dsar/schemas/assessment";
+import { ExpenseLineSchema, type ExpenseLine } from "@dsar/schemas/expense-line";
+import type { RulePack } from "@dsar/schemas/rule-pack";
+import type { Minor } from "@dsar/schemas/primitives";
 import { assess } from "./assess.ts";
-import { REFERENCE_MATTER, REFERENCE_NOW } from "./__fixtures__/reference-matter.ts";
+import { REFERENCE_LINE, REFERENCE_MATTER, REFERENCE_NOW, buildReferencePack } from "./__fixtures__/reference-matter.ts";
 import { REFERENCE_FIXTURE_PACK } from "./__fixtures__/reference-pack.ts";
 import { REFERENCE_FIXTURE_LINES } from "./__fixtures__/reference-lines.ts";
 
@@ -72,10 +82,10 @@ describe("PRD §14 reference fixture (SG-shaped)", () => {
     });
   });
 
-  it("line 5 (VENDOR_PAYROLL) carries CONDITIONS_NOT_MET", () => {
+  it("line 5 (VENDOR_PAYROLL) carries CONDITIONS_NOT_MET and MATERIALITY — the vendor-evidence check stands down (its rule already tests isThirdPartyInvoiced)", () => {
     const result = runReferenceFixture();
     const line5 = result.lines[4];
-    expect(line5?.flagReasons.map((reason) => reason.code)).toEqual(["CONDITIONS_NOT_MET"]);
+    expect(line5?.flagReasons.map((reason) => reason.code)).toEqual(["CONDITIONS_NOT_MET", "MATERIALITY"]);
   });
 
   it("line 6 (OTHER_UNCLASSIFIED) carries UNCATEGORISED", () => {
@@ -84,8 +94,88 @@ describe("PRD §14 reference fixture (SG-shaped)", () => {
     expect(line6?.flagReasons.map((reason) => reason.code)).toEqual(["UNCATEGORISED"]);
   });
 
+  it("reproduces the exact per-line flag reason codes for every line — the full array of arrays, so an extra reason fails as loudly as a missing one", () => {
+    const result = runReferenceFixture();
+    expect(result.lines.map((line) => line.flagReasons.map((reason) => reason.code))).toEqual([
+      [], // #1 STAFF_TIME_SEARCH — ALLOW
+      [], // #2 STAFF_TIME_COLLATE — ALLOW
+      [], // #3 STAFF_TIME_ASSESS_EXEMPTIONS — DISALLOW
+      [], // #4 PHOTOCOPY_PRINT — ALLOW_CAPPED
+      ["CONDITIONS_NOT_MET", "MATERIALITY"], // #5 VENDOR_PAYROLL — FLAG
+      ["UNCATEGORISED"], // #6 OTHER_UNCLASSIFIED — FLAG
+    ]);
+  });
+
+  it("re-reproduces the exact published totals — steps 4 and 5 moved nothing", () => {
+    const result = runReferenceFixture();
+    expect(result.totals).toEqual({
+      claimedTotal: 88800,
+      draftBaseline: 26640,
+      disallowedTotal: 12660,
+      flaggedTotal: 49500,
+      restingOnUnverifiedRules: 10640,
+      finalAmount: null,
+    });
+  });
+
   it("produces a schema-valid Assessment end to end", () => {
     const result = runReferenceFixture();
     expect(() => AssessmentSchema.parse(result)).not.toThrow();
+  });
+});
+
+describe("§8.1 steps 4/5 under a PROHIBITED posture", () => {
+  it("produces no cross-line reasons — the posture gate short-circuits before step 4", () => {
+    const prohibitedPack: RulePack = {
+      ...buildReferencePack(),
+      feePosture: { PRIVATE_ORGANISATION: "PROHIBITED", PUBLIC_AGENCY: "PROHIBITED" },
+      // A ceiling far below REFERENCE_LINE's unitRate (4000) so rate sanity
+      // would fire if the posture gate did not short-circuit step 4 first.
+      rateSanityCeiling: { EXECUTIVE: 1 as Minor },
+    };
+
+    const result = assess({
+      matter: REFERENCE_MATTER,
+      lines: [REFERENCE_LINE],
+      pack: prohibitedPack,
+      now: REFERENCE_NOW,
+    });
+
+    expect(result.lines[0]?.verdict).toBe("DISALLOW");
+    expect(result.lines[0]?.flagReasons).toEqual([]);
+  });
+});
+
+describe("§8.1 step 4 — the ALLOW-to-FLAG materiality transition (untested by the §14 fixture itself)", () => {
+  it("an ALLOW line pushed over the materiality threshold moves its claimed value from draftBaseline into flaggedTotal", () => {
+    // A modified copy of the §14 fixture: line 1 (STAFF_TIME_SEARCH, ALLOW)
+    // is inflated so it is >=40% of the new claimedTotal. The original
+    // REFERENCE_FIXTURE_LINES array is never mutated — .map returns a new
+    // array — so every other test in this file is unaffected.
+    const modifiedLines: ExpenseLine[] = REFERENCE_FIXTURE_LINES.map((line, index) =>
+      index === 0
+        ? ExpenseLineSchema.parse({ ...line, quantity: 100, unitRate: 4000, claimedAmount: 400_000 })
+        : line
+    );
+
+    const result = assess({
+      matter: REFERENCE_MATTER,
+      lines: modifiedLines,
+      pack: REFERENCE_FIXTURE_PACK,
+      now: REFERENCE_NOW,
+    });
+
+    const line1 = result.lines[0];
+    expect(line1?.verdict).toBe("FLAG");
+    expect(line1?.engineAmount).toBe(0);
+    expect(line1?.flagReasons.map((reason) => reason.code)).toEqual(["MATERIALITY"]);
+
+    // claimedTotal = 400000 + 8000 + 12000 + 3300 + 45000 + 4500 = 472800.
+    // draftBaseline = line2 (8000) + line4 (2640) only — line1 dropped out.
+    // disallowedTotal is unchanged (line3 claimed + line4's capped remainder).
+    // flaggedTotal = line1 (400000) + line5 (45000) + line6 (4500).
+    expect(result.totals.draftBaseline).toBe(10640);
+    expect(result.totals.disallowedTotal).toBe(12660);
+    expect(result.totals.flaggedTotal).toBe(449500);
   });
 });
