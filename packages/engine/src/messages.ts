@@ -13,6 +13,7 @@
 // "approved" or "safe" — none of the templates below use any of those
 // words, and none should be added later without checking that list first.
 
+import type { Condition } from "@dsar/schemas/condition";
 import type { Minor } from "@dsar/schemas/primitives";
 
 export function packNotActiveMessage(actualStatus: string): string {
@@ -56,4 +57,62 @@ export function negativeUnitRateMessage(lineId: string, unitRate: Minor): string
 // rather than misapplying it as a per-line figure.
 export function perMatterCapOnLineMessage(): string {
   return "Cap type 'PER_MATTER' cannot be applied to a single line by applyCap(); it is the aggregate cap evaluated once across every allowed line, not a per-CategoryRule cap.";
+}
+
+export function allowWithCapMissingCapMessage(ruleId: string, categoryCode: string): string {
+  return `Rule '${ruleId}' for category '${categoryCode}' has treatment 'ALLOW_WITH_CAP' but no cap is authored.`;
+}
+
+// Plan 02-04 Task 2 — flag-reason message templates. Every FlagReason the
+// engine authors gets its text from here, never an inline sentence
+// (plan 02-07 enumerates this module exhaustively for the banned-word
+// test). Each stays inside FlagReasonSchema's 200-character cap.
+
+// §8.1 step 2 — NO_EXPRESS_AUTHORITY posture: every line is FLAG with this
+// single reason, and draftBaseline is 0 (AC-13).
+export function noFeeAuthorityMessage(): string {
+  return "The rule pack records no express authority to charge a fee for this controller type; this line is referred to Legal rather than assessed.";
+}
+
+// §6.3 — OTHER_UNCLASSIFIED is the only escape hatch in the closed
+// taxonomy and is always referred to Legal (AC-19), independent of
+// whatever treatment the pack's own rule for that category carries.
+export function uncategorisedMessage(): string {
+  return "This line's category is 'Something else' and is always referred to Legal for classification, regardless of the pack's rule for this category.";
+}
+
+// A CategoryRule authored with treatment FLAG directly (not via the
+// OTHER_UNCLASSIFIED override above) — PRD §7.5/§7.6's own examples use
+// this only for OTHER_UNCLASSIFIED, but the schema does not close off a
+// pack author using it elsewhere. FlagReasonCodeSchema has no code
+// dedicated to "the pack's own rule always refers this category to
+// Legal", so this reuses UNCATEGORISED — the closest existing code for
+// "the engine did not compute a figure for this line and refers it to
+// Legal without a machine-evaluable reason" — with wording that does not
+// claim the category itself is unknown, unlike uncategorisedMessage()
+// above. Untested by this plan's golden fixture (no fixture line
+// references a non-OTHER_UNCLASSIFIED category authored with plain FLAG);
+// flagged here for a future FlagReasonCode addition if a real pack ever
+// needs to distinguish the two.
+export function ruleAuthoredFlagMessage(ruleId: string): string {
+  return `Rule '${ruleId}' always refers this category to Legal; the pack authors no machine-evaluable basis for an amount.`;
+}
+
+export function conditionsNotMetMessage(failed: readonly Condition[]): string {
+  const MAX_LISTED = 3;
+  const FLAG_REASON_MESSAGE_MAX = 200; // mirrors FlagReasonSchema.message max
+
+  const describe = (condition: Condition): string =>
+    condition.op === "isNull" || condition.op === "isNotNull"
+      ? `${condition.field} ${condition.op}`
+      : `${condition.field} ${condition.op} ${JSON.stringify(condition.value)}`;
+
+  const listed = failed.slice(0, MAX_LISTED).map(describe);
+  const omittedCount = failed.length - listed.length;
+  const suffix = omittedCount > 0 ? ` (+${omittedCount} more)` : "";
+  const message = `Conditions not met: ${listed.join("; ")}${suffix}.`;
+
+  return message.length > FLAG_REASON_MESSAGE_MAX
+    ? `${message.slice(0, FLAG_REASON_MESSAGE_MAX - 1)}…`
+    : message;
 }

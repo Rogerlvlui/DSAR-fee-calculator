@@ -68,10 +68,22 @@ export class AssessPreconditionFailure extends Error {
 // correctly — refusing outright is the only safe option (02-RESEARCH.md
 // Pattern 2). Phase 3's pack validator should also reject this combination
 // at build time, so this runtime refusal is a backstop, not the only gate.
-export type EngineComputationError = {
-  code: "PER_MATTER_CAP_ON_LINE";
-  detail: { capType: "PER_MATTER" };
-};
+export type EngineComputationError =
+  | {
+      code: "PER_MATTER_CAP_ON_LINE";
+      detail: { capType: "PER_MATTER" };
+    }
+  // Plan 02-04 Task 2 — a CategoryRule authored with treatment
+  // ALLOW_WITH_CAP but a null `cap` is malformed pack data: the treatment
+  // is meaningless without one. `CapSchema.nullable()` on `CategoryRule`
+  // means the type system cannot rule this out, so evaluate-line.ts
+  // refuses it here rather than silently falling back to an uncapped
+  // ALLOW. Phase 3's pack validator should also reject this combination
+  // at build time.
+  | {
+      code: "ALLOW_WITH_CAP_MISSING_CAP";
+      detail: { ruleId: string; categoryCode: string };
+    };
 
 export type EngineComputationErrorCode = EngineComputationError["code"];
 
