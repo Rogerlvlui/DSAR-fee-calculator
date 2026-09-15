@@ -73,7 +73,7 @@ export function civilToDayNumber(year: number, month: number, day: number): numb
   const era = Math.floor((y >= 0 ? y : y - 399) / 400);
   const yoe = y - era * 400; // [0, 399]
   const doy = Math.floor((153 * (month + (month > 2 ? -3 : 9)) + 2) / 5) + day - 1; // [0, 365]
-  const doe = yoe * 365 + Math.floor(yoe / 4) + doy; // TASK 2 RED PHASE: naive year%4 rule, missing the /100 century correction
+  const doe = yoe * 365 + Math.floor(yoe / 4) - Math.floor(yoe / 100) + doy; // [0, 146096]
   return era * 146097 + doe - 719468;
 }
 
