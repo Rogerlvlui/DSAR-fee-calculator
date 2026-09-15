@@ -74,4 +74,48 @@ describe("dependency-cruiser purity gate (T-1-PURITY)", () => {
     expect(exitCode).not.toBe(0);
     expect(output).toContain("no-io-in-engine");
   });
+
+  it("reports no-money-formatting-in-engine over a violating fixture (gate proven to fire)", async () => {
+    // Widen no-money-formatting-in-engine's `from` to include the fixture
+    // directory, so this proves the RULE fires — a real
+    // `depcruise packages/engine packages/schemas` run never sees the
+    // fixture (it lives under tests/fixtures/).
+    const cfg = loadConfig();
+    const widenedForbidden = cfg.forbidden.map((rule) =>
+      rule.name === "no-money-formatting-in-engine"
+        ? {
+            ...rule,
+            from: {
+              path: "^(packages/engine|tests/fixtures/engine-money-format-violation)",
+            },
+          }
+        : rule
+    );
+
+    const { exitCode, output } = await runCruise(
+      [
+        path.join(ROOT, "packages/engine"),
+        path.join(ROOT, "packages/schemas"),
+        path.join(ROOT, "tests/fixtures/engine-money-format-violation"),
+      ],
+      { forbidden: widenedForbidden }
+    );
+
+    expect(exitCode).not.toBe(0);
+    expect(output).toContain("no-money-formatting-in-engine");
+  });
+
+  it("declares exactly four forbidden rules, asserted by name", () => {
+    // A future edit that renames or drops a rule is caught by name here,
+    // rather than surfacing only as a silently-still-zero exit code
+    // elsewhere (T-2-10 gate-integrity requirement).
+    const cfg = loadConfig();
+    const names = cfg.forbidden.map((rule) => rule.name);
+    expect(names).toEqual([
+      "no-io-in-engine",
+      "no-infra-in-engine",
+      "no-fetch-in-engine",
+      "no-money-formatting-in-engine",
+    ]);
+  });
 });
