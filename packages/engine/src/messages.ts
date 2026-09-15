@@ -13,6 +13,8 @@
 // "approved" or "safe" — none of the templates below use any of those
 // words, and none should be added later without checking that list first.
 
+import type { Minor } from "@dsar/schemas/primitives";
+
 export function packNotActiveMessage(actualStatus: string): string {
   return `Rule pack status is '${actualStatus}', but assess() requires status 'ACTIVE'.`;
 }
@@ -32,7 +34,18 @@ export function currencyMismatchMessage(
   return `Matter currency '${matterCurrency}' does not match jurisdiction '${jurisdictionCode}''s designated currency '${expectedCurrency}'.`;
 }
 
-// Task 3 (same plan) adds packPastReviewDueMessage, claimedAmountMismatchMessage
-// and negativeUnitRateMessage here, once calendar-math.ts (task 2) exists and
-// the corresponding money-typed detail fields can use the branded Minor type
-// rather than a bare number (AC-07a).
+export function packPastReviewDueMessage(reviewDueOn: string, now: string): string {
+  return `Rule pack reviewDueOn '${reviewDueOn}' is before now '${now}' — the pack is past its review date.`;
+}
+
+export function claimedAmountMismatchMessage(
+  lineId: string,
+  storedClaimedAmount: Minor,
+  recomputedClaimedAmount: Minor
+): string {
+  return `Expense line '${lineId}' stored claimedAmount ${storedClaimedAmount} does not equal quantity × unitRate (${recomputedClaimedAmount}).`;
+}
+
+export function negativeUnitRateMessage(lineId: string, unitRate: Minor): string {
+  return `Expense line '${lineId}' has a negative unitRate (${unitRate}); unitRate must not be negative.`;
+}

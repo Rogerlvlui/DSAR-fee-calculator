@@ -97,7 +97,7 @@ describe("checkPreconditions", () => {
 
   it("CONTROLLER_TYPE_NOT_IN_SCOPE: a controllerType outside the pack's appliesTo is refused", () => {
     const pack = buildReferencePack();
-    const narrowedPack = { ...pack, appliesTo: ["PUBLIC_AGENCY"] as const };
+    const narrowedPack = { ...pack, appliesTo: ["PUBLIC_AGENCY" as const] };
     const failure = expectFailure(
       () =>
         checkPreconditions({

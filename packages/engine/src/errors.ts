@@ -9,12 +9,14 @@
 // (never only a prose string) so a caller can render the offending and
 // expected values without re-parsing message text.
 //
-// Task 1 defines the three precondition codes its <action> covers —
-// PACK_NOT_ACTIVE, CONTROLLER_TYPE_NOT_IN_SCOPE, CURRENCY_MISMATCH. Task 3
-// (same plan) adds three more — PACK_PAST_REVIEW_DUE, CLAIMED_AMOUNT_MISMATCH,
-// NEGATIVE_UNIT_RATE — once calendar-math.ts (task 2) exists.
+// Task 1 defined the first three precondition codes — PACK_NOT_ACTIVE,
+// CONTROLLER_TYPE_NOT_IN_SCOPE, CURRENCY_MISMATCH. Task 3 (this commit)
+// adds the remaining three — PACK_PAST_REVIEW_DUE, CLAIMED_AMOUNT_MISMATCH,
+// NEGATIVE_UNIT_RATE — now that calendar-math.ts (task 2) exists. The two
+// money-named detail fields (storedClaimedAmount/recomputedClaimedAmount,
+// unitRate) use the branded Minor type, not a bare number (AC-07a).
 
-import type { ControllerType, CurrencyCode, JurisdictionCode } from "@dsar/schemas/primitives";
+import type { ControllerType, CurrencyCode, JurisdictionCode, Minor } from "@dsar/schemas/primitives";
 import type { RulePackStatus } from "@dsar/schemas/rule-pack";
 
 export type AssessPreconditionError =
@@ -30,10 +32,13 @@ export type AssessPreconditionError =
         expectedCurrency: CurrencyCode;
         jurisdictionCode: JurisdictionCode;
       };
-    };
-// Task 3 (same plan) extends this union with three more codes —
-// PACK_PAST_REVIEW_DUE, CLAIMED_AMOUNT_MISMATCH, NEGATIVE_UNIT_RATE — once
-// calendar-math.ts (task 2) exists.
+    }
+  | { code: "PACK_PAST_REVIEW_DUE"; detail: { reviewDueOn: string; now: string } }
+  | {
+      code: "CLAIMED_AMOUNT_MISMATCH";
+      detail: { lineId: string; storedClaimedAmount: Minor; recomputedClaimedAmount: Minor };
+    }
+  | { code: "NEGATIVE_UNIT_RATE"; detail: { lineId: string; unitRate: Minor } };
 
 export type AssessPreconditionErrorCode = AssessPreconditionError["code"];
 
