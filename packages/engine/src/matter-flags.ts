@@ -89,10 +89,9 @@ function conditionArmMatches(condition: Condition, matter: Matter, lines: readon
 }
 
 function evaluateLineCountArm(when: LineCountArm, lines: readonly ExpenseLine[]): boolean {
-  // RED (deliberate, Task 1 red phase): a non-inclusive boundary. §8.1's
-  // line-count arm compares inclusively for both gte and lte; GREEN fixes
-  // this to >=/<= so the boundary case itself fires.
-  return when.op === "gte" ? lines.length > when.value : lines.length < when.value;
+  // Inclusive at the boundary for both operators — a rule authored as
+  // `gte 3` fires on exactly 3 lines, and `lte 2` fires on exactly 2.
+  return when.op === "gte" ? lines.length >= when.value : lines.length <= when.value;
 }
 
 function evaluateWhen(when: MatterFlagRule["when"], matter: Matter, lines: readonly ExpenseLine[]): boolean {
