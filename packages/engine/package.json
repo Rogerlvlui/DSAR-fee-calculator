@@ -6,5 +6,8 @@
   "main": "src/index.ts",
   "dependencies": {
     "@dsar/schemas": "workspace:*"
+  },
+  "devDependencies": {
+    "fast-check": "4.10.0"
   }
 }
