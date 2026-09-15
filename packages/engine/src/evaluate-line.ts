@@ -16,10 +16,13 @@
 // module's own tests via AssessmentLineSchema.parse(), not merely by
 // checking the verdict field.
 //
-// RED (plan 02-04 Task 2): ALLOW_WITH_CAP below deliberately always
-// returns verdict ALLOW_CAPPED, even when the cap did not reduce the
-// claimed amount — GREEN fixes this to check whether the cap actually
-// bound.
+// ALLOW_WITH_CAP sets verdict ALLOW_CAPPED only where the cap actually
+// reduced the claim (PRD §8.1 step 3: "verdict ALLOW_CAPPED if reduced") —
+// a line whose cap did not bind is plain ALLOW, with appliedCap left null.
+// This matters for totals: disallowedTotal absorbs the trimmed remainder
+// of every ALLOW_CAPPED line, so marking an untrimmed line as capped would
+// misrepresent it to the reviewing lawyer even though it adds a zero term
+// to the total today.
 
 import type { CategoryRule, FeePosture } from "@dsar/schemas/rule-pack";
 import type { ExpenseLine } from "@dsar/schemas/expense-line";
@@ -117,13 +120,12 @@ export function evaluateLine(input: EvaluateLineInput): AssessmentLine {
         );
       }
       const cappedAmount = applyCap(rule.cap, line);
-      // RED: always ALLOW_CAPPED — see module note above. GREEN checks
-      // whether the cap actually reduced the amount first.
+      const reduced = cappedAmount < line.claimedAmount;
       return {
         ...base,
-        verdict: "ALLOW_CAPPED",
+        verdict: reduced ? "ALLOW_CAPPED" : "ALLOW",
         engineAmount: cappedAmount,
-        appliedCap: rule.cap,
+        appliedCap: reduced ? rule.cap : null,
         flagReasons: [],
       };
     }

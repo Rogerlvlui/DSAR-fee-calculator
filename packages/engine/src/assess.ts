@@ -1,17 +1,16 @@
 // packages/engine/src/assess.ts
 //
-// PRD §8.1's seven-step algorithm, orchestrated. This plan (02-01)
-// implements step 1 (preconditions) and step 6 (totals) fully, and step 3
-// (per-line evaluation) for the ALLOW treatment only. Steps 2, 4, 5 and 7,
-// plus the remaining per-line treatments (ALLOW_WITH_CAP, ALLOW_IF,
-// DISALLOW, FLAG), are later plans in this phase — the dispatch below is
-// shaped for their extension but does not pre-write empty branches for
-// treatments this plan does not implement.
+// PRD §8.1's seven-step algorithm, orchestrated. Step 1 (preconditions) and
+// step 6 (totals) are plan 02-01's; step 2 (the posture gate) and step 3
+// (all five per-line treatments, plus the AC-19 unclassified override) are
+// plan 02-04's, in posture-gate.ts/evaluate-line.ts. Step 4 (cross-line
+// checks), step 5 (the aggregate cap) and the rest of step 7 (matter flags
+// beyond the empty array below) are later plans in this phase.
 //
 // assess() never calls .parse() on its own output — validation at the
 // boundary is the caller's job, and the ENGINE-17 100ms/50-line budget is
-// measured over the un-validated path. Callers (and this plan's tracer
-// test) validate with AssessmentSchema.parse() themselves.
+// measured over the un-validated path. Callers (and this plan's tests)
+// validate with AssessmentSchema.parse() themselves.
 
 import type { Matter } from "@dsar/schemas/matter";
 import type { ExpenseLine } from "@dsar/schemas/expense-line";
@@ -19,6 +18,7 @@ import type { CategoryRule, RulePack } from "@dsar/schemas/rule-pack";
 import type { Assessment, AssessmentLine } from "@dsar/schemas/assessment";
 import { checkPreconditions } from "./preconditions.ts";
 import { computeTotals } from "./totals.ts";
+import { evaluateLine } from "./evaluate-line.ts";
 
 export const ENGINE_VERSION = "0.1.0";
 
@@ -67,33 +67,15 @@ export function assess(input: AssessInput): Assessment {
 
     const assessmentLineId = deriveAssessmentLineId(assessmentId, line.id);
 
-    if (rule.treatment === "ALLOW") {
-      const assessmentLine: AssessmentLine = {
-        id: assessmentLineId,
-        expenseLineId: line.id,
-        verdict: "ALLOW",
-        engineAmount: line.claimedAmount,
-        appliedRuleId: rule.ruleId,
-        appliedCap: null,
-        basis: rule.basis,
-        citation: rule.citation,
-        flagReasons: [],
-        disposition: "PENDING",
-        lawyerAmount: null,
-        lawyerReason: null,
-        dispositionedBy: null,
-        dispositionedAt: null,
-      };
-      assessmentLines.push(assessmentLine);
-      appliedRuleById.set(assessmentLine.id, rule);
-      continue;
-    }
-
-    // Any other treatment (ALLOW_WITH_CAP, ALLOW_IF, DISALLOW, FLAG) is out
-    // of this task's scope — plan 02-04 adds them.
-    throw new Error(
-      `assess: treatment '${rule.treatment}' for category '${line.categoryCode}' is not yet implemented (plan 02-04)`
-    );
+    const assessmentLine = evaluateLine({
+      line,
+      matter,
+      rule,
+      feePosture: pack.feePosture[matter.controllerType],
+      assessmentLineId,
+    });
+    assessmentLines.push(assessmentLine);
+    appliedRuleById.set(assessmentLine.id, rule);
   }
 
   const expenseLinesById = new Map(lines.map((line) => [line.id, line]));

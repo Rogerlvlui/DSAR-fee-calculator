@@ -102,10 +102,16 @@ export function conditionsNotMetMessage(failed: readonly Condition[]): string {
   const MAX_LISTED = 3;
   const FLAG_REASON_MESSAGE_MAX = 200; // mirrors FlagReasonSchema.message max
 
-  const describe = (condition: Condition): string =>
-    condition.op === "isNull" || condition.op === "isNotNull"
-      ? `${condition.field} ${condition.op}`
-      : `${condition.field} ${condition.op} ${JSON.stringify(condition.value)}`;
+  function describe(condition: Condition): string {
+    // Narrowing on `"value" in condition` rather than `condition.op ===
+    // "isNull" | "isNotNull"` — the latter does not narrow this
+    // three-armed zod union reliably under this codebase's tsconfig; `in`
+    // does.
+    if (!("value" in condition)) {
+      return `${condition.field} ${condition.op}`;
+    }
+    return `${condition.field} ${condition.op} ${JSON.stringify(condition.value)}`;
+  }
 
   const listed = failed.slice(0, MAX_LISTED).map(describe);
   const omittedCount = failed.length - listed.length;
