@@ -145,3 +145,14 @@ export function rateAboveExpectedMessage(grade: StaffGrade, unitRate: Minor, cei
 export function vendorEvidenceMissingMessage(categoryCode: string): string {
   return `Category '${categoryCode}' is a third-party vendor charge not marked isThirdPartyInvoiced, and no applied rule condition already tests that field.`;
 }
+
+// Plan 02-05 Task 2 — the aggregate-cap step's matter-level flag and its
+// single refusal message. See aggregate-cap.ts.
+
+export function aggregateCapAppliedMessage(): string {
+  return "The rule pack's aggregate cap reduced this matter's total allowed amount; every allowed line was reduced pro-rata, rounded down, with the remainder left unallocated.";
+}
+
+export function aggregateCapInvalidTypeMessage(capType: string): string {
+  return `Rule pack constraints.aggregateCap has type '${capType}', which has no matter-wide meaning; only 'PER_MATTER' or 'PERCENT_OF_CLAIM' may be used as an aggregate cap.`;
+}

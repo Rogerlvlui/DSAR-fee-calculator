@@ -83,6 +83,17 @@ export type EngineComputationError =
   | {
       code: "ALLOW_WITH_CAP_MISSING_CAP";
       detail: { ruleId: string; categoryCode: string };
+    }
+  // Plan 02-05 Task 2 — a RulePackConstraints.aggregateCap authored as
+  // PER_UNIT or PER_LINE has no matter-wide meaning: those two variants are
+  // per-line cap shapes, and the aggregate cap is evaluated once across
+  // every allowed line in the matter, not per line. aggregate-cap.ts
+  // refuses this combination outright rather than guessing an
+  // interpretation. Phase 3's pack validator should also reject this
+  // combination at build time; this runtime refusal is a backstop.
+  | {
+      code: "AGGREGATE_CAP_INVALID_TYPE";
+      detail: { capType: "PER_UNIT" | "PER_LINE" };
     };
 
 export type EngineComputationErrorCode = EngineComputationError["code"];
