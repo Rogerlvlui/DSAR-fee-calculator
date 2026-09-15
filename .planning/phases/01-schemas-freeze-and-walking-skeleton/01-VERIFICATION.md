@@ -1,11 +1,12 @@
 ---
 phase: 01-schemas-freeze-and-walking-skeleton
-verified: 2026-09-15T08:00:00Z
+verified: 2026-09-15T09:30:00Z
 status: verified
-status_history: gaps_found (2026-09-15T08:00Z) -> verified (2026-09-15T08:40Z, gap closed in c9442d9 and re-verified independently by the orchestrator)
+status_history: gaps_found (2026-09-15T08:00Z) -> verified (2026-09-15T08:40Z, gap closed in c9442d9 and re-verified independently by the orchestrator) -> verified (2026-09-15T09:30Z, staleness re-verification at HEAD after WR-01/02/03 + gap-closure commits, re-run independently — no regression found)
 gap_status: closed
 gap_closed_at: 2026-09-15T08:15:00Z
-score: 8/9 must-haves verified
+re_verified_at_head: b69ff0161c1fc685ac4b0e012473ec47b08309b4
+score: 9/9 must-haves verified
 covered_files:
   - ".dependency-cruiser.cjs"
   - ".env.example"
@@ -32,6 +33,7 @@ covered_files:
   - "package.json"
   - "packages/engine/package.json"
   - "packages/engine/src/index.ts"
+  - "packages/engine/src/schemas-boundary.test.ts"
   - "packages/engine/tsconfig.json"
   - "packages/schemas/FREEZE.md"
   - "packages/schemas/package.json"
@@ -67,12 +69,23 @@ covered_files:
   - "tsconfig.base.json"
   - "tsconfig.json"
   - "vitest.config.ts"
-covered_digest: "v1:sha256:1af50b02cea595d29ea758c2581f99acf6ca332740e0514f158d4704a02d22e1"
+covered_digest: "v1:sha256:9bf37a1cb76c0a31f841ad5f798795a27abb23f38df85a4816818b40c4c05d71"
 overrides_applied: 0
+re_verification:
+  previous_status: verified (gap closed same-session; score recorded as 8/9 in frontmatter even though narrative already treated the gap as resolved)
+  previous_score: 8/9
+  gaps_closed:
+    - "A downstream package can import Matter, ExpenseLine, RulePack, Assessment, AssessmentLine, AuditEvent and MatterStatus and compile without redefining a field (ROADMAP Phase 1 Success Criterion 1)"
+  gaps_remaining: []
+  regressions: []
+  corrections_made_this_round:
+    - "covered_files was missing packages/engine/src/schemas-boundary.test.ts (added in the same commit, c9442d9, that wrote the previous covered_files list) — added it here; covered_digest recomputed and changed as a result"
+    - "Frontmatter score updated from 8/9 to 9/9 to match the body's own 'gap closed' narrative, which the previous round left inconsistent with its own frontmatter score"
 gaps:
   - truth: "A downstream package can import Matter, ExpenseLine, RulePack, Assessment, AssessmentLine, AuditEvent and MatterStatus and compile without redefining a field (ROADMAP Phase 1 Success Criterion 1)"
     status: fixed
     fixed_at: 2026-09-15T08:15:00Z
+    confirmed_at_head: 2026-09-15T09:30:00Z
     resolution: >
       Three causes fixed, one deliberately not: (1) added
       "@dsar/schemas": "workspace:*" to packages/engine/package.json and ran
@@ -99,25 +112,70 @@ gaps:
       its real subpath-exports map, and registered a new "engine" vitest
       project in vitest.config.ts so the test runs. All five gates
       (vitest, typecheck, lint, depcruise, db:validate) pass clean; test
-      count is 175 (173 + 2 new).
+      count is 175 (173 + 2 new). Independently reproduced at current HEAD
+      in this re-verification round (see "Staleness Re-Verification" below):
+      a fresh `pnpm run typecheck` with cleared .tsbuildinfo passes, and a
+      new deliberately-wrong probe (`const bogus: Matter = "not a matter"`)
+      still produces a real TS2322 naming Matter's actual 16-field shape,
+      then was reverted with a clean `git status` on packages/engine/.
     status_was: failed
     reason: "packages/schemas ships a wildcard subpath exports map (\"./*\": \"./src/*.ts\") with no built declaration output — every module imports its siblings with an explicit .ts extension. Consuming that from any other package requires the consumer's own tsconfig to set `allowImportingTsExtensions: true`. That flag exists on packages/schemas/tsconfig.json and tests/tsconfig.json (added during this same phase's WR-01 fix) but was never added to tsconfig.base.json or to packages/engine/tsconfig.json — the one package that exists specifically so a downstream consumer of the freeze has somewhere to compile against it. A real import of any frozen type into packages/engine, compiled with the project's own `pnpm run typecheck` (tsc --build tsconfig.json), fails with TS5097 on every packages/schemas module the import graph touches."
     artifacts:
       - path: "packages/engine/tsconfig.json"
-        issue: "Missing `allowImportingTsExtensions: true` (or equivalent project-reference wiring to packages/schemas), so importing any @dsar/schemas subpath from packages/engine fails tsc --build with TS5097"
+        issue: "RESOLVED — inherits `allowImportingTsExtensions: true` from tsconfig.base.json as of c9442d9"
       - path: "tsconfig.base.json"
-        issue: "Does not declare `allowImportingTsExtensions`, so every future package that imports from packages/schemas must remember to add the flag itself individually, as packages/schemas and tests/ already had to"
-    missing:
-      - "Add `allowImportingTsExtensions: true` to tsconfig.base.json (or individually to every current and future consumer's tsconfig) so a real cross-package import of a frozen type compiles under the project's own tsc --build command"
-      - "A regression test or CI step that actually imports a frozen type from packages/engine (or another consumer) and typechecks it, so this class of gap cannot reappear silently — nothing in the current suite exercises a real cross-package import of packages/schemas"
+        issue: "RESOLVED — now declares `allowImportingTsExtensions: true` directly, confirmed present at HEAD"
+    missing: []
 ---
 
 # Phase 1: Schemas Freeze and Walking Skeleton Verification Report
 
 **Phase Goal:** Every core type is frozen so nothing downstream has to re-open it, and the data model is authored and validated ready for the database boundary in Phase 3.2
-**Verified:** 2026-09-15
-**Status:** gaps_found
-**Re-verification:** No — initial verification
+**Verified:** 2026-09-15 (initial pass) / 2026-09-15 (staleness re-verification at HEAD, commit `b69ff01`)
+**Status:** verified
+**Re-verification:** Yes — staleness re-verification after 4 follow-up commits (`a8dd5d1` WR-01, `9d3844f` WR-02, `dc112a2` WR-03, `c9442d9` gap closure, plus `db1a209`/`b69ff01` doc updates)
+
+## Staleness Re-Verification (this round, run independently against HEAD)
+
+The phase's previous verification round closed its one open gap and marked itself `verified` in the same session as the fix. That is not, on its own, evidence the fix survives at the current commit — this round re-ran every check independently rather than trusting the embedded narrative.
+
+**All five project gates re-run from a clean build (`.tsbuildinfo` cleared first):**
+
+| Gate | Command | Result |
+|---|---|---|
+| Typecheck | `pnpm run typecheck` (`tsc --build tsconfig.json`) | exit 0 |
+| Tests | `pnpm vitest run` | 19 files, **175/175 passed** |
+| Lint | `pnpm run lint` (`eslint .`) | exit 0 |
+| Dependency purity | `pnpm run depcruise` | "no dependency violations found (36 modules, 70 dependencies cruised)" |
+| Prisma validate | `pnpm run db:validate` | "The schema at prisma\schema.prisma is valid" |
+
+**Cross-package compile probe, reproduced independently (not copy-pasted from the SUMMARY):**
+
+1. Added `packages/engine/src/__reverify_probe.ts` with `import type { Matter } from "@dsar/schemas/matter";` (the correct specifier — no `.ts` suffix, since the exports map is `"./*": "./src/*.ts"` and appending `.ts` resolves to `matter.ts.ts` / `TS2307`) and a deliberately-wrong `const bogus: Matter = "not a matter";`.
+2. Cleared `.tsbuildinfo`, ran `pnpm run typecheck`. Result: a genuine `TS2322` — `Type 'string' is not assignable to type '{ id: string; reference: string; jurisdictionCode: ...; ... }'` — naming `Matter`'s actual 16-field shape across the package boundary. This proves the import resolves and is type-checked for real, not merely accepted syntactically.
+3. Removed the probe file, cleared `.tsbuildinfo` again, re-ran `pnpm run typecheck` — exit 0. `git status --short packages/engine/` empty (no residue).
+
+**Regression-test load-bearing check (independently confirmed, not just cited from the SUMMARY):** Temporarily flipped `tsconfig.base.json`'s `allowImportingTsExtensions` from `true` to `false`, cleared `.tsbuildinfo`, ran `pnpm run typecheck`. Result: **38 `TS5097` errors** across `packages/schemas/src/*.ts` and `tests/boundary/*.test.ts` (not just `packages/engine`) — confirming the flag is genuinely load-bearing repo-wide, not a no-op. Restored the flag with `git checkout -- tsconfig.base.json`, cleared `.tsbuildinfo`, re-ran `pnpm run typecheck` — exit 0. `git status --short` shows no diff introduced by this check.
+
+**WR-02 (`AuditEventType` native enum) spot-check:** Diffed `prisma/schema.prisma`'s `enum AuditEventType` (17 members: `MATTER_CREATED` … `CAPABILITY_STATEMENT_ACKNOWLEDGED`) against `AuditEventTypeSchema` in `packages/schemas/src/primitives.ts` (`z.enum([...])`, same 17 values). Identical, member-for-member, identical order. Holds.
+
+**WR-03 (`Minor` bounds) spot-check against the PRD §14 reference fixture:** `MINOR_MIN`/`MINOR_MAX` are `±2,147,483,647` (32-bit signed range, matching every `Minor`-typed Prisma `Int` column). The fixture's largest value (`claimedTotal 88800` minor units) is trivially inside that range. Ran `pnpm vitest run assessment.test.ts` directly — 12/12 pass, including the fixture-parsing case. `ExpenseLine.quantity` is separately bounded by `EXPENSE_LINE_QUANTITY_MAX = 1,000,000` specifically so `quantity × unitRate` cannot overflow before either field's own bound catches it (confirmed by reading `packages/schemas/src/expense-line.ts`). Holds.
+
+**Closed-set cardinality spot-checks (not re-derived from scratch, but confirmed against current source):**
+- `MatterStatus`: Prisma enum and `MATTER_STATUSES` both hold exactly 7 values, identical order (`DRAFT, COMPUTING, LEGAL_REVIEW, INFO_REQUEST, SIGNED_OFF, CLOSED, SUPERSEDED`).
+- `ExpenseCategoryCode`: `EXPENSE_CATEGORY_CODES` in `taxonomy.ts` — counted 21 entries directly by reading the source array.
+- `CONDITION_FIELDS`: counted 15 entries directly (9 `ExpenseLine` fields + 6 `Matter` fields), `satisfies readonly (keyof ExpenseLine | keyof Matter)[]` clause present.
+- `AUDIT_PAYLOAD_KEYS`: 5 entries (`entityId, field, before, after, elapsedReviewMs`).
+- `AuditEventType`: 17 entries (see WR-02 check above).
+- `Decimal`/`Float`/`Cascade` in `prisma/schema.prisma`: 0 occurrences each, confirmed by `grep -c`.
+
+**Anti-pattern scan across every file touched by the four new commits** (`git diff --name-only 967db61 HEAD`): no `TODO`/`FIXME`/`HACK`/`PLACEHOLDER`/`TBD`/`XXX` markers in any changed source file. The only string matches were base64 integrity-hash substrings in `pnpm-lock.yaml` (false positives) and the word "XXX" appearing inside 01-VERIFICATION.md's own prose describing that no markers were found (not a real marker). Clean.
+
+**Finding, not a regression:** the previous round's `covered_files` list (written in commit `c9442d9`, the same commit that added `packages/engine/src/schemas-boundary.test.ts`) omitted that new test file from its own coverage list, and the frontmatter `score: 8/9` was left stale after the body's own narrative already treated the gap as closed. Both corrected in this round's frontmatter (see `re_verification.corrections_made_this_round`). Neither is a goal-achievement gap — both are bookkeeping inconsistencies in the previous report, now fixed.
+
+**Conclusion:** The phase goal holds at current HEAD (`b69ff01`). Nothing regressed. All 9 must-haves — the 5 ROADMAP success criteria plus the requirements-coverage items previously scored — are independently confirmed. This is not a rubber stamp: every gate was re-run from a clean build, the compile probe and its negative control were both reproduced with fresh evidence, and the regression test's own load-bearing-ness was verified by deliberately breaking and restoring the flag it guards.
+
+---
 
 ## Scope Note
 
@@ -129,102 +187,57 @@ Per the phase's mid-flight re-scope (2026-09-14), this verification checks the s
 
 | # | Truth | Status | Evidence |
 |---|-------|--------|----------|
-| 1 | A downstream package can import `Matter`, `ExpenseLine`, `RulePack`, `Assessment`, `AssessmentLine`, `AuditEvent` and the seven-value `MatterStatus`, and compile without redefining a field; the frozen `RulePack` already carries the HK flat-fee extension | ✗ FAILED (partial) | All six types plus `MatterStatus` are present, correctly shaped, and every field lines up with the PRD and with `prisma/schema.prisma`. But a real cross-package import from `packages/engine` — the package that exists precisely to be this freeze's first downstream consumer — fails to compile under the project's own `pnpm run typecheck` (`tsc --build tsconfig.json`) with `TS5097`, because `packages/schemas`'s subpath-exports-to-source design requires `allowImportingTsExtensions: true` in every consumer's tsconfig and that flag was never propagated to `packages/engine` or to the shared `tsconfig.base.json`. Reproduced directly (see "Downstream Compile Probe" below) and the fix (adding the one compiler flag) was verified to resolve it completely. The `flatFee` extension itself is correctly optional and proven, by test, to leave the other eight packs' JSON unchanged. |
-| 2 | Money cannot go wrong silently: AC-07a lint fires inside `packages/engine`/`packages/schemas`, a 10,000-case property test shows every money field of a returned `Assessment` is an integer, and formatting the same integer as JPY and SGD gives zero and two decimal places respectively | ✓ VERIFIED | `pnpm vitest run --project toolchain` (8/8 pass, including the lint-rule and purity-gate falsification tests); `packages/schemas/src/assessment.property.test.ts` runs `numRuns: 10000` with a recorded seed `20260915` (`pnpm vitest run --project schemas` — 151/151 pass); `MINOR_UNIT_DECIMALS.JPY === 0`, `.SGD === 2` confirmed directly in `packages/schemas/src/money.ts`, exercised by `money.test.ts` |
-| 3 | All six core entities plus `User` are authored in `prisma/schema.prisma` with native enums and no cascading deletes, the schema validates, and the client generates — none of which needs a running database | ✓ VERIFIED | `pnpm exec prisma validate` → "is valid" (exit 0); `pnpm exec prisma generate` → "Generated Prisma Client (7.10.0)" (exit 0), both run with no `DATABASE_URL`/Docker present; `grep -c 'Cascade\|Decimal\|Float' prisma/schema.prisma` → 0 for each; 11/11 relations carry `onDelete: Restrict` |
-| 4 | No Prisma field name matches the personal-data deny-list (via `getDMMF()`), and the DOM half is proven non-vacuous by a canary rather than passing vacuously with no form yet | ✓ VERIFIED | `pnpm vitest run --project boundary` — 14/14 pass, including `prisma-field-denylist.test.ts` (via `@prisma/internals` `getDMMF`, confirmed by source read — not the runtime client) and `dom-denylist.test.ts`'s canary case (a full-width-character deny-listed fixture, confirmed caught) |
-| 5 | Cross-field invariants hold: a `Matter` whose `currency` isn't its jurisdiction's designated currency fails zod naming both codes (AC-42 layer 1), and `MatterStatus` is a closed set of seven | ✓ VERIFIED | `packages/schemas/src/matter.ts`'s `.superRefine()` confirmed by direct read (issue message names both codes, `path: ['currency']`); `MATTER_STATUSES` / Postgres `enum MatterStatus` both hold exactly `DRAFT, COMPUTING, LEGAL_REVIEW, INFO_REQUEST, SIGNED_OFF, CLOSED, SUPERSEDED` in identical order (confirmed by direct diff of both sources) |
+| 1 | A downstream package can import `Matter`, `ExpenseLine`, `RulePack`, `Assessment`, `AssessmentLine`, `AuditEvent` and the seven-value `MatterStatus`, and compile without redefining a field; the frozen `RulePack` already carries the HK flat-fee extension | ✓ VERIFIED (fixed in c9442d9, reproduced independently at HEAD) | Original gap: cross-package import from `packages/engine` failed `pnpm run typecheck` with `TS5097` (missing `allowImportingTsExtensions` + missing workspace dependency). Fix: workspace dependency added, flag moved to `tsconfig.base.json`, permanent regression test added (`packages/engine/src/schemas-boundary.test.ts`). This round reproduced the fix independently: fresh `pnpm run typecheck` passes; a fresh deliberately-wrong probe (`const bogus: Matter = "not a matter"`) produces a real `TS2322` naming `Matter`'s actual shape; flipping the flag off breaks 38 imports repo-wide, proving it load-bearing; all reverted cleanly. |
+| 2 | Money cannot go wrong silently: AC-07a lint fires inside `packages/engine`/`packages/schemas`, a 10,000-case property test shows every money field of a returned `Assessment` is an integer, and formatting the same integer as JPY and SGD gives zero and two decimal places respectively | ✓ VERIFIED | `pnpm vitest run` (175/175, includes the lint-rule and purity-gate falsification tests and the 10,000-run property test); `MINOR_UNIT_DECIMALS.JPY === 0`, `.SGD === 2` confirmed in `packages/schemas/src/money.ts` |
+| 3 | All six core entities plus `User` are authored in `prisma/schema.prisma` with native enums and no cascading deletes, the schema validates, and the client generates — none of which needs a running database | ✓ VERIFIED | `pnpm run db:validate` → "is valid" (exit 0), re-run this round with no `DATABASE_URL`/Docker present; `grep -c 'Cascade\|Decimal\|Float' prisma/schema.prisma` → 0 for each, re-confirmed this round; `AuditEventType` now a native 17-member Postgres enum (WR-02), verified member-for-member against the zod tuple |
+| 4 | No Prisma field name matches the personal-data deny-list (via `getDMMF()`), and the DOM half is proven non-vacuous by a canary rather than passing vacuously with no form yet | ✓ VERIFIED | Included in the 175/175 `pnpm vitest run` pass this round; unchanged by the four new commits |
+| 5 | Cross-field invariants hold: a `Matter` whose `currency` isn't its jurisdiction's designated currency fails zod naming both codes (AC-42 layer 1), and `MatterStatus` is a closed set of seven | ✓ VERIFIED | Re-confirmed this round: `MATTER_STATUSES` / Postgres `enum MatterStatus` both hold exactly 7 values in identical order |
 
-**Score:** 4/5 ROADMAP success criteria fully verified; 1 partially verified with a demonstrated gap (see below).
-
-### Downstream Compile Probe (falsifies Truth 1)
-
-This is the specific check the task brief asked to weight heavily ("packages/engine exists and is nearly empty; it should be able to import the core types and compile"). It was run directly, not inferred from a SUMMARY claim:
-
-1. Added a temporary file `packages/engine/src/__verify_probe.ts` importing `Matter` (from `@dsar/schemas/matter`), `Assessment`/`AssessmentLine` (from `@dsar/schemas/assessment`), `ExpenseLine` (from `@dsar/schemas/expense-line`), `RulePack` (from `@dsar/schemas/rule-pack`), `AuditEvent` (from `@dsar/schemas/audit-event`) and `MATTER_STATUSES` (from `@dsar/schemas/matter-status`).
-2. Ran the project's own gate: `pnpm run typecheck` (`tsc --build tsconfig.json`).
-3. Result: **non-zero exit**, 15 `TS5097` errors — `An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled` — against `packages/schemas/src/{assessment,audit-event,expense-line,matter,rule-pack}.ts`, because those modules use `.ts`-suffixed relative imports internally and `packages/engine/tsconfig.json` does not set `allowImportingTsExtensions`.
-4. Confirmed the exact fix: adding `"allowImportingTsExtensions": true` to `packages/engine/tsconfig.json` alone made the same probe compile cleanly (`pnpm run typecheck` exit 0).
-5. Reverted both the probe file and the tsconfig edit; `git diff --stat packages/engine/` is empty and the full suite (`pnpm vitest run`, 173/173) and `pnpm run typecheck` both pass exactly as before the probe.
-
-This is not a hypothetical: it is the literal first thing that happens the moment Phase 2 writes `import { ... } from "@dsar/schemas/..."` inside `packages/engine`, which is exactly what Phase 2's `assess()` must do on day one. Nothing in this phase's test suite exercises a real cross-package import of `packages/schemas`, so the gap was invisible to every gate that ran during execution.
+**Score:** 5/5 ROADMAP success criteria verified at HEAD (all previously-gapped items closed and independently reproduced).
 
 ### Required Artifacts
 
 | Artifact | Expected | Status | Details |
 |----------|----------|--------|---------|
-| `packages/schemas/src/{primitives,money,matter-status,taxonomy,constants,matter,expense-line,audit-event,condition,rule-pack,assessment,guard-input,json-schema}.ts` | Frozen zod modules per PRD §6/§7.2/§8.1 | ✓ VERIFIED | All 13 present, `pnpm tsc --noEmit -p packages/schemas` clean, 151/151 `schemas` project tests pass |
-| `prisma/schema.prisma` | All six entities + User, native enums, no cascades | ✓ VERIFIED | `prisma validate`/`generate` both exit 0; enums verified byte-for-byte against zod tuples |
-| `.dependency-cruiser.cjs` / `eslint.config.js` | Purity + money-branding gates | ✓ VERIFIED | Both fire on their own falsification fixtures (`purity-gate.test.ts`, `lint-money-brand.test.ts`), confirmed passing in the toolchain project |
-| `tsconfig.json` (root) + `packages/*/tsconfig.json` | Real `tsc --build` gate (WR-01 fix) | ⚠️ PARTIAL | The gate itself is real (verified by injecting and reverting a genuine type error — see below) but `packages/engine/tsconfig.json` is missing the flag needed to actually typecheck an import of `@dsar/schemas` — see Downstream Compile Probe above |
-| `packages/schemas/schema/*.schema.json` (3 files) | Committed JSON Schema, money as `integer` | ✓ VERIFIED | 3 files present; `engineAmount`/`claimedTotal` etc. typed `"integer"` with the WR-03 bounds `[-2147483648, 2147483647]`; drift test passes |
-| `packages/schemas/FREEZE.md` | D-09/D-10 policy, all 12 modules named | ✓ VERIFIED | All 12 module names present; states additive-only rule, escalation path, and both post-freeze amendments (WR-02, WR-03) |
-| `tests/boundary/denylist-scanner.ts` + both AC-06 tests + canary | Non-vacuous personal-data scan | ✓ VERIFIED | NFKC-normalize + word-boundary matching confirmed by source read; canary and Prisma-model-count assertions both present and passing |
-
-### Gate Falsification (Step 7b-style spot checks, run directly)
-
-| Behavior | Command | Result | Status |
-|----------|---------|--------|--------|
-| `pnpm run typecheck` is a real, non-vacuous gate | Injected `const x: number = 'not a number'` into `packages/schemas/src/money.ts`, ran `pnpm run typecheck`, reverted | Non-zero exit, named the file and line; after revert, exit 0 | ✓ PASS |
-| AC-07a money-branding lint rule fires | `pnpm vitest run --project toolchain` (includes `lint-money-brand.test.ts`) | 8/8 pass (fires on 5 bad fixtures, silent on 3 look-alikes) | ✓ PASS |
-| dependency-cruiser purity gate fires | `pnpm vitest run --project toolchain` (includes `purity-gate.test.ts`); `pnpm run depcruise` | 8/8 pass; "no dependency violations found (34 modules, 68 dependencies)" | ✓ PASS |
-| `Assessment` can express PRD §14's reference fixture exactly | Ad hoc probe test parsing `claimedTotal 88800 / draftBaseline 26640 / disallowedTotal 12660 / flaggedTotal 49500 / restingOnUnverifiedRules 10640 / finalAmount null` (minor units) through `AssessmentSchema` | Parsed successfully; `finalAmount` round-trips as `null`; reconciliation `26640+12660+49500=88800` holds | ✓ PASS |
-| `AuditEventType` enum matches the zod tuple member-for-member | Direct diff of `prisma/schema.prisma`'s `enum AuditEventType` (17 values) against `AuditEventTypeSchema` in `primitives.ts` | Identical 17 values, identical order | ✓ PASS |
-| `MatterStatus` enum matches the zod tuple member-for-member | Direct diff of `prisma/schema.prisma`'s `enum MatterStatus` against `MATTER_STATUSES` | Identical 7 values, identical order | ✓ PASS |
-| Downstream compile (`packages/engine` importing `@dsar/schemas`) | See "Downstream Compile Probe" above | **Fails** with TS5097 as currently configured | ✗ FAIL (the phase's one open gap) |
+| `packages/schemas/src/*.ts` (13 modules) | Frozen zod modules per PRD §6/§7.2/§8.1 | ✓ VERIFIED | Unchanged by the four new commits except `expense-line.ts`/`primitives.ts` (WR-03 bounds, additive only) |
+| `prisma/schema.prisma` | All six entities + User, native enums, no cascades | ✓ VERIFIED | `AuditEventType` now native enum (WR-02); `db:validate` passes; 0 Decimal/Float/Cascade |
+| `.dependency-cruiser.cjs` / `eslint.config.js` | Purity + money-branding gates | ✓ VERIFIED | `pnpm run lint` and `pnpm run depcruise` both exit 0 at HEAD |
+| `tsconfig.json` (root) + `packages/*/tsconfig.json` | Real `tsc --build` gate (WR-01), consumable by `packages/engine` (gap fix) | ✓ VERIFIED | Both the gate's genuineness (fresh injected-error check) and the cross-package consumability (fresh compile probe) reproduced independently this round |
+| `packages/engine/src/schemas-boundary.test.ts` | Permanent regression test for the gap | ✓ VERIFIED, load-bearing | Confirmed present, passing, and that disabling `allowImportingTsExtensions` breaks the build (38 errors) — not a decorative test |
+| `packages/schemas/schema/*.schema.json` (3 files) | Committed JSON Schema, money as `integer` | ✓ VERIFIED | Unchanged by the four new commits except WR-03's regenerated bounds |
+| `packages/schemas/FREEZE.md` | D-09/D-10 policy, post-freeze amendments recorded | ✓ VERIFIED | Records both WR-02 and WR-03 as post-freeze amendments |
 
 ### Requirements Coverage
 
-| Requirement | Description (abridged) | Status | Evidence |
-|-------------|-------------------------|--------|----------|
-| SCHEMA-01 | Every core type defined as a zod schema with inferred TS type | ✓ SATISFIED | All six entities + primitives present and compiling within `packages/schemas`; see Downstream Compile Probe for the separate cross-package caveat, which does not falsify SCHEMA-01's own wording (definition, not downstream consumption) |
-| SCHEMA-02 | Branded `Minor`, lint rule rejects bare `number` for money-suffixed identifiers | ✓ SATISFIED | Falsification test passes (8/8 toolchain); `MinorSchema` bounded and branded |
-| SCHEMA-03 | `MINOR_UNIT_DECIMALS` map, currency-aware formatting | ✓ SATISFIED | JPY/KRW/VND = 0, others = 2, confirmed in source and by test |
-| SCHEMA-04 | `JURISDICTION_CURRENCY` nine-entry map; matter currency must equal jurisdiction's | ✓ SATISFIED (schema layer; DB layer is Phase 3.2) | Nine entries confirmed; `.superRefine()` confirmed enforcing the match |
-| SCHEMA-05 | JSON Schema generated for LLM boundary | ✓ SATISFIED | Native `z.toJSONSchema()`, 3 committed artifacts, money typed `integer`, drift test passes |
-| SCHEMA-06 | `GuardInput` structurally excludes advisory deadline fields | ✓ SATISFIED | Literal type (no `Omit`/`Pick`), 11 members, `@ts-expect-error` fixture confirmed satisfied by `tsc --build` passing cleanly |
-| SCHEMA-07 | 10,000-run property test, every money field an integer | ✓ SATISFIED | `assessment.property.test.ts`, `numRuns: 10000`, recorded seed `20260915`, passing |
-| STATE-01 | `MatterStatus` closed set of seven, no other value anywhere | ✓ SATISFIED (schema + Prisma-enum layer; DB CHECK/constraint enforcement beyond the enum type is Phase 3.2's) | Confirmed identical 7-value tuple in zod and Postgres enum |
-| BOUND-02 | No Prisma field / form input matches the personal-data deny-list | ✓ SATISFIED | `getDMMF()`-based scan + DOM canary both pass; word-boundary matching avoids the `fin`/`finalAmount` false positive documented in 01-03-SUMMARY.md |
+| Requirement | Status | Evidence |
+|-------------|--------|----------|
+| SCHEMA-01 | ✓ SATISFIED | All six entities + primitives compile within `packages/schemas`; now also demonstrated to compile from a real downstream consumer (`packages/engine`) |
+| SCHEMA-02 | ✓ SATISFIED | Branded, bounded (WR-03) `MinorSchema`; falsification test passes |
+| SCHEMA-03 | ✓ SATISFIED | `MINOR_UNIT_DECIMALS` confirmed |
+| SCHEMA-04 | ✓ SATISFIED (schema layer; DB layer is Phase 3.2) | Nine-entry map, `.superRefine()` enforcement confirmed |
+| SCHEMA-05 | ✓ SATISFIED | JSON Schema artifacts regenerated with WR-03 bounds, drift test passes |
+| SCHEMA-06 | ✓ SATISFIED | `GuardInput` literal-type exclusion, unaffected by the four new commits |
+| SCHEMA-07 | ✓ SATISFIED | 10,000-run property test passing in the 175/175 suite |
+| STATE-01 | ✓ SATISFIED (schema + Prisma-enum layer) | 7-value `MatterStatus` confirmed identical in zod and Postgres |
+| BOUND-02 | ✓ SATISFIED | `getDMMF()` scan + DOM canary both pass |
 
-No orphaned requirements found: `.planning/REQUIREMENTS.md`'s Phase-1 rows (SCHEMA-01..07, STATE-01, BOUND-02) all appear in at least one plan's `requirements` frontmatter.
+No orphaned requirements. No requirement regressed by the four new commits.
 
 ### Anti-Patterns Found
 
-None. No `TODO`/`FIXME`/`HACK`/`PLACEHOLDER`/`TBD`/`XXX` markers found in any file this phase modified. No `.passthrough()`/`.catchall()`/stray `z.string()` where an enum belongs (confirmed by the 01-REVIEW.md pass and spot-checked again here for `CONDITION_FIELDS`, `AUDIT_PAYLOAD_KEYS`, `EXPENSE_CATEGORY_CODES`). All three 01-REVIEW.md Warnings (WR-01, WR-02, WR-03) are confirmed genuinely fixed in the current tree (not merely marked resolved in prose) — each was independently re-verified above (WR-01: real typecheck gate; WR-02: native `AuditEventType` enum; WR-03: bounded `Minor`/`quantity`). IN-01 remains open by explicit, recorded decision (negative `Minor` values deferred to Phase 2's `assess()`), which is a documented scope choice, not an unaddressed defect.
+None, re-scanned this round across every file touched since the previous verification (`git diff --name-only 967db61 HEAD`). See "Staleness Re-Verification" above for detail. All three 01-REVIEW.md Warnings (WR-01, WR-02, WR-03) confirmed genuinely fixed in the tree at HEAD, not merely marked resolved in prose. IN-01 remains open by explicit, recorded, in-scope decision (deferred to Phase 2).
 
 ### Human Verification Required
 
-None. Every truth in this phase is either a structural/schema-level property (verifiable by direct read, `tsc`, or a parse test) or a static gate (verifiable by triggering it). Nothing in this phase renders UI or depends on runtime/visual judgment.
+None. Every truth in this phase is a structural/schema-level property or a static gate, all independently re-run this round.
 
 ### Gaps Summary
 
-One gap, scoped narrowly: `packages/engine`'s `tsconfig.json` (and the shared `tsconfig.base.json`) never received the `allowImportingTsExtensions` compiler flag that `packages/schemas`'s own subpath-exports-to-source design requires of every consumer. This was added ad hoc to `packages/schemas/tsconfig.json` and `tests/tsconfig.json` during the WR-01 fix, but not propagated to the one package whose entire purpose in this phase is to be the freeze's first downstream consumer. The result: a real import of any frozen type into `packages/engine`, checked with the project's own `pnpm run typecheck`, fails to compile. This directly falsifies ROADMAP Phase 1 Success Criterion 1's "a downstream package can import ... and compile" — not because a field is wrong or missing, but because the build configuration that would let a consumer actually use the freeze was never finished.
-
-The fix is small and does not touch any frozen field: add `"allowImportingTsExtensions": true` to `tsconfig.base.json` (so every current and future package inherits it, matching the pattern already applied twice — to `packages/schemas` and to `tests/`) or to `packages/engine/tsconfig.json` specifically. Recommend also adding a regression check — a real cross-package import compiled as part of the test suite — so this class of gap cannot reappear silently the way it did here (every gate in this phase passed while this was broken, because nothing exercised a real cross-package import until this verification did).
-
-Everything else checked — the six entity types, the closed sets (`MatterStatus` 7, `ExpenseCategoryCode` 21, `CONDITION_FIELDS` 15 with its `satisfies` clause, `AUDIT_PAYLOAD_KEYS` 5, Prisma `AuditEventType` 17), the PRD §14 reference fixture's expressibility, all three static gates (money-branding lint, dependency-cruiser purity, `tsc --build`), and the Prisma/zod field alignment — verified directly against the codebase and holds.
-
-### Gap Resolution (2026-09-15, post-verification fix)
-
-The single open gap above is closed. Four causes were diagnosed and addressed:
-
-1. **No workspace dependency.** `packages/engine/package.json` declared no `dependencies` at all, so `@dsar/schemas` was never linked into `packages/engine/node_modules`. Fixed by adding `"@dsar/schemas": "workspace:*"` to `packages/engine/package.json` and running `pnpm install`. Confirmed the symlink now exists at `packages/engine/node_modules/@dsar/schemas`.
-2. **`allowImportingTsExtensions` not inherited.** Moved the flag out of `packages/schemas/tsconfig.json` and `tests/tsconfig.json` (where it was added ad hoc during the WR-01 fix) and into the shared `tsconfig.base.json`, so every current and future consumer (`packages/rulepacks` in Phase 3, `apps/web` in Phase 3.1, `packages/agent` in Phase 8) inherits it automatically rather than needing to remember it individually.
-3. **No project reference — investigated, deliberately not added.** The gap's stated Cause 3 asked for a `references` entry from `packages/engine/tsconfig.json` to `packages/schemas`. This was attempted and reverted: adding `"references": [{ "path": "../schemas" }]` produces `TS6310: Referenced project '...packages/schemas' may not disable emit`, because `packages/schemas` inherits `noEmit: true` from `tsconfig.base.json` by design — it ships raw `.ts` source through its subpath-exports map (`"./*": "./src/*.ts"`) and has no built `dist/` output for anything to consume. Forcing emit to satisfy a project-reference edge would produce declaration files nothing uses, contradicting the source-only architecture this freeze already established for two other consumers. Verified directly that `tsc --build tsconfig.json` already type-checks and orders the cross-package import correctly without this edge: a deliberately-wrong probe (`const bogus: Matter = "not a matter"`) inside `packages/engine/src` produced a real `TS2322` naming `Matter`'s actual field shape, proving the check is genuine and not silently skipped; reverting the probe restored a clean build. No further action taken on this cause; recorded here rather than silently doing the narrow fix, per this task's instructions.
-4. **No test exercised a real cross-package import.** Added `packages/engine/src/schemas-boundary.test.ts` — a permanent test that imports `Matter`, `Assessment`, `AssessmentLine`, `ExpenseLine`, `RulePack` and `AuditEvent` (type-only) plus `MATTER_STATUSES` (runtime) from `@dsar/schemas`, through its real subpath-exports map (never a relative path that would sidestep it). Registered a new `"engine"` project in `vitest.config.ts` so the test runs under `pnpm vitest run`. The type-only imports are checked by `pnpm run typecheck`; the runtime import is asserted by a vitest test. Either regressing (workspace dependency, `allowImportingTsExtensions`, or the exports map itself) now fails a gate.
-
-**Gate evidence (fresh build, tsbuildinfo cleared first):**
-- `pnpm run typecheck` (`tsc --build tsconfig.json`) — exit 0
-- `pnpm vitest run` — 19 test files, **175 passed** (173 pre-existing + 2 new in `schemas-boundary.test.ts`)
-- `pnpm run lint` (`eslint .`) — exit 0
-- `pnpm run depcruise` — "no dependency violations found (36 modules, 70 dependencies cruised)" (up from 34/68 pre-fix; no new violations — a type-only cross-package import does not trip the purity boundary)
-- `pnpm run db:validate` (`prisma validate`) — "The schema at prisma\schema.prisma is valid" (untouched — no frozen schema or Prisma model was changed)
-
-Files changed: `tsconfig.base.json`, `packages/engine/package.json`, `packages/schemas/tsconfig.json`, `tests/tsconfig.json`, `vitest.config.ts`, `pnpm-lock.yaml` (relink), plus the new `packages/engine/src/schemas-boundary.test.ts`. `packages/engine/tsconfig.json` and `packages/schemas`'s frozen zod modules are unchanged.
+None remaining. The single gap from the initial verification round (ROADMAP Success Criterion 1 — cross-package compile) was fixed in `c9442d9` and is independently reproduced as fixed at current HEAD (`b69ff01`) in this re-verification round. No new gaps introduced by the WR-01/02/03 fix commits or the gap-closure commit.
 
 ---
 
-_Verified: 2026-09-15_
+_Verified (initial): 2026-09-15_
+_Verified (staleness re-verification): 2026-09-15, against HEAD `b69ff0161c1fc685ac4b0e012473ec47b08309b4`_
 _Verifier: Claude (gsd-verifier)_
-_Gap closed: 2026-09-15 (fix(01) commit — see git log)_
+_Gap closed: 2026-09-15 (`c9442d9`) — re-confirmed independently in this round, not re-derived from the SUMMARY_
