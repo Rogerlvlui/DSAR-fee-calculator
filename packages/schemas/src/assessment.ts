@@ -94,6 +94,40 @@ export const AssessmentLineSchema = z
 export type AssessmentLine = z.infer<typeof AssessmentLineSchema>;
 
 // ---------------------------------------------------------------------------
+// FlatFeeComparison — the D-12 extension to Totals
+// ---------------------------------------------------------------------------
+//
+// NEW DESIGN, not a PRD §8.1 transcription — §8.1 step 6 names no flat-fee
+// field. ENGINE-16 (Phase 2) requires the engine to compute and report a
+// comparison between the pack's flat figure and itemised direct cost, but
+// the frozen Totals had no field to write that answer into. D-12
+// (02-CONTEXT.md) resolves the gap additively.
+//
+// "Itemised direct cost" is Phase 2's reading, not the PRD's: it means
+// `draftBaseline`, the itemised allowable total before any lawyer
+// disposition. This is grounded in rule-pack.ts's FlatFeeSchema module
+// note — a flat figure cannot be shown to stay below direct cost without an
+// itemised baseline to compare it against — and draftBaseline is exactly
+// that baseline. The comparison stores its own itemisedDirectCostAmount
+// field rather than leaving the reader to infer it from draftBaseline
+// elsewhere on Totals, so the record self-describes what was compared
+// against what at computation time and survives a later change to how
+// draftBaseline itself is derived.
+//
+// No currency sub-field, for the same reason FlatFeeSchema (rule-pack.ts)
+// carries none: PRD §6.0 makes currency a property of the jurisdiction, not
+// of any pack or figure within one. Adding one here would reintroduce
+// exactly the drift the D-02 gate removed from FlatFeeSchema.
+//
+// z.strictObject: an undeclared key is a parse error, not silently dropped.
+export const FlatFeeComparisonSchema = z.strictObject({
+  flatFeeAmount: MinorSchema,
+  itemisedDirectCostAmount: MinorSchema,
+  flatFeeExceedsItemisedCost: z.boolean(),
+});
+export type FlatFeeComparison = z.infer<typeof FlatFeeComparisonSchema>;
+
+// ---------------------------------------------------------------------------
 // Totals (PRD §8.1 step 6)
 // ---------------------------------------------------------------------------
 
@@ -106,6 +140,11 @@ export const TotalsSchema = z.object({
   // AC-25: required, nullable, NO `.default(...)`. Never populate this from
   // draftBaseline — it must be unrepresentable as a number before sign-off.
   finalAmount: MinorSchema.nullable(),
+  // D-12 — optional, not nullable-required, so a pack with no flat fee omits
+  // the key entirely and every existing six-key Totals JSON is literally
+  // unchanged. Follows the RulePack.flatFee precedent (rule-pack.ts) for the
+  // same reason.
+  flatFeeComparison: FlatFeeComparisonSchema.optional(),
 });
 export type Totals = z.infer<typeof TotalsSchema>;
 

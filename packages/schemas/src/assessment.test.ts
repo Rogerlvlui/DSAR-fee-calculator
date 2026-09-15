@@ -85,7 +85,15 @@ describe("AssessmentSchema — full parse", () => {
 });
 
 describe("TotalsSchema — the six §8.1 step 6 fields", () => {
-  it("declares exactly 6 fields", () => {
+  // D-12 adds a seventh, OPTIONAL declared field (flatFeeComparison) to the
+  // schema's shape. This exact-equality assertion is updated to include it —
+  // the six original §8.1 step 6 fields are unchanged and un-retyped, and
+  // the additive-only freeze (D-09) permits exactly this kind of extension.
+  // The behavioral guarantee that matters — a Totals object with only the
+  // six original keys still parses, with no comparison property on the
+  // result — is covered separately below ("TotalsSchema — flatFeeComparison
+  // (D-12)").
+  it("declares the six original fields plus the D-12 optional flatFeeComparison extension", () => {
     const shape = (TotalsSchema as unknown as { shape: Record<string, unknown> }).shape;
     expect(Object.keys(shape).sort()).toEqual(
       [
@@ -95,6 +103,7 @@ describe("TotalsSchema — the six §8.1 step 6 fields", () => {
         "flaggedTotal",
         "restingOnUnverifiedRules",
         "finalAmount",
+        "flatFeeComparison",
       ].sort()
     );
   });
