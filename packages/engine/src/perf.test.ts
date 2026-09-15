@@ -92,6 +92,6 @@ describe("performance budget — 50 lines under 100ms (ENGINE-17, PRD §11)", ()
       }
     }
     const m = medianElapsedMs(slowControl, 2, 5);
-    expect(m).toBeLessThan(BUDGET_MS); // RED: deliberately backwards — a 120ms busy-loop must exceed the budget
+    expect(m).toBeGreaterThan(BUDGET_MS);
   });
 });
