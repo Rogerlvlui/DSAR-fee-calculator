@@ -39,12 +39,12 @@
 - [ ] **ENGINE-08**: Totals are computed per §8.1 step 6, and `finalAmount` is `null` until sign-off — unrepresentable as a number before then, never defaulted to `draftBaseline` (AC-25)
 - [x] **ENGINE-09**: `FLAG` lines contribute zero to `draftBaseline`, and their claimed value appears only in `flaggedTotal` (AC-11)
 - [x] **ENGINE-10**: `restingOnUnverifiedRules` equals the sum of allowed amounts whose applied rule is `NEEDS_VERIFICATION`, and is a subset of `draftBaseline` (AC-22)
-- [ ] **ENGINE-11**: Matter-level flags are evaluated from `matterFlagRules`, plus `LITIGATION_POSTURE`, `REPEAT_REQUEST` and `STALE_PACK_WARNING` (§8.1)
+- [x] **ENGINE-11**: Matter-level flags are evaluated from `matterFlagRules`, plus `LITIGATION_POSTURE`, `REPEAT_REQUEST` and `STALE_PACK_WARNING` (§8.1)
 - [x] **ENGINE-12**: An `OTHER_UNCLASSIFIED` line always returns `FLAG`, regardless of pack, description or LLM suggestion, except where the posture gate has already forced every line to `DISALLOW` (AC-19)
 - [x] **ENGINE-13**: A stored `claimedAmount` that does not equal `quantity × unitRate` on load raises a hard error and blocks submission (AC-08)
 - [ ] **ENGINE-14**: Golden-file fixtures for the SG and HK packs reproduce exactly the expected verdicts, amounts, flags and totals, and changing a pack breaks its golden files (AC-09, §14)
 - [ ] **ENGINE-15**: Engine tests pass identically under at least two timezone and locale combinations, proving no hidden locale or clock dependence *(research)*
-- [ ] **ENGINE-16**: For a pack carrying a flat fee, the engine computes both the itemised baseline and the flat figure, and reports whether the flat figure exceeds itemised direct cost *(decision: PROJECT.md, PRD §17 q.2)*
+- [x] **ENGINE-16**: For a pack carrying a flat fee, the engine computes both the itemised baseline and the flat figure, and reports whether the flat figure exceeds itemised direct cost *(decision: PROJECT.md, PRD §17 q.2)*
 - [ ] **ENGINE-17**: An assessment of 50 lines completes in under 100ms (§11)
 
 ### Rule packs
@@ -262,12 +262,12 @@ Every v1 requirement maps to exactly one phase in `.planning/ROADMAP.md`.
 | ENGINE-08 | Phase 2 | Pending |
 | ENGINE-09 | Phase 2 | Complete |
 | ENGINE-10 | Phase 2 | Complete |
-| ENGINE-11 | Phase 2 | Pending |
+| ENGINE-11 | Phase 2 | Complete |
 | ENGINE-12 | Phase 2 | Complete |
 | ENGINE-13 | Phase 2 | Complete |
 | ENGINE-14 | Phase 6 | Pending |
 | ENGINE-15 | Phase 2 | Pending |
-| ENGINE-16 | Phase 2 | Pending |
+| ENGINE-16 | Phase 2 | Complete |
 | ENGINE-17 | Phase 2 | Pending |
 | PACK-01 | Phase 3 | Pending |
 | PACK-02 | Phase 3 | Pending |

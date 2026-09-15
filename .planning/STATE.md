@@ -3,16 +3,16 @@ gsd_state_version: "1.0"
 current_phase: 02
 current_phase_name: Deterministic Fee Engine
 status: executing
-stopped_at: Completed 02-05-PLAN.md
-last_updated: "2026-09-15T10:26:54.838Z"
+stopped_at: Completed 02-06-PLAN.md
+last_updated: "2026-09-15T10:54:05.366Z"
 last_activity: 2026-09-15
 last_activity_desc: Phase 02 execution started
-state_head: 2c5ffe23d021e77e425a6f1d300859455015d934
+state_head: 7032e0941f9f59d3d6e100a83435d19c7c2c83b2
 progress:
   total_phases: 10
   completed_phases: 0
   total_plans: 16
-  completed_plans: 11
+  completed_plans: 12
   percent: 0
 ---
 
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-09-13)
 ## Current Position
 
 Phase: 02 (Deterministic Fee Engine) — EXECUTING
-Plan: 6 of 7
+Plan: 7 of 7
 Status: Ready to execute
 Last activity: 2026-09-15 — Phase 02 execution started
 
@@ -69,6 +69,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 02 P03 | 20min | 3 tasks | 6 files |
 | Phase 02 P04 | 95min | 3 tasks | 14 files |
 | Phase 02 P05 | 40min | 3 tasks | 11 files |
+| Phase 02 P06 | 48min | 3 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -106,6 +107,8 @@ Recent decisions affecting current work:
 - [Phase 02]: A CategoryRule authored with plain treatment FLAG on a category other than OTHER_UNCLASSIFIED reuses the UNCATEGORISED FlagReasonCode with distinct message text -- flagged as a candidate for a dedicated code if a real pack ever needs to distinguish the two
 - [Phase 02]: Cross-line checks compute per-line flag reasons only (never rewrite verdicts); assess.ts applies them in exactly one place so the verdict-and-reason invariant is enforced once
 - [Phase 02]: Aggregate cap pro-rata allocation floors each line's share once and leaves the remainder unallocated (never largest-remainder or by-sequence), per PROJECT.md's settled residue policy
+- [Phase 02]: [Phase 02 P06]: D-12's flat-fee schema field consumed cleanly (no impedance mismatch); computeFlatFeeComparison is a direct mapping, computed last from the finalised draftBaseline
+- [Phase 02]: [Phase 02 P06]: Derived matter flags composed from a declared DERIVED_MATTER_FLAG_SPECS array (not a sequence of if-statements) so the output order is a reviewable constant; composeMatterLevelFlags owns final ordering: derived, then aggregate-cap flag, then pack flags
 
 ### Pending Todos
 
@@ -131,6 +134,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-09-15T10:26:54.767Z
-Stopped at: Completed 02-05-PLAN.md
+Last session: 2026-09-15T10:54:05.295Z
+Stopped at: Completed 02-06-PLAN.md
 Resume file: None
