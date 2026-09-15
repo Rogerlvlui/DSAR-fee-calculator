@@ -189,10 +189,7 @@ const DERIVED_MATTER_FLAG_SPECS: readonly DerivedFlagSpec[] = [
     // checkPreconditions() already refuses a past-due pack outright before
     // assess() ever reaches step 7 (AC-39, §9.3's "a block, not a banner")
     // — do not add a redundant `>= 0` guard on the strength of that.
-    // RED (deliberate, Task 2 red phase): off-by-one — <= 31 instead of the
-    // inclusive-of-30 window §9.3 specifies, so a pack due in 31 days
-    // incorrectly fires this flag.
-    fires: (_matter, pack, now) => daysUntil(now, pack.reviewDueOn) <= 31,
+    fires: (_matter, pack, now) => daysUntil(now, pack.reviewDueOn) <= 30,
     message: (_matter, pack, now) => stalePackWarningMessage(pack.reviewDueOn, daysUntil(now, pack.reviewDueOn)),
   },
   {

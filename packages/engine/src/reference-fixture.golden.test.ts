@@ -190,8 +190,14 @@ describe("§8.1 step 7 — the NO_FEE_AUTHORITY_POSTURE matter-level code", () =
       now: REFERENCE_NOW,
     });
 
-    expect(result.lines[0]?.verdict).toBe("FLAG");
-    expect(result.lines[0]?.flagReasons.map((reason) => reason.code)).toEqual(["NO_FEE_AUTHORITY"]);
+    // Every line is FLAG — a single-line matter is unavoidably 100% of its
+    // own claim, so step 4's materiality check also trips here; this test's
+    // subject is the posture gate's own reason plus the matter-level code,
+    // not an exhaustive list of every reason a coincidental cross-line check
+    // might add on top (see evaluate-line.test.ts's posture-gate tests for
+    // the isolated NO_FEE_AUTHORITY-only assertion).
+    expect(result.lines.every((line) => line.verdict === "FLAG")).toBe(true);
+    expect(result.lines[0]?.flagReasons.map((reason) => reason.code)).toContain("NO_FEE_AUTHORITY");
     expect(result.matterLevelFlags.some((flag) => flag.code === "NO_FEE_AUTHORITY_POSTURE")).toBe(true);
   });
 });
