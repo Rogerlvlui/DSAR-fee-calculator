@@ -99,3 +99,56 @@ match a type this freeze already declared closed. Recorded here for the same
 reason as the amendment above: the freeze record should account for every
 change to a frozen entity's storage shape, not only to `packages/schemas`
 source. See the 01-REVIEW.md WR-02 fix.
+
+## Post-freeze amendment: `MatterFlagCode` gains `AGGREGATE_CAP_APPLIED`, and `Totals` gains an optional `flatFeeComparison` block (D-11, D-12)
+
+Two additive changes landed in Phase 2 (plan 02-03), both decided by the
+product owner on 2026-09-15 and recorded in full in
+`.planning/phases/02-deterministic-fee-engine/02-CONTEXT.md`. **D-09 is the
+authority under which both are permitted without escalation**: each is a
+pure addition — no frozen field anywhere in `primitives.ts` or `assessment.ts`
+is renamed, retyped, or removed.
+
+**D-11 — `MatterFlagCodeSchema` (`primitives.ts`) gains a sixth member,
+`AGGREGATE_CAP_APPLIED`.** The gap: `AssessmentLineSchema.superRefine`
+(`assessment.ts`) is bidirectional — `flagReasons` must be empty unless
+`verdict` is `FLAG`, and non-empty only when it is — so a line reduced by
+the pack's aggregate cap cannot carry a line-level cap reason without
+either losing its `ALLOW_CAPPED` verdict or being forced to `FLAG`, which
+would drop its reduced amount out of `draftBaseline` entirely (AC-11) and
+silently change the computed fee. `MatterFlagCode` had no cap member, so
+there was nowhere to put ENGINE-07's "flag that the cap bit" instead. D-11
+resolves this by giving the notice a matter-level home. **PRD §6.0 lists
+`AGGREGATE_CAP_APPLIED` among the line-level `FlagReasonCode` values, and it
+stays there unmoved** — this is an additive sibling at matter level, not a
+relocation, and Phase 1's bidirectional refinement on
+`AssessmentLineSchema.superRefine` is unchanged: a non-FLAG line with a
+flag reason still fails to parse, and a FLAG line with no reason still
+fails to parse, both re-proven by `primitives.test.ts` in the same commit
+that added the new code.
+
+**D-12 — `TotalsSchema` (`assessment.ts`) gains an optional
+`flatFeeComparison` field**, typed as a new `FlatFeeComparisonSchema`
+(`z.strictObject` with `flatFeeAmount: Minor`,
+`itemisedDirectCostAmount: Minor`, `flatFeeExceedsItemisedCost: boolean`,
+no currency sub-field). The gap: ENGINE-16 requires the engine to compute
+and report a comparison between the pack's flat figure and itemised direct
+cost, but the frozen `Totals` had no field to write that answer into.
+**"Itemised direct cost" means `draftBaseline`** — this reading is Phase
+2's, not the PRD's (PRD §8.1 step 6 names no flat-fee field at all), and is
+grounded in `rule-pack.ts`'s `FlatFeeSchema` module note: a flat figure
+cannot be shown to stay below direct cost without an itemised baseline to
+compare it against, and `draftBaseline` is exactly that baseline — the
+itemised allowable total before any lawyer disposition. The field is
+**optional, not nullable-required**, following the `RulePack.flatFee`
+precedent (PACK-12/D-02) exactly: a pack with no flat fee omits the key
+entirely, so every existing `Totals` JSON is literally unchanged and every
+pre-existing six-key `Totals` assertion in the repository keeps passing.
+
+Both changes reach the generated JSON Schema artifacts —
+`packages/schemas/schema/assessment.schema.json` moved with the source
+(`assessment-line.schema.json` and `expense-line.schema.json` did not,
+since neither `AssessmentLineSchema` nor `ExpenseLineSchema` reaches
+`MatterFlagCode` or `Totals`) — regenerated via `pnpm schema:json` and
+verified byte-identical to a fresh generation by the existing drift test
+(`json-schema.test.ts`).

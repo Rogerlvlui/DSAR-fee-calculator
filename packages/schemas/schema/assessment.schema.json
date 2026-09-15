@@ -316,7 +316,8 @@
               "REPEAT_REQUEST",
               "STALE_PACK_WARNING",
               "NO_FEE_AUTHORITY_POSTURE",
-              "PACK_FLAG"
+              "PACK_FLAG",
+              "AGGREGATE_CAP_APPLIED"
             ]
           },
           "message": {
@@ -374,6 +375,30 @@
               "type": "null"
             }
           ]
+        },
+        "flatFeeComparison": {
+          "type": "object",
+          "properties": {
+            "flatFeeAmount": {
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647
+            },
+            "itemisedDirectCostAmount": {
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647
+            },
+            "flatFeeExceedsItemisedCost": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "flatFeeAmount",
+            "itemisedDirectCostAmount",
+            "flatFeeExceedsItemisedCost"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
