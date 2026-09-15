@@ -159,7 +159,10 @@ export function assess(input: AssessInput): Assessment {
   const aggregateCapResult = applyAggregateCapStep({ lines: assessmentLines, pack, claimedTotal });
   assessmentLines = aggregateCapResult.lines;
 
-  const totals = computeTotals(assessmentLines, expenseLinesById, appliedRuleById);
+  // D-12 / ENGINE-16 — pack.flatFee flows into computeTotals() so the
+  // comparison is derived from the same, already-finalised draftBaseline
+  // computeTotals() returns (post cross-line checks and aggregate cap).
+  const totals = computeTotals(assessmentLines, expenseLinesById, appliedRuleById, pack.flatFee);
 
   // §8.1 step 7 — matter-level flags. composeMatterLevelFlags() owns the
   // final array's ordering: the derived codes first (declared order,

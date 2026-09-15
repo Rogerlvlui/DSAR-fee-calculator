@@ -16,16 +16,27 @@
 // range these fields are bounded to without throwing on its own, so this
 // converts a silent overflow into a thrown bound error at the point of
 // computation (threat T-2-02).
+//
+// Plan 02-06 / D-12 (ENGINE-16): the optional flatFeeComparison is computed
+// here, LAST, from the already-finalised draftBaseline above — every step
+// that can move draftBaseline (the per-line treatments, the cross-line
+// checks, the aggregate cap) has already run by the time assess.ts calls
+// this function, so "itemised direct cost" always means the actually-final
+// baseline, not a pre-cap sum. The key is omitted entirely (not set to
+// `undefined`) when the pack carries no flat fee, so a non-flat-fee pack's
+// emitted Totals JSON is byte-identical to what it was before this plan.
 
 import { MinorSchema } from "@dsar/schemas/primitives";
 import type { AssessmentLine, Totals } from "@dsar/schemas/assessment";
 import type { ExpenseLine } from "@dsar/schemas/expense-line";
-import type { CategoryRule } from "@dsar/schemas/rule-pack";
+import type { CategoryRule, FlatFee } from "@dsar/schemas/rule-pack";
+import { computeFlatFeeComparison } from "./flat-fee.ts";
 
 export function computeTotals(
   assessmentLines: readonly AssessmentLine[],
   expenseLinesById: ReadonlyMap<string, ExpenseLine>,
-  appliedRuleById: ReadonlyMap<string, CategoryRule>
+  appliedRuleById: ReadonlyMap<string, CategoryRule>,
+  flatFee?: FlatFee
 ): Totals {
   let claimedTotal = 0;
   let draftBaseline = 0;
@@ -69,14 +80,20 @@ export function computeTotals(
     }
   }
 
+  const draftBaselineMinor = MinorSchema.parse(draftBaseline);
+  const flatFeeComparison = computeFlatFeeComparison(flatFee, draftBaselineMinor);
+
   return {
     claimedTotal: MinorSchema.parse(claimedTotal),
-    draftBaseline: MinorSchema.parse(draftBaseline),
+    draftBaseline: draftBaselineMinor,
     disallowedTotal: MinorSchema.parse(disallowedTotal),
     flaggedTotal: MinorSchema.parse(flaggedTotal),
     restingOnUnverifiedRules: MinorSchema.parse(restingOnUnverifiedRules),
     // AC-25: the literal, unconditional null — never draftBaseline, never a
     // default. See module comment above.
     finalAmount: null,
+    // D-12 — spread only when present, so a non-flat-fee pack's Totals
+    // literally has six keys, not seven with the seventh set to `undefined`.
+    ...(flatFeeComparison ? { flatFeeComparison } : {}),
   };
 }
