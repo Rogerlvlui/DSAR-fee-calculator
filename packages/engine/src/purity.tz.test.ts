@@ -127,6 +127,6 @@ describe("gate integrity — the environment stub actually takes effect", () => 
     const offsetA = readPlatformTzOffsetMinutes();
     vi.stubEnv("TZ", TZ_B);
     const offsetB = readPlatformTzOffsetMinutes();
-    expect(offsetB).toBe(offsetA); // RED: deliberately backwards — offsetB must differ from offsetA
+    expect(offsetB).not.toBe(offsetA);
   });
 });
