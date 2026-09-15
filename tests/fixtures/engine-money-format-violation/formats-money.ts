@@ -4,7 +4,7 @@
 // `depcruise packages/engine packages/schemas` run stays clean — it is
 // only ever scanned through a temporary rule override inside
 // tests/toolchain/purity-gate.test.ts.
-import { formatMinor } from "../../../packages/schemas/src/money.ts";
-import { toMinor } from "../../../packages/schemas/src/primitives.ts";
+import { formatMinor } from "@dsar/schemas/money";
+import { toMinor } from "@dsar/schemas/primitives";
 
 export const displayAmount = (value: number): string => formatMinor(toMinor(value), "SGD");

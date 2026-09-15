@@ -34,6 +34,18 @@ module.exports = {
       from: { path: "^packages/engine" },
       to: { path: ["^undici$", "^node-fetch$"] },
     },
+    {
+      name: "no-money-formatting-in-engine",
+      severity: "error",
+      comment:
+        "packages/schemas/src/money.ts performs the only division on the money path and the only Intl call in packages/schemas — packages/engine must reach neither (T-2-09).",
+      from: { path: "^packages/engine" },
+      // Both the package-exports specifier and the resolved source path are
+      // covered: dependency-cruiser matches against the resolved module
+      // path, and a relative import would otherwise slip past a
+      // specifier-only pattern.
+      to: { path: ["^@dsar/schemas/money$", "packages/schemas/src/money"] },
+    },
   ],
   options: {
     doNotFollow: {
