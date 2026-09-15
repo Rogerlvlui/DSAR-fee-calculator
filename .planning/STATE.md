@@ -3,16 +3,16 @@ gsd_state_version: "1.0"
 current_phase: 02
 current_phase_name: Deterministic Fee Engine
 status: executing
-stopped_at: Completed 02-02-PLAN.md
-last_updated: "2026-09-15T06:44:17.076Z"
+stopped_at: Completed 02-03-PLAN.md
+last_updated: "2026-09-15T09:07:05.062Z"
 last_activity: 2026-09-15
 last_activity_desc: Phase 02 execution started
-state_head: 82941ba56912c57ef61963200b9154267598c65e
+state_head: 7e8df5709251124aca495f468dd0e018133fbc38
 progress:
   total_phases: 10
   completed_phases: 0
   total_plans: 16
-  completed_plans: 8
+  completed_plans: 9
   percent: 0
 ---
 
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-09-13)
 ## Current Position
 
 Phase: 02 (Deterministic Fee Engine) — EXECUTING
-Plan: 3 of 7
+Plan: 4 of 7
 Status: Ready to execute
 Last activity: 2026-09-15 — Phase 02 execution started
 
@@ -66,6 +66,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01 P07 | 25min | 3 tasks | 17 files |
 | Phase 02 P01 | 35min | 3 tasks | 12 files |
 | Phase 02 P02 | 45min | 3 tasks | 6 files |
+| Phase 02 P03 | 20min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -97,6 +98,8 @@ Recent decisions affecting current work:
 - [Phase 02]: [Phase 02 P01]: computeTotals' appliedRuleById is keyed by AssessmentLine.id, not CategoryRule.ruleId, so it stays unambiguous even when two lines share a rule
 - [Phase 02]: Locale-formatting positive case uses (1234).toLocaleString() rather than .toLocaleDateString() (Number has no such method); the ban's selector matches any toLocale* property name regardless — Representative instance of the same construct, not a narrower rule
 - [Phase 02]: RED evidence for TDD tasks captured via vitest tap-flat plus a hand-appended TAP summary line — Continues 02-01's documented workaround for gsd-tools check tdd-red-evidence's Node-test-runner-shaped parser
+- [Phase 02]: [Phase 02 P03]: D-11/D-12 implemented additively — MatterFlagCode gains AGGREGATE_CAP_APPLIED, Totals gains optional flatFeeComparison; AssessmentLineSchema.superRefine re-proven unchanged in both directions
+- [Phase 02]: [Phase 02 P03]: Pre-existing TotalsSchema shape-cardinality test updated (6 to 7 keys) — any optional field addition changes z.object's declared shape, so an exact-length assertion is inherently incompatible with the additive-only freeze policy; the parse-behavior guarantee (six-key object still parses, no comparison property) is the invariant that actually matters and is separately tested
 
 ### Pending Todos
 
@@ -122,6 +125,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-09-15T06:44:17.005Z
-Stopped at: Completed 02-02-PLAN.md
+Last session: 2026-09-15T09:07:04.991Z
+Stopped at: Completed 02-03-PLAN.md
 Resume file: None
