@@ -11,9 +11,10 @@
 // reject this combination at build time — this runtime refusal is a
 // backstop, not the only gate.
 //
-// RED (plan 02-04 Task 1): PERCENT_OF_CLAIM below deliberately rounds
-// instead of floors — the exact substitution AC-07c's "33, not 34" exists
-// to catch. GREEN replaces Math.round with Math.floor.
+// `percent` carries no `.int()` constraint in the frozen CapSchema (a pack
+// author may legally author a fractional percent), so the intermediate
+// multiply is not float-free even though the floored result always is —
+// always Math.floor, never Math.round, anywhere in this chain (AC-07c).
 
 import type { Cap } from "@dsar/schemas/rule-pack";
 import type { Minor } from "@dsar/schemas/primitives";
@@ -36,9 +37,10 @@ export function applyCap(cap: Cap, line: ApplyCapLine): Minor {
       return Math.min(line.claimedAmount, cap.amount) as Minor;
     }
     case "PERCENT_OF_CLAIM": {
-      // RED: Math.round, not Math.floor — deliberately wrong (see module
-      // note above). GREEN fixes this to Math.floor.
-      const cappedAmount = Math.round((line.claimedAmount * cap.percent) / 100);
+      // Multiply before dividing, then floor once at the end — never
+      // Math.round anywhere in this chain (AC-07c: 33 on 100 must be 33,
+      // not 34; a fractional percent must floor, not round, to zero).
+      const cappedAmount = Math.floor((line.claimedAmount * cap.percent) / 100);
       return Math.min(line.claimedAmount, cappedAmount) as Minor;
     }
     case "PER_MATTER": {

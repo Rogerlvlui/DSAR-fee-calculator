@@ -11,8 +11,9 @@
 // descriptions) so the caller can render which ones failed without
 // re-deriving them.
 //
-// RED (plan 02-04 Task 1): eq/neq below deliberately use `==`/`!=`
-// (coercing) instead of `===`/`!==` (strict) — GREEN fixes this.
+// Strict equality throughout — no coercion between a string and a number,
+// because a silently coerced comparison is a rule applying differently
+// than a pack author wrote it.
 
 import { CONDITION_FIELDS, type Condition, type ConditionField } from "@dsar/schemas/condition";
 import type { ExpenseLine } from "@dsar/schemas/expense-line";
@@ -87,14 +88,11 @@ function conditionHolds(condition: Condition, context: ConditionEvaluationContex
     case "isNotNull":
       return actual !== null;
     case "in":
-      // eslint-disable-next-line eqeqeq -- RED: deliberately loose, see module note.
-      return condition.value.some((candidate) => candidate == actual);
+      return condition.value.some((candidate) => candidate === actual);
     case "eq":
-      // eslint-disable-next-line eqeqeq -- RED: deliberately loose, see module note.
-      return condition.value == actual;
+      return condition.value === actual;
     case "neq":
-      // eslint-disable-next-line eqeqeq -- RED: deliberately loose, see module note.
-      return condition.value != actual;
+      return condition.value !== actual;
     case "gt":
     case "gte":
     case "lt":
