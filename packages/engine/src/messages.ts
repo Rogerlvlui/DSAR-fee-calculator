@@ -14,7 +14,7 @@
 // words, and none should be added later without checking that list first.
 
 import type { Condition } from "@dsar/schemas/condition";
-import type { Minor } from "@dsar/schemas/primitives";
+import type { Minor, StaffGrade } from "@dsar/schemas/primitives";
 
 export function packNotActiveMessage(actualStatus: string): string {
   return `Rule pack status is '${actualStatus}', but assess() requires status 'ACTIVE'.`;
@@ -121,4 +121,27 @@ export function conditionsNotMetMessage(failed: readonly Condition[]): string {
   return message.length > FLAG_REASON_MESSAGE_MAX
     ? `${message.slice(0, FLAG_REASON_MESSAGE_MAX - 1)}…`
     : message;
+}
+
+// Plan 02-05 Task 1 — the four §8.1 step-4 cross-line checks' flag-reason
+// message templates. See cross-line-checks.ts for the checks themselves and
+// for D-13's recorded reason the fifth ("implausible magnitude") check is
+// deliberately absent. Each stays inside FlagReasonSchema's 200-character
+// cap and describes what the engine compared, never pronouncing on the
+// result (CLAUDE.md's banned-word list).
+
+export function possibleDuplicateMessage(): string {
+  return "Another line in the same category has an identical description once trimmed, lower-cased, and its internal whitespace collapsed to single spaces — both lines are flagged as possible duplicates.";
+}
+
+export function materialityMessage(): string {
+  return "This line's claimed amount is 40% or more of the total claimed amount and is referred to Legal for materiality review.";
+}
+
+export function rateAboveExpectedMessage(grade: StaffGrade, unitRate: Minor, ceiling: Minor): string {
+  return `This line's unitRate ${unitRate} exceeds the rule pack's rateSanityCeiling ${ceiling} authored for staff grade '${grade}'.`;
+}
+
+export function vendorEvidenceMissingMessage(categoryCode: string): string {
+  return `Category '${categoryCode}' is a third-party vendor charge not marked isThirdPartyInvoiced, and no applied rule condition already tests that field.`;
 }
