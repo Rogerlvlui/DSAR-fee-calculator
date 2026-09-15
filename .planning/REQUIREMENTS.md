@@ -34,8 +34,8 @@
 - [x] **ENGINE-03**: The posture gate returns every line `DISALLOW` for `PROHIBITED` and `PERMITTED_NARROW_EXCEPTION`, and every line `FLAG` with reason `NO_FEE_AUTHORITY` for `NO_EXPRESS_AUTHORITY`, with `draftBaseline` zero (AC-13, AC-14)
 - [x] **ENGINE-04**: Per-line evaluation handles all five treatments — `ALLOW`, `ALLOW_WITH_CAP`, `ALLOW_IF`, `DISALLOW`, `FLAG` — with `ALLOW_IF` producing `CONDITIONS_NOT_MET` listing which conditions failed (§8.1)
 - [x] **ENGINE-05**: `applyCap` supports `PER_UNIT`, `PER_LINE`, `PER_MATTER` and `PERCENT_OF_CLAIM`, and always rounds down (AC-07c)
-- [ ] **ENGINE-06**: Cross-line checks raise a flag and never a silent adjustment — duplicate category with near-identical description, staff rate above the pack ceiling, any line at 40% or more of the claim, implausible magnitude, and a third-party line not marked invoiced (§8.1)
-- [ ] **ENGINE-07**: An aggregate cap is applied pro-rata with each line rounded down and the residue left unallocated, and the assessment flags that the cap bit *(decision: PROJECT.md — the PRD does not specify residue allocation)*
+- [x] **ENGINE-06**: Cross-line checks raise a flag and never a silent adjustment — duplicate category with near-identical description, staff rate above the pack ceiling, any line at 40% or more of the claim, implausible magnitude, and a third-party line not marked invoiced (§8.1)
+- [x] **ENGINE-07**: An aggregate cap is applied pro-rata with each line rounded down and the residue left unallocated, and the assessment flags that the cap bit *(decision: PROJECT.md — the PRD does not specify residue allocation)*
 - [ ] **ENGINE-08**: Totals are computed per §8.1 step 6, and `finalAmount` is `null` until sign-off — unrepresentable as a number before then, never defaulted to `draftBaseline` (AC-25)
 - [x] **ENGINE-09**: `FLAG` lines contribute zero to `draftBaseline`, and their claimed value appears only in `flaggedTotal` (AC-11)
 - [x] **ENGINE-10**: `restingOnUnverifiedRules` equals the sum of allowed amounts whose applied rule is `NEEDS_VERIFICATION`, and is a subset of `draftBaseline` (AC-22)
@@ -257,8 +257,8 @@ Every v1 requirement maps to exactly one phase in `.planning/ROADMAP.md`.
 | ENGINE-03 | Phase 2 | Complete |
 | ENGINE-04 | Phase 2 | Complete |
 | ENGINE-05 | Phase 2 | Complete |
-| ENGINE-06 | Phase 2 | Pending |
-| ENGINE-07 | Phase 2 | Pending |
+| ENGINE-06 | Phase 2 | Complete |
+| ENGINE-07 | Phase 2 | Complete |
 | ENGINE-08 | Phase 2 | Pending |
 | ENGINE-09 | Phase 2 | Complete |
 | ENGINE-10 | Phase 2 | Complete |

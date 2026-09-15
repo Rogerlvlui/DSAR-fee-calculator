@@ -3,16 +3,16 @@ gsd_state_version: "1.0"
 current_phase: 02
 current_phase_name: Deterministic Fee Engine
 status: executing
-stopped_at: Completed 02-04-PLAN.md
-last_updated: "2026-09-15T09:44:20.755Z"
+stopped_at: Completed 02-05-PLAN.md
+last_updated: "2026-09-15T10:26:54.838Z"
 last_activity: 2026-09-15
 last_activity_desc: Phase 02 execution started
-state_head: 9cf17d1f9be1f6f0189f48c5852bcc81fea766fb
+state_head: 2c5ffe23d021e77e425a6f1d300859455015d934
 progress:
   total_phases: 10
   completed_phases: 0
   total_plans: 16
-  completed_plans: 10
+  completed_plans: 11
   percent: 0
 ---
 
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-09-13)
 ## Current Position
 
 Phase: 02 (Deterministic Fee Engine) — EXECUTING
-Plan: 5 of 7
+Plan: 6 of 7
 Status: Ready to execute
 Last activity: 2026-09-15 — Phase 02 execution started
 
@@ -68,6 +68,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 02 P02 | 45min | 3 tasks | 6 files |
 | Phase 02 P03 | 20min | 3 tasks | 6 files |
 | Phase 02 P04 | 95min | 3 tasks | 14 files |
+| Phase 02 P05 | 40min | 3 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -103,6 +104,8 @@ Recent decisions affecting current work:
 - [Phase 02]: [Phase 02 P03]: Pre-existing TotalsSchema shape-cardinality test updated (6 to 7 keys) — any optional field addition changes z.object's declared shape, so an exact-length assertion is inherently incompatible with the additive-only freeze policy; the parse-behavior guarantee (six-key object still parses, no comparison property) is the invariant that actually matters and is separately tested
 - [Phase 02]: PERMITTED_NARROW_EXCEPTION is treated identically to PROHIBITED (forces DISALLOW) rather than inventing a narrow-exception mechanism the PRD's step 2 prose does not itself describe
 - [Phase 02]: A CategoryRule authored with plain treatment FLAG on a category other than OTHER_UNCLASSIFIED reuses the UNCATEGORISED FlagReasonCode with distinct message text -- flagged as a candidate for a dedicated code if a real pack ever needs to distinguish the two
+- [Phase 02]: Cross-line checks compute per-line flag reasons only (never rewrite verdicts); assess.ts applies them in exactly one place so the verdict-and-reason invariant is enforced once
+- [Phase 02]: Aggregate cap pro-rata allocation floors each line's share once and leaves the remainder unallocated (never largest-remainder or by-sequence), per PROJECT.md's settled residue policy
 
 ### Pending Todos
 
@@ -128,6 +131,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-09-15T09:44:20.684Z
-Stopped at: Completed 02-04-PLAN.md
+Last session: 2026-09-15T10:26:54.767Z
+Stopped at: Completed 02-05-PLAN.md
 Resume file: None
