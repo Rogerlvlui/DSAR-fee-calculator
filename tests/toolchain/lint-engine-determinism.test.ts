@@ -56,8 +56,14 @@ async function lintFixture(filePath: string): Promise<ESLint.LintResult[]> {
   return eslint.lintText(content, { filePath });
 }
 
+// `no-restricted-globals` and `no-restricted-properties` prepend their own
+// fixed "Unexpected use of 'X'." / "'X' is restricted from being used."
+// prefix ahead of the configured custom message (confirmed against the
+// installed eslint@10.10.0 rule source) — `no-restricted-syntax` does not.
+// Matching by substring, rather than exact equality, is correct for both
+// shapes and does not depend on which rule produced the message.
 function messagesFor(results: ESLint.LintResult[], text: string) {
-  return results.flatMap((r) => r.messages.filter((m) => m.message === text));
+  return results.flatMap((r) => r.messages.filter((m) => m.message.includes(text)));
 }
 
 // Locates the 1-indexed source line containing `needle`, so assertions do
