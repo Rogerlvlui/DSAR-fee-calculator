@@ -89,7 +89,7 @@ function readPlatformTzOffsetMinutes(): number {
   return new Date(2026, 0, 1).getTimezoneOffset();
 }
 
-describe("engine output is invariant across a fourteen-hour timezone swing", () => {
+describe("engine output is invariant across a fourteen-hour timezone (tz) swing", () => {
   it("the PRD §14 reference fixture — full result, including matter flag ordering and every total", () => {
     vi.stubEnv("TZ", TZ_A);
     const resultA = runReferenceFixtureAssess();
@@ -121,7 +121,7 @@ describe("engine output is invariant across a fourteen-hour timezone swing", () 
   });
 });
 
-describe("gate integrity — the environment stub actually takes effect", () => {
+describe("gate integrity — the tz environment stub actually takes effect", () => {
   it("a control value computed through the platform's own date handling DIFFERS between the two stub settings — proving the deep-equality assertions above are not passing vacuously", () => {
     vi.stubEnv("TZ", TZ_A);
     const offsetA = readPlatformTzOffsetMinutes();
