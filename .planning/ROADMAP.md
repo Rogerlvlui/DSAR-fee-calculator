@@ -13,7 +13,7 @@ The build starts with the one thing that genuinely blocks everything else — fr
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Schemas Freeze** - Freeze every core type and author the data model; the walking skeleton moved to Phase 3.2 with the database
+- [x] **Phase 1: Schemas Freeze** - Freeze every core type and author the data model; the walking skeleton moved to Phase 3.2 with the database (completed 2026-09-15)
 - [ ] **Phase 2: Deterministic Fee Engine** - `assess()` against hand-built fixture packs, with purity and money correctness proven by CI
 - [ ] **Phase 3: Rule Packs and Pack Admin** - Loader, validator, nine packs with HK and SG authored in full, and the audited activation gate
 - [ ] **Phase 3.1: Demo Slice — In-Memory Determination Pipeline** (INSERTED) - The whole determination running as live software with no database, for a stakeholder presentation
@@ -236,7 +236,7 @@ Where capacity allows, Phases 2, 3, 4 and 5 may run concurrently — they have z
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Schemas Freeze and Walking Skeleton | 6/6 | In Progress|  |
+| 1. Schemas Freeze and Walking Skeleton | 6/6 | Complete    | 2026-09-15 |
 | 2. Deterministic Fee Engine | 0/TBD | Not started | - |
 | 3. Rule Packs and Pack Admin | 0/TBD | Not started | - |
 | 3.1 Demo Slice — In-Memory Determination Pipeline | 0/TBD | Not started | - |
