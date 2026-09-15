@@ -42,9 +42,7 @@ export function computeFlatFeeComparison(
   return {
     flatFeeAmount: flatFee.amount,
     itemisedDirectCostAmount,
-    // RED (deliberate, Task 3 red phase): inclusive `>=` instead of the
-    // strict `>` this comparison requires, so a flat figure exactly at
-    // direct cost is (wrongly) reported as exceeding it.
-    flatFeeExceedsItemisedCost: flatFee.amount >= itemisedDirectCostAmount,
+    // Strict — a flat figure exactly at direct cost has not exceeded it.
+    flatFeeExceedsItemisedCost: flatFee.amount > itemisedDirectCostAmount,
   };
 }
