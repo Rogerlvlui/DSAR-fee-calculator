@@ -58,32 +58,18 @@ export function applyAggregateCap(capAmount: Minor, allowedAmounts: readonly Min
     return { allocated: [...allowedAmounts], residue: 0 as Minor, bound: false };
   }
 
-  const floored = allowedAmounts.map((amount) => Math.floor((capAmount * amount) / sum));
-  const flooredSum = floored.reduce((total, amount) => total + amount, 0);
-  let residueToDistribute = capAmount - flooredSum;
-
-  // NOTE (deliberate RED-phase bug, plan 02-05 Task 2): distributes the
-  // floored residue to the lines with the largest fractional remainder,
-  // one unit each, until exhausted — the "largest-remainder" allocation
-  // scheme PROJECT.md explicitly rejected (it hits the cap exactly but
-  // introduces an ordering rule a lawyer would have to defend). GREEN phase
-  // removes this and leaves the residue unallocated instead.
-  const remainders = allowedAmounts.map((amount, index) => ({
-    index,
-    fraction: (capAmount * amount) % sum,
-  }));
-  remainders.sort((a, b) => b.fraction - a.fraction);
-  const allocated = [...floored];
-  for (const { index } of remainders) {
-    if (residueToDistribute <= 0) break;
-    allocated[index] = (allocated[index] ?? 0) + 1;
-    residueToDistribute -= 1;
-  }
-
+  // PROJECT.md's settled residue policy: each line's share is floor(cap *
+  // share / sum), multiplying before dividing exactly once and flooring
+  // once. The remainder is left UNALLOCATED — not distributed by largest
+  // remainder, not distributed by line sequence. Both alternatives were
+  // considered and rejected: they hit the cap exactly but introduce an
+  // ordering rule a lawyer would have to defend, which is a worse property
+  // than an under-claimed residue (R8's accepted cheaper error).
+  const allocated = allowedAmounts.map((amount) => Math.floor((capAmount * amount) / sum) as Minor);
   const allocatedSum = allocated.reduce((total, amount) => total + amount, 0);
   const residue = (capAmount - allocatedSum) as Minor;
 
-  return { allocated: allocated as Minor[], residue, bound: true };
+  return { allocated, residue, bound: true };
 }
 
 export interface ApplyAggregateCapStepInput {
