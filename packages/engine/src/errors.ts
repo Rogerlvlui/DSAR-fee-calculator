@@ -30,13 +30,10 @@ export type AssessPreconditionError =
         expectedCurrency: CurrencyCode;
         jurisdictionCode: JurisdictionCode;
       };
-    }
-  | { code: "PACK_PAST_REVIEW_DUE"; detail: { reviewDueOn: string; now: string } }
-  | {
-      code: "CLAIMED_AMOUNT_MISMATCH";
-      detail: { lineId: string; storedClaimedAmount: number; recomputedClaimedAmount: number };
-    }
-  | { code: "NEGATIVE_UNIT_RATE"; detail: { lineId: string; unitRate: number } };
+    };
+// Task 3 (same plan) extends this union with three more codes —
+// PACK_PAST_REVIEW_DUE, CLAIMED_AMOUNT_MISMATCH, NEGATIVE_UNIT_RATE — once
+// calendar-math.ts (task 2) exists.
 
 export type AssessPreconditionErrorCode = AssessPreconditionError["code"];
 

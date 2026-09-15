@@ -9,7 +9,7 @@
 // on the ALLOW path.
 
 import type { Matter } from "@dsar/schemas/matter";
-import type { ExpenseLine } from "@dsar/schemas/expense-line";
+import { ExpenseLineSchema, type ExpenseLine } from "@dsar/schemas/expense-line";
 import type { CategoryRule, RulePack } from "@dsar/schemas/rule-pack";
 
 export const REFERENCE_NOW = "2026-09-15T00:00:00Z";
@@ -39,7 +39,13 @@ export const REFERENCE_MATTER: Matter = {
 
 // 4 HOUR @ 4000 minor units = 16000 claimed — PRD §14's own STAFF_TIME_SEARCH
 // treatment shape, reused here as the tracer's single line.
-export const REFERENCE_LINE: ExpenseLine = {
+//
+// Built via ExpenseLineSchema.parse() rather than a direct type-annotated
+// object literal: unitRate/claimedAmount are branded Minor, and .parse() is
+// the single sanctioned conversion point from a plain number literal to the
+// branded type (primitives.ts) — this fixture module is exactly the kind of
+// system boundary that comment describes, not the engine's own hot path.
+export const REFERENCE_LINE: ExpenseLine = ExpenseLineSchema.parse({
   id: "01ARZ3NDEKTSV4RRFFQ69G5FAX",
   matterId: REFERENCE_MATTER.id,
   seq: 0,
@@ -54,7 +60,7 @@ export const REFERENCE_LINE: ExpenseLine = {
   vendorName: null,
   evidenceRef: null,
   hrNote: null,
-};
+});
 
 const REFERENCE_CATEGORY_RULE: CategoryRule = {
   ruleId: "SG-PDPA.STAFF_TIME_SEARCH",
