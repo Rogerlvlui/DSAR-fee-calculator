@@ -8,4 +8,7 @@ export {
   AssessPreconditionFailure,
   type AssessPreconditionError,
   type AssessPreconditionErrorCode,
+  EngineComputationFailure,
+  type EngineComputationError,
+  type EngineComputationErrorCode,
 } from "./errors.ts";

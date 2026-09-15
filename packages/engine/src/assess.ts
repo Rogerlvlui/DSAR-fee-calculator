@@ -4,8 +4,9 @@
 // step 6 (totals) are plan 02-01's; step 2 (the posture gate) and step 3
 // (all five per-line treatments, plus the AC-19 unclassified override) are
 // plan 02-04's, in posture-gate.ts/evaluate-line.ts. Step 4 (cross-line
-// checks), step 5 (the aggregate cap) and the rest of step 7 (matter flags
-// beyond the empty array below) are later plans in this phase.
+// checks, cross-line-checks.ts) and step 5 (the aggregate cap,
+// aggregate-cap.ts) are plan 02-05's. The rest of step 7 (matter flags
+// beyond the aggregate cap's own) is a later plan in this phase.
 //
 // assess() never calls .parse() on its own output — validation at the
 // boundary is the caller's job, and the ENGINE-17 100ms/50-line budget is
@@ -16,9 +17,12 @@ import type { Matter } from "@dsar/schemas/matter";
 import type { ExpenseLine } from "@dsar/schemas/expense-line";
 import type { CategoryRule, RulePack } from "@dsar/schemas/rule-pack";
 import type { Assessment, AssessmentLine } from "@dsar/schemas/assessment";
+import type { FlagReason, Minor } from "@dsar/schemas/primitives";
 import { checkPreconditions } from "./preconditions.ts";
 import { computeTotals } from "./totals.ts";
 import { evaluateLine } from "./evaluate-line.ts";
+import { computeCrossLineFlagReasons, type CrossLineCheckLine } from "./cross-line-checks.ts";
+import { applyAggregateCapStep } from "./aggregate-cap.ts";
 
 export const ENGINE_VERSION = "0.1.0";
 
@@ -44,6 +48,49 @@ function deriveAssessmentLineId(assessmentId: string, expenseLineId: string): st
   return `${assessmentId}:line:${expenseLineId}`;
 }
 
+// §8.1 step 4 — applies the flag reasons cross-line-checks.ts computed, in
+// exactly one place, making the verdict consequence explicit here rather
+// than in cross-line-checks.ts itself (which only computes reasons; it
+// never rewrites a verdict).
+//
+// Why a tripped ALLOW/ALLOW_CAPPED line becomes FLAG with engineAmount 0
+// (and NOT merely an ALLOW line carrying an extra annotation): the frozen
+// AssessmentLineSchema.superRefine forbids a non-empty flagReasons array on
+// any verdict other than FLAG, AC-11 requires a FLAG line to contribute
+// zero to draftBaseline with its claimed value visible only in
+// flaggedTotal, and CLAUDE.md's fourth PRD §0 non-negotiable states outright
+// that a flagged line contributes nothing to any total until a lawyer
+// dispositions it. All three point the same way, and the alternative —
+// annotating the line while leaving its amount in the baseline — is
+// unrepresentable in the frozen schema regardless of which of the three
+// reasons is consulted.
+//
+// A DISALLOW line does NOT acquire cross-line reasons: its amount is
+// already zero, the pack has already spoken, and a second reason gives the
+// reviewing lawyer nothing new to act on while inflating the flag count the
+// review screen would otherwise show.
+function applyCrossLineReasons(
+  lines: readonly AssessmentLine[],
+  reasonsByLineId: ReadonlyMap<string, FlagReason[]>
+): AssessmentLine[] {
+  return lines.map((line) => {
+    const additionalReasons = reasonsByLineId.get(line.id);
+    if (!additionalReasons || additionalReasons.length === 0) {
+      return line;
+    }
+    if (line.verdict === "DISALLOW") {
+      return line;
+    }
+    return {
+      ...line,
+      verdict: "FLAG",
+      engineAmount: 0 as Minor,
+      appliedCap: null,
+      flagReasons: [...line.flagReasons, ...additionalReasons],
+    };
+  });
+}
+
 export function assess(input: AssessInput): Assessment {
   const { matter, lines, pack, now } = input;
 
@@ -54,7 +101,10 @@ export function assess(input: AssessInput): Assessment {
     pack.categoryRules.map((rule) => [rule.categoryCode, rule])
   );
 
-  const assessmentLines: AssessmentLine[] = [];
+  const expenseLinesById = new Map(lines.map((line) => [line.id, line]));
+  const claimedTotal = lines.reduce((total, line) => total + line.claimedAmount, 0) as Minor;
+
+  let assessmentLines: AssessmentLine[] = [];
   const appliedRuleById = new Map<string, CategoryRule>();
 
   for (const line of lines) {
@@ -78,7 +128,32 @@ export function assess(input: AssessInput): Assessment {
     appliedRuleById.set(assessmentLine.id, rule);
   }
 
-  const expenseLinesById = new Map(lines.map((line) => [line.id, line]));
+  // §8.1 step 4 — cross-line checks. Computed once every line has its
+  // per-line verdict (step 3 above), applied in exactly one place
+  // (applyCrossLineReasons) so the verdict-and-reason invariant is
+  // enforced once, not scattered across call sites.
+  const crossLineInputs: CrossLineCheckLine[] = assessmentLines.map((assessmentLine) => {
+    const expenseLine = expenseLinesById.get(assessmentLine.expenseLineId);
+    if (!expenseLine) {
+      throw new Error(
+        `assess: assessment line '${assessmentLine.id}' references unknown expense line '${assessmentLine.expenseLineId}'`
+      );
+    }
+    const appliedRule = appliedRuleById.get(assessmentLine.id);
+    if (!appliedRule) {
+      throw new Error(`assess: no applied rule recorded for assessment line '${assessmentLine.id}'`);
+    }
+    return { assessmentLine, expenseLine, appliedRule };
+  });
+  const crossLineReasons = computeCrossLineFlagReasons(crossLineInputs, matter, pack, claimedTotal);
+  assessmentLines = applyCrossLineReasons(assessmentLines, crossLineReasons);
+
+  // §8.1 step 5 — the aggregate cap, run over the lines that survive step 4:
+  // a line step 4 moved to FLAG is no longer an allowed line and must not
+  // consume cap headroom.
+  const aggregateCapResult = applyAggregateCapStep({ lines: assessmentLines, pack, claimedTotal });
+  assessmentLines = aggregateCapResult.lines;
+
   const totals = computeTotals(assessmentLines, expenseLinesById, appliedRuleById);
 
   return {
@@ -89,7 +164,7 @@ export function assess(input: AssessInput): Assessment {
     engineVersion: ENGINE_VERSION,
     computedAt: now,
     lines: assessmentLines,
-    matterLevelFlags: [],
+    matterLevelFlags: aggregateCapResult.matterFlag ? [aggregateCapResult.matterFlag] : [],
     totals,
     signOff: null,
   };
