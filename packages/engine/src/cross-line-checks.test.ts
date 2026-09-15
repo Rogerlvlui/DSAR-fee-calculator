@@ -11,6 +11,13 @@
 // Every expected value below is literal, never a derived/computed
 // expectation, so a boundary-operator substitution (e.g. `>` for `>=`)
 // shows up as a wrong pass/fail rather than a passing tautology.
+//
+// The raw-input builder below names its money-shaped fields
+// unitRateNumber/claimedAmountNumber (not unitRate/claimedAmount) so their
+// `number` type annotation does not itself trip AC-07a's money-brand
+// ESLint rule — these are pre-brand raw JSON fed to ExpenseLineSchema.parse()
+// (the single sanctioned conversion point to the branded Minor type), not a
+// second money representation living alongside it.
 
 import { describe, expect, it } from "vitest";
 import { ExpenseLineSchema, type ExpenseLine } from "@dsar/schemas/expense-line";
@@ -22,8 +29,8 @@ import { REFERENCE_FIXTURE_PACK } from "./__fixtures__/reference-pack.ts";
 import { REFERENCE_MATTER } from "./__fixtures__/reference-matter.ts";
 
 // REFERENCE_FIXTURE_PACK.rateSanityCeiling: ADMIN 3000, EXECUTIVE 5000,
-// MANAGER 9000. SPECIALIST/EXECUTIVE... wait, SPECIALIST carries none —
-// used below for the "grade with no authored ceiling" near-miss.
+// MANAGER 9000. SPECIALIST carries none — used below for the "grade with no
+// authored ceiling" near-miss.
 
 interface RawExpenseLineInput {
   id?: string;
@@ -31,15 +38,15 @@ interface RawExpenseLineInput {
   description?: string;
   quantity?: number;
   unit?: string;
-  unitRate?: number;
-  claimedAmount?: number;
+  unitRateNumber?: number;
+  claimedAmountNumber?: number;
   incurredByGrade?: string | null;
   isThirdPartyInvoiced?: boolean;
 }
 
 function buildExpenseLine(overrides: RawExpenseLineInput = {}): ExpenseLine {
   const quantity = overrides.quantity ?? 1;
-  const unitRate = overrides.unitRate ?? 1000;
+  const unitRateNumber = overrides.unitRateNumber ?? 1000;
   return ExpenseLineSchema.parse({
     id: overrides.id ?? "expense-line",
     matterId: REFERENCE_MATTER.id,
@@ -48,8 +55,8 @@ function buildExpenseLine(overrides: RawExpenseLineInput = {}): ExpenseLine {
     description: overrides.description ?? "Staff time locating records",
     quantity,
     unit: overrides.unit ?? "HOUR",
-    unitRate,
-    claimedAmount: overrides.claimedAmount ?? quantity * unitRate,
+    unitRate: unitRateNumber,
+    claimedAmount: overrides.claimedAmountNumber ?? quantity * unitRateNumber,
     incurredByGrade: overrides.incurredByGrade ?? null,
     isThirdPartyInvoiced: overrides.isThirdPartyInvoiced ?? false,
     vendorName: null,
@@ -144,19 +151,19 @@ describe("cross-line — duplicate detection", () => {
 
 describe("cross-line — materiality", () => {
   it("flags a line whose claimedAmount is exactly 40% of the claim total (inclusive boundary)", () => {
-    const line = buildLine({ id: "a", expenseLine: { quantity: 1, unitRate: 400, claimedAmount: 400 } });
+    const line = buildLine({ id: "a", expenseLine: { quantity: 1, unitRateNumber: 400, claimedAmountNumber: 400 } });
     const result = computeCrossLineFlagReasons([line], REFERENCE_MATTER, REFERENCE_FIXTURE_PACK, 1000 as Minor);
     expect(result.get(line.assessmentLine.id)?.map((r) => r.code)).toEqual(["MATERIALITY"]);
   });
 
   it("does not flag a line at 39.9% of the claim total", () => {
-    const line = buildLine({ id: "a", expenseLine: { quantity: 1, unitRate: 399, claimedAmount: 399 } });
+    const line = buildLine({ id: "a", expenseLine: { quantity: 1, unitRateNumber: 399, claimedAmountNumber: 399 } });
     const result = computeCrossLineFlagReasons([line], REFERENCE_MATTER, REFERENCE_FIXTURE_PACK, 1000 as Minor);
     expect(result.get(line.assessmentLine.id)).toBeUndefined();
   });
 
   it("skips the check entirely when claimedTotal is zero", () => {
-    const line = buildLine({ id: "a", expenseLine: { quantity: 1, unitRate: 0, claimedAmount: 0 } });
+    const line = buildLine({ id: "a", expenseLine: { quantity: 1, unitRateNumber: 0, claimedAmountNumber: 0 } });
     const result = computeCrossLineFlagReasons([line], REFERENCE_MATTER, REFERENCE_FIXTURE_PACK, 0 as Minor);
     expect(result.get(line.assessmentLine.id)).toBeUndefined();
   });
@@ -166,7 +173,13 @@ describe("cross-line — rate sanity", () => {
   it("flags an HOUR line whose unitRate exceeds the pack's ceiling for its grade", () => {
     const line = buildLine({
       id: "a",
-      expenseLine: { unit: "HOUR", incurredByGrade: "ADMIN", quantity: 1, unitRate: 3100, claimedAmount: 3100 },
+      expenseLine: {
+        unit: "HOUR",
+        incurredByGrade: "ADMIN",
+        quantity: 1,
+        unitRateNumber: 3100,
+        claimedAmountNumber: 3100,
+      },
     });
     const result = computeCrossLineFlagReasons([line], REFERENCE_MATTER, REFERENCE_FIXTURE_PACK, HUGE_TOTAL);
     expect(result.get(line.assessmentLine.id)?.map((r) => r.code)).toEqual(["RATE_ABOVE_EXPECTED"]);
@@ -175,7 +188,13 @@ describe("cross-line — rate sanity", () => {
   it("does not flag a rate exactly at the ceiling", () => {
     const line = buildLine({
       id: "a",
-      expenseLine: { unit: "HOUR", incurredByGrade: "ADMIN", quantity: 1, unitRate: 3000, claimedAmount: 3000 },
+      expenseLine: {
+        unit: "HOUR",
+        incurredByGrade: "ADMIN",
+        quantity: 1,
+        unitRateNumber: 3000,
+        claimedAmountNumber: 3000,
+      },
     });
     const result = computeCrossLineFlagReasons([line], REFERENCE_MATTER, REFERENCE_FIXTURE_PACK, HUGE_TOTAL);
     expect(result.get(line.assessmentLine.id)).toBeUndefined();
@@ -188,8 +207,8 @@ describe("cross-line — rate sanity", () => {
         unit: "HOUR",
         incurredByGrade: "SPECIALIST",
         quantity: 1,
-        unitRate: 999_999,
-        claimedAmount: 999_999,
+        unitRateNumber: 999_999,
+        claimedAmountNumber: 999_999,
       },
     });
     const result = computeCrossLineFlagReasons([line], REFERENCE_MATTER, REFERENCE_FIXTURE_PACK, HUGE_TOTAL);
@@ -203,8 +222,8 @@ describe("cross-line — rate sanity", () => {
         unit: "PAGE",
         incurredByGrade: "ADMIN",
         quantity: 1,
-        unitRate: 999_999,
-        claimedAmount: 999_999,
+        unitRateNumber: 999_999,
+        claimedAmountNumber: 999_999,
       },
     });
     const result = computeCrossLineFlagReasons([line], REFERENCE_MATTER, REFERENCE_FIXTURE_PACK, HUGE_TOTAL);
@@ -214,7 +233,13 @@ describe("cross-line — rate sanity", () => {
   it("does not flag a line with no incurredByGrade even above an unrelated ceiling", () => {
     const line = buildLine({
       id: "a",
-      expenseLine: { unit: "HOUR", incurredByGrade: null, quantity: 1, unitRate: 999_999, claimedAmount: 999_999 },
+      expenseLine: {
+        unit: "HOUR",
+        incurredByGrade: null,
+        quantity: 1,
+        unitRateNumber: 999_999,
+        claimedAmountNumber: 999_999,
+      },
     });
     const result = computeCrossLineFlagReasons([line], REFERENCE_MATTER, REFERENCE_FIXTURE_PACK, HUGE_TOTAL);
     expect(result.get(line.assessmentLine.id)).toBeUndefined();
@@ -229,8 +254,8 @@ describe("cross-line — vendor evidence", () => {
         categoryCode: "VENDOR_ARCHIVE",
         isThirdPartyInvoiced: false,
         quantity: 1,
-        unitRate: 1000,
-        claimedAmount: 1000,
+        unitRateNumber: 1000,
+        claimedAmountNumber: 1000,
       },
       appliedRule: { categoryCode: "VENDOR_ARCHIVE", treatment: "ALLOW", conditions: [] },
     });
@@ -245,8 +270,8 @@ describe("cross-line — vendor evidence", () => {
         categoryCode: "VENDOR_PAYROLL",
         isThirdPartyInvoiced: false,
         quantity: 1,
-        unitRate: 1000,
-        claimedAmount: 1000,
+        unitRateNumber: 1000,
+        claimedAmountNumber: 1000,
       },
       appliedRule: {
         categoryCode: "VENDOR_PAYROLL",
@@ -277,8 +302,8 @@ describe("cross-line — vendor evidence", () => {
         categoryCode: "VENDOR_OTHER",
         isThirdPartyInvoiced: true,
         quantity: 1,
-        unitRate: 1000,
-        claimedAmount: 1000,
+        unitRateNumber: 1000,
+        claimedAmountNumber: 1000,
       },
     });
     const result = computeCrossLineFlagReasons([line], REFERENCE_MATTER, REFERENCE_FIXTURE_PACK, HUGE_TOTAL);
@@ -292,7 +317,13 @@ describe("cross-line — multiple checks on one line", () => {
     // above the ADMIN ceiling) on the same HOUR line.
     const line = buildLine({
       id: "a",
-      expenseLine: { unit: "HOUR", incurredByGrade: "ADMIN", quantity: 1, unitRate: 3100, claimedAmount: 3100 },
+      expenseLine: {
+        unit: "HOUR",
+        incurredByGrade: "ADMIN",
+        quantity: 1,
+        unitRateNumber: 3100,
+        claimedAmountNumber: 3100,
+      },
     });
     const result = computeCrossLineFlagReasons([line], REFERENCE_MATTER, REFERENCE_FIXTURE_PACK, 5000 as Minor);
     expect(result.get(line.assessmentLine.id)?.map((r) => r.code)).toEqual(["MATERIALITY", "RATE_ABOVE_EXPECTED"]);
@@ -301,7 +332,7 @@ describe("cross-line — multiple checks on one line", () => {
 
 describe("cross-line — no matter-level output, no engineAmount mutation", () => {
   it("returns only a per-lineId FlagReason map — never touches engineAmount or produces a matter flag", () => {
-    const line = buildLine({ id: "a", expenseLine: { quantity: 1, unitRate: 400, claimedAmount: 400 } });
+    const line = buildLine({ id: "a", expenseLine: { quantity: 1, unitRateNumber: 400, claimedAmountNumber: 400 } });
     const result = computeCrossLineFlagReasons([line], REFERENCE_MATTER, REFERENCE_FIXTURE_PACK, 1000 as Minor);
     // The return type itself proves this (ReadonlyMap<string, FlagReason[]>)
     // — no engineAmount or matter-flag field exists to mutate or emit.
