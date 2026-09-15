@@ -42,7 +42,9 @@ Numbering continues from Phase 1's D-01..D-10 so decision IDs stay unique across
 
 ### The implausible-magnitude check
 
-- **D-13:** The `DATA_QUALITY` "implausible magnitude" cross-line check is **not built in this phase.** Ship only the three checks the PRD actually specifies: duplicate detection, materiality (40% of `claimedTotal`), and rate sanity against the pack's `rateSanityCeiling`.
+- **D-13:** The `DATA_QUALITY` "implausible magnitude" cross-line check is **not built in this phase.** Ship the other **four** cross-line checks ENGINE-06 names: duplicate category with near-identical description, staff rate above the pack's `rateSanityCeiling`, materiality at 40% or more of the claim, and a third-party line not marked invoiced.
+
+  > **Correction, 2026-09-15.** This decision's first draft said "ship only the three checks" and listed three — which also dropped the third-party-evidence check (`VENDOR_EVIDENCE_MISSING`). That was a drafting slip, not the decision: the product owner was asked specifically about the *implausible-magnitude threshold*, and vendor evidence has no threshold problem — it tests a boolean the PRD specifies, its flag reason code is already frozen, and ENGINE-06 names it. Caught by the planner, which built the evidence check and surfaced the tension rather than silently resolving it either way. Only implausible-magnitude is dropped.
 
   The PRD names no threshold, and inventing one would have the engine flag on a figure no lawyer authored — precisely what PRD §0's non-negotiables forbid. `rateSanityCeiling` already catches the realistic case (an inflated hourly rate) using a pack-authored number.
 
