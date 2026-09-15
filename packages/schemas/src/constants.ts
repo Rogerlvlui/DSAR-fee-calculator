@@ -31,3 +31,22 @@ export const FREE_TEXT_LIMITS = {
   identityVerifiedNote: 200,
   lawyerReason: 1000,
 } as const;
+
+// AC-32(a)'s canonical banned-word list, transcribed verbatim (PRD §10.1 /
+// §13 AC-32): "No engine-derived UI string, and no pack-authored `basis`
+// string, contains any of the canonical banned words ... asserted by a lint
+// rule over the i18n strings file and by pack validation over every
+// `basis`." Exported once here — matching this module's own PERSONAL_DATA_
+// DENY_LIST precedent — so plan 02-07's engine-language test, Phase 3's
+// pack validator, and Phase 5's UI string check all import the SAME list
+// rather than each minting its own copy that could drift.
+export const LEGAL_CONCLUSION_BANNED_WORDS = [
+  "compliant",
+  "non-compliant",
+  "legal",
+  "illegal",
+  "lawful",
+  "unlawful",
+  "approved",
+  "safe",
+] as const;

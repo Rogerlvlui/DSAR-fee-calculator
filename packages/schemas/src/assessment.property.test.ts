@@ -2,11 +2,19 @@
 //
 // SCHEMA-07: a 10,000-run fast-check property over generated Assessment
 // values, asserting Number.isInteger() over every money field of the
-// parsed result. In this phase the harness runs over hand-constructed
-// Assessment values via assessmentArb
-// (packages/schemas/src/__fixtures__/arbitraries.ts) — Phase 2 re-points it
-// at assess() output once packages/engine exists. Neither the invariant
-// nor the arbitraries change when that happens.
+// parsed result. This harness runs over hand-constructed Assessment values
+// via assessmentArb (packages/schemas/src/__fixtures__/arbitraries.ts) and
+// stays that way deliberately — re-pointing THIS file at assess() output
+// would give packages/schemas a dependency on packages/engine, inverting
+// the package graph the whole architecture rests on (packages/engine is
+// the downstream consumer of the freeze, never the other way round).
+//
+// Plan 02-07 satisfies the same intent from the correct side of that
+// boundary: packages/engine/src/assess.property.test.ts reuses
+// expenseLineArb/minimalRulePackArb from this package's own arbitraries.ts
+// (the same file this test imports assessmentArb from) and asserts the
+// equivalent integer/totals invariants over REAL assess() output, with the
+// same RECORDED_SEED so a counterexample from either file is replayable.
 //
 // RECORDED_SEED makes a counterexample replayable: if this test ever
 // fails, re-running with the same seed reproduces the exact failing case
