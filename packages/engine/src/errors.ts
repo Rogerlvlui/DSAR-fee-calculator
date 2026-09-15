@@ -65,7 +65,7 @@ export class AssessPreconditionFailure extends Error {
 // `PER_MATTER` cap: that cap type is the aggregate-cap variant evaluated
 // once across every allowed line (PRD §8.1 step 5, plan 02-05), and a
 // function that only ever sees one line's data cannot evaluate it
-// correctly — refusing outright is the only safe option (02-RESEARCH.md
+// correctly — refusing outright is the only sound option (02-RESEARCH.md
 // Pattern 2). Phase 3's pack validator should also reject this combination
 // at build time, so this runtime refusal is a backstop, not the only gate.
 export type EngineComputationError =
