@@ -12,6 +12,50 @@ const MONEY_BRAND_MESSAGE =
   "Money-named identifiers must use the branded Minor type, not number.";
 const MONEY_SUFFIX = "/(amount|total|rate|fee|cap)$/i";
 
+// Lifted out of the inline array so it can be spread into more than one
+// flat-config entry (the cross-package entry below, and the packages/engine-
+// scoped entry). ESLint flat config REPLACES a rule's options from the last
+// matching config object rather than merging them — an engine-scoped
+// `no-restricted-syntax` entry that didn't spread this array would silently
+// disarm AC-07a's money-brand rule for the whole package (T-2-08).
+const MONEY_BRAND_SELECTORS = [
+  {
+    selector: `TSPropertySignature[key.name=${MONEY_SUFFIX}] > TSTypeAnnotation > TSNumberKeyword`,
+    message: MONEY_BRAND_MESSAGE,
+  },
+  {
+    // A VariableDeclarator's type annotation lives on its `id`
+    // Identifier node, not directly on the declarator itself —
+    // confirmed against the installed typescript-eslint AST spec
+    // (VariableDeclaratorBase.id: BindingName, an Identifier carrying
+    // its own `typeAnnotation`), so the selector must traverse through
+    // the Identifier rather than matching `VariableDeclarator >
+    // TSTypeAnnotation` directly (research's Assumption A1 — this is
+    // exactly the case it flagged as needing empirical confirmation).
+    selector: `VariableDeclarator > Identifier[name=${MONEY_SUFFIX}] > TSTypeAnnotation > TSNumberKeyword`,
+    message: MONEY_BRAND_MESSAGE,
+  },
+  {
+    selector: `:matches(TSParameterProperty, FunctionDeclaration, FunctionExpression, ArrowFunctionExpression) Identifier[name=${MONEY_SUFFIX}] > TSTypeAnnotation > TSNumberKeyword`,
+    message: MONEY_BRAND_MESSAGE,
+  },
+];
+
+// T-2-07 / ENGINE-01 / PRD §8.1 non-negotiable #1: packages/engine must be
+// deterministic — same input, same output, on any host. Each ban below
+// carries a distinct message so a test can assert which one fired (rather
+// than merely that something did).
+const DATE_BAN_MESSAGE =
+  "packages/engine reads time only through the injected `now` (PRD §8.1) — `Date` is banned here.";
+const INTL_BAN_MESSAGE =
+  "Locale-dependent output would make the same input produce different results on a different host — `Intl` is banned in packages/engine.";
+const CRYPTO_BAN_MESSAGE =
+  "Identifiers must be derived from inputs, not randomness — `crypto` is banned in packages/engine.";
+const MATH_RANDOM_BAN_MESSAGE =
+  "packages/engine must be deterministic — `Math.random` is banned here (Math itself, e.g. Math.floor, remains allowed).";
+const LOCALE_METHOD_BAN_MESSAGE =
+  "Locale-dependent formatting would make the same input produce different results on a different host — `toLocale*` calls are banned in packages/engine.";
+
 export default tseslint.config(
   {
     ignores: ["node_modules/**", "dist/**", ".next/**"],
@@ -24,27 +68,36 @@ export default tseslint.config(
       // Prisma-generated output pulled into the parse graph.
     },
     rules: {
+      "no-restricted-syntax": ["error", ...MONEY_BRAND_SELECTORS],
+    },
+  },
+  {
+    // Engine-only determinism bans (T-2-07, ENGINE-01, ENGINE-15). Scoped
+    // strictly to packages/engine because packages/schemas legitimately
+    // calls Intl.NumberFormat in money.ts (currency display formatting) —
+    // a module the engine must never reach (see .dependency-cruiser.cjs's
+    // no-money-formatting-in-engine rule).
+    files: ["packages/engine/**/*.ts"],
+    languageOptions: {
+      parser: tseslint.parser,
+    },
+    rules: {
+      "no-restricted-globals": [
+        "error",
+        { name: "Date", message: DATE_BAN_MESSAGE },
+        { name: "Intl", message: INTL_BAN_MESSAGE },
+        { name: "crypto", message: CRYPTO_BAN_MESSAGE },
+      ],
+      "no-restricted-properties": [
+        "error",
+        { object: "Math", property: "random", message: MATH_RANDOM_BAN_MESSAGE },
+      ],
       "no-restricted-syntax": [
         "error",
+        ...MONEY_BRAND_SELECTORS,
         {
-          selector: `TSPropertySignature[key.name=${MONEY_SUFFIX}] > TSTypeAnnotation > TSNumberKeyword`,
-          message: MONEY_BRAND_MESSAGE,
-        },
-        {
-          // A VariableDeclarator's type annotation lives on its `id`
-          // Identifier node, not directly on the declarator itself —
-          // confirmed against the installed typescript-eslint AST spec
-          // (VariableDeclaratorBase.id: BindingName, an Identifier carrying
-          // its own `typeAnnotation`), so the selector must traverse through
-          // the Identifier rather than matching `VariableDeclarator >
-          // TSTypeAnnotation` directly (research's Assumption A1 — this is
-          // exactly the case it flagged as needing empirical confirmation).
-          selector: `VariableDeclarator > Identifier[name=${MONEY_SUFFIX}] > TSTypeAnnotation > TSNumberKeyword`,
-          message: MONEY_BRAND_MESSAGE,
-        },
-        {
-          selector: `:matches(TSParameterProperty, FunctionDeclaration, FunctionExpression, ArrowFunctionExpression) Identifier[name=${MONEY_SUFFIX}] > TSTypeAnnotation > TSNumberKeyword`,
-          message: MONEY_BRAND_MESSAGE,
+          selector: `MemberExpression[property.name=/^toLocale/]`,
+          message: LOCALE_METHOD_BAN_MESSAGE,
         },
       ],
     },
