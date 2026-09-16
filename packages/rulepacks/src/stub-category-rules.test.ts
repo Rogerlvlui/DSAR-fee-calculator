@@ -38,12 +38,7 @@ describe("stub category rule generator drift (D-19)", () => {
       const generatedByCode = new Map(generated.map((rule) => [rule.categoryCode, rule]));
 
       for (const rule of tokenBearing) {
-        // RED (#3770 intentional-RED): deliberately backwards — the
-        // committed VN-PDPL pack IS the generator's literal output, so
-        // every token-bearing rule DOES deep-equal the regenerated one.
-        // Temporarily inverted to prove this fails for the right reason
-        // before flipping to the true expectation.
-        expect(rule).not.toEqual(generatedByCode.get(rule.categoryCode));
+        expect(rule).toEqual(generatedByCode.get(rule.categoryCode));
       }
     }
   });
