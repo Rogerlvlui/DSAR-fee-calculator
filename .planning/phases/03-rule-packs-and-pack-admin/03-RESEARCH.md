@@ -367,7 +367,7 @@ Not applicable in the usual "library X superseded library Y" sense — this phas
 
 **If this table is empty:** N/A — see rows above. Every entry here is a design judgment made in the absence of an explicit CONTEXT.md decision or a PRD-supplied fact, not a verified claim about the external world.
 
-## Open Questions
+## Open Questions — ALL RESOLVED at planning (see CONTEXT.md D-20, D-21, D-22)
 
 1. **How should `PACK_ACTIVATED`/`PACK_EDITED` audit events populate the required, non-nullable `AuditEvent.matterId` field, given `RulePackVersion` has no relationship to any `Matter`?**
    - What we know: `AuditEventTypeSchema` already reserves both event types (Phase 1); `AuditEvent.matterId` is required and FK-constrained to `Matter` in both the zod schema and the already-committed Prisma schema (this session, `packages/schemas/src/audit-event.ts:53-56` and `prisma/schema.prisma:365-368`); `RulePackVersion` (`prisma/schema.prisma:337-355`) has no `matterId`-shaped field.

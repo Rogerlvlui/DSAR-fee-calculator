@@ -274,8 +274,8 @@ Every v1 requirement maps to exactly one phase in `.planning/ROADMAP.md`.
 | PACK-03 | Phase 3 | Pending |
 | PACK-04 | Phase 3 | Pending |
 | PACK-05 | Phase 3 | Pending |
-| PACK-06 | Phase 3 | Pending |
-| PACK-07 | Phase 3 | Pending |
+| PACK-06 | Phase 3.2 | Pending |
+| PACK-07 | Phase 3.2 | Pending |
 | PACK-08 | Phase 7 | Pending |
 | PACK-09 | Phase 3 | Pending |
 | PACK-10 | Phase 3 | Pending |
