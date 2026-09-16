@@ -112,7 +112,7 @@ Gate integrity: every gate this phase adds ships with a fixture it must catch an
 **Goal**: Nine jurisdiction packs exist as validated repository JSON, HK and SG are authored in full and can reach ACTIVE, and activation is a gated, audited event
 **Depends on**: Phase 1
 **Parallel with**: Phases 2, 4 and 5. PACK-09 is legal work by the product owner and the likely schedule long pole — it starts the moment this phase opens and must not sit behind the loader code. The `/admin/rulepacks` screen touches `apps/web` alongside Phase 5's HR shell; both build on the Phase 1 skeleton and add independent routes.
-**Requirements**: PACK-01, PACK-02, PACK-03, PACK-04, PACK-05, PACK-06, PACK-07, PACK-09, PACK-10, PACK-11, PACK-12
+**Requirements**: PACK-01, PACK-02, PACK-03, PACK-04, PACK-05, PACK-09, PACK-10, PACK-11, PACK-12 — PACK-06 and PACK-07 relocated to Phase 3.2 by D-20 (see the scope-discipline note below)
 **Success Criteria** (what must be TRUE):
 
   1. The build fails — not the runtime — when any pack JSON is invalid, when an ACTIVE pack is missing any of the 21 category rules, when `reviewedBy`/`reviewedOn`/`reviewDueOn` are absent, or when any pack-authored `basis` string contains a banned word (AC-37, AC-10, AC-38, AC-32a)
@@ -121,8 +121,27 @@ Gate integrity: every gate this phase adds ships with a fixture it must catch an
   4. From `/admin/rulepacks` an author sees live validation, a 21/21 completeness checklist, a diff against the previous version, and an activation gate demanding reviewer identity and a review-due date — and activating a version they last edited is blocked unless they hold `RULEPACK_AUTHOR` and confirm sole authorship, which is audited (AC-41a)
   5. Activating a new version leaves every existing assessment's pinned version, verdicts and amounts untouched (AC-40), and an attempt to rewrite an already-ACTIVE version's content is refused at the database rather than by service-layer discipline
 
-**Plans**: TBD
-**UI hint**: yes
+**Plans**: 5 plans across 3 waves
+**UI hint**: no — the `/admin/rulepacks` screen moved to Phase 3.2 with PACK-06 and PACK-07 (D-20)
+
+Plans:
+**Wave 1**
+
+- [ ] 03-01-PLAN.md — Tracer: one stub pack end to end, repository JSON through loader and validator to a build-failing command, with both gates proven to fire
+
+**Wave 2** *(blocked on 03-01)*
+
+- [ ] 03-02-PLAN.md — The six remaining stub jurisdictions, generated from their own §7.4 rows and drift-guarded
+- [ ] 03-03-PLAN.md — ACTIVE-readiness: 21-code exhaustiveness, reviewer identity and review dates, no unauthored content, no unresearched constraint
+- [ ] 03-04-PLAN.md — Derived staleness on the engine's calendar, and deterministic pinned-version resolution
+
+**Wave 3** *(blocked on 03-01, 03-02)*
+
+- [ ] 03-05-PLAN.md — HK-PDPO and SG-PDPA authored to the extent the PRD supplies content, plus the D-22 flat-fee extension
+
+Scope discipline (D-20, decided after research): **PACK-06, PACK-07 and the `/admin/rulepacks` screen moved to Phase 3.2**, alongside the Docker-dependent work already waiting there — `apps/web` does not exist and Docker is unavailable, so Success Criteria 4 and 5 have neither a shell to build into nor a database to refuse at. They are relocated, not dropped, and must not be marked satisfied by anything Phase 3 builds. D-21 already settles how PACK-07's audit events are stored when it is planned there: a separate append-only stream keyed to `RulePackVersion`, not a widened `AuditEvent`.
+
+Success Criterion 2 is half met here: the seven stubs ship DRAFT and HK carries its flat-fee extension (with the figure itself marked unauthored, since the PRD states none), but **full HK and SG authoring across all 21 categories is deferred to before Phase 6's convergence gate (D-16)**, where AC-09's golden files must pass against real pack content. Success Criterion 3's derived STALE status and reason string are delivered here; its 409 response and in-flight-review notice need a route and a review screen and land with Phases 5 and 6.
 
 PACK-08's sign-off-side block (a user who activated a pack version cannot sign off an assessment pinned to it in the same session) is delivered in Phase 7, where sign-off exists.
 
@@ -150,7 +169,7 @@ Scope discipline: throwaway **only** in the persistence layer — the screens an
 **Goal**: The three Docker-dependent plans deferred out of Phase 1 are executed, so the migrator/runtime role split holds, an audit row cannot be altered by the application role, and every route is asserted against every role on response bodies
 **Depends on**: Phase 1 (its six non-Docker plans), and Docker or an equivalent real Postgres being available. Sequenced after Phase 3.1 because the presentation comes first — the numbering is 3.2 rather than 1.1 purely so numeric execution order matches that intent.
 **Parallel with**: Phase 4, which extends the same audit backbone. If Docker arrives before the demo, this phase can run at any point after Phase 1 without disturbing Phase 3.1.
-**Requirements**: ACCESS-01, ACCESS-06, ACCESS-08, BOUND-01, SCHEMA-04, STATE-01, AUDIT-02 — carried over from Phase 1, which cannot fully discharge them without a database
+**Requirements**: ACCESS-01, ACCESS-06, ACCESS-08, BOUND-01, SCHEMA-04, STATE-01, AUDIT-02 — carried over from Phase 1, which cannot fully discharge them without a database — plus PACK-06 and PACK-07, relocated here from Phase 3 by D-20 because neither `apps/web` nor Docker exists
 **Success Criteria** (what must be TRUE):
 
   1. The three plans deferred from Phase 1 — the tracer (01-04), the database invariants (01-08) and the standing route/role/multipart harnesses (01-09) — are executed against a real Postgres, with their existing acceptance criteria unchanged
@@ -159,7 +178,7 @@ Scope discipline: throwaway **only** in the persistence layer — the screens an
   4. Every discovered route is asserted against every role on response bodies and not only status codes (ACCESS-08), and a multipart POST to every globbed route returns 415 (AC-05)
   5. Phase 3.1's in-memory repository implementation is replaced by a Prisma-backed one behind the same interface, with no screen and no engine call site changed — the swap that Phase 3.1's success criterion 4 was designed to make possible
 
-**Plans**: 3 plans across 2 waves — moved intact from Phase 1, already planned and checker-verified (was 01-04, 01-08, 01-09)
+**Plans**: 3 plans across 2 waves — moved intact from Phase 1, already planned and checker-verified (was 01-04, 01-08, 01-09) — plus further plans still to be written for PACK-06 and PACK-07, which arrived here from Phase 3 under D-20
 
 Why this exists: Docker is unavailable on the build machine and the presentation comes first, so Phase 1's three Docker-dependent plans were deferred here rather than deleted. **AC-34 is unproven until this phase runs** — the append-only audit guarantee is a PRD §0 non-negotiable, so no pilot deployment may follow the demo while this phase is outstanding. The other six Phase 1 plans discharge the schemas freeze on their own and are unaffected.
 
@@ -263,7 +282,7 @@ Where capacity allows, Phases 2, 3, 4 and 5 may run concurrently — they have z
 |-------|----------------|--------|-----------|
 | 1. Schemas Freeze and Walking Skeleton | 6/6 | Complete    | 2026-09-15 |
 | 2. Deterministic Fee Engine | 7/7 | Complete    | 2026-09-16 |
-| 3. Rule Packs and Pack Admin | 0/TBD | Not started | - |
+| 3. Rule Packs and Pack Admin | 0/5 | Planned | - |
 | 3.1 Demo Slice — In-Memory Determination Pipeline | 0/TBD | Not started | - |
 | 3.2 Database Boundary and Audit Immutability | 0/3 | Planned (inherited from Phase 1) | - |
 | 4. Workflow and Audit Backbone | 0/TBD | Not started | - |
