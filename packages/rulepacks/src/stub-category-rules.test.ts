@@ -111,3 +111,24 @@ describe("PACK-10: newly committed jurisdictions load (03-02 Task 1)", () => {
     expect(pack!.jurisdiction.code).toBe("JP");
   });
 });
+
+// 03-02 Task 2: same pattern as Task 1, for South Korea, China and India.
+describe("PACK-10: newly committed jurisdictions load (03-02 Task 2)", () => {
+  it("KR-PIPA is loadable with jurisdiction.code KR", () => {
+    const pack = loadAllRulePacks().find((p) => p.packId === "KR-PIPA");
+    expect(pack).toBeDefined();
+    expect(pack!.jurisdiction.code).toBe("KR");
+  });
+
+  it("CN-PIPL is loadable with jurisdiction.code CN", () => {
+    const pack = loadAllRulePacks().find((p) => p.packId === "CN-PIPL");
+    expect(pack).toBeDefined();
+    expect(pack!.jurisdiction.code).toBe("CN");
+  });
+
+  it("IN-DPDP is loadable with jurisdiction.code IN", () => {
+    const pack = loadAllRulePacks().find((p) => p.packId === "IN-DPDP");
+    expect(pack).toBeDefined();
+    expect(pack!.jurisdiction.code).toBe("IN");
+  });
+});

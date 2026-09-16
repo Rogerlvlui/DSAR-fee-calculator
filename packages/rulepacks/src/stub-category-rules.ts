@@ -129,6 +129,64 @@ export const PACK_JURISDICTIONS: readonly PackJurisdiction[] = [
       'Our reading of the standard: the fee must be fixed "within a scope that can be considered reasonable in consideration of actual costs". If confirmed, express as a `PERCENT_OF_CLAIM: 100` ceiling with no profit element.',
     packKind: "stub",
   },
+  {
+    packId: "KR-PIPA",
+    jurisdictionCode: "KR",
+    jurisdictionName: "South Korea",
+    instruments: [
+      { title: "Personal Information Protection Act (PIPA)", provisions: ["art.38(3)"] },
+      { title: "PIPA Enforcement Decree", provisions: ["art.47"] },
+    ],
+    // PRD §7.4 South Korea row: PRIVATE_ORGANISATION PERMITTED_ACTUAL_COST,
+    // PUBLIC_AGENCY "counsel to determine" -> NO_EXPRESS_AUTHORITY (same
+    // convention as JP, Claude's Discretion item 4). Not PROHIBITED, so
+    // PD-3 keeps PUBLIC_AGENCY in `appliesTo`.
+    feePosture: { PRIVATE_ORGANISATION: "PERMITTED_ACTUAL_COST", PUBLIC_AGENCY: "NO_EXPRESS_AUTHORITY" },
+    appliesTo: ["PRIVATE_ORGANISATION", "PUBLIC_AGENCY"],
+    // PRD §7.4 South Korea note, transcribed verbatim with markdown
+    // emphasis markers removed. Carries the live 2026 amendment warning and
+    // the local-government ordinance point, both of which counsel needs.
+    authoringNote:
+      'Our reading: fee and postage only, "within the actual expenses necessary for the processing of the request". Narrow. A 2026 PIPA amendment is in play — counsel must check the current text, and note that a local-government controller is governed by its own ordinance.',
+    packKind: "stub",
+  },
+  {
+    packId: "CN-PIPL",
+    jurisdictionCode: "CN",
+    jurisdictionName: "China",
+    instruments: [
+      { title: "Personal Information Protection Law (PIPL)", provisions: ["art.45", "art.50"] },
+      { title: "GB/T 35273", provisions: [] },
+    ],
+    // PRD §7.4 China row: NO_EXPRESS_AUTHORITY for both controller types.
+    // Neither posture is PROHIBITED, so PD-3 keeps both in `appliesTo`.
+    feePosture: { PRIVATE_ORGANISATION: "NO_EXPRESS_AUTHORITY", PUBLIC_AGENCY: "NO_EXPRESS_AUTHORITY" },
+    appliesTo: ["PRIVATE_ORGANISATION", "PUBLIC_AGENCY"],
+    // PRD §7.4 China note, transcribed verbatim with markdown emphasis
+    // markers removed. Includes the instruction not to infer a fee right
+    // from silence, and not to infer a prohibition from it either.
+    authoringNote:
+      "We found no provision conferring a right to charge for providing a copy, and we are treating that as silence rather than as a prohibition. Default: no fee, every line flagged. Do not infer a fee right from silence, and do not infer a prohibition from it either — counsel to characterise.",
+    packKind: "stub",
+  },
+  {
+    packId: "IN-DPDP",
+    jurisdictionCode: "IN",
+    jurisdictionName: "India",
+    instruments: [
+      { title: "Digital Personal Data Protection Act 2023", provisions: ["s.11"] },
+      { title: "Digital Personal Data Protection Rules 2025", provisions: [] },
+    ],
+    // PRD §7.4 India row: NO_EXPRESS_AUTHORITY for both controller types.
+    // Neither posture is PROHIBITED, so PD-3 keeps both in `appliesTo`.
+    feePosture: { PRIVATE_ORGANISATION: "NO_EXPRESS_AUTHORITY", PUBLIC_AGENCY: "NO_EXPRESS_AUTHORITY" },
+    appliesTo: ["PRIVATE_ORGANISATION", "PUBLIC_AGENCY"],
+    // PRD §7.4 India note, transcribed verbatim, including the
+    // phased-commencement point (no markdown emphasis markers in source).
+    authoringNote:
+      "We identified no controller-side access fee. Default: no fee. Commencement is phased — the pack must record which provisions counsel considers in force as at `reviewedOn`.",
+    packKind: "stub",
+  },
 ];
 
 export class UnknownPackJurisdictionError extends Error {
