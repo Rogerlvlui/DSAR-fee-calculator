@@ -121,12 +121,7 @@ describe("PACK-10: the whole stub set's shape", () => {
     // regression that drops a rule from one pack while another pack gains
     // one elsewhere would cancel out under a computed total and pass
     // vacuously. 21 * 7 = 147.
-    // TEMPORARY RED-phase inversion (03-02 Task 3): the real committed tree
-    // already sums to 147 (from Tasks 1/2), so `.not.toBe(147)` fails for a
-    // genuine, on-topic reason — proving this exact assertion inspects real
-    // data rather than passing vacuously — without injecting a defect into
-    // any committed pack file. Flipped to `.toBe(147)` for GREEN.
-    expect(total).not.toBe(147);
+    expect(total).toBe(147);
   });
 
   it("every ruleId across the whole committed tree is unique and equals `${packId}.${categoryCode}`", () => {
