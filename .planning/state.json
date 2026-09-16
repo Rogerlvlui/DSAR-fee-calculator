@@ -1,0 +1,63 @@
+{
+  "contract": "1.0.0",
+  "flavor": "core",
+  "milestone": null,
+  "phases": [
+    {
+      "number": "1",
+      "name": "Schemas Freeze and Walking Skeleton",
+      "status": "complete"
+    },
+    {
+      "number": "2",
+      "name": "Deterministic Fee Engine",
+      "status": "complete"
+    },
+    {
+      "number": "3",
+      "name": "Rule Packs and Pack Admin",
+      "status": "in_progress"
+    },
+    {
+      "number": "3.1",
+      "name": "Demo Slice — In-Memory Determination Pipeline",
+      "status": "pending"
+    },
+    {
+      "number": "3.2",
+      "name": "Database Boundary and Audit Immutability",
+      "status": "pending"
+    },
+    {
+      "number": "4",
+      "name": "Workflow and Audit Backbone",
+      "status": "pending"
+    },
+    {
+      "number": "5",
+      "name": "HR Intake and Disclosure Shell",
+      "status": "pending"
+    },
+    {
+      "number": "6",
+      "name": "Convergence and Legal Review",
+      "status": "pending"
+    },
+    {
+      "number": "7",
+      "name": "Sign-off, Outputs and Edge States",
+      "status": "pending"
+    },
+    {
+      "number": "8",
+      "name": "LLM Job 1 — Category Suggestion",
+      "status": "pending"
+    }
+  ],
+  "next": {
+    "command": "/gsd:progress --next",
+    "label": "Advance to the next step",
+    "reason": "Phase 03 of 10 · 0% · executing"
+  },
+  "updated_at": "2026-09-16T05:00:15.870Z"
+}
