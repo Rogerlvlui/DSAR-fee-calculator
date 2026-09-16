@@ -95,6 +95,16 @@ importers:
         specifier: 4.10.0
         version: 4.10.0
 
+  packages/rulepacks:
+    dependencies:
+      '@dsar/schemas':
+        specifier: workspace:*
+        version: link:../schemas
+    devDependencies:
+      '@types/node':
+        specifier: 26.5.1
+        version: 26.5.1
+
   packages/schemas:
     dependencies:
       zod:

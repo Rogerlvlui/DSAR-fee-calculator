@@ -50,3 +50,15 @@ export const LEGAL_CONCLUSION_BANNED_WORDS = [
   "approved",
   "safe",
 ] as const;
+
+// D-15 (03-CONTEXT.md) — the fixed marker a rule pack carries in
+// `verificationNote` while no named counsel has written it yet. A rule is
+// "unauthored" in a way that must be indistinguishable from nothing, not
+// from a decision — so the marker lives in `verificationNote` rather than in
+// `treatment` or `verificationStatus`, both of which carry legitimate
+// authored meanings (`FLAG`/`NEEDS_VERIFICATION` is itself a valid authored
+// outcome, e.g. `OTHER_UNCLASSIFIED`). Exported once here — matching this
+// module's own list-export precedent — so Phase 3's drift test (D-19) and
+// its ACTIVE gate (PACK-03) both read the SAME marker; there must never be a
+// second one to keep in sync.
+export const UNAUTHORED_TOKEN = "UNAUTHORED";

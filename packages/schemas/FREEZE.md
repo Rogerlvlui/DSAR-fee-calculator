@@ -152,3 +152,31 @@ since neither `AssessmentLineSchema` nor `ExpenseLineSchema` reaches
 `MatterFlagCode` or `Totals`) — regenerated via `pnpm schema:json` and
 verified byte-identical to a fresh generation by the existing drift test
 (`json-schema.test.ts`).
+
+## Post-freeze amendment: `rule-pack.ts` gains `StubConstraintsSchema` and `LoadableRulePackSchema` (D-18, D-09, Phase 3 plan 03-01)
+
+Two additive exports landed in Phase 3 (plan 03-01), decided by the product
+owner at the 03-CONTEXT.md D-18 gate (2026-09-16) and confirmed by planning
+decisions PD-1/PD-2 (`.planning/phases/03-rule-packs-and-pack-admin/03-01-PLAN.md`).
+**D-09 is the authority under which both are permitted without escalation**:
+neither `RulePackSchema` nor `RulePackConstraintsSchema` is renamed, retyped
+or removed — `StubConstraintsSchema` is a brand-new type, and
+`LoadableRulePackSchema` is `RulePackSchema.extend({ constraints:
+StubConstraintsSchema })`, additive by construction.
+
+**`StubConstraintsSchema`** carries the same eleven keys as
+`RulePackConstraintsSchema`, in the same order, each wrapped in
+`.nullable()`. D-18's reasoning: the frozen schema's booleans are
+non-nullable with no defaults specifically so an authored pack cannot
+silently inherit a permissive `true` — but that left no way to express "not
+yet researched" for the seven unauthored stub jurisdictions. `null` means
+not researched; `false` means researched and negative; the two are never
+collapsed.
+
+**`LoadableRulePackSchema`** is the primary shape every committed pack
+parses as (the loader's one parse boundary, `packages/rulepacks/src/
+loader.ts`). The frozen `RulePackSchema` is demoted to the narrowed,
+ACTIVE-ready variant `packages/engine` consumes — since
+`StubConstraintsSchema` is a strict superset of `RulePackConstraintsSchema`,
+re-parsing with the untouched frozen schema is what refuses any pack still
+carrying a `null` constraint at the ACTIVE gate (plan 03-03).

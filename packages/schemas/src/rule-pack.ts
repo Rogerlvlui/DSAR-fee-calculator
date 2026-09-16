@@ -222,3 +222,54 @@ export const RulePackSchema = z.strictObject({
   flatFee: FlatFeeSchema.optional(),
 });
 export type RulePack = z.infer<typeof RulePackSchema>;
+
+// ---------------------------------------------------------------------------
+// StubConstraints / LoadableRulePack — Phase 3 additive types (D-18, PD-1, PD-2)
+// ---------------------------------------------------------------------------
+//
+// NEW DESIGN, additive only — nothing above is renamed, retyped or removed
+// (D-09). D-18 resolves a real gap: `RulePackConstraintsSchema`'s booleans
+// are required with no defaults so an authored pack cannot silently inherit
+// a permissive `true` — but that leaves no way for an UNAUTHORED stub pack
+// to express "nobody has researched this yet". `StubConstraintsSchema` is a
+// strict superset of the frozen shape (every key `.nullable()`, in the same
+// order, including the two day counts and `aggregateCap` that were already
+// nullable) so `null` means "not researched" and `false` means "researched
+// and negative" — the two are never collapsed into one falsy value.
+//
+// PD-1 records why this is a NEW parallel schema rather than widening
+// `RulePackConstraintsSchema` in place: D-18 explicitly rejected that
+// alternative ("re-opens a freeze mid-phase while Phases 4 and 5 run
+// concurrently against it, and widening a required field is not obviously
+// additive"). `packages/engine` keeps seeing `pack.constraints` as
+// all-boolean and needs no change.
+export const StubConstraintsSchema = z.strictObject({
+  noChargeForMakingRequest: z.boolean().nullable(),
+  estimateRequiredBeforeCharging: z.boolean().nullable(),
+  feeNotificationDeadlineDays: z.number().int().nonnegative().nullable(),
+  deadlineBasis: z.enum(["CALENDAR_DAYS", "WORKING_DAYS"]).nullable(),
+  responseDeadlineDays: z.number().int().nonnegative().nullable(),
+  advancePaymentPermitted: z.boolean().nullable(),
+  mayWithholdDataUntilPaid: z.boolean().nullable(),
+  profitElementPermitted: z.boolean().nullable(),
+  deterrentUsePermitted: z.boolean().nullable(),
+  regulatorMayReviewFee: z.boolean().nullable(),
+  aggregateCap: CapSchema.nullable(),
+});
+export type StubConstraints = z.infer<typeof StubConstraintsSchema>;
+
+// PD-2: `LoadableRulePackSchema` is the PRIMARY shape every committed pack
+// parses as (the assumption-delta decision in 03-01-PLAN.md — "the loadable
+// rule pack" replaces "the fully-determined rule pack" as the general
+// shape). `RulePackSchema` above is demoted to the narrowed, ACTIVE-ready
+// variant `packages/engine` consumes. Because
+// `z.boolean().nullable()` accepts `true`, `false` and `null`,
+// `StubConstraintsSchema` is a strict superset of `RulePackConstraintsSchema`
+// — so re-parsing a `LoadableRulePack` with the untouched, frozen
+// `RulePackSchema` is exactly what refuses a surviving `null` at the ACTIVE
+// gate (plan 03-03), with no hand-written eleven-key check that could drift
+// from the frozen shape.
+export const LoadableRulePackSchema = RulePackSchema.extend({
+  constraints: StubConstraintsSchema,
+});
+export type LoadableRulePack = z.infer<typeof LoadableRulePackSchema>;

@@ -13,6 +13,7 @@
     "lint": "eslint .",
     "depcruise": "depcruise --config .dependency-cruiser.cjs packages/engine packages/schemas",
     "schema:json": "node packages/schemas/scripts/generate-json-schema.ts",
+    "pack:validate": "node packages/rulepacks/scripts/validate-cli.ts",
     "db:validate": "prisma validate",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate deploy",

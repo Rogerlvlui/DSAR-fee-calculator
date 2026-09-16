@@ -24,6 +24,13 @@ export default defineConfig({
       },
       {
         test: {
+          name: "rulepacks",
+          environment: "node",
+          include: ["packages/rulepacks/src/**/*.test.ts"],
+        },
+      },
+      {
+        test: {
           name: "routes",
           environment: "node",
           include: ["tests/routes/**/*.test.ts"],
