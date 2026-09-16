@@ -26,11 +26,18 @@ describe("validateAllRulePacks / validateRulePack (PACK-11)", () => {
     const fixturePath = path.join(FIXTURES_DIR, "banned-word-basis.fixture.json");
     const pack = loadRulePackFile(fixturePath);
 
-    // RED (#3770 intentional-RED): deliberately backwards — the fixture's
-    // basis DOES carry a banned word, so validateRulePack DOES throw. This
-    // assertion is temporarily inverted to prove the test can fail for a
-    // real, on-topic reason before the gate is proven correct below.
-    expect(() => validateRulePack(pack)).not.toThrow();
+    let caught: unknown;
+    try {
+      validateRulePack(pack);
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(RulePackValidationFailure);
+    const failure = caught as RulePackValidationFailure;
+    expect(failure.code).toBe("BANNED_WORD_IN_BASIS");
+    expect(failure.ruleId).toBe(pack.categoryRules[0]?.ruleId);
+    expect(failure.message).toContain(pack.categoryRules[0]?.ruleId);
   });
 
   it("PACK-01: loadRulePackFile on the malformed fixture throws at the parse boundary, and the thrown value is NOT a RulePackValidationFailure", () => {
