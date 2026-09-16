@@ -49,7 +49,7 @@
 
 ### Rule packs
 
-- [ ] **PACK-01**: Packs load from repository JSON, validate against the schema, and fail the build on any error (AC-37)
+- [x] **PACK-01**: Packs load from repository JSON, validate against the schema, and fail the build on any error (AC-37)
 - [ ] **PACK-02**: Every `ExpenseCategoryCode` resolves to a `CategoryRule` for every `ACTIVE` pack, and a missing category fails pack validation at build time rather than flagging at runtime (AC-10)
 - [ ] **PACK-03**: A pack cannot reach `ACTIVE` without `reviewedBy`, `reviewedOn`, `reviewDueOn`, and all 21 categories authored (AC-38)
 - [ ] **PACK-04**: A pack past `reviewDueOn` is `STALE` — new matters in that jurisdiction are refused with 409 naming the reason, while in-flight review continues under a full-width notice and the extended attestation (AC-39)
@@ -58,8 +58,8 @@
 - [ ] **PACK-07**: Activation is blocked where the activating user was the last editor, unless they hold `RULEPACK_AUTHOR` and confirm sole authorship, and the confirmation is audited (AC-41a)
 - [ ] **PACK-08**: A user who activated a pack version cannot sign off an assessment pinned to that version within the same session, and the block names the reason and points to another reviewer (AC-41b)
 - [ ] **PACK-09**: `HK-PDPO` and `SG-PDPA` are authored in full across all 21 categories and can reach `ACTIVE` (§7.5, §7.6)
-- [ ] **PACK-10**: Seven stub packs ship as `DRAFT` with correct posture and constraints, every category rule `FLAG`, and every rule `NEEDS_VERIFICATION` (§7.4)
-- [ ] **PACK-11**: No pack-authored `basis` string contains any canonical banned word, asserted by pack validation (AC-32a)
+- [x] **PACK-10**: Seven stub packs ship as `DRAFT` with correct posture and constraints, every category rule `FLAG`, and every rule `NEEDS_VERIFICATION` (§7.4)
+- [x] **PACK-11**: No pack-authored `basis` string contains any canonical banned word, asserted by pack validation (AC-32a)
 - [ ] **PACK-12**: The HK pack expresses its flat-fee figure alongside its category rules, in a schema extension that leaves the other eight packs unchanged *(decision: PROJECT.md)*
 
 ### Access control
@@ -269,7 +269,7 @@ Every v1 requirement maps to exactly one phase in `.planning/ROADMAP.md`.
 | ENGINE-15 | Phase 2 | Complete |
 | ENGINE-16 | Phase 2 | Complete |
 | ENGINE-17 | Phase 2 | Complete |
-| PACK-01 | Phase 3 | Pending |
+| PACK-01 | Phase 3 | Complete |
 | PACK-02 | Phase 3 | Pending |
 | PACK-03 | Phase 3 | Pending |
 | PACK-04 | Phase 3 | Pending |
@@ -278,8 +278,8 @@ Every v1 requirement maps to exactly one phase in `.planning/ROADMAP.md`.
 | PACK-07 | Phase 3.2 | Pending |
 | PACK-08 | Phase 7 | Pending |
 | PACK-09 | Phase 3 | Pending |
-| PACK-10 | Phase 3 | Pending |
-| PACK-11 | Phase 3 | Pending |
+| PACK-10 | Phase 3 | Complete |
+| PACK-11 | Phase 3 | Complete |
 | PACK-12 | Phase 3 | Pending |
 | ACCESS-01 | Phase 3.2 | Pending |
 | ACCESS-02 | Phase 6 | Pending |

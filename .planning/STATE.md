@@ -3,16 +3,16 @@ gsd_state_version: "1.0"
 current_phase: 03
 current_phase_name: Rule Packs and Pack Admin
 status: executing
-stopped_at: Phase 3 context gathered
-last_updated: "2026-09-16T04:08:15.486Z"
+stopped_at: Completed 03-01-PLAN.md
+last_updated: "2026-09-16T04:42:36.528Z"
 last_activity: 2026-09-16
-last_activity_desc: Phase 02 complete, transitioned to Phase 3
-state_head: 2634a237c9af832da9797d213e6fa4a781daae98
+last_activity_desc: Phase 03 execution started
+state_head: b5700c6560c285cb9122c28315152a50c5e9ec45
 progress:
   total_phases: 10
   completed_phases: 0
   total_plans: 21
-  completed_plans: 13
+  completed_plans: 14
   percent: 0
 ---
 
@@ -23,14 +23,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-13)
 
 **Core value:** A lawyer can defend the output by saying "the engine applied rule HK-PDPO.STAFF_TIME_REDACT_EXEMPT, version 2026.09.1, authored by X on date Y, and struck the line" — never "the model assessed the claim."
-**Current focus:** Phase 02 — Deterministic Fee Engine
+**Current focus:** Phase 03 — Rule Packs and Pack Admin
 
 ## Current Position
 
-Phase: 03 (Rule Packs and Pack Admin) — READY TO EXECUTE
-Plan: Not started
+Phase: 03 (Rule Packs and Pack Admin) — EXECUTING
+Plan: 2 of 5
 Status: Ready to execute
-Last activity: 2026-09-16 — Phase 02 complete, transitioned to Phase 3
+Last activity: 2026-09-16 — Phase 03 execution started
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -72,6 +72,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 02 P05 | 40min | 3 tasks | 11 files |
 | Phase 02 P06 | 48min | 3 tasks | 9 files |
 | Phase 02 P07 | 23min | 3 tasks | 8 files |
+| Phase 03 P01 | 55min | 3 tasks | 20 files |
 
 ## Accumulated Context
 
@@ -114,6 +115,8 @@ Recent decisions affecting current work:
 - [Phase 02]: [Phase 02 P07]: Banned-word matching is case-sensitive on word boundaries, not case-insensitive — messages.ts and taxonomy.ts both legitimately use capitalised 'Legal' as the department's proper noun; a case-insensitive matcher was empirically shown to break 6 of 21 real message templates during this plan's own RED phase
 - [Phase 02]: [Phase 02 P07]: RED phase used deliberately-backwards test assertions rather than a broken production stub, for all three TDD tasks — calendar-math.ts/totals.ts/messages.ts were already correct from prior plans in this phase; injecting a genuine purity/correctness bug into production source to manufacture RED would have briefly shipped the exact defect these tests exist to prevent
 - [Phase 02]: [Phase 02 P07]: packages/engine/tsconfig.json gained types:[node], matching packages/schemas/tsconfig.json's existing entry — tsc could not resolve node:perf_hooks in perf.test.ts without it, even though @types/node is a root devDependency
+- [Phase 03]: [Phase 03 P01]: PD-1/PD-2 implemented as planned - StubConstraintsSchema is a new parallel type, LoadableRulePackSchema is the primary load-boundary shape; RulePackSchema demoted to the narrowed ACTIVE-ready variant
+- [Phase 03]: [Phase 03 P01]: TDD RED phases for Tasks 2/3 used deliberately-inverted assertions rather than injecting a production bug, since validate.ts/loader.ts/stub-category-rules.ts were already correct from Task 1 (STATE.md Phase 02 P07 precedent)
 
 ### Pending Todos
 
@@ -124,6 +127,7 @@ None yet.
 - PACK-09 authoring is legal work, not code, and gates Phase 6's golden files. If it slips, Phase 2 must not wait on it — the engine is built against the PRD §14 fixture pack by design.
 - Two product-owner decisions recorded in PROJECT.md are now load-bearing on Phase 2: aggregate-cap residue allocation (ENGINE-07) and pack-content immutability enforcement (PACK-06).
 - Phases 3 and 5 both add routes to `apps/web`. Low collision risk on the Phase 1 shell, but worth sequencing the shell-level changes if both run concurrently.
+- Pre-existing json-schema.test.ts CRLF/LF drift failure (unrelated to Phase 3) blocks a clean pnpm test exit — logged to WINDOWS.md entry #1, needs a .gitattributes fix independent of this phase
 
 ### Roadmap Evolution
 
@@ -139,6 +143,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-09-16T02:44:39.756Z
-Stopped at: Phase 3 context gathered
-Resume file: .planning/phases/03-rule-packs-and-pack-admin/03-CONTEXT.md
+Last session: 2026-09-16T04:42:36.415Z
+Stopped at: Completed 03-01-PLAN.md
+Resume file: None

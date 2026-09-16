@@ -121,13 +121,13 @@ Gate integrity: every gate this phase adds ships with a fixture it must catch an
   4. From `/admin/rulepacks` an author sees live validation, a 21/21 completeness checklist, a diff against the previous version, and an activation gate demanding reviewer identity and a review-due date — and activating a version they last edited is blocked unless they hold `RULEPACK_AUTHOR` and confirm sole authorship, which is audited (AC-41a)
   5. Activating a new version leaves every existing assessment's pinned version, verdicts and amounts untouched (AC-40), and an attempt to rewrite an already-ACTIVE version's content is refused at the database rather than by service-layer discipline
 
-**Plans**: 5 plans across 3 waves
+**Plans**: 1/5 plans executed across 3 waves
 **UI hint**: no — the `/admin/rulepacks` screen moved to Phase 3.2 with PACK-06 and PACK-07 (D-20)
 
 Plans:
 **Wave 1**
 
-- [ ] 03-01-PLAN.md — Tracer: one stub pack end to end, repository JSON through loader and validator to a build-failing command, with both gates proven to fire
+- [x] 03-01-PLAN.md — Tracer: one stub pack end to end, repository JSON through loader and validator to a build-failing command, with both gates proven to fire
 
 **Wave 2** *(blocked on 03-01)*
 
@@ -282,7 +282,7 @@ Where capacity allows, Phases 2, 3, 4 and 5 may run concurrently — they have z
 |-------|----------------|--------|-----------|
 | 1. Schemas Freeze and Walking Skeleton | 6/6 | Complete    | 2026-09-15 |
 | 2. Deterministic Fee Engine | 7/7 | Complete    | 2026-09-16 |
-| 3. Rule Packs and Pack Admin | 0/5 | Planned | - |
+| 3. Rule Packs and Pack Admin | 1/5 | In Progress|  |
 | 3.1 Demo Slice — In-Memory Determination Pipeline | 0/TBD | Not started | - |
 | 3.2 Database Boundary and Audit Immutability | 0/3 | Planned (inherited from Phase 1) | - |
 | 4. Workflow and Audit Backbone | 0/TBD | Not started | - |
