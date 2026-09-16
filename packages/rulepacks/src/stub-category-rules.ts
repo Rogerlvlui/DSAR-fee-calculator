@@ -68,6 +68,67 @@ export const PACK_JURISDICTIONS: readonly PackJurisdiction[] = [
       "Regime changed on 1 Jan 2026. Response timing under the new law must be confirmed by counsel and not carried over from Decree 13/2023, whose 72-hour rule no longer applies of its own force.",
     packKind: "stub",
   },
+  {
+    packId: "AU-PRIVACY-ACT",
+    jurisdictionCode: "AU",
+    jurisdictionName: "Australia",
+    instruments: [
+      { title: "Privacy Act 1988", provisions: ["APP 12.7", "APP 12.8"] },
+      { title: "OAIC APP Guidelines ch. 12", provisions: [] },
+    ],
+    // PRD §7.4 Australia row: PRIVATE_ORGANISATION PERMITTED_NOT_EXCESSIVE,
+    // PUBLIC_AGENCY PROHIBITED. PD-3: PROHIBITED excludes a controller type
+    // from `appliesTo`; only PRIVATE_ORGANISATION applies.
+    feePosture: { PRIVATE_ORGANISATION: "PERMITTED_NOT_EXCESSIVE", PUBLIC_AGENCY: "PROHIBITED" },
+    appliesTo: ["PRIVATE_ORGANISATION"],
+    // PRD §7.4 Australia note, transcribed verbatim with markdown emphasis
+    // markers (**...**, *...*) removed — D-14 forbids extrapolating anything
+    // the PRD does not itself state.
+    authoringNote:
+      "The split posture is why `feePosture` is a map. Our reading: an APP agency must not charge at all; an organisation may charge for giving access but never for making the request; OAIC treats inefficiency-driven and legal-advice costs as excessive. Counsel to confirm all three before activation.",
+    packKind: "stub",
+  },
+  {
+    packId: "NZ-PRIVACY-ACT",
+    jurisdictionCode: "NZ",
+    jurisdictionName: "New Zealand",
+    instruments: [
+      { title: "Privacy Act 2020", provisions: ["s.66", "s.67", "IPP 6"] },
+      { title: "OPC guidance on charging", provisions: [] },
+    ],
+    // PRD §7.4 New Zealand row: PERMITTED_REASONABLE / PROHIBITED. PD-3:
+    // PROHIBITED excludes PUBLIC_AGENCY from `appliesTo`.
+    feePosture: { PRIVATE_ORGANISATION: "PERMITTED_REASONABLE", PUBLIC_AGENCY: "PROHIBITED" },
+    appliesTo: ["PRIVATE_ORGANISATION"],
+    // PRD §7.4 New Zealand note, transcribed verbatim with markdown emphasis
+    // markers removed.
+    authoringNote:
+      "Our reading: charge must be reasonable; time assessing whether to withhold is not chargeable while time doing the redaction is; the requestor must be told the amount and any advance-payment requirement, with complaint rights; public sector cannot charge absent Commissioner authorisation; health sector further restricted. Each of those is a proposition counsel must verify — the withhold/redact distinction in particular drives four categories in §6.3.",
+    packKind: "stub",
+  },
+  {
+    packId: "JP-APPI",
+    jurisdictionCode: "JP",
+    jurisdictionName: "Japan",
+    // PRD §7.4: "counsel to supply the current article number, which we have
+    // deliberately not guessed" — an empty provisions array, not an invented
+    // citation (D-14).
+    instruments: [
+      { title: "Act on the Protection of Personal Information (APPI)", provisions: [] },
+    ],
+    // PRD §7.4 Japan row: PRIVATE_ORGANISATION PERMITTED_ACTUAL_COST,
+    // PUBLIC_AGENCY "counsel to determine". CONTEXT.md's Claude's Discretion
+    // item 4 fixes the convention for an unresearched public-agency posture
+    // as NO_EXPRESS_AUTHORITY (PRD §7.4's own stated convention for HK). Not
+    // PROHIBITED, so PD-3 keeps PUBLIC_AGENCY in `appliesTo`.
+    feePosture: { PRIVATE_ORGANISATION: "PERMITTED_ACTUAL_COST", PUBLIC_AGENCY: "NO_EXPRESS_AUTHORITY" },
+    appliesTo: ["PRIVATE_ORGANISATION", "PUBLIC_AGENCY"],
+    // PRD §7.4 Japan note, transcribed verbatim (no markdown emphasis
+    // markers present in the source note).
+    authoringNote:
+      'Our reading of the standard: the fee must be fixed "within a scope that can be considered reasonable in consideration of actual costs". If confirmed, express as a `PERCENT_OF_CLAIM: 100` ceiling with no profit element.',
+    packKind: "stub",
+  },
 ];
 
 export class UnknownPackJurisdictionError extends Error {

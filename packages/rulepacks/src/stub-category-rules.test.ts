@@ -85,3 +85,29 @@ describe("stub category rule generator drift (D-19)", () => {
     expect(generated.map((rule) => rule.categoryCode)).toEqual([...EXPENSE_CATEGORY_CODES]);
   });
 });
+
+// 03-02 Task 1: proves each new jurisdiction is not just a PACK_JURISDICTIONS
+// row (data the generator can already produce) but a committed, loadable
+// pack — loadAllRulePacks() only ever sees what is on disk under
+// packages/rulepacks/<packId>/, never the table itself. Scoped per-packId
+// (not a total pack count) so it stays true after later tasks add more
+// jurisdictions to the same table.
+describe("PACK-10: newly committed jurisdictions load (03-02 Task 1)", () => {
+  it("AU-PRIVACY-ACT is loadable with jurisdiction.code AU", () => {
+    const pack = loadAllRulePacks().find((p) => p.packId === "AU-PRIVACY-ACT");
+    expect(pack).toBeDefined();
+    expect(pack!.jurisdiction.code).toBe("AU");
+  });
+
+  it("NZ-PRIVACY-ACT is loadable with jurisdiction.code NZ", () => {
+    const pack = loadAllRulePacks().find((p) => p.packId === "NZ-PRIVACY-ACT");
+    expect(pack).toBeDefined();
+    expect(pack!.jurisdiction.code).toBe("NZ");
+  });
+
+  it("JP-APPI is loadable with jurisdiction.code JP", () => {
+    const pack = loadAllRulePacks().find((p) => p.packId === "JP-APPI");
+    expect(pack).toBeDefined();
+    expect(pack!.jurisdiction.code).toBe("JP");
+  });
+});
