@@ -1,0 +1,348 @@
+{
+  "packId": "AU-PRIVACY-ACT",
+  "jurisdiction": {
+    "code": "AU",
+    "name": "Australia"
+  },
+  "version": "2026.09.1",
+  "status": "DRAFT",
+  "authoredBy": null,
+  "reviewedBy": null,
+  "reviewedOn": null,
+  "reviewDueOn": "2027-09-16",
+  "instruments": [
+    {
+      "title": "Privacy Act 1988",
+      "provisions": [
+        "APP 12.7",
+        "APP 12.8"
+      ]
+    },
+    {
+      "title": "OAIC APP Guidelines ch. 12",
+      "provisions": []
+    }
+  ],
+  "feePosture": {
+    "PRIVATE_ORGANISATION": "PERMITTED_NOT_EXCESSIVE",
+    "PUBLIC_AGENCY": "PROHIBITED"
+  },
+  "appliesTo": [
+    "PRIVATE_ORGANISATION"
+  ],
+  "rateSanityCeiling": {},
+  "constraints": {
+    "noChargeForMakingRequest": null,
+    "estimateRequiredBeforeCharging": null,
+    "feeNotificationDeadlineDays": null,
+    "deadlineBasis": null,
+    "responseDeadlineDays": null,
+    "advancePaymentPermitted": null,
+    "mayWithholdDataUntilPaid": null,
+    "profitElementPermitted": null,
+    "deterrentUsePermitted": null,
+    "regulatorMayReviewFee": null,
+    "aggregateCap": null
+  },
+  "categoryRules": [
+    {
+      "ruleId": "AU-PRIVACY-ACT.STAFF_TIME_SEARCH",
+      "categoryCode": "STAFF_TIME_SEARCH",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Privacy Act 1988",
+        "provision": "APP 12.7"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — The split posture is why `feePosture` is a map. Our reading: an APP agency must not charge at all; an organisation may charge for giving access but never for making the request; OAIC treats inefficiency-driven and legal-advice costs as excessive. Counsel to confirm all three before activation."
+    },
+    {
+      "ruleId": "AU-PRIVACY-ACT.STAFF_TIME_COLLATE",
+      "categoryCode": "STAFF_TIME_COLLATE",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Privacy Act 1988",
+        "provision": "APP 12.7"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — The split posture is why `feePosture` is a map. Our reading: an APP agency must not charge at all; an organisation may charge for giving access but never for making the request; OAIC treats inefficiency-driven and legal-advice costs as excessive. Counsel to confirm all three before activation."
+    },
+    {
+      "ruleId": "AU-PRIVACY-ACT.STAFF_TIME_REDACT_THIRD_PARTY",
+      "categoryCode": "STAFF_TIME_REDACT_THIRD_PARTY",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Privacy Act 1988",
+        "provision": "APP 12.7"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — The split posture is why `feePosture` is a map. Our reading: an APP agency must not charge at all; an organisation may charge for giving access but never for making the request; OAIC treats inefficiency-driven and legal-advice costs as excessive. Counsel to confirm all three before activation."
+    },
+    {
+      "ruleId": "AU-PRIVACY-ACT.STAFF_TIME_REDACT_EXEMPT",
+      "categoryCode": "STAFF_TIME_REDACT_EXEMPT",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Privacy Act 1988",
+        "provision": "APP 12.7"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — The split posture is why `feePosture` is a map. Our reading: an APP agency must not charge at all; an organisation may charge for giving access but never for making the request; OAIC treats inefficiency-driven and legal-advice costs as excessive. Counsel to confirm all three before activation."
+    },
+    {
+      "ruleId": "AU-PRIVACY-ACT.STAFF_TIME_ASSESS_EXEMPTIONS",
+      "categoryCode": "STAFF_TIME_ASSESS_EXEMPTIONS",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Privacy Act 1988",
+        "provision": "APP 12.7"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — The split posture is why `feePosture` is a map. Our reading: an APP agency must not charge at all; an organisation may charge for giving access but never for making the request; OAIC treats inefficiency-driven and legal-advice costs as excessive. Counsel to confirm all three before activation."
+    },
+    {
+      "ruleId": "AU-PRIVACY-ACT.STAFF_TIME_LEGAL_REVIEW",
+      "categoryCode": "STAFF_TIME_LEGAL_REVIEW",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Privacy Act 1988",
+        "provision": "APP 12.7"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — The split posture is why `feePosture` is a map. Our reading: an APP agency must not charge at all; an organisation may charge for giving access but never for making the request; OAIC treats inefficiency-driven and legal-advice costs as excessive. Counsel to confirm all three before activation."
+    },
+    {
+      "ruleId": "AU-PRIVACY-ACT.PROFESSIONAL_REVIEW",
+      "categoryCode": "PROFESSIONAL_REVIEW",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Privacy Act 1988",
+        "provision": "APP 12.7"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — The split posture is why `feePosture` is a map. Our reading: an APP agency must not charge at all; an organisation may charge for giving access but never for making the request; OAIC treats inefficiency-driven and legal-advice costs as excessive. Counsel to confirm all three before activation."
+    },
+    {
+      "ruleId": "AU-PRIVACY-ACT.PHOTOCOPY_PRINT",
+      "categoryCode": "PHOTOCOPY_PRINT",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Privacy Act 1988",
+        "provision": "APP 12.7"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — The split posture is why `feePosture` is a map. Our reading: an APP agency must not charge at all; an organisation may charge for giving access but never for making the request; OAIC treats inefficiency-driven and legal-advice costs as excessive. Counsel to confirm all three before activation."
+    },
+    {
+      "ruleId": "AU-PRIVACY-ACT.MEDIA_MATERIALS",
+      "categoryCode": "MEDIA_MATERIALS",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Privacy Act 1988",
+        "provision": "APP 12.7"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — The split posture is why `feePosture` is a map. Our reading: an APP agency must not charge at all; an organisation may charge for giving access but never for making the request; OAIC treats inefficiency-driven and legal-advice costs as excessive. Counsel to confirm all three before activation."
+    },
+    {
+      "ruleId": "AU-PRIVACY-ACT.POSTAGE_COURIER",
+      "categoryCode": "POSTAGE_COURIER",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Privacy Act 1988",
+        "provision": "APP 12.7"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — The split posture is why `feePosture` is a map. Our reading: an APP agency must not charge at all; an organisation may charge for giving access but never for making the request; OAIC treats inefficiency-driven and legal-advice costs as excessive. Counsel to confirm all three before activation."
+    },
+    {
+      "ruleId": "AU-PRIVACY-ACT.SECURE_TRANSFER",
+      "categoryCode": "SECURE_TRANSFER",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Privacy Act 1988",
+        "provision": "APP 12.7"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — The split posture is why `feePosture` is a map. Our reading: an APP agency must not charge at all; an organisation may charge for giving access but never for making the request; OAIC treats inefficiency-driven and legal-advice costs as excessive. Counsel to confirm all three before activation."
+    },
+    {
+      "ruleId": "AU-PRIVACY-ACT.IT_EXTRACTION",
+      "categoryCode": "IT_EXTRACTION",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Privacy Act 1988",
+        "provision": "APP 12.7"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — The split posture is why `feePosture` is a map. Our reading: an APP agency must not charge at all; an organisation may charge for giving access but never for making the request; OAIC treats inefficiency-driven and legal-advice costs as excessive. Counsel to confirm all three before activation."
+    },
+    {
+      "ruleId": "AU-PRIVACY-ACT.VENDOR_PAYROLL",
+      "categoryCode": "VENDOR_PAYROLL",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Privacy Act 1988",
+        "provision": "APP 12.7"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — The split posture is why `feePosture` is a map. Our reading: an APP agency must not charge at all; an organisation may charge for giving access but never for making the request; OAIC treats inefficiency-driven and legal-advice costs as excessive. Counsel to confirm all three before activation."
+    },
+    {
+      "ruleId": "AU-PRIVACY-ACT.VENDOR_ARCHIVE",
+      "categoryCode": "VENDOR_ARCHIVE",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Privacy Act 1988",
+        "provision": "APP 12.7"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — The split posture is why `feePosture` is a map. Our reading: an APP agency must not charge at all; an organisation may charge for giving access but never for making the request; OAIC treats inefficiency-driven and legal-advice costs as excessive. Counsel to confirm all three before activation."
+    },
+    {
+      "ruleId": "AU-PRIVACY-ACT.VENDOR_OTHER",
+      "categoryCode": "VENDOR_OTHER",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Privacy Act 1988",
+        "provision": "APP 12.7"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — The split posture is why `feePosture` is a map. Our reading: an APP agency must not charge at all; an organisation may charge for giving access but never for making the request; OAIC treats inefficiency-driven and legal-advice costs as excessive. Counsel to confirm all three before activation."
+    },
+    {
+      "ruleId": "AU-PRIVACY-ACT.TRANSLATION",
+      "categoryCode": "TRANSLATION",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Privacy Act 1988",
+        "provision": "APP 12.7"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — The split posture is why `feePosture` is a map. Our reading: an APP agency must not charge at all; an organisation may charge for giving access but never for making the request; OAIC treats inefficiency-driven and legal-advice costs as excessive. Counsel to confirm all three before activation."
+    },
+    {
+      "ruleId": "AU-PRIVACY-ACT.TRANSCRIPTION_CONVERSION",
+      "categoryCode": "TRANSCRIPTION_CONVERSION",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Privacy Act 1988",
+        "provision": "APP 12.7"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — The split posture is why `feePosture` is a map. Our reading: an APP agency must not charge at all; an organisation may charge for giving access but never for making the request; OAIC treats inefficiency-driven and legal-advice costs as excessive. Counsel to confirm all three before activation."
+    },
+    {
+      "ruleId": "AU-PRIVACY-ACT.IDENTITY_VERIFICATION",
+      "categoryCode": "IDENTITY_VERIFICATION",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Privacy Act 1988",
+        "provision": "APP 12.7"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — The split posture is why `feePosture` is a map. Our reading: an APP agency must not charge at all; an organisation may charge for giving access but never for making the request; OAIC treats inefficiency-driven and legal-advice costs as excessive. Counsel to confirm all three before activation."
+    },
+    {
+      "ruleId": "AU-PRIVACY-ACT.ADMIN_OVERHEAD",
+      "categoryCode": "ADMIN_OVERHEAD",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Privacy Act 1988",
+        "provision": "APP 12.7"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — The split posture is why `feePosture` is a map. Our reading: an APP agency must not charge at all; an organisation may charge for giving access but never for making the request; OAIC treats inefficiency-driven and legal-advice costs as excessive. Counsel to confirm all three before activation."
+    },
+    {
+      "ruleId": "AU-PRIVACY-ACT.RECORDS_REMEDIATION",
+      "categoryCode": "RECORDS_REMEDIATION",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Privacy Act 1988",
+        "provision": "APP 12.7"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — The split posture is why `feePosture` is a map. Our reading: an APP agency must not charge at all; an organisation may charge for giving access but never for making the request; OAIC treats inefficiency-driven and legal-advice costs as excessive. Counsel to confirm all three before activation."
+    },
+    {
+      "ruleId": "AU-PRIVACY-ACT.OTHER_UNCLASSIFIED",
+      "categoryCode": "OTHER_UNCLASSIFIED",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Privacy Act 1988",
+        "provision": "APP 12.7"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — The split posture is why `feePosture` is a map. Our reading: an APP agency must not charge at all; an organisation may charge for giving access but never for making the request; OAIC treats inefficiency-driven and legal-advice costs as excessive. Counsel to confirm all three before activation."
+    }
+  ],
+  "matterFlagRules": [],
+  "requestorNoticeTemplate": "UNAUTHORED — counsel must author the requestor-facing fee notice for this jurisdiction before this pack can reach ACTIVE.",
+  "openQuestions": [
+    "The split posture is why `feePosture` is a map. Our reading: an APP agency must not charge at all; an organisation may charge for giving access but never for making the request; OAIC treats inefficiency-driven and legal-advice costs as excessive. Counsel to confirm all three before activation."
+  ]
+}
