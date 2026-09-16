@@ -62,6 +62,32 @@ Numbering continues from Phase 2's D-11..D-13 so decision IDs stay unique across
 
   Rejected: a one-shot generator whose output is committed with no drift test (the generator and the committed files can silently disagree); and expanding 21 FLAG rules from `EXPENSE_CATEGORY_CODES` at load time (no boilerplate in git, but it breaks §7.3's guarantee). — **Reversibility:** reversible.
 
+### Resolved at planning — the three open questions research surfaced
+
+Research (`03-RESEARCH.md`, Open Questions 1–3) found three items that could not be settled from the PRD. The product owner ruled on all three before the planner ran. These close Claude's Discretion item **2** and amend the PACK-12 half of D-02/D-09.
+
+- **D-20:** `/admin/rulepacks` and its activation gate **leave Phase 3 entirely**. This phase builds the pack JSON, the loader, the validator and the staleness derivation — PACK-01, PACK-02, PACK-03, PACK-04, PACK-05, PACK-09, PACK-10, PACK-11, PACK-12 — and nothing that needs a web shell or a database. **PACK-06 and PACK-07 are not planned here**; they move to Phase 3.2 alongside the Docker-dependent work already waiting there.
+
+  This resolves Claude's Discretion item 2 the way its own bounds pointed: `apps/web` does not exist, Docker is not available, and PACK-01/02/03/09/10/11/12 are fully deliverable today and are what unblocks the Phase 3.1 demo. They do not sit behind infrastructure work. Success Criteria 4 and 5 are **not dropped** — they are explicitly relocated with the requirements that carry them, and must not be marked satisfied by anything built in this phase.
+
+  Rejected: scaffolding the screen here against a UI-SPEC (real work, but it front-loads `apps/web` ahead of the demo's actual dependency, which is SG pack content); and planning PACK-06 on a service-layer substitute (PROJECT.md chose DB-level enforcement precisely because service-layer discipline is not a guarantee). — **Reversibility:** reversible.
+
+- **D-21:** Pack-lifecycle audit events (`PACK_ACTIVATED`, `PACK_EDITED`) get a **separate append-only stream keyed to `RulePackVersion`**, not a widened `AuditEvent`. `AuditEvent.matterId` is required and FK'd to `Matter` in both `packages/schemas/src/audit-event.ts` and the committed `prisma/schema.prisma`; a rule pack version has no matter, so the frozen shape cannot carry these events as it stands.
+
+  A separate stream leaves the freeze untouched — no nullable-widening of a required FK while Phases 4 and 5 run concurrently against it. The cost is named and accepted: two audit tables, which reads against AC-35's single-log intent and must be reconciled when the two streams are queried together. Both are append-only with the same immutability guarantees; neither is a second *unaudited* log.
+
+  Rejected: widening `matterId` to nullable with a check constraint (cleanest single log, but it re-opens D-09's freeze mid-phase to relax a required field, which is not additive); and deferring the decision to a checkpoint (the choice is needed to scope Phase 3.2, and deferring it twice is not a decision).
+
+  **This decision binds Phase 3.2, not this phase** — nothing in Phase 3 writes an audit event. Recorded here so it is not re-litigated when PACK-07 is planned. — **Reversibility:** costly — a second table the audit reader, the DPO export and Phase 7's internal record all have to know about.
+
+- **D-22:** PACK-12 ships the **flat-fee schema extension without the figure**. `RulePack.flatFee` is additively widened with a nullable `verificationNote`, so HK's flat fee can carry D-15's `UNAUTHORED` token exactly as a `CategoryRule` does, and the validator refuses ACTIVE while the token is present.
+
+  The PRD supplies no HK flat-fee figure anywhere — only advisory prose — and D-14 forbids extrapolating anything the document does not state. Without a `verificationNote` channel, `FlatFeeSchema` had no way to say "structure authored, number not", and the only alternatives were inventing a number or leaving the field silently empty. This discharges PACK-12's structural half and makes the missing figure visible rather than absent.
+
+  This amends the PACK-12 clause of D-02/D-09: the claim that "PACK-12 needs no schema change" holds for the `flatFee` field itself but not for the unauthored marker. The widening is additive — a new nullable field on an existing type, nothing renamed, retyped or removed — so it stays inside D-09's rule.
+
+  Rejected: authoring a figure from the PRD's advisory prose (manufactures a legal position nobody authored — PRD §0's fourth non-negotiable); and dropping PACK-12 from the phase (leaves a phase requirement uncovered when its structural half is deliverable today). — **Reversibility:** costly — `verificationNote` on `flatFee` is read by the validator and by whatever renders the pack.
+
 ### Carried forward — still binding, not to be re-litigated
 
 - **D-02 / D-09 [informational]:** The schemas freeze is additive-only. `RulePack` already carries `flatFee` (no `currency` sub-field, per PRD §6.0), so PACK-12 needs no schema change. D-18's `StubConstraints` is a new type, not a modification of a frozen one. Any breaking change escalates to the product owner before the phase continues.
@@ -162,6 +188,9 @@ The product owner left two gray areas and one follow-up to Claude. These are res
 
 <deferred>
 ## Deferred Ideas
+
+- **`/admin/rulepacks`, PACK-06 and PACK-07 (D-20)** — deferred to **Phase 3.2** with the reason recorded, per Claude's Discretion item 2's own bounds: `apps/web` does not exist and Docker is unavailable, so Success Criteria 4 and 5 have neither a shell to build into nor a database to refuse at. Relocated, not dropped — and specifically **not** to be marked satisfied by anything Phase 3 builds. When PACK-07 is planned there, D-21 already settles how its audit events are stored.
+- **HK's flat-fee figure (D-22)** — the extension ships this phase carrying `UNAUTHORED`; the number itself waits on counsel, like the other unauthored rule bodies under D-14/D-15.
 
 - **Full HK and SG authoring across all 21 categories** (D-16) — not deferred so much as scheduled: an explicit obligation discharged before Phase 6's convergence gate, where AC-09's golden files must pass against real content. Tracked, not dropped.
 - **PACK-06's database-level enforcement of ACTIVE-content immutability** — cannot be completed here; Docker is unavailable. If planning defers it, it goes to **Phase 3.2** with the reason recorded, alongside the AC-34 audit-immutability work already waiting there. It must never be marked done on a service-layer substitute — PROJECT.md chose DB-level enforcement specifically because service-layer discipline is not a guarantee.
