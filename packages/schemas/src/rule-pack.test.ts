@@ -8,6 +8,9 @@
 // booleans, z.partialRecord() for rateSanityCeiling, and the D-02 flat-fee
 // extension (optional, no `currency` sub-field — see rule-pack.ts).
 
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
   CapSchema,
@@ -17,6 +20,10 @@ import {
   MatterFlagRuleSchema,
   RulePackSchema,
 } from "./rule-pack.ts";
+import { toJsonSchemaArtifacts } from "./json-schema.ts";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const SCHEMA_DIR = path.resolve(__dirname, "..", "schema");
 
 function validCategoryRule() {
   return {
@@ -83,6 +90,7 @@ function validFlatFee() {
     basis: "A flat fee may be charged for administrative convenience where it stays below direct cost.",
     citation: { instrument: "PDPO", provision: "s.28(2)" },
     verificationStatus: "NEEDS_VERIFICATION",
+    verificationNote: null,
   };
 }
 
@@ -116,6 +124,62 @@ describe("RulePackSchema — flat fee extension (D-02 / PACK-12)", () => {
   it("rejects a flatFee JSON payload carrying a currency key (strict object)", () => {
     const result = FlatFeeSchema.safeParse({ ...validFlatFee(), currency: "HKD" });
     expect(result.success).toBe(false);
+  });
+});
+
+describe("FlatFeeSchema — verificationNote (D-22)", () => {
+  it("a FlatFee object with verificationNote: null parses", () => {
+    const result = FlatFeeSchema.safeParse({ ...validFlatFee(), verificationNote: null });
+    expect(result.success).toBe(true);
+  });
+
+  it("a FlatFee object with a string verificationNote parses", () => {
+    const result = FlatFeeSchema.safeParse({
+      ...validFlatFee(),
+      verificationNote: "UNAUTHORED — counsel has not yet set this figure.",
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.verificationNote).toBe(
+        "UNAUTHORED — counsel has not yet set this figure."
+      );
+    }
+  });
+
+  it("omitting verificationNote fails to parse, naming the missing key", () => {
+    const { verificationNote, ...withoutNote } = validFlatFee();
+    const result = FlatFeeSchema.safeParse(withoutNote);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues.some((issue) => issue.path.includes("verificationNote"))).toBe(
+        true
+      );
+    }
+  });
+
+  it("RulePackSchema still parses a pack with no flatFee key at all — the field stays optional, not nullable-required", () => {
+    const result = RulePackSchema.safeParse(validPack());
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(Object.hasOwn(result.data, "flatFee")).toBe(false);
+    }
+  });
+
+  it("the three committed JSON Schema artifacts regenerate byte-identically — FlatFeeSchema reaches none of them", () => {
+    const artifacts = toJsonSchemaArtifacts();
+    const freshAssessment = JSON.stringify(artifacts.assessment, null, 2) + "\n";
+    const freshAssessmentLine = JSON.stringify(artifacts.assessmentLine, null, 2) + "\n";
+    const freshExpenseLine = JSON.stringify(artifacts.expenseLine, null, 2) + "\n";
+
+    expect(freshAssessment).toBe(
+      readFileSync(path.join(SCHEMA_DIR, "assessment.schema.json"), "utf8")
+    );
+    expect(freshAssessmentLine).toBe(
+      readFileSync(path.join(SCHEMA_DIR, "assessment-line.schema.json"), "utf8")
+    );
+    expect(freshExpenseLine).toBe(
+      readFileSync(path.join(SCHEMA_DIR, "expense-line.schema.json"), "utf8")
+    );
   });
 });
 

@@ -180,3 +180,43 @@ ACTIVE-ready variant `packages/engine` consumes — since
 `StubConstraintsSchema` is a strict superset of `RulePackConstraintsSchema`,
 re-parsing with the untouched frozen schema is what refuses any pack still
 carrying a `null` constraint at the ACTIVE gate (plan 03-03).
+
+## Post-freeze amendment: `FlatFeeSchema` gains `verificationNote` (D-22, D-09, Phase 3 plan 03-05)
+
+One additive field landed in Phase 3 (plan 03-05), decided by the product
+owner at the 03-CONTEXT.md D-22 gate (2026-09-16). **D-09 is the authority
+under which this is permitted without escalation**: `FlatFeeSchema.
+verificationNote` is a new required-but-nullable key on `FlatFeeSchema`,
+itself already Phase 1 invention (see that schema's own module note) rather
+than a PRD §7.2 transcription — so this widening is additive to an
+already-additive type. No frozen field anywhere in `rule-pack.ts` is
+renamed, retyped or removed.
+
+**`FlatFeeSchema.verificationNote`** (`z.string().nullable()`, positioned
+immediately after `verificationStatus`) is field-for-field the same shape as
+`CategoryRuleSchema.verificationNote`, already frozen and already nullable.
+The gap: D-15's `UNAUTHORED_TOKEN` channel exists for every `CategoryRule`,
+but `FlatFeeSchema` had no comparable field, so HK's flat fee (PRD §7.5 —
+advisory prose only, no figure) had no way to say "structure authored,
+figure not" — the only alternatives were inventing a number (forbidden by
+D-14) or leaving the field silently absent (indistinguishable from an
+oversight). This closes that gap.
+
+**`RulePack.flatFee` remains optional** (`FlatFeeSchema.optional()` on
+`RulePackSchema`, unchanged by this amendment) — every pack that carries no
+flat fee at all omits the key entirely, and its committed JSON is literally
+unchanged by this widening. Only `HK-PDPO/2026.09.1.json` (plan 03-05) sets
+`flatFee`; the other eight committed packs are untouched.
+
+The two pre-existing `FlatFee` object literals in `packages/engine` —
+`DEFAULT_FLAT_FEE` (`packages/engine/src/__fixtures__/flat-fee-pack.ts`) and
+`SAMPLE_FLAT_FEE` (`packages/engine/src/flat-fee.test.ts`) — were updated in
+the same commit to carry `verificationNote: null`, so both keep
+type-checking against the widened shape.
+`computeFlatFeeComparison` (`packages/engine/src/flat-fee.ts`) reads only
+`flatFee.amount` and is unaffected. This widening reaches none of the three
+committed JSON Schema artifacts under `packages/schemas/schema/` —
+`toJsonSchemaArtifacts()` only ever generates from `AssessmentSchema`,
+`AssessmentLineSchema` and `ExpenseLineSchema`, none of which reach
+`FlatFeeSchema` — verified by the existing drift test
+(`json-schema.test.ts`) and re-proven directly in `rule-pack.test.ts`.

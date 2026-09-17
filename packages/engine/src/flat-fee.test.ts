@@ -25,6 +25,7 @@ const SAMPLE_FLAT_FEE: FlatFee = {
   basis: "Test flat fee basis.",
   citation: { instrument: "TEST", provision: "s.1" },
   verificationStatus: "VERIFIED",
+  verificationNote: null,
 };
 
 describe("computeFlatFeeComparison — pure function", () => {

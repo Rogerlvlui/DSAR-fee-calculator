@@ -46,6 +46,7 @@ const DEFAULT_FLAT_FEE: FlatFee = {
   basis: "Illustrative flat processing fee — fixture only, not a proposed legal position.",
   citation: { instrument: "N/A", provision: "N/A" },
   verificationStatus: "NEEDS_VERIFICATION",
+  verificationNote: null,
 };
 
 export function buildFlatFeeFixturePack(

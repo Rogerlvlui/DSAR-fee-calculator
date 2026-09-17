@@ -150,11 +150,23 @@ export type MatterFlagRule = z.infer<typeof MatterFlagRuleSchema>;
 // The itemised baseline is still computed even for a flat-fee pack — a flat
 // figure cannot be shown to stay below direct cost without one. That
 // comparison is ENGINE-16's job in Phase 2, not this schema's.
+// D-22 (03-CONTEXT.md, Phase 3 plan 03-05) — the note field below was added,
+// positioned immediately after `verificationStatus` to match
+// `CategoryRuleSchema`'s field order exactly. Required (not `.optional()`)
+// and nullable, the same shape as CategoryRule's own note field: a flat fee
+// that has not been annotated must say `null` out loud rather than omit the
+// key. This is the D-15 UNAUTHORED-token channel for a flat fee — the same
+// marker a CategoryRule carries when no counsel has authored it — so HK's
+// flat fee can say "structure authored, figure not" without inventing a
+// figure the PRD does not state (D-14). Purely additive: no frozen field is
+// renamed, retyped or removed, and `RulePack.flatFee` stays optional, so
+// every pack without a flat fee is literally unchanged.
 export const FlatFeeSchema = z.strictObject({
   amount: MinorSchema,
   basis: z.string().max(BASIS_MAX_LENGTH),
   citation: CitationSchema,
   verificationStatus: VerificationStatusSchema,
+  verificationNote: z.string().nullable(),
 });
 export type FlatFee = z.infer<typeof FlatFeeSchema>;
 
