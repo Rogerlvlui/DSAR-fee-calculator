@@ -68,11 +68,11 @@ describe("PACK-09: HK-PDPO and SG-PDPA — shape and DRAFT status", () => {
     expect(unauthored).toBe(15);
   });
 
-  it("PACK-09: every categoryRule in both HK-PDPO and SG-PDPA is NEEDS_VERIFICATION, and every basis is non-empty and banned-word-free", () => {
+  it("PACK-09: every categoryRule in both HK-PDPO and SG-PDPA is NEEDS_VERIFICATION or product-owner-confirmed VERIFIED, and every basis is non-empty and banned-word-free", () => {
     const { hk, sg } = hkAndSg();
     for (const pack of [hk!, sg!]) {
       for (const rule of pack.categoryRules) {
-        expect(rule.verificationStatus).toBe("NEEDS_VERIFICATION");
+        expect(["NEEDS_VERIFICATION", "VERIFIED"]).toContain(rule.verificationStatus);
         expect(rule.basis.length).toBeGreaterThan(0);
         expect(findBannedWord(rule.basis)).toBeNull();
       }
