@@ -1,7 +1,7 @@
 ---
 phase: 03-rule-packs-and-pack-admin
 verified: 2026-09-17T15:58:08Z
-status: human_needed
+status: passed
 score: 8/8 non-deferred must-haves verified (2 deferred to their owning phases, 1 human-verification item)
 covered_files:
   - ".planning/REQUIREMENTS.md"
@@ -60,7 +60,7 @@ covered_files:
   - "packages/schemas/src/constants.ts"
   - "packages/schemas/src/rule-pack.test.ts"
   - "packages/schemas/src/rule-pack.ts"
-covered_digest: "v1:sha256:8410d5e6a8e5de7d40548c229146b84d2f7f27b64e05f4d11e37845988bb55f7"
+covered_digest: "v1:sha256:282788474acff6142a807c6530f58bfac88424df31ced57c3b126094e767bee7"
 deferred:
   - truth: "HK-PDPO and SG-PDPA are authored in full across all 21 categories and can reach ACTIVE (ROADMAP Phase 3 Success Criterion 2, PACK-09's literal wording)"
     addressed_in: "Phase 6"
@@ -78,8 +78,8 @@ human_verification:
 
 **Phase Goal:** Nine jurisdiction packs exist as validated repository JSON, HK and SG are authored in full and can reach ACTIVE, and activation is a gated, audited event
 **Verified:** 2026-09-17T15:58:08Z
-**Status:** human_needed
-**Re-verification:** No — initial verification
+**Status:** passed
+**Re-verification:** No — initial verification, canonicalized to `passed` after the human-verification item below was resolved (2026-09-18)
 
 ## Goal Achievement
 
@@ -185,6 +185,8 @@ No orphaned requirements found: every requirement ID REQUIREMENTS.md maps to "Ph
 **Test:** Read `packages/rulepacks/HK-PDPO/2026.09.1.json`'s `OTHER_UNCLASSIFIED` categoryRule basis: "Uncategorised cost. Legal to determine whether it is directly related to and necessary for compliance." Compare against `validate.ts`'s documented precedent for legitimate "Legal"-as-department-name usage, and against the pack's own three other RESOLVED openQuestions entries recording explicit product-owner sign-off on borderline banned-word calls.
 **Expected:** Either a fourth RESOLVED `openQuestions` entry confirming "Legal" here is the intended department reference (matching the pattern already established three times in this same pack), or a reword to "Counsel" — exactly as SG-PDPA's equivalent `OTHER_UNCLASSIFIED` rule already does for the identical reason.
 **Why human:** The banned-word matcher's case-sensitivity is a deliberate, tested, accepted design decision (a case-insensitive matcher was shown empirically to break 6 of 21 legitimate templates), so no automated check can resolve this ambiguity. It is a genuine, still-open finding from this phase's own code review (03-REVIEW.md WR-01) that never received the same explicit sign-off its three siblings in the same authoring round received.
+
+**Resolution (2026-09-18):** Product owner chose the reword — "Legal" → "Counsel" in `HK-PDPO.OTHER_UNCLASSIFIED.basis`, matching SG-PDPA's equivalent rule. Committed `9ae0a05`. Re-validated live (`pack:validate`, 79/79 rulepacks tests) and independently re-confirmed by the phase's security auditor (03-SECURITY.md, T-03-19). `covered_digest` above recomputed against current file content; status canonicalized to `passed`.
 
 ---
 
