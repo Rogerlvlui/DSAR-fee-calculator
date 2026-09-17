@@ -1,0 +1,60 @@
+{
+  "packId": "ACME-FIXTURE",
+  "jurisdiction": {
+    "code": "SG",
+    "name": "Singapore"
+  },
+  "version": "2026.06.1",
+  "status": "DRAFT",
+  "authoredBy": null,
+  "reviewedBy": null,
+  "reviewedOn": null,
+  "reviewDueOn": "2027-06-01",
+  "instruments": [
+    {
+      "title": "Fixture Instrument",
+      "provisions": []
+    }
+  ],
+  "feePosture": {
+    "PRIVATE_ORGANISATION": "NO_EXPRESS_AUTHORITY",
+    "PUBLIC_AGENCY": "NO_EXPRESS_AUTHORITY"
+  },
+  "appliesTo": [
+    "PRIVATE_ORGANISATION",
+    "PUBLIC_AGENCY"
+  ],
+  "rateSanityCeiling": {},
+  "constraints": {
+    "noChargeForMakingRequest": null,
+    "estimateRequiredBeforeCharging": null,
+    "feeNotificationDeadlineDays": null,
+    "deadlineBasis": null,
+    "responseDeadlineDays": null,
+    "advancePaymentPermitted": null,
+    "mayWithholdDataUntilPaid": null,
+    "profitElementPermitted": null,
+    "deterrentUsePermitted": null,
+    "regulatorMayReviewFee": null,
+    "aggregateCap": null
+  },
+  "categoryRules": [
+    {
+      "ruleId": "ACME-FIXTURE.STAFF_TIME_SEARCH",
+      "categoryCode": "STAFF_TIME_SEARCH",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "Fixture placeholder basis for version 2026.06.1 — not a real jurisdiction. Treatment changed from FLAG to ALLOW so a wrong resolution is visible.",
+      "citation": {
+        "instrument": "Fixture Instrument",
+        "provision": ""
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": null
+    }
+  ],
+  "matterFlagRules": [],
+  "requestorNoticeTemplate": "Fixture notice template — not a real jurisdiction.",
+  "openQuestions": []
+}
