@@ -263,6 +263,10 @@ These items are recorded, not resolved, per this plan's own transcription-only m
 
 8. `assertActiveReady` throws `MISSING_REVIEWER` for both reference packs, not the `UNAUTHORED_CONTENT` the plan's `<acceptance_criteria>` named — see "Deviations from Plan" above. Both codes prove the same fact (neither pack can reach ACTIVE); no action needed unless a later plan wants `UNAUTHORED_CONTENT` specifically surfaced ahead of `MISSING_REVIEWER` for these two packs, which would require reordering `ACTIVE_READY_CHECK_ORDER` (a 03-03-owned, out-of-scope change).
 
+## Post-plan update (2026-09-17)
+
+1. **PD-4 resolved by the product owner.** `HK-PDPO.flatFee.amount` set to HK$100 (`10000` minor units) per Roger's direct instruction, replacing the `0` placeholder. `verificationNote` no longer carries the `UNAUTHORED` token (the figure is now authored, by the product owner rather than the PRD) but stays `NEEDS_VERIFICATION` pending formal counsel sign-off. `openQuestions` entry updated to match. Verified via `pack:validate`, `typecheck`, and the `PACK-12`/`HK-PDPO` test filters (all pass) — committed separately from the plan's own commits.
+
 ## Next Phase Readiness
 
 - Both reference packs exist as committed repository JSON, transcription-only, with every unwritten category visibly marked and drift-tested. Neither reaches `ACTIVE` this phase (D-16) — full authoring across all 21 categories for both packs remains an explicit obligation discharged before Phase 6's convergence gate, where AC-09's golden files must pass against real pack content.
