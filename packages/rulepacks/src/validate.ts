@@ -1,9 +1,13 @@
 // packages/rulepacks/src/validate.ts
 //
-// The build-time gate (PACK-11, T-03-02): one check per requirement, first
-// violation throws. This task implements the PACK-11 banned-word scan only
-// — PACK-02/PACK-03's exhaustiveness/ACTIVE-readiness gates are later plans
-// in this phase.
+// The build-time gate: one check per requirement, first violation throws.
+// 03-01 (T-03-02) implemented the PACK-11 banned-word scan, which runs for
+// every pack regardless of status. This plan (03-03) adds PACK-02
+// (categoryRules exhaustiveness, this task) and PACK-03 (ACTIVE-readiness —
+// reviewer identity, review-date coherence, no unauthored content, no
+// unresearched constraint — the next task) — both gates a pack must clear
+// before `status: "ACTIVE"` is a checked fact rather than an unverified
+// claim (PRD §7.3, AC-38).
 //
 // `findBannedWord` is transcribed VERBATIM from
 // packages/engine/src/engine-language.test.ts — case-sensitive, word-
@@ -14,10 +18,14 @@
 // case-insensitive matcher.
 
 import { LEGAL_CONCLUSION_BANNED_WORDS } from "@dsar/schemas/constants";
-import type { LoadableRulePack } from "@dsar/schemas/rule-pack";
+import { RulePackSchema, type LoadableRulePack, type RulePack } from "@dsar/schemas/rule-pack";
+import { EXPENSE_CATEGORY_CODES, type ExpenseCategoryCode } from "@dsar/schemas/taxonomy";
 import { loadAllRulePacks, RULEPACKS_ROOT } from "./loader.ts";
 
-export type RulePackValidationCode = "BANNED_WORD_IN_BASIS";
+export type RulePackValidationCode =
+  | "BANNED_WORD_IN_BASIS"
+  | "MISSING_CATEGORY_RULES"
+  | "DUPLICATE_CATEGORY_RULE";
 
 export class RulePackValidationFailure extends Error {
   readonly code: RulePackValidationCode;
@@ -79,6 +87,82 @@ export function validateRulePack(pack: LoadableRulePack): void {
       );
     }
   }
+
+  // PACK-02: the exhaustiveness check below applies only to a pack that
+  // claims ACTIVE — a DRAFT stub (e.g. every committed pack today, D-16)
+  // must still parse and load, per RulePackSchema's own module note that a
+  // DRAFT stub must still parse.
+  if (pack.status === "ACTIVE") {
+    assertActiveReady(pack);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// PACK-02 — categoryRules exhaustiveness (ACTIVE precondition)
+// ---------------------------------------------------------------------------
+
+// Every one of the 21 codes, exactly once. Counting (not `new
+// Set(codes).size === 21`) is deliberate: a complete-but-duplicated pack —
+// 21 distinct codes present, one of them doubled — passes a naive set-size
+// check and must still fail here.
+function assertCategoryRulesExhaustive(pack: LoadableRulePack): void {
+  const counts = new Map<ExpenseCategoryCode, number>();
+  for (const code of EXPENSE_CATEGORY_CODES) counts.set(code, 0);
+  for (const rule of pack.categoryRules) {
+    counts.set(rule.categoryCode, (counts.get(rule.categoryCode) ?? 0) + 1);
+  }
+
+  // Filtering over EXPENSE_CATEGORY_CODES (not over the pack's own
+  // categoryRules order) is what makes the reported list order-independent
+  // of file order — the same incomplete pack always reports the same
+  // missing-code list, in the taxonomy's own declaration order.
+  const missing = EXPENSE_CATEGORY_CODES.filter((code) => (counts.get(code) ?? 0) === 0);
+  if (missing.length > 0) {
+    throw new RulePackValidationFailure(
+      "MISSING_CATEGORY_RULES",
+      pack.packId,
+      `Pack "${pack.packId}" is ACTIVE but missing categoryRules for: ${missing.join(", ")}`
+    );
+  }
+
+  const duplicated = EXPENSE_CATEGORY_CODES.filter((code) => (counts.get(code) ?? 0) > 1);
+  if (duplicated.length > 0) {
+    throw new RulePackValidationFailure(
+      "DUPLICATE_CATEGORY_RULE",
+      pack.packId,
+      `Pack "${pack.packId}" is ACTIVE but has duplicate categoryRules for: ${duplicated.join(", ")}`
+    );
+  }
+}
+
+// The declared check order — a module-level constant, not the incidental
+// order of a sequence of if-statements, following the
+// DERIVED_MATTER_FLAG_SPECS precedent (packages/engine/src/matter-flags.ts)
+// so a silent reordering fails a literal-array test rather than quietly
+// changing which message a pack failing two checks at once reports. This
+// task adds the first entry; the next task appends the remaining ACTIVE
+// preconditions in their declared order.
+const ACTIVE_READY_CHECKS: readonly {
+  name: string;
+  run: (pack: LoadableRulePack) => void;
+}[] = [{ name: "CATEGORY_RULES_EXHAUSTIVENESS", run: assertCategoryRulesExhaustive }];
+
+// Exposed so a test can assert the declared order directly against a
+// literal array, rather than only inferring it from produced error codes.
+export const ACTIVE_READY_CHECK_ORDER: readonly string[] = ACTIVE_READY_CHECKS.map(
+  (check) => check.name
+);
+
+// The single entry point for every ACTIVE precondition (PACK-02, PACK-03).
+// Runs each check in ACTIVE_READY_CHECK_ORDER; first failure wins, so the
+// same pack always yields the same message across runs and machines. On
+// success, returns the narrowed `RulePack` the engine can consume — the
+// only sanctioned way a `LoadableRulePack` becomes a `RulePack`.
+export function assertActiveReady(pack: LoadableRulePack): RulePack {
+  for (const check of ACTIVE_READY_CHECKS) {
+    check.run(pack);
+  }
+  return RulePackSchema.parse(pack);
 }
 
 export function validateAllRulePacks(root: string = RULEPACKS_ROOT): void {

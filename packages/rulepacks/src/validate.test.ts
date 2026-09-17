@@ -7,15 +7,42 @@
 // loaded ONLY by explicit path here — loadAllRulePacks() never globs them
 // (T-03-03), proven by the pack:validate CLI still exiting 0 with both
 // fixtures committed.
+//
+// 03-03 Task 1: PACK-02 (categoryRules exhaustiveness) proofs below follow
+// the same discipline — proven to fire against a fixture it must catch,
+// never inspecting a clean tree only. PACK-03's proofs land in the next
+// task, alongside the clean fixture that clears every ACTIVE bar.
 
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import { EXPENSE_CATEGORY_CODES } from "@dsar/schemas/taxonomy";
 import { loadRulePackFile } from "./loader.ts";
-import { RulePackValidationFailure, findBannedWord, validateAllRulePacks, validateRulePack } from "./validate.ts";
+import {
+  RulePackValidationFailure,
+  assertActiveReady,
+  findBannedWord,
+  validateAllRulePacks,
+  validateRulePack,
+} from "./validate.ts";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const FIXTURES_DIR = path.resolve(__dirname, "__fixtures__");
+
+function loadFixture(name: string) {
+  return loadRulePackFile(path.join(FIXTURES_DIR, name));
+}
+
+function expectFailure(fn: () => unknown): RulePackValidationFailure {
+  let caught: unknown;
+  try {
+    fn();
+  } catch (error) {
+    caught = error;
+  }
+  expect(caught).toBeInstanceOf(RulePackValidationFailure);
+  return caught as RulePackValidationFailure;
+}
 
 describe("validateAllRulePacks / validateRulePack (PACK-11)", () => {
   it("PACK-11: validateAllRulePacks() over the real packages/rulepacks tree throws nothing (the clean case)", () => {
@@ -66,5 +93,55 @@ describe("validateAllRulePacks / validateRulePack (PACK-11)", () => {
 
   it("findBannedWord returns null for a banned word written in Title case — proving the matcher is case-sensitive by construction, not by accident", () => {
     expect(findBannedWord("This outcome is Compliant with the applicable law.")).toBeNull();
+  });
+});
+
+describe("assertActiveReady / validateRulePack (PACK-02: categoryRules exhaustiveness)", () => {
+  it("PACK-02: an ACTIVE pack missing one categoryCode fails with code MISSING_CATEGORY_RULES, naming the missing code", () => {
+    const pack = loadFixture("missing-category.fixture.json");
+    const failure = expectFailure(() => assertActiveReady(pack));
+    expect(failure.code).toBe("MISSING_CATEGORY_RULES");
+    expect(failure.message).toContain("OTHER_UNCLASSIFIED");
+  });
+
+  it("PACK-02: an ACTIVE pack with an empty categoryRules array fails and all 21 codes appear in the message", () => {
+    const pack = { ...loadFixture("missing-category.fixture.json"), categoryRules: [] };
+    const failure = expectFailure(() => assertActiveReady(pack));
+    expect(failure.code).toBe("MISSING_CATEGORY_RULES");
+    for (const code of EXPENSE_CATEGORY_CODES) {
+      expect(failure.message).toContain(code);
+    }
+  });
+
+  it("PACK-02: an ACTIVE pack with two rules for the same categoryCode fails with code DUPLICATE_CATEGORY_RULE naming the duplicated code, even though the code set is complete", () => {
+    const pack = loadFixture("duplicate-category.fixture.json");
+    // The fixture has 21 distinct codes present and 22 rules total — it
+    // would pass a naive `new Set(codes).size === 21` check and must still
+    // fail here.
+    const distinctCodes = new Set(pack.categoryRules.map((rule) => rule.categoryCode));
+    expect(distinctCodes.size).toBe(21);
+    expect(pack.categoryRules.length).toBe(22);
+
+    const failure = expectFailure(() => assertActiveReady(pack));
+    expect(failure.code).toBe("DUPLICATE_CATEGORY_RULE");
+    expect(failure.message).toContain("STAFF_TIME_SEARCH");
+  });
+
+  it("PACK-02: shuffling an otherwise-complete pack's categoryRules array does not change the verdict, and the missing-code list is reported in EXPENSE_CATEGORY_CODES declaration order regardless of file order", () => {
+    const pack = loadFixture("missing-category.fixture.json");
+    const shuffled = { ...pack, categoryRules: [...pack.categoryRules].reverse() };
+
+    const failure = expectFailure(() => assertActiveReady(shuffled));
+    expect(failure.code).toBe("MISSING_CATEGORY_RULES");
+    // OTHER_UNCLASSIFIED is the only missing code in this fixture, so the
+    // expected literal list has exactly one entry — still asserted as a
+    // literal array, not a mere substring containment.
+    expect(failure.message).toContain("missing categoryRules for: OTHER_UNCLASSIFIED");
+  });
+
+  it("PACK-02: a DRAFT pack missing a category does not fail this check — exhaustiveness is an ACTIVE precondition", () => {
+    const pack = loadFixture("missing-category.fixture.json");
+    const draftIncomplete = { ...pack, status: "DRAFT" as const };
+    expect(() => validateRulePack(draftIncomplete)).not.toThrow();
   });
 });
