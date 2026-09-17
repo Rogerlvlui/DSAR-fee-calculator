@@ -10,8 +10,13 @@
 //
 // 03-03 Task 1: PACK-02 (categoryRules exhaustiveness) proofs below follow
 // the same discipline — proven to fire against a fixture it must catch,
-// never inspecting a clean tree only. PACK-03's proofs land in the next
-// task, alongside the clean fixture that clears every ACTIVE bar.
+// never inspecting a clean tree only.
+//
+// 03-03 Task 2: PACK-03 (ACTIVE-readiness) proofs follow the same
+// discipline. The clean fixture that clears every ACTIVE bar
+// (active-ready.fixture.json) lands in Task 3; PACK-03's own tests below
+// stay self-contained by building a "clean-enough" base from
+// missing-reviewed-by.fixture.json plus PROTOTYPE_COUNSEL instead.
 
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -143,5 +148,94 @@ describe("assertActiveReady / validateRulePack (PACK-02: categoryRules exhaustiv
     const pack = loadFixture("missing-category.fixture.json");
     const draftIncomplete = { ...pack, status: "DRAFT" as const };
     expect(() => validateRulePack(draftIncomplete)).not.toThrow();
+  });
+});
+
+describe("assertActiveReady (PACK-03: ACTIVE-readiness — reviewer identity, review dates, unauthored content, unresearched constraints)", () => {
+  // missing-reviewed-by.fixture.json is otherwise a complete, 21/21,
+  // non-duplicated ACTIVE pack (only `reviewedBy` is null) — restoring
+  // `reviewedBy` gives a pack that clears PACK-02 and every PACK-03 check
+  // except whatever a given test deliberately breaks next. This keeps
+  // PACK-03's own tests self-contained rather than depending on Task 3's
+  // active-ready.fixture.json, which does not exist yet at this task.
+  async function cleanActiveBase() {
+    const { PROTOTYPE_COUNSEL } = await import("./prototype-counsel.ts");
+    const pack = loadFixture("missing-reviewed-by.fixture.json");
+    return { ...pack, reviewedBy: PROTOTYPE_COUNSEL };
+  }
+
+  it("PACK-03: an ACTIVE pack with reviewedBy: null fails with code MISSING_REVIEWER and the message names reviewedBy", () => {
+    const pack = loadFixture("missing-reviewed-by.fixture.json");
+    const failure = expectFailure(() => assertActiveReady(pack));
+    expect(failure.code).toBe("MISSING_REVIEWER");
+    expect(failure.message).toContain("reviewedBy");
+  });
+
+  it("PACK-03: an ACTIVE pack with reviewedOn: null fails with code MISSING_REVIEWER and the message names reviewedOn", async () => {
+    const pack = { ...(await cleanActiveBase()), reviewedOn: null };
+    const failure = expectFailure(() => assertActiveReady(pack));
+    expect(failure.code).toBe("MISSING_REVIEWER");
+    expect(failure.message).toContain("reviewedOn");
+  });
+
+  it("PACK-03: an ACTIVE pack with authoredBy: null fails with code MISSING_REVIEWER and the message names authoredBy", async () => {
+    const pack = { ...(await cleanActiveBase()), authoredBy: null };
+    const failure = expectFailure(() => assertActiveReady(pack));
+    expect(failure.code).toBe("MISSING_REVIEWER");
+    expect(failure.message).toContain("authoredBy");
+  });
+
+  it("PACK-03: an ACTIVE pack whose reviewDueOn is before its reviewedOn fails with code REVIEW_DUE_BEFORE_REVIEWED", async () => {
+    const pack = {
+      ...(await cleanActiveBase()),
+      reviewedOn: "2026-09-16",
+      reviewDueOn: "2026-09-15",
+    };
+    const failure = expectFailure(() => assertActiveReady(pack));
+    expect(failure.code).toBe("REVIEW_DUE_BEFORE_REVIEWED");
+  });
+
+  it("PACK-03: an ACTIVE pack whose reviewDueOn equals its reviewedOn does not throw REVIEW_DUE_BEFORE_REVIEWED — the boundary is inclusive", async () => {
+    const pack = {
+      ...(await cleanActiveBase()),
+      reviewedOn: "2026-09-16",
+      reviewDueOn: "2026-09-16",
+    };
+    expect(() => assertActiveReady(pack)).not.toThrow();
+  });
+
+  it("PACK-03: an ACTIVE pack with the UNAUTHORED token in one categoryRule's verificationNote fails with code UNAUTHORED_CONTENT naming that ruleId", () => {
+    const pack = loadFixture("unauthored-token.fixture.json");
+    const failure = expectFailure(() => assertActiveReady(pack));
+    expect(failure.code).toBe("UNAUTHORED_CONTENT");
+    expect(failure.ruleId).toBe("FIXTURE-UNAUTHORED-TOKEN.STAFF_TIME_COLLATE");
+    expect(failure.message).toContain("FIXTURE-UNAUTHORED-TOKEN.STAFF_TIME_COLLATE");
+  });
+
+  it("PACK-03: the UNAUTHORED token in requestorNoticeTemplate fails with code UNAUTHORED_CONTENT naming requestorNoticeTemplate", async () => {
+    const pack = {
+      ...(await cleanActiveBase()),
+      requestorNoticeTemplate: "UNAUTHORED — counsel must author this jurisdiction's requestor-facing notice.",
+    };
+    const failure = expectFailure(() => assertActiveReady(pack));
+    expect(failure.code).toBe("UNAUTHORED_CONTENT");
+    expect(failure.message).toContain("requestorNoticeTemplate");
+  });
+
+  it("PACK-03: an ACTIVE pack with any one constraints value null fails, produced by re-parsing with the frozen RulePackSchema, not a hand-written eleven-key check", async () => {
+    const pack = await cleanActiveBase();
+    const withNullConstraint = {
+      ...pack,
+      constraints: { ...pack.constraints, mayWithholdDataUntilPaid: null },
+    };
+    const failure = expectFailure(() => assertActiveReady(withNullConstraint));
+    expect(failure.code).toBe("UNRESEARCHED_CONSTRAINTS");
+    expect(failure.message).toContain("mayWithholdDataUntilPaid");
+  });
+
+  it("UserRefSchema.parse(PROTOTYPE_COUNSEL) succeeds", async () => {
+    const { UserRefSchema } = await import("@dsar/schemas/primitives");
+    const { PROTOTYPE_COUNSEL } = await import("./prototype-counsel.ts");
+    expect(() => UserRefSchema.parse(PROTOTYPE_COUNSEL)).not.toThrow();
   });
 });
