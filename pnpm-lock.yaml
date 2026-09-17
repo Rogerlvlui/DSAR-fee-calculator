@@ -97,6 +97,9 @@ importers:
 
   packages/rulepacks:
     dependencies:
+      '@dsar/engine':
+        specifier: workspace:*
+        version: link:../engine
       '@dsar/schemas':
         specifier: workspace:*
         version: link:../schemas
