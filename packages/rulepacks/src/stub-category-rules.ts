@@ -221,6 +221,25 @@ export const PACK_JURISDICTIONS: readonly PackJurisdiction[] = [
       "Worked pack. Most developed guidance of the nine. See §7.5. Public-sector posture not researched — the pack ships with `PUBLIC_AGENCY: 'NO_EXPRESS_AUTHORITY'` until counsel rules.",
     packKind: "authored",
   },
+  {
+    packId: "SG-PDPA",
+    jurisdictionCode: "SG",
+    jurisdictionName: "Singapore",
+    // PRD §7.6's three instruments, transcribed exactly.
+    instruments: [
+      { title: "Personal Data Protection Act 2012", provisions: ["s.21", "s.48H"] },
+      { title: "Personal Data Protection Regulations 2021", provisions: ["reg.7"] },
+      { title: "PDPC, Guide to Handling Access Requests", provisions: [], revised: "2020-10" },
+    ],
+    // PRD §7.6's own feePosture/appliesTo, printed directly.
+    feePosture: { PRIVATE_ORGANISATION: "PERMITTED_REASONABLE", PUBLIC_AGENCY: "NO_EXPRESS_AUTHORITY" },
+    appliesTo: ["PRIVATE_ORGANISATION"],
+    // PRD §7.4 Singapore note, transcribed verbatim with markdown emphasis
+    // markers removed.
+    authoringNote:
+      'Worked pack. Reg. 7 permits "a reasonable fee for services provided to the applicant to enable the organisation to respond". Written estimate before charging. PDPC may review reasonableness. See §7.6.',
+    packKind: "authored",
+  },
 ];
 
 export class UnknownPackJurisdictionError extends Error {

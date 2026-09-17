@@ -1,0 +1,377 @@
+{
+  "packId": "SG-PDPA",
+  "jurisdiction": {
+    "code": "SG",
+    "name": "Singapore"
+  },
+  "version": "2026.09.1",
+  "status": "DRAFT",
+  "authoredBy": null,
+  "reviewedBy": null,
+  "reviewedOn": null,
+  "reviewDueOn": "2027-03-12",
+  "instruments": [
+    {
+      "title": "Personal Data Protection Act 2012",
+      "provisions": ["s.21", "s.48H"]
+    },
+    {
+      "title": "Personal Data Protection Regulations 2021",
+      "provisions": ["reg.7"]
+    },
+    {
+      "title": "PDPC, Guide to Handling Access Requests",
+      "provisions": [],
+      "revised": "2020-10"
+    }
+  ],
+  "feePosture": {
+    "PRIVATE_ORGANISATION": "PERMITTED_REASONABLE",
+    "PUBLIC_AGENCY": "NO_EXPRESS_AUTHORITY"
+  },
+  "appliesTo": ["PRIVATE_ORGANISATION"],
+  "rateSanityCeiling": {
+    "ADMIN": 3000,
+    "EXECUTIVE": 5000,
+    "MANAGER": 9000
+  },
+  "constraints": {
+    "noChargeForMakingRequest": true,
+    "estimateRequiredBeforeCharging": true,
+    "feeNotificationDeadlineDays": null,
+    "deadlineBasis": "CALENDAR_DAYS",
+    "responseDeadlineDays": 30,
+    "advancePaymentPermitted": true,
+    "mayWithholdDataUntilPaid": true,
+    "profitElementPermitted": false,
+    "deterrentUsePermitted": false,
+    "regulatorMayReviewFee": true,
+    "aggregateCap": null
+  },
+  "categoryRules": [
+    {
+      "ruleId": "SG-PDPA.STAFF_TIME_SEARCH",
+      "categoryCode": "STAFF_TIME_SEARCH",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "Locating and retrieving the requested data is a service provided to the applicant to enable the organisation to respond.",
+      "citation": {
+        "instrument": "Personal Data Protection Regulations 2021",
+        "provision": "reg.7"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "Pending counsel's confirmation against reg. 7's 'services provided … to enable the organisation to respond' limb (§7.6)."
+    },
+    {
+      "ruleId": "SG-PDPA.STAFF_TIME_COLLATE",
+      "categoryCode": "STAFF_TIME_COLLATE",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "Compiling and paginating the response is likewise such a service.",
+      "citation": {
+        "instrument": "Personal Data Protection Regulations 2021",
+        "provision": "reg.7"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "Pending counsel's confirmation against reg. 7's 'services provided … to enable the organisation to respond' limb (§7.6)."
+    },
+    {
+      "ruleId": "SG-PDPA.STAFF_TIME_REDACT_THIRD_PARTY",
+      "categoryCode": "STAFF_TIME_REDACT_THIRD_PARTY",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Data Protection Act 2012",
+        "provision": "s.21"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Worked pack. Reg. 7 permits \"a reasonable fee for services provided to the applicant to enable the organisation to respond\". Written estimate before charging. PDPC may review reasonableness. See §7.6."
+    },
+    {
+      "ruleId": "SG-PDPA.STAFF_TIME_REDACT_EXEMPT",
+      "categoryCode": "STAFF_TIME_REDACT_EXEMPT",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Data Protection Act 2012",
+        "provision": "s.21"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Worked pack. Reg. 7 permits \"a reasonable fee for services provided to the applicant to enable the organisation to respond\". Written estimate before charging. PDPC may review reasonableness. See §7.6."
+    },
+    {
+      "ruleId": "SG-PDPA.STAFF_TIME_ASSESS_EXEMPTIONS",
+      "categoryCode": "STAFF_TIME_ASSESS_EXEMPTIONS",
+      "treatment": "DISALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "Time assessing whether an exception applies is the organisation's own compliance cost, not a service provided to the applicant.",
+      "citation": {
+        "instrument": "Personal Data Protection Regulations 2021",
+        "provision": "reg.7"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "Pending counsel's confirmation against reg. 7's 'services provided … to enable the organisation to respond' limb (§7.6)."
+    },
+    {
+      "ruleId": "SG-PDPA.STAFF_TIME_LEGAL_REVIEW",
+      "categoryCode": "STAFF_TIME_LEGAL_REVIEW",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Data Protection Act 2012",
+        "provision": "s.21"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Worked pack. Reg. 7 permits \"a reasonable fee for services provided to the applicant to enable the organisation to respond\". Written estimate before charging. PDPC may review reasonableness. See §7.6."
+    },
+    {
+      "ruleId": "SG-PDPA.PROFESSIONAL_REVIEW",
+      "categoryCode": "PROFESSIONAL_REVIEW",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Data Protection Act 2012",
+        "provision": "s.21"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Worked pack. Reg. 7 permits \"a reasonable fee for services provided to the applicant to enable the organisation to respond\". Written estimate before charging. PDPC may review reasonableness. See §7.6."
+    },
+    {
+      "ruleId": "SG-PDPA.PHOTOCOPY_PRINT",
+      "categoryCode": "PHOTOCOPY_PRINT",
+      "treatment": "ALLOW_WITH_CAP",
+      "cap": { "type": "PER_UNIT", "amount": 12, "unit": "PAGE" },
+      "conditions": [],
+      "basis": "Reproduction at a standard per-page rate not exceeding the entity's actual direct cost. The figure is entity-specific (§17 q.4).",
+      "citation": {
+        "instrument": "Personal Data Protection Regulations 2021",
+        "provision": "reg.7"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "Pending counsel's confirmation against reg. 7's 'services provided … to enable the organisation to respond' limb (§7.6)."
+    },
+    {
+      "ruleId": "SG-PDPA.MEDIA_MATERIALS",
+      "categoryCode": "MEDIA_MATERIALS",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Data Protection Act 2012",
+        "provision": "s.21"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Worked pack. Reg. 7 permits \"a reasonable fee for services provided to the applicant to enable the organisation to respond\". Written estimate before charging. PDPC may review reasonableness. See §7.6."
+    },
+    {
+      "ruleId": "SG-PDPA.POSTAGE_COURIER",
+      "categoryCode": "POSTAGE_COURIER",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Data Protection Act 2012",
+        "provision": "s.21"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Worked pack. Reg. 7 permits \"a reasonable fee for services provided to the applicant to enable the organisation to respond\". Written estimate before charging. PDPC may review reasonableness. See §7.6."
+    },
+    {
+      "ruleId": "SG-PDPA.SECURE_TRANSFER",
+      "categoryCode": "SECURE_TRANSFER",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Data Protection Act 2012",
+        "provision": "s.21"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Worked pack. Reg. 7 permits \"a reasonable fee for services provided to the applicant to enable the organisation to respond\". Written estimate before charging. PDPC may review reasonableness. See §7.6."
+    },
+    {
+      "ruleId": "SG-PDPA.IT_EXTRACTION",
+      "categoryCode": "IT_EXTRACTION",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Data Protection Act 2012",
+        "provision": "s.21"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Worked pack. Reg. 7 permits \"a reasonable fee for services provided to the applicant to enable the organisation to respond\". Written estimate before charging. PDPC may review reasonableness. See §7.6."
+    },
+    {
+      "ruleId": "SG-PDPA.VENDOR_PAYROLL",
+      "categoryCode": "VENDOR_PAYROLL",
+      "treatment": "ALLOW_IF",
+      "cap": null,
+      "conditions": [
+        { "field": "isThirdPartyInvoiced", "op": "eq", "value": true },
+        { "field": "evidenceRef", "op": "isNotNull" }
+      ],
+      "basis": "Out-of-pocket charge paid to a third party for data the employer does not hold, where invoiced and evidenced.",
+      "citation": {
+        "instrument": "Personal Data Protection Regulations 2021",
+        "provision": "reg.7"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "Pending counsel's confirmation against reg. 7's 'services provided … to enable the organisation to respond' limb (§7.6)."
+    },
+    {
+      "ruleId": "SG-PDPA.VENDOR_ARCHIVE",
+      "categoryCode": "VENDOR_ARCHIVE",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Data Protection Act 2012",
+        "provision": "s.21"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Worked pack. Reg. 7 permits \"a reasonable fee for services provided to the applicant to enable the organisation to respond\". Written estimate before charging. PDPC may review reasonableness. See §7.6."
+    },
+    {
+      "ruleId": "SG-PDPA.VENDOR_OTHER",
+      "categoryCode": "VENDOR_OTHER",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Data Protection Act 2012",
+        "provision": "s.21"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Worked pack. Reg. 7 permits \"a reasonable fee for services provided to the applicant to enable the organisation to respond\". Written estimate before charging. PDPC may review reasonableness. See §7.6."
+    },
+    {
+      "ruleId": "SG-PDPA.TRANSLATION",
+      "categoryCode": "TRANSLATION",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Data Protection Act 2012",
+        "provision": "s.21"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Worked pack. Reg. 7 permits \"a reasonable fee for services provided to the applicant to enable the organisation to respond\". Written estimate before charging. PDPC may review reasonableness. See §7.6."
+    },
+    {
+      "ruleId": "SG-PDPA.TRANSCRIPTION_CONVERSION",
+      "categoryCode": "TRANSCRIPTION_CONVERSION",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Data Protection Act 2012",
+        "provision": "s.21"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Worked pack. Reg. 7 permits \"a reasonable fee for services provided to the applicant to enable the organisation to respond\". Written estimate before charging. PDPC may review reasonableness. See §7.6."
+    },
+    {
+      "ruleId": "SG-PDPA.IDENTITY_VERIFICATION",
+      "categoryCode": "IDENTITY_VERIFICATION",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Data Protection Act 2012",
+        "provision": "s.21"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Worked pack. Reg. 7 permits \"a reasonable fee for services provided to the applicant to enable the organisation to respond\". Written estimate before charging. PDPC may review reasonableness. See §7.6."
+    },
+    {
+      "ruleId": "SG-PDPA.ADMIN_OVERHEAD",
+      "categoryCode": "ADMIN_OVERHEAD",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Data Protection Act 2012",
+        "provision": "s.21"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Worked pack. Reg. 7 permits \"a reasonable fee for services provided to the applicant to enable the organisation to respond\". Written estimate before charging. PDPC may review reasonableness. See §7.6."
+    },
+    {
+      "ruleId": "SG-PDPA.RECORDS_REMEDIATION",
+      "categoryCode": "RECORDS_REMEDIATION",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Data Protection Act 2012",
+        "provision": "s.21"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Worked pack. Reg. 7 permits \"a reasonable fee for services provided to the applicant to enable the organisation to respond\". Written estimate before charging. PDPC may review reasonableness. See §7.6."
+    },
+    {
+      "ruleId": "SG-PDPA.OTHER_UNCLASSIFIED",
+      "categoryCode": "OTHER_UNCLASSIFIED",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "Uncategorised cost. Counsel to determine whether it is a service provided to the applicant to enable the organisation to respond, per reg. 7.",
+      "citation": {
+        "instrument": "Personal Data Protection Regulations 2021",
+        "provision": "reg.7"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "Pending counsel's confirmation against reg. 7's 'services provided … to enable the organisation to respond' limb (§7.6)."
+    }
+  ],
+  "matterFlagRules": [
+    {
+      "flagId": "SG.WRITTEN_ESTIMATE",
+      "when": { "always": true },
+      "message": "A written estimate of the fee must be given to the applicant before the fee is charged. If the eventual fee will exceed the estimate, a further written estimate is required.",
+      "requiresAcknowledgement": false
+    },
+    {
+      "flagId": "SG.RESPOND_30_DAYS",
+      "when": { "always": true },
+      "message": "Respond within 30 days. If that is not possible, notify the applicant in writing of the time by which a response will be provided.",
+      "requiresAcknowledgement": false
+    },
+    {
+      "flagId": "SG.NOT_A_DETERRENT",
+      "when": { "always": true },
+      "message": "The fee must be reasonable and must not be used to discourage the applicant from pursuing the request. The Commission may review the reasonableness of the fee.",
+      "requiresAcknowledgement": false
+    }
+  ],
+  "requestorNoticeTemplate": "UNAUTHORED — counsel must author the requestor-facing fee notice for this jurisdiction before this pack can reach ACTIVE.",
+  "openQuestions": [
+    "Whether staff time is being costed at incremental cost or at a loaded charge-out rate. A loaded rate with a profit element is not defensible.",
+    "Whether any element of the claim relates to assessing exceptions rather than providing access.",
+    "SG-PDPA.PHOTOCOPY_PRINT carries no condition, unlike HK-PDPO's photocopy rule which conditions on unit eq PAGE — §7.6's table states no condition for this rule and carrying HK's over would be an unsourced inference (D-14). Counsel to confirm whether a condition is needed.",
+    "SG-PDPA.OTHER_UNCLASSIFIED's basis is composed from two PRD sources (§7.5's OTHER_UNCLASSIFIED sentence structure and §7.6's reg. 7 operative limb) rather than quoted from one, since §7.6 prints no basis for this rule while requiring it to exist as FLAG (AC-19). Counsel to confirm the composed wording."
+  ]
+}
