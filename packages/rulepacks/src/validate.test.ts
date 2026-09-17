@@ -13,17 +13,26 @@
 // never inspecting a clean tree only.
 //
 // 03-03 Task 2: PACK-03 (ACTIVE-readiness) proofs follow the same
-// discipline. The clean fixture that clears every ACTIVE bar
-// (active-ready.fixture.json) lands in Task 3; PACK-03's own tests below
-// stay self-contained by building a "clean-enough" base from
-// missing-reviewed-by.fixture.json plus PROTOTYPE_COUNSEL instead.
+// discipline. PACK-03's own tests stay self-contained by building a
+// "clean-enough" base from missing-reviewed-by.fixture.json plus
+// PROTOTYPE_COUNSEL, rather than depending on Task 3's fixture.
+//
+// 03-03 Task 3: active-ready.fixture.json is the one fixture that clears
+// every ACTIVE bar — a *shape* fixture with invented placeholder content
+// (it exercises the gate; it is not a jurisdiction and must never be
+// copied into a real pack directory). The tests below prove the clean
+// pass, the narrowing's no-null guarantee, first-failure-wins determinism
+// across a repeat run, and the declared check order against a literal
+// array.
 
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { EXPENSE_CATEGORY_CODES } from "@dsar/schemas/taxonomy";
+import { RulePackSchema } from "@dsar/schemas/rule-pack";
 import { loadRulePackFile } from "./loader.ts";
 import {
+  ACTIVE_READY_CHECK_ORDER,
   RulePackValidationFailure,
   assertActiveReady,
   findBannedWord,
@@ -237,5 +246,49 @@ describe("assertActiveReady (PACK-03: ACTIVE-readiness — reviewer identity, re
     const { UserRefSchema } = await import("@dsar/schemas/primitives");
     const { PROTOTYPE_COUNSEL } = await import("./prototype-counsel.ts");
     expect(() => UserRefSchema.parse(PROTOTYPE_COUNSEL)).not.toThrow();
+  });
+});
+
+describe("assertActiveReady (Task 3: the clean fixture, and the gate's determinism)", () => {
+  it("assertActiveReady on the clean fixture returns without throwing, and the returned value parses as RulePackSchema", () => {
+    const pack = loadFixture("active-ready.fixture.json");
+    const result = assertActiveReady(pack);
+    expect(RulePackSchema.safeParse(result).success).toBe(true);
+  });
+
+  it("the returned value's constraints are all booleans or non-null values — no null survives the narrowing", () => {
+    const pack = loadFixture("active-ready.fixture.json");
+    const result = assertActiveReady(pack);
+    for (const value of Object.values(result.constraints)) {
+      expect(value).not.toBeNull();
+    }
+  });
+
+  it("a pack failing two checks at once reports the earlier check in the declared order, and reports the same one on a repeat run", () => {
+    const pack = loadFixture("active-ready.fixture.json");
+    const brokenPack = {
+      ...pack,
+      reviewedBy: null,
+      categoryRules: pack.categoryRules.slice(0, 20),
+    };
+
+    const first = expectFailure(() => assertActiveReady(brokenPack));
+    const second = expectFailure(() => assertActiveReady(brokenPack));
+
+    // Exhaustiveness (CATEGORY_RULES_EXHAUSTIVENESS) precedes reviewer
+    // identity in ACTIVE_READY_CHECK_ORDER, so MISSING_CATEGORY_RULES is
+    // the reported failure, not MISSING_REVIEWER.
+    expect(first.code).toBe("MISSING_CATEGORY_RULES");
+    expect(second.code).toBe(first.code);
+  });
+
+  it("the declared check-order constant matches a literal expected array — reordering the checks is a deliberate, reviewed change", () => {
+    expect(ACTIVE_READY_CHECK_ORDER).toEqual([
+      "CATEGORY_RULES_EXHAUSTIVENESS",
+      "REVIEWER_IDENTITY",
+      "REVIEW_DATE_COHERENCE",
+      "UNAUTHORED_CONTENT",
+      "UNRESEARCHED_CONSTRAINTS",
+    ]);
   });
 });
