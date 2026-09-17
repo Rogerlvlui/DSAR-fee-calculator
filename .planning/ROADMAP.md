@@ -121,7 +121,7 @@ Gate integrity: every gate this phase adds ships with a fixture it must catch an
   4. From `/admin/rulepacks` an author sees live validation, a 21/21 completeness checklist, a diff against the previous version, and an activation gate demanding reviewer identity and a review-due date — and activating a version they last edited is blocked unless they hold `RULEPACK_AUTHOR` and confirm sole authorship, which is audited (AC-41a)
   5. Activating a new version leaves every existing assessment's pinned version, verdicts and amounts untouched (AC-40), and an attempt to rewrite an already-ACTIVE version's content is refused at the database rather than by service-layer discipline
 
-**Plans**: 4/5 plans executed across 3 waves
+**Plans**: 5/5 plans executed across 3 waves
 **UI hint**: no — the `/admin/rulepacks` screen moved to Phase 3.2 with PACK-06 and PACK-07 (D-20)
 
 Plans:
@@ -137,7 +137,7 @@ Plans:
 
 **Wave 3** *(blocked on 03-01, 03-02)*
 
-- [ ] 03-05-PLAN.md — HK-PDPO and SG-PDPA authored to the extent the PRD supplies content, plus the D-22 flat-fee extension
+- [x] 03-05-PLAN.md — HK-PDPO and SG-PDPA authored to the extent the PRD supplies content, plus the D-22 flat-fee extension
 
 Scope discipline (D-20, decided after research): **PACK-06, PACK-07 and the `/admin/rulepacks` screen moved to Phase 3.2**, alongside the Docker-dependent work already waiting there — `apps/web` does not exist and Docker is unavailable, so Success Criteria 4 and 5 have neither a shell to build into nor a database to refuse at. They are relocated, not dropped, and must not be marked satisfied by anything Phase 3 builds. D-21 already settles how PACK-07's audit events are stored when it is planned there: a separate append-only stream keyed to `RulePackVersion`, not a widened `AuditEvent`.
 
@@ -282,7 +282,7 @@ Where capacity allows, Phases 2, 3, 4 and 5 may run concurrently — they have z
 |-------|----------------|--------|-----------|
 | 1. Schemas Freeze and Walking Skeleton | 6/6 | Complete    | 2026-09-15 |
 | 2. Deterministic Fee Engine | 7/7 | Complete    | 2026-09-16 |
-| 3. Rule Packs and Pack Admin | 4/5 | In Progress|  |
+| 3. Rule Packs and Pack Admin | 5/5 | Plans complete — pending phase verification |  |
 | 3.1 Demo Slice — In-Memory Determination Pipeline | 0/TBD | Not started | - |
 | 3.2 Database Boundary and Audit Immutability | 0/3 | Planned (inherited from Phase 1) | - |
 | 4. Workflow and Audit Backbone | 0/TBD | Not started | - |

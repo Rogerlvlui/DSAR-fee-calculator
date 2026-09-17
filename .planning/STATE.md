@@ -3,16 +3,16 @@ gsd_state_version: "1.0"
 current_phase: 03
 current_phase_name: Rule Packs and Pack Admin
 status: executing
-stopped_at: Completed 03-04-PLAN.md
-last_updated: "2026-09-17T22:14:00.000Z"
+stopped_at: Completed 03-05-PLAN.md
+last_updated: "2026-09-17T22:12:19.000Z"
 last_activity: 2026-09-17
-last_activity_desc: Phase 03 plan 4 (PACK-04 staleness derivation, PACK-05 version pinning) completed
-state_head: fa085d877e558b71a3516e4e1cd866fa884af0d9
+last_activity_desc: Phase 03 plan 5 (HK-PDPO/SG-PDPA reference packs, D-22 flat-fee extension, PACK-09/PACK-12 assertions) completed — last plan in Phase 3, pending phase verification
+state_head: a845be2
 progress:
   total_phases: 10
   completed_phases: 0
   total_plans: 21
-  completed_plans: 17
+  completed_plans: 18
   percent: 0
 ---
 
@@ -27,10 +27,10 @@ See: .planning/PROJECT.md (updated 2026-09-13)
 
 ## Current Position
 
-Phase: 03 (Rule Packs and Pack Admin) — EXECUTING
-Plan: 5 of 5
-Status: Ready to execute
-Last activity: 2026-09-17 — Completed 03-04-PLAN.md (PACK-04 staleness derivation, PACK-05 version pinning)
+Phase: 03 (Rule Packs and Pack Admin) — PLANS COMPLETE, PENDING PHASE VERIFICATION
+Plan: 5 of 5 (last plan in phase)
+Status: All 5 plans executed; orchestrator to run phase verification separately
+Last activity: 2026-09-17 — Completed 03-05-PLAN.md (HK-PDPO/SG-PDPA reference packs, D-22 flat-fee extension, PACK-09/PACK-12 assertions)
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -76,6 +76,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 03 P02 | 15min | 3 tasks | 9 files |
 | Phase 03 P03 | 50min | 3 tasks | 8 files |
 | Phase 03 P04 | 35min | 2 tasks | 10 files |
+| Phase 03 P05 | 30min | 3 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -131,6 +132,9 @@ Recent decisions affecting current work:
 - [Phase 03]: [Phase 03 P03]: flatFee.verificationNote deliberately NOT scanned by the D-15 unauthored-token check — FlatFeeSchema has no such field yet; that extension (D-22) is scheduled for plan 03-05, which also owns packages/schemas/src/rule-pack.ts's next change. Flagged in validate.ts and 03-03-SUMMARY.md for 03-05 to pick up
 - [Phase 03]: [Phase 03 P03]: gsd-tools.cjs unavailable in this worktree — TDD tasks committed as implementation+tests together (each verified failing-for-the-right-reason before finalizing) rather than separate RED/GREEN commits; STATE.md/ROADMAP.md/REQUIREMENTS.md updated manually (sequential mode, no gsd_run)
 - [Phase 03]: [Phase 03]: [Phase 03 P02]: Task 3's RED phase used a deliberately-inverted assertion (.not.toBe(147)) rather than corrupting committed pack data, extending 03-01's no-manufactured-defects precedent to data-generation TDD tasks
+- [Phase 03]: [Phase 03 P05]: HK-PDPO and SG-PDPA committed by transcription only — 9/21 (HK) and 6/15 (SG) categoryRules authored from PRD §7.5/§7.6, remaining 12/15 as generateStubCategoryRules() placeholders; FlatFeeSchema.verificationNote (D-22) lets HK's flatFee.amount:0 carry the UNAUTHORED marker; PACK-12 marked complete in REQUIREMENTS.md (structural half genuinely discharged), PACK-09 deliberately left Pending (D-16 defers full 21-category authoring + ACTIVE to before Phase 6)
+- [Phase 03]: [Phase 03 P05]: assertActiveReady's actual thrown code for both reference packs is MISSING_REVIEWER, not the plan-stated UNAUTHORED_CONTENT — authoredBy/reviewedBy/reviewedOn transcribed as null per PRD, and REVIEWER_IDENTITY (03-03) runs before UNAUTHORED_CONTENT in ACTIVE_READY_CHECK_ORDER; test asserts the real, verified code (Rule 1 deviation, documented in 03-05-SUMMARY.md)
+- [Phase 03]: [Phase 03 P05]: validate.ts's assertNoUnauthoredContent still does NOT scan flatFee.verificationNote — flagged in 03-03-SUMMARY as deferred here once the field existed, but adding the scan touches validate.ts, outside this plan's declared files (Task 1 only widens rule-pack.ts); recommend a Phase 3.2/Phase 6 follow-up task
 
 ### Pending Todos
 
@@ -145,6 +149,8 @@ None yet.
 - Plan 03-05 must extend validate.ts's assertNoUnauthoredContent to scan flatFee.verificationNote once it adds that field to FlatFeeSchema (D-22) — 03-03 could not implement this channel since the field doesn't exist within 03-03's dependency scope (depends only on 03-01). No committed pack currently sets flatFee, so this is not yet a live gap.
 - gsd-tools.cjs was not found anywhere under this worktree during 03-03/03-04 execution — if this recurs in later plans, TDD RED-evidence checks and state/roadmap updates will again need to be done manually
 - PACK-04's HTTP half (409 refusal on a stale pack, in-flight-review full-width notice) and PACK-05's assessment-side half (AC-40's "existing assessment untouched by new activation") remain undischarged after 03-04 — both need a route/review screen (Phases 5/6) or persisted assessments (Phase 3.2) that do not exist yet. REQUIREMENTS.md correctly still shows both Pending.
+- Phase 3's last plan (03-05) is complete — all 5/5 plans executed — but PACK-09 remains genuinely Pending: only 9/21 (HK) and 6/15 (SG) categoryRules are authored, per D-16's deliberate deferral of full 21-category authoring across both reference packs to before Phase 6's convergence gate. This is the schedule long pole PROJECT.md already flags; not a new blocker, but now the only Phase 3 in-scope requirement still open.
+- validate.ts's assertNoUnauthoredContent does not yet scan flatFee.verificationNote, even though HK-PDPO's flatFee.verificationNote carries the UNAUTHORED token today — assertActiveReady still refuses HK-PDPO via MISSING_REVIEWER (reviewer fields are null), so no live gap in current behavior, but the scan should be added (touches packages/rulepacks/src/validate.ts) before HK-PDPO's reviewer fields are ever set, so a real flat-fee figure cannot slip through unscanned.
 
 ### Roadmap Evolution
 
@@ -160,6 +166,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-09-17T22:14:00.000Z
-Stopped at: Completed 03-04-PLAN.md
+Last session: 2026-09-17T22:12:19.000Z
+Stopped at: Completed 03-05-PLAN.md — last plan in Phase 3; orchestrator to run phase verification next
 Resume file: None
