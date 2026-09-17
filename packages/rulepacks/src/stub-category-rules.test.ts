@@ -132,3 +132,16 @@ describe("PACK-10: newly committed jurisdictions load (03-02 Task 2)", () => {
     expect(pack!.jurisdiction.code).toBe("IN");
   });
 });
+
+// 03-05 Task 2: HK-PDPO is a packKind: "authored" row in the SAME
+// PACK_JURISDICTIONS table (D-19's own reasoning — no second table). Its
+// twelve UNAUTHORED_TOKEN-bearing rules are already covered by the drift
+// test above (tokenBearingRules() filters by marker, not by pack); this
+// loadability check follows the same per-packId pattern the 03-02 rows use.
+describe("PACK-09: HK-PDPO reference pack is loadable (03-05 Task 2)", () => {
+  it("HK-PDPO is loadable with jurisdiction.code HK", () => {
+    const pack = loadAllRulePacks().find((p) => p.packId === "HK-PDPO");
+    expect(pack).toBeDefined();
+    expect(pack!.jurisdiction.code).toBe("HK");
+  });
+});

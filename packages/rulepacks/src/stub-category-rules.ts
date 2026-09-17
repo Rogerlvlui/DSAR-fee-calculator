@@ -187,6 +187,40 @@ export const PACK_JURISDICTIONS: readonly PackJurisdiction[] = [
       "We identified no controller-side access fee. Default: no fee. Commencement is phased — the pack must record which provisions counsel considers in force as at `reviewedOn`.",
     packKind: "stub",
   },
+  {
+    packId: "HK-PDPO",
+    jurisdictionCode: "HK",
+    jurisdictionName: "Hong Kong SAR",
+    // PRD §7.5's two instruments, transcribed exactly. instruments[0] here
+    // must equal the pack JSON's own instruments[0] (plan 03-05 Task 2) —
+    // generateStubCategoryRules() builds its placeholder citation from this
+    // row's instruments[0], and the two must agree.
+    instruments: [
+      {
+        title: "Personal Data (Privacy) Ordinance (Cap. 486)",
+        provisions: ["s.19", "s.28(2)", "s.28(3)", "DPP6"],
+      },
+      {
+        title:
+          "PCPD, Proper Handling of Data Access Request and Charging of Data Access Request Fee by Data Users",
+        provisions: [],
+        revised: "2020-07",
+      },
+    ],
+    // PRD §7.5's own feePosture/appliesTo, printed directly (not the
+    // PROHIBITED-exclusion derivation PD-3 applies to the seven stub rows —
+    // HK's PUBLIC_AGENCY posture is NO_EXPRESS_AUTHORITY, not PROHIBITED,
+    // so §7.5's own narrower appliesTo is transcribed as printed rather than
+    // derived (PD-5 iii, flagged in the pack's own openQuestions)).
+    feePosture: { PRIVATE_ORGANISATION: "PERMITTED_NOT_EXCESSIVE", PUBLIC_AGENCY: "NO_EXPRESS_AUTHORITY" },
+    appliesTo: ["PRIVATE_ORGANISATION"],
+    // PRD §7.4 Hong Kong note, transcribed verbatim with markdown emphasis
+    // markers (**...**) removed; backticks retained (03-02 precedent — code
+    // references, not stylistic emphasis).
+    authoringNote:
+      "Worked pack. Most developed guidance of the nine. See §7.5. Public-sector posture not researched — the pack ships with `PUBLIC_AGENCY: 'NO_EXPRESS_AUTHORITY'` until counsel rules.",
+    packKind: "authored",
+  },
 ];
 
 export class UnknownPackJurisdictionError extends Error {
