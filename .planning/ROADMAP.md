@@ -132,7 +132,7 @@ Plans:
 **Wave 2** *(blocked on 03-01)*
 
 - [x] 03-02-PLAN.md — The six remaining stub jurisdictions, generated from their own §7.4 rows and drift-guarded
-- [ ] 03-03-PLAN.md — ACTIVE-readiness: 21-code exhaustiveness, reviewer identity and review dates, no unauthored content, no unresearched constraint
+- [x] 03-03-PLAN.md — ACTIVE-readiness: 21-code exhaustiveness, reviewer identity and review dates, no unauthored content, no unresearched constraint
 - [ ] 03-04-PLAN.md — Derived staleness on the engine's calendar, and deterministic pinned-version resolution
 
 **Wave 3** *(blocked on 03-01, 03-02)*
@@ -282,7 +282,7 @@ Where capacity allows, Phases 2, 3, 4 and 5 may run concurrently — they have z
 |-------|----------------|--------|-----------|
 | 1. Schemas Freeze and Walking Skeleton | 6/6 | Complete    | 2026-09-15 |
 | 2. Deterministic Fee Engine | 7/7 | Complete    | 2026-09-16 |
-| 3. Rule Packs and Pack Admin | 2/5 | In Progress|  |
+| 3. Rule Packs and Pack Admin | 3/5 | In Progress|  |
 | 3.1 Demo Slice — In-Memory Determination Pipeline | 0/TBD | Not started | - |
 | 3.2 Database Boundary and Audit Immutability | 0/3 | Planned (inherited from Phase 1) | - |
 | 4. Workflow and Audit Backbone | 0/TBD | Not started | - |

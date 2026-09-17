@@ -50,8 +50,8 @@
 ### Rule packs
 
 - [x] **PACK-01**: Packs load from repository JSON, validate against the schema, and fail the build on any error (AC-37)
-- [ ] **PACK-02**: Every `ExpenseCategoryCode` resolves to a `CategoryRule` for every `ACTIVE` pack, and a missing category fails pack validation at build time rather than flagging at runtime (AC-10)
-- [ ] **PACK-03**: A pack cannot reach `ACTIVE` without `reviewedBy`, `reviewedOn`, `reviewDueOn`, and all 21 categories authored (AC-38)
+- [x] **PACK-02**: Every `ExpenseCategoryCode` resolves to a `CategoryRule` for every `ACTIVE` pack, and a missing category fails pack validation at build time rather than flagging at runtime (AC-10)
+- [x] **PACK-03**: A pack cannot reach `ACTIVE` without `reviewedBy`, `reviewedOn`, `reviewDueOn`, and all 21 categories authored (AC-38)
 - [ ] **PACK-04**: A pack past `reviewDueOn` is `STALE` — new matters in that jurisdiction are refused with 409 naming the reason, while in-flight review continues under a full-width notice and the extended attestation (AC-39)
 - [ ] **PACK-05**: Activating a new pack version does not alter any existing assessment's pinned version, verdicts or amounts (AC-40)
 - [ ] **PACK-06**: A pack version's content is frozen once `ACTIVE`; any change requires a new version, enforced at the database rather than by service-layer discipline *(decision: PROJECT.md — gap AC-40 does not cover)*
@@ -270,8 +270,8 @@ Every v1 requirement maps to exactly one phase in `.planning/ROADMAP.md`.
 | ENGINE-16 | Phase 2 | Complete |
 | ENGINE-17 | Phase 2 | Complete |
 | PACK-01 | Phase 3 | Complete |
-| PACK-02 | Phase 3 | Pending |
-| PACK-03 | Phase 3 | Pending |
+| PACK-02 | Phase 3 | Complete |
+| PACK-03 | Phase 3 | Complete |
 | PACK-04 | Phase 3 | Pending |
 | PACK-05 | Phase 3 | Pending |
 | PACK-06 | Phase 3.2 | Pending |
