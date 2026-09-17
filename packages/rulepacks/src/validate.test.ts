@@ -231,6 +231,23 @@ describe("assertActiveReady (PACK-03: ACTIVE-readiness — reviewer identity, re
     expect(failure.message).toContain("requestorNoticeTemplate");
   });
 
+  it("PACK-03: the UNAUTHORED token in flatFee.verificationNote fails with code UNAUTHORED_CONTENT naming flatFee", async () => {
+    const { toMinor } = await import("@dsar/schemas/primitives");
+    const pack = {
+      ...(await cleanActiveBase()),
+      flatFee: {
+        amount: toMinor(0),
+        basis: "No flat-fee figure is given in the source specification for this jurisdiction.",
+        citation: { instrument: "FIXTURE", provision: "" },
+        verificationStatus: "NEEDS_VERIFICATION" as const,
+        verificationNote: "UNAUTHORED — counsel must set the entity-specific figure before activation.",
+      },
+    };
+    const failure = expectFailure(() => assertActiveReady(pack));
+    expect(failure.code).toBe("UNAUTHORED_CONTENT");
+    expect(failure.message).toContain("flatFee");
+  });
+
   it("PACK-03: an ACTIVE pack with any one constraints value null fails, produced by re-parsing with the frozen RulePackSchema, not a hand-written eleven-key check", async () => {
     const pack = await cleanActiveBase();
     const withNullConstraint = {

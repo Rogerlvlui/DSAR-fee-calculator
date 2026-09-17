@@ -182,12 +182,10 @@ function assertReviewDateCoherence(pack: LoadableRulePack): void {
 // D-15: the UNAUTHORED_TOKEN marker, scanned across every authored text
 // channel. First match throws, naming the ruleId or field it was found in.
 //
-// NOTE: `flatFee.verificationNote` is NOT scanned here. `FlatFeeSchema`
-// (packages/schemas/src/rule-pack.ts) does not yet carry a `verificationNote`
-// field — D-22's flat-fee UNAUTHORED-token channel is scheduled to land in
-// plan 03-05 alongside the HK-PDPO pack that is this schema's only consumer.
-// When that field lands, add a `pack.flatFee?.verificationNote` check here,
-// in the same declared order, rather than a second token scan.
+// `flatFee.verificationNote` (D-22, landed in plan 03-05) is scanned here
+// too, in the same declared order as the other two channels — see 03-05's
+// SUMMARY.md "Next Phase Readiness" note, which flagged this scan as a
+// live, not-yet-wired gap once the field existed.
 function assertNoUnauthoredContent(pack: LoadableRulePack): void {
   for (const rule of pack.categoryRules) {
     if (rule.verificationNote !== null && rule.verificationNote.startsWith(UNAUTHORED_TOKEN)) {
@@ -205,6 +203,18 @@ function assertNoUnauthoredContent(pack: LoadableRulePack): void {
       "UNAUTHORED_CONTENT",
       pack.packId,
       `Pack "${pack.packId}" requestorNoticeTemplate still carries the ${UNAUTHORED_TOKEN} token`
+    );
+  }
+
+  if (
+    pack.flatFee != null &&
+    pack.flatFee.verificationNote !== null &&
+    pack.flatFee.verificationNote.startsWith(UNAUTHORED_TOKEN)
+  ) {
+    throw new RulePackValidationFailure(
+      "UNAUTHORED_CONTENT",
+      pack.packId,
+      `Pack "${pack.packId}" flatFee verificationNote still carries the ${UNAUTHORED_TOKEN} token`
     );
   }
 }
