@@ -16,7 +16,7 @@
     {
       "number": "3",
       "name": "Rule Packs and Pack Admin",
-      "status": "in_progress"
+      "status": "complete"
     },
     {
       "number": "3.1",
@@ -56,8 +56,8 @@
   ],
   "next": {
     "command": "/gsd:progress --next",
-    "label": "Advance to the next step",
-    "reason": "Phase 03 of 10 · 0% · executing"
+    "label": "Advance to the next step (plan phase 03.1)",
+    "reason": "Phase 03.1 of 10 — needs a plan"
   },
-  "updated_at": "2026-09-16T05:00:15.870Z"
+  "updated_at": "2026-09-17T16:13:09.745Z"
 }
