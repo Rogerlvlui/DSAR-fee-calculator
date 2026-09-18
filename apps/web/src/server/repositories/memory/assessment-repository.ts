@@ -38,4 +38,24 @@ export const memoryAssessmentRepository: AssessmentRepository = {
     );
     return assessment ? structuredClone(assessment) : null;
   },
+
+  async listInfoRequests(matterId) {
+    return [...demoStore.infoRequests.values()]
+      .filter((request) => request.matterId === matterId)
+      .map((request) => structuredClone(request));
+  },
+
+  async appendInfoRequest(request) {
+    const copy = structuredClone(request);
+    demoStore.infoRequests.set(copy.id, copy);
+    return structuredClone(copy);
+  },
+
+  async clearInfoRequests(matterId) {
+    for (const [id, request] of demoStore.infoRequests) {
+      if (request.matterId === matterId) {
+        demoStore.infoRequests.delete(id);
+      }
+    }
+  },
 };

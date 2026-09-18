@@ -14,6 +14,7 @@ import "../server-only.ts";
 import type { Matter } from "@dsar/schemas/matter";
 import type { ExpenseLine } from "@dsar/schemas/expense-line";
 import type { Assessment } from "@dsar/schemas/assessment";
+import type { InfoRequest } from "../../domain/info-request.ts";
 
 export interface MatterRepository {
   createMatter(matter: Matter): Promise<Matter>;
@@ -34,4 +35,14 @@ export interface AssessmentRepository {
   // assessment LINE id (from its own path segment), not the assessment id
   // it belongs to — this is the lookup that resolves one from the other.
   findByLineId(assessmentLineId: string): Promise<Assessment | null>;
+
+  // Added in Plan 03.1-04, Task 2 — the first extension of this interface
+  // after Plan 01: the information-request collection Ask HR needs. Kept in
+  // the same vocabulary style as the methods above (plain domain types in,
+  // plain domain types out) rather than letting a storage-specific shape
+  // leak into the signature. `InfoRequest` is deliberately NOT a
+  // @dsar/schemas type — see apps/web/src/domain/info-request.ts's own note.
+  listInfoRequests(matterId: string): Promise<InfoRequest[]>;
+  appendInfoRequest(request: InfoRequest): Promise<InfoRequest>;
+  clearInfoRequests(matterId: string): Promise<void>;
 }

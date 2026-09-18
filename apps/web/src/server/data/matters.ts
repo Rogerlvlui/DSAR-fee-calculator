@@ -16,6 +16,7 @@ import { ConflictError, NotFoundError, ValidationError } from "../errors.ts";
 import { requireRole, type DemoActor } from "./auth.ts";
 import { memoryMatterRepository } from "../repositories/memory/matter-repository.ts";
 import { memoryAssessmentRepository } from "../repositories/memory/assessment-repository.ts";
+import type { InfoRequest } from "../../domain/info-request.ts";
 
 export interface CreateMatterInput {
   reference: string;
@@ -211,4 +212,118 @@ export async function submitForAssessment(actor: DemoActor, matterId: string): P
     await memoryMatterRepository.updateMatter({ ...matter, status: "DRAFT" });
     throw error;
   }
+}
+
+// ---------------------------------------------------------------------------
+// resubmitAfterInfoRequest — the in-place recompute (PRD §5's mirror-image
+// rule)
+// ---------------------------------------------------------------------------
+
+// Requires the HR-preparer role, refuses unless the matter is in the
+// information-requested state, transitions to COMPUTING, re-runs
+// assessMatter() over the CURRENT lines, and then — the part that is easy
+// to get backwards — stores the new result under the EXISTING assessment's
+// identifier, overwriting its content. The engine derives its own
+// identifier from its inputs; that derived id is deliberately discarded in
+// favour of the one already on file, so this recompute mutates the
+// existing Assessment in place (same id) rather than creating a second
+// record — a different frozen lifecycle status, reserved for a correction
+// made after sign-off, exists for that other case; this recompute runs
+// strictly before sign-off and never touches that status at all.
+// assessMatter() itself starts every line PENDING with no lawyer amount,
+// reason, actor or timestamp, so nothing from the old dispositions can
+// survive the overwrite.
+export async function resubmitAfterInfoRequest(actor: DemoActor, matterId: string): Promise<Assessment> {
+  requireRole(actor, "HR_PREPARER");
+
+  const matter = await memoryMatterRepository.getMatter(matterId);
+  if (!matter) throw new NotFoundError(`No matter with id '${matterId}'`);
+  if (matter.status !== "INFO_REQUEST") {
+    throw new ConflictError(`Matter '${matterId}' is not awaiting information (currently ${matter.status})`);
+  }
+
+  const existing = await memoryAssessmentRepository.getAssessmentByMatterId(matterId);
+  if (!existing) throw new NotFoundError(`No assessment found for matter '${matterId}'`);
+
+  assertTransition("INFO_REQUEST", "COMPUTING");
+  await memoryMatterRepository.updateMatter({ ...matter, status: "COMPUTING" });
+
+  const lines = await memoryMatterRepository.listExpenseLines(matterId);
+  const recomputed = assessMatter({ matter, lines });
+  // See module note above: the derived id is discarded in favour of the
+  // existing one on purpose — do not "fix" this to use recomputed.id.
+  const updatedAssessment: Assessment = { ...recomputed, id: existing.id };
+  await memoryAssessmentRepository.updateAssessment(updatedAssessment);
+
+  assertTransition("COMPUTING", "LEGAL_REVIEW");
+  await memoryMatterRepository.updateMatter({ ...matter, status: "LEGAL_REVIEW" });
+
+  await memoryAssessmentRepository.clearInfoRequests(matterId);
+
+  return updatedAssessment;
+}
+
+// ---------------------------------------------------------------------------
+// The HR-scoped status read + markNoticeSent (PRD §10.4)
+// ---------------------------------------------------------------------------
+
+export interface HrMatterStatusView {
+  matter: Matter;
+  infoRequests: InfoRequest[];
+}
+
+// Returns the matter's status and any outstanding information requests but
+// NEVER an assessment — PRD §0 non-negotiable #2, enforced here rather than
+// by hiding a link. The HR result page calls this first and only reaches
+// for the (refusing) assessment read once status is SIGNED_OFF.
+export async function getHrMatterStatus(actor: DemoActor, matterId: string): Promise<HrMatterStatusView> {
+  requireRole(actor, "HR_PREPARER");
+
+  const matter = await memoryMatterRepository.getMatter(matterId);
+  if (!matter) throw new NotFoundError(`No matter with id '${matterId}'`);
+
+  const infoRequests =
+    matter.status === "INFO_REQUEST" ? await memoryAssessmentRepository.listInfoRequests(matterId) : [];
+
+  return { matter, infoRequests };
+}
+
+// Demo-scoped notice-sent ledger. Neither Matter nor Assessment (both
+// frozen, additive-only, and out of this plan's scope to reopen) carries a
+// field for this one side-fact — PRD §10.4 asks only that the date be
+// recorded, and the closing transition belongs to Phase 7, which owns the
+// outputs. Anchored to globalThis for the same Fast-Refresh-survival reason
+// apps/web/src/server/repositories/memory/store.ts's demoStore is.
+declare global {
+  // eslint-disable-next-line no-var
+  var __dsarNoticeSentAt: Map<string, string> | undefined;
+}
+const noticeSentAtByMatterId: Map<string, string> =
+  globalThis.__dsarNoticeSentAt ?? (globalThis.__dsarNoticeSentAt = new Map());
+
+// Requires the HR-preparer role, refuses unless the matter is signed off,
+// and records the date. It sends nothing — there is no outbound email of
+// any kind anywhere in this system (NS-3), which is why the boundary note
+// above this control exists.
+export async function markNoticeSent(
+  actor: DemoActor,
+  matterId: string
+): Promise<{ matterId: string; noticeSentAt: string }> {
+  requireRole(actor, "HR_PREPARER");
+
+  const matter = await memoryMatterRepository.getMatter(matterId);
+  if (!matter) throw new NotFoundError(`No matter with id '${matterId}'`);
+  if (matter.status !== "SIGNED_OFF") {
+    throw new ConflictError(
+      `Matter '${matterId}' is not signed off (currently ${matter.status}) — cannot mark notice sent`
+    );
+  }
+
+  const noticeSentAt = new Date().toISOString();
+  noticeSentAtByMatterId.set(matterId, noticeSentAt);
+  return { matterId, noticeSentAt };
+}
+
+export function getNoticeSentAt(matterId: string): string | null {
+  return noticeSentAtByMatterId.get(matterId) ?? null;
 }

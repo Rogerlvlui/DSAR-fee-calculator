@@ -10,11 +10,15 @@ import "../../server-only.ts";
 import type { Matter } from "@dsar/schemas/matter";
 import type { ExpenseLine } from "@dsar/schemas/expense-line";
 import type { Assessment } from "@dsar/schemas/assessment";
+import type { InfoRequest } from "../../../domain/info-request.ts";
 
 interface DemoStore {
   matters: Map<string, Matter>;
   expenseLines: Map<string, ExpenseLine>;
   assessments: Map<string, Assessment>;
+  // Added in Plan 03.1-04, Task 2 — keyed by InfoRequest.id, same deep-copy
+  // discipline as the other three collections.
+  infoRequests: Map<string, InfoRequest>;
 }
 
 declare global {
@@ -28,4 +32,5 @@ export const demoStore: DemoStore =
     matters: new Map(),
     expenseLines: new Map(),
     assessments: new Map(),
+    infoRequests: new Map(),
   });
