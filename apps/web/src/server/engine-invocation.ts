@@ -29,8 +29,8 @@ export const DEMO_PACK_ID = "SG-PDPA";
 export const DEMO_PACK_VERSION = "2026.09.1";
 
 // Everything the UI renders about the pack's real, uncoerced standing (the
-// status strip, the capability statement) reads this function's return
-// value directly — never the coerced copy below.
+// status strip, the first-use notice) reads this function's return value
+// directly — never the coerced copy below.
 export function loadDemoPack(): LoadableRulePack {
   return resolveRulePack(DEMO_PACK_ID, DEMO_PACK_VERSION, resolveRulepacksRoot());
 }
