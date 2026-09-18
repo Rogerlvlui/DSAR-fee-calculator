@@ -12,7 +12,7 @@ import type { Assessment } from "@dsar/schemas/assessment";
 import { newUlid } from "../ids.ts";
 import { assertTransition } from "../state.ts";
 import { assessMatter } from "../engine-invocation.ts";
-import { NotFoundError, ValidationError } from "../errors.ts";
+import { ConflictError, NotFoundError, ValidationError } from "../errors.ts";
 import { requireRole, type DemoActor } from "./auth.ts";
 import { memoryMatterRepository } from "../repositories/memory/matter-repository.ts";
 import { memoryAssessmentRepository } from "../repositories/memory/assessment-repository.ts";
@@ -63,6 +63,12 @@ export interface AddExpenseLineInput {
   quantity: number;
   unit: ExpenseLine["unit"];
   unitRate: number;
+  // Optional, defense-in-depth only (T-03.1-09): the real intake form never
+  // sends this — the server always derives it from quantity * unitRate. A
+  // crafted request that supplies a disagreeing value is caught by
+  // ExpenseLineSchema's own claimedAmount invariant below and refused with
+  // 400, never silently recomputed and stored.
+  claimedAmount?: number;
   incurredByGrade?: ExpenseLine["incurredByGrade"];
   isThirdPartyInvoiced: boolean;
   vendorName?: string | null;
@@ -92,9 +98,10 @@ export async function addExpenseLine(
     unit: input.unit,
     unitRate: input.unitRate,
     // The schema's quantity * unitRate invariant is checked, not assumed —
-    // computed here from the same input values the schema will re-derive
-    // and compare against.
-    claimedAmount: input.quantity * input.unitRate,
+    // a legitimate caller omits claimedAmount and this derives it; a
+    // crafted request that supplies a disagreeing value is passed through
+    // unchanged so ExpenseLineSchema's superRefine rejects it (T-03.1-09).
+    claimedAmount: input.claimedAmount ?? input.quantity * input.unitRate,
     incurredByGrade: input.incurredByGrade ?? null,
     isThirdPartyInvoiced: input.isThirdPartyInvoiced,
     vendorName: input.vendorName ?? null,
@@ -103,6 +110,70 @@ export async function addExpenseLine(
   });
 
   return memoryMatterRepository.addExpenseLine(line);
+}
+
+// Refuses unless the matter is still DRAFT — a signal that has already been
+// submitted for review must not have its lines edited underneath the
+// lawyer's read (T-03.1-10). Recomputes claimedAmount the same
+// omit-to-derive way addExpenseLine does.
+export async function replaceExpenseLine(
+  actor: DemoActor,
+  matterId: string,
+  lineId: string,
+  input: AddExpenseLineInput
+): Promise<ExpenseLine> {
+  requireRole(actor, "HR_PREPARER");
+
+  const matter = await memoryMatterRepository.getMatter(matterId);
+  if (!matter) throw new NotFoundError(`No matter with id '${matterId}'`);
+  if (matter.status !== "DRAFT") {
+    throw new ConflictError(
+      `Matter '${matterId}' is not in DRAFT (currently ${matter.status}) — its lines are locked`
+    );
+  }
+
+  const existingLines = await memoryMatterRepository.listExpenseLines(matterId);
+  const existing = existingLines.find((candidate) => candidate.id === lineId);
+  if (!existing) throw new NotFoundError(`No expense line with id '${lineId}' on matter '${matterId}'`);
+
+  const line = ExpenseLineSchema.parse({
+    id: lineId,
+    matterId,
+    seq: existing.seq,
+    categoryCode: input.categoryCode,
+    description: input.description,
+    quantity: input.quantity,
+    unit: input.unit,
+    unitRate: input.unitRate,
+    claimedAmount: input.claimedAmount ?? input.quantity * input.unitRate,
+    incurredByGrade: input.incurredByGrade ?? null,
+    isThirdPartyInvoiced: input.isThirdPartyInvoiced,
+    vendorName: input.vendorName ?? null,
+    evidenceRef: input.evidenceRef ?? null,
+    hrNote: input.hrNote ?? null,
+  });
+
+  return memoryMatterRepository.replaceExpenseLine(line);
+}
+
+// Same DRAFT-only refusal as replaceExpenseLine, for the same reason
+// (T-03.1-10).
+export async function deleteExpenseLine(actor: DemoActor, matterId: string, lineId: string): Promise<void> {
+  requireRole(actor, "HR_PREPARER");
+
+  const matter = await memoryMatterRepository.getMatter(matterId);
+  if (!matter) throw new NotFoundError(`No matter with id '${matterId}'`);
+  if (matter.status !== "DRAFT") {
+    throw new ConflictError(
+      `Matter '${matterId}' is not in DRAFT (currently ${matter.status}) — its lines are locked`
+    );
+  }
+
+  const existingLines = await memoryMatterRepository.listExpenseLines(matterId);
+  const existing = existingLines.find((candidate) => candidate.id === lineId);
+  if (!existing) throw new NotFoundError(`No expense line with id '${lineId}' on matter '${matterId}'`);
+
+  await memoryMatterRepository.deleteExpenseLine(matterId, lineId);
 }
 
 // The pipeline: assert the matter is DRAFT, assert at least one expense line
