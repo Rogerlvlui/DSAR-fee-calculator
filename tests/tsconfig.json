@@ -22,20 +22,28 @@
   // file outside "include" is still TS6307 even once it satisfies rootDir.
   // apps/web is otherwise typechecked on its own via
   // `tsc -p apps/web/tsconfig.json` (see that file's own note, "bundler"
-  // resolution); these two globs cover exactly the route handlers and
-  // server/data-layer modules tests/routes/*.test.ts imports, under this
+  // resolution); these entries cover exactly the route handlers,
+  // server/data-layer modules and (03.1-02) the three HR intake
+  // presentational components that tests/routes/*.test.ts and
+  // tests/boundary/dom-denylist.test.ts import directly, under this
   // project's inherited "nodenext" resolution. Deliberately NOT
-  // "../apps/web/app/**" or "../apps/web/src/**" wholesale: those also match
-  // apps/web/src/server/current-actor.ts, apps/web/app/layout.tsx and the
-  // page.tsx files, none of which any routes test imports, and
-  // current-actor.ts's "next/headers" import does not resolve under
-  // "nodenext" (next ships no "exports" map) the way it does under
-  // apps/web/tsconfig.json's "bundler" resolution.
+  // "../apps/web/app/**", "../apps/web/src/**" or even
+  // "../apps/web/src/ui/intake/**" wholesale: those also match
+  // apps/web/src/server/current-actor.ts, apps/web/app/layout.tsx, the
+  // page.tsx files and apps/web/src/ui/intake/intake-form.tsx, none of
+  // which any test in this project imports directly — and
+  // current-actor.ts's "next/headers" import (like intake-form.tsx's
+  // "next/navigation") does not resolve under "nodenext" (next ships no
+  // "exports" map) the way it does under apps/web/tsconfig.json's
+  // "bundler" resolution.
   "include": [
     "**/*.ts",
     "**/*.tsx",
     "../apps/web/app/api/**/*.ts",
-    "../apps/web/src/server/**/*.ts"
+    "../apps/web/src/server/**/*.ts",
+    "../apps/web/src/ui/intake/matter-details-fields.tsx",
+    "../apps/web/src/ui/intake/attestations-panel.tsx",
+    "../apps/web/src/ui/intake/expense-line-repeater.tsx"
   ],
   "exclude": ["node_modules", "../apps/web/src/server/current-actor.ts"]
 }
