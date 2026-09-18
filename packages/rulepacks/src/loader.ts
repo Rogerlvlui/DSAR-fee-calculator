@@ -13,6 +13,7 @@
 
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { LoadableRulePackSchema, type LoadableRulePack } from "@dsar/schemas/rule-pack";
 
 // Directories under the package root that are never pack directories.
@@ -21,7 +22,16 @@ import { LoadableRulePackSchema, type LoadableRulePack } from "@dsar/schemas/rul
 const NON_PACK_DIRECTORIES = new Set(["src", "scripts", "node_modules", "dist"]);
 
 // packages/rulepacks/ — one level up from this file's own `src/` directory.
-export const RULEPACKS_ROOT = path.resolve(import.meta.dirname, "..");
+// `import.meta.url` + fileURLToPath, not `import.meta.dirname` directly:
+// Turbopack's dev-mode module evaluation leaves `import.meta.dirname`
+// undefined in some import contexts (WINDOWS.md entry 2), throwing at this
+// line the moment anything imports this module — even apps/web, which
+// never reads RULEPACKS_ROOT itself (it walks up from process.cwd() via
+// resolveRulepacksRoot() instead, precisely to sidestep a bundler-relative
+// path). `import.meta.url` is the older, more universally-supported ESM
+// primitive this replaces `import.meta.dirname` with; same value, computed
+// a different way.
+export const RULEPACKS_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 export function loadRulePackFile(filePath: string): LoadableRulePack {
   const raw = readFileSync(filePath, "utf-8");
