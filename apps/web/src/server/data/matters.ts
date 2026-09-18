@@ -327,3 +327,30 @@ export async function markNoticeSent(
 export function getNoticeSentAt(matterId: string): string | null {
   return noticeSentAtByMatterId.get(matterId) ?? null;
 }
+
+export interface ReviewableMatterView {
+  matter: Matter;
+  assessmentId: string;
+}
+
+// Added post-plan (03.1-REVIEW.md UNREG-1, security audit finding): the
+// legal worklist page originally called the memory repositories directly,
+// with no role check anywhere — the sole exception to this phase's
+// otherwise-universal "requireRole() as the first statement of every
+// data-layer function" pattern. This function closes that gap the same way
+// every other legal-side read does.
+export async function listReviewableMatters(actor: DemoActor): Promise<ReviewableMatterView[]> {
+  requireRole(actor, "LEGAL_REVIEWER");
+
+  const matters = await memoryMatterRepository.listMatters();
+  const reviewable = matters.filter(
+    (matter) => matter.status === "LEGAL_REVIEW" || matter.status === "SIGNED_OFF"
+  );
+
+  const views: ReviewableMatterView[] = [];
+  for (const matter of reviewable) {
+    const assessment = await memoryAssessmentRepository.getAssessmentByMatterId(matter.id);
+    if (assessment) views.push({ matter, assessmentId: assessment.id });
+  }
+  return views;
+}

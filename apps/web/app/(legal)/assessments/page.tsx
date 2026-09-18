@@ -6,23 +6,18 @@
 // to a presenter: there was no working path from HR intake to legal review.
 // A worklist a lawyer scans and clicks into is also the architecturally
 // honest shape — in the real product Legal is never handed an id by HR.
+//
+// Reads through getCurrentActor() + listReviewableMatters(), the same
+// role-checked-DAL pattern every other page/route in this phase uses —
+// this page's first cut called the memory repositories directly with no
+// role check at all (security audit finding UNREG-1); fixed post-plan.
 
-import { memoryMatterRepository } from "../../../src/server/repositories/memory/matter-repository.ts";
-import { memoryAssessmentRepository } from "../../../src/server/repositories/memory/assessment-repository.ts";
+import { getCurrentActor } from "../../../src/server/current-actor.ts";
+import { listReviewableMatters } from "../../../src/server/data/matters.ts";
 
 export default async function AssessmentsListPage() {
-  const matters = await memoryMatterRepository.listMatters();
-  const reviewable = matters.filter(
-    (matter) => matter.status === "LEGAL_REVIEW" || matter.status === "SIGNED_OFF"
-  );
-
-  const rows = await Promise.all(
-    reviewable.map(async (matter) => {
-      const assessment = await memoryAssessmentRepository.getAssessmentByMatterId(matter.id);
-      return assessment ? { matter, assessment } : null;
-    })
-  );
-  const entries = rows.filter((row): row is NonNullable<typeof row> => row !== null);
+  const actor = await getCurrentActor();
+  const entries = await listReviewableMatters(actor);
 
   return (
     <main>
@@ -33,9 +28,9 @@ export default async function AssessmentsListPage() {
         </p>
       ) : (
         <ul data-testid="assessments-list">
-          {entries.map(({ matter, assessment }) => (
-            <li key={assessment.id}>
-              <a href={`/legal/assessments/${assessment.id}`}>
+          {entries.map(({ matter, assessmentId }) => (
+            <li key={assessmentId}>
+              <a href={`/legal/assessments/${assessmentId}`}>
                 {matter.reference} — {matter.status === "SIGNED_OFF" ? "Signed off" : "Awaiting review"}
               </a>
             </li>

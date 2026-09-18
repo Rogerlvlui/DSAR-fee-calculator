@@ -60,11 +60,7 @@
     // (03.1-01) renders page.tsx files there rather than under "web".
     "../apps/web/app/layout.tsx",
     "../apps/web/src/ui/chrome/app-header.tsx",
-    "../apps/web/src/ui/chrome/demo-banner.tsx",
-    // CR-01 fix: tests/routes/assessments-list.test.ts renders the legal
-    // worklist page directly, same "routes" node-environment reasoning as
-    // layout.tsx above (it transitively reaches server-only.ts).
-    "../apps/web/app/(legal)/assessments/page.tsx"
+    "../apps/web/src/ui/chrome/demo-banner.tsx"
   ],
   "exclude": ["node_modules", "../apps/web/src/server/current-actor.ts"]
 }
