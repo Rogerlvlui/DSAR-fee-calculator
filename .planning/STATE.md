@@ -3,17 +3,17 @@ gsd_state_version: "1.0"
 current_phase: "03.1"
 current_phase_name: Demo Slice — In-Memory Determination Pipeline
 status: executing
-stopped_at: Completed 03.1-04-PLAN.md (Tasks 1-3 executed)
-last_updated: "2026-09-18T07:51:33.222Z"
+stopped_at: Completed 03.1-05-PLAN.md (Tasks 1-3 executed, plus a Rule 1 deviation ahead of Task 1) — phase 03.1 all 5 plans complete, awaiting phase verification
+last_updated: "2026-09-18T18:00:00.000Z"
 last_activity: 2026-09-18
-last_activity_desc: Plan 03.1-04 complete — sign-off gate and attestation, the Ask HR/INFO_REQUEST branch with its in-place recompute, and the HR result screen (figure, struck lines, honest notice draft)
-state_head: 0ddf0e1f041417a44ca7baaebd49e8adc3b1ca16
+last_activity_desc: Plan 03.1-05 complete — SignOffPanel/Ask HR wired into the legal review page (WINDOWS.md entries 5-6 closed), README/DEMO-WALKTHROUGH.md docs, the five-honesty-properties HONESTY test suite, and the end-to-end WALKTHROUGH test. Phase 03.1 (5/5 plans) complete.
+state_head: 40aca11
 progress:
   total_phases: 10
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 26
-  completed_plans: 22
-  percent: 30
+  completed_plans: 23
+  percent: 40
 ---
 
 # Project State
@@ -23,16 +23,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-13)
 
 **Core value:** A lawyer can defend the output by saying "the engine applied rule HK-PDPO.STAFF_TIME_REDACT_EXEMPT, version 2026.09.1, authored by X on date Y, and struck the line" — never "the model assessed the claim."
-**Current focus:** Phase 03.1 — Demo Slice — In-Memory Determination Pipeline
+**Current focus:** Phase 03.1 — Demo Slice — In-Memory Determination Pipeline (complete; next: phase verification, then Phase 03.2)
 
 ## Current Position
 
 Phase: 03.1 — Demo Slice — In-Memory Determination Pipeline
-Plan: 04 of 5 complete (wave 3 of 4)
-Status: Executing — Plan 03.1-04 (sign-off, Ask HR/info-request, HR result screen) done, wave 3 complete, ready for wave 4 (Plan 03.1-05)
-Last activity: 2026-09-18 — Plan 03.1-04 complete: signOff() gate (six ordered refusals, the only write of finalAmount), the §9.5 attestation renderer, the Ask-HR/INFO_REQUEST branch with its in-place recompute (same assessment id, every disposition cleared), and the HR result screen (fee headline, struck lines with basis, never the lawyer's reasoning, and a notice draft that admits its wording is unauthored)
+Plan: 05 of 5 complete (wave 4 of 4) — phase complete
+Status: Executing — Plan 03.1-05 done; all 5 plans / 4 waves of Phase 03.1 complete. Awaiting phase verification (orchestrator).
+Last activity: 2026-09-18 — Plan 03.1-05 complete: closed the SignOffPanel/Ask-HR wiring gap (WINDOWS.md entries 5-6), added README.md's "Running the demo" section and docs/DEMO-WALKTHROUGH.md, the HONESTY test suite (coercion isolation, banned-word scan, layout marker position, four rendered-screen assertions), the end-to-end WALKTHROUGH test (hand-computed final amount 46640, HR refusal-then-success ordering, one-assessment-per-matter invariant, cross-run independence), and closed out 03.1-VALIDATION.md's Per-Task Verification Map (every row green except the one genuinely manual presenter click-path).
 
-Progress: [███░░░░░░░] 30%
+Progress: [████░░░░░░] 40%
 
 ## Performance Metrics
 
@@ -49,7 +49,7 @@ Progress: [███░░░░░░░] 30%
 | 1 | 6 | - | - |
 | 02 | 7 | - | - |
 | 3 | 5 | - | - |
-| 03.1 | 2/5 | - | - |
+| 03.1 | 5/5 | - | - |
 
 **Recent Trend:**
 
@@ -83,6 +83,7 @@ Progress: [███░░░░░░░] 30%
 | Phase 03.1 P02 | 30min | 3 tasks | 20 files |
 | Phase 03.1 P03 | 55min | 3 tasks | 26 files |
 | Phase 03.1 P04 | 75min | 3 tasks | 26 files |
+| Phase 03.1 P05 | 90min | 3 tasks | 15 files |
 
 ## Accumulated Context
 
@@ -157,6 +158,10 @@ Recent decisions affecting current work:
 - [Phase 03.1]: [Phase 03.1 P04]: attestationText is computed via the shared renderAttestation() and returned in signOff()'s response, never persisted on SignOffSchema — the frozen schema carries only attestationVersion + the affirmed boolean, per Phase 1's own recorded-verbatim-by-version design
 - [Phase 03.1]: [Phase 03.1 P04]: apps/web/src/server/state.ts extended with LEGAL_REVIEW->SIGNED_OFF, LEGAL_REVIEW->INFO_REQUEST, INFO_REQUEST->COMPUTING — a Rule 3 deviation beyond this plan's own declared file list, since dispositionLine/bulkAcceptLines/signOff all need the same INFO_REQUEST precondition
 - [Phase 03.1]: [Phase 03.1 P04]: resubmitAfterInfoRequest overwrites the existing assessment under its existing id, discarding the engine's own derived id — exactly one assessment exists per matter after a recompute, matching PRD section5's mirror-image rule
+- [Phase 03.1]: [Phase 03.1 P05]: SignOffPanel/Ask-HR wiring gap (WINDOWS.md entries 5-6) closed as a Rule 1 deviation ahead of Task 1 — assessment-view.tsx gained an optional signOffPanel composition slot; the legal review page computes the sign-off preview from the SAME pure modules (computeReviewTallies/computeFinalAmount/renderAttestation) signOff() itself calls
+- [Phase 03.1]: [Phase 03.1 P05]: the totals-rail headline does not track the lawyer's live dispositions before sign-off — it shows draftBaseline as a placeholder until signOff() writes finalAmount; documented explicitly in docs/DEMO-WALKTHROUGH.md rather than asserting the wrong figure
+- [Phase 03.1]: [Phase 03.1 P05]: @dsar/rulepacks added to the ROOT package.json (previously only an apps/web dependency) — a repo-root-level test file importing @dsar/rulepacks/validate directly cannot resolve it through apps/web's own node_modules symlink
+- [Phase 03.1]: [Phase 03.1 P05]: the layout-marker-position honesty assertion runs under the node "routes" Vitest project, not the jsdom "web" one — rendering the real root layout under jsdom trips apps/web/src/server/server-only.ts's window-guard exactly as designed
 
 ### Pending Todos
 
@@ -174,7 +179,8 @@ None yet.
 - Phase 3's last plan (03-05) is complete — all 5/5 plans executed — but PACK-09 remains genuinely Pending: only 9/21 (HK) and 6/15 (SG) categoryRules are authored, per D-16's deliberate deferral of full 21-category authoring across both reference packs to before Phase 6's convergence gate. This is the schedule long pole PROJECT.md already flags; not a new blocker, but now the only Phase 3 in-scope requirement still open.
 - validate.ts's assertNoUnauthoredContent does not yet scan flatFee.verificationNote, even though HK-PDPO's flatFee.verificationNote carries the UNAUTHORED token today — assertActiveReady still refuses HK-PDPO via MISSING_REVIEWER (reviewer fields are null), so no live gap in current behavior, but the scan should be added (touches packages/rulepacks/src/validate.ts) before HK-PDPO's reviewer fields are ever set, so a real flat-fee figure cannot slip through unscanned.
 - **`pnpm dev`/`next build` currently fail** — discovered via a voluntary smoke test during 03.1-01, recorded as WINDOWS.md ledger entries 2 and 3 (open_count is 2, not 0): (1) `packages/rulepacks/src/loader.ts`'s `RULEPACKS_ROOT` throws under Turbopack's page-data collection (`import.meta.dirname` undefined there) — a frozen Phase 3 file, out of 03.1-01's scope, needs a product-owner decision; (2) no `@tailwindcss/postcss` plugin is registered anywhere, so `apps/web/app/globals.css`'s `@theme` block is inert in a real build — fixing this needs a new package install, which requires its own package-legitimacy checkpoint (like Task 0's ulid one) before any later plan runs `pnpm add @tailwindcss/postcss`. **Resolve both before Plan 03.1-02 starts** — otherwise every subsequent plan's UI work accumulates on a stylesheet Tailwind isn't processing, and the actual stakeholder demo cannot run.
-- SignOffPanel (03.1-04) is not yet rendered on the legal review page, and disposition-controls.tsx's Ask HR button stays hardcoded disabled even though askHr()'s backend works — both outside 03.1-04's declared file list, recorded in WINDOWS.md entries 5-6, and squarely Plan 05's integration-pass scope
+- ~~SignOffPanel (03.1-04) is not yet rendered on the legal review page, and disposition-controls.tsx's Ask HR button stays hardcoded disabled~~ — **resolved in Plan 03.1-05** (WINDOWS.md entries 5-6 marked fixed): both are now wired into the actual legal review page.
+- Phase 03.1 is now complete (5/5 plans) but its manual click-through row (03.1-VALIDATION.md's 05-manual) has never actually been run — `pnpm dev`/`next build` still cannot start on this build machine (WINDOWS.md entries 2-4, still open). A product-owner decision on the frozen Phase 3 `RULEPACKS_ROOT`/Turbopack issue and the Tailwind/Lightning-CSS native-binary crash is the prerequisite before that one manual row can move from "not run" to genuinely verified.
 
 ### Roadmap Evolution
 
@@ -190,6 +196,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-09-18T07:51:08.785Z
-Stopped at: Completed 03.1-04-PLAN.md (Tasks 1-3 executed)
+Last session: 2026-09-18T18:00:00.000Z
+Stopped at: Completed 03.1-05-PLAN.md (Tasks 1-3 executed, plus a Rule 1 deviation ahead of Task 1) — Phase 03.1 complete, awaiting phase verification
 Resume file: None
