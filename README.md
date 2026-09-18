@@ -2,7 +2,7 @@
 
 A tool for deciding — defensibly, consistently, and in minutes rather than hours — what fee an employer may lawfully charge a former employee who has made a data subject access request.
 
-> **Status: specification only.** There is no application code in this repository yet. What exists is a complete, build-ready PRD and a UI mockup. See [Current state](#current-state).
+> **Status: demo slice built.** `packages/schemas`, `packages/engine`, `packages/rulepacks` and a first `apps/web` slice (Phase 03.1 — an in-memory, no-database demo pipeline for a stakeholder presentation) exist and are tested. See [Running the demo](#running-the-demo) to start it, and [Current state](#current-state) for what is and is not built yet.
 
 ## The problem
 
@@ -54,6 +54,57 @@ A stub pack is unusable until counsel authors it. That is the intended behaviour
 
 > **The repository ships drafts, not legal advice.** Every posture and category treatment in the PRD is a starting point for the authoring lawyer, not a determination. Nothing activates until named local counsel has confirmed or corrected it and is recorded in the pack — a pack cannot reach `ACTIVE` while its `authoredBy` and `reviewedBy` fields are empty.
 
+## Running the demo
+
+Phase 03.1 built an in-memory, no-database demo slice of `apps/web` for a stakeholder
+presentation: HR intake → legal review → sign-off → HR result, running the real
+`packages/engine` against the real committed Singapore pack, with no persistence layer
+behind it. This is the fastest way to see the product work; it is not the pilot-ready build
+(see [Current state](#current-state) for what that still needs).
+
+**Prerequisites:** Node satisfying this repository's `engines.node` field (`>=20.9.0`), and
+the exact package manager pinned in `package.json`'s `packageManager` field — **pnpm
+11.27.0, not the 12.x line**, which crashes with `SIGILL` on at least one build machine this
+project has run on (see `.claude/CLAUDE.md`'s Key Decisions).
+
+```bash
+pnpm install
+pnpm dev
+```
+
+The app serves on **http://localhost:3000**.
+
+**Not required, explicitly:**
+- No database — matters and assessments live in an in-memory store for the life of the
+  process.
+- No Docker — nothing in this phase runs in a container.
+- No network — the dev server disables Next's telemetry ping (`apps/web/scripts/dev.mjs`)
+  and no font or asset is fetched remotely.
+- No environment file — no `.env` of any kind is read to start this demo.
+
+**What this demo honestly is not, yet:**
+- **No persistent data.** Everything typed into it is lost on restart or on any code
+  change during `pnpm dev` — there is a permanent on-screen marker saying so.
+- **The rule pack it computes against is a draft**, and the status strip on every screen
+  says so — the engine computes against an in-memory copy coerced to `ACTIVE` for this
+  demo only; the committed pack file itself is never edited and stays `DRAFT`.
+- **The audit backbone is not yet wired.** Phase 4 delivers the append-only log; this
+  demo's sign-off action does not write one.
+- **Identity is stubbed.** There is no real login — a cookie-based role switcher stands in
+  for HR/Legal identity, and the demo says so on every screen it switches on.
+
+**One figure that looks wrong and is not:** the review screen's "resting on unverified
+rules" figure equals the *entire* supported baseline (SGD 266.40 for the reference
+fixture), not the smaller figure PRD §14's own worked example publishes. This is the
+correct output of the real, committed `SG-PDPA/2026.09.1.json` pack as authored today —
+every one of its relevant category rules is still marked `NEEDS_VERIFICATION`, not a defect
+in the engine or this demo. PRD §14's worked example assumed two of six rules were already
+verified; none are yet. The bulk-accept control on the review screen reads `(0)` for the
+same reason — see `docs/DEMO-WALKTHROUGH.md` for a full run of the numbers.
+
+See `docs/DEMO-WALKTHROUGH.md` for a presenter's script: the six reference cost lines to
+type in, the path through every screen, and the exact figures to expect at each stage.
+
 ## Current state
 
 ```
@@ -64,15 +115,24 @@ Prompt for new PRD Sep 7.docx                the brief that produced the PRD
 CLAUDE.md                                    working instructions for coding agents
 ```
 
-No `package.json`, build tooling, or source tree exists yet, so there is nothing to install or run. The PRD is written to be built from directly, in a binding order:
+The PRD is written to be built from directly, in a binding order:
 
-1. `packages/schemas` — types and zod validators. Nothing else compiles until these exist.
-2. `packages/engine` — the deterministic evaluator, with its golden-file tests alongside.
-3. `packages/rulepacks` — the nine packs, plus loader and validator.
-4. `apps/web` — the four screens, against the Annex A mockup.
-5. `packages/agent` — the LLM boundary. **Last.** Everything must work with the model stubbed out.
+1. `packages/schemas` — types and zod validators. Nothing else compiles until these exist. **Built.**
+2. `packages/engine` — the deterministic evaluator, with its golden-file tests alongside. **Built.**
+3. `packages/rulepacks` — the nine packs, plus loader and validator. **Built** — Hong Kong and Singapore are
+   fully worked reference packs; the other seven are correct-posture stubs, unusable until counsel authors
+   them.
+4. `apps/web` — the four production screens, against the Annex A mockup. **Not yet built.** A separate,
+   demo-only slice (Phase 03.1 — see [Running the demo](#running-the-demo)) exists for a stakeholder
+   presentation ahead of the pilot build: it runs the real engine and the real Singapore pack, but with no
+   database, no persistence, no audit log, and stubbed identity, and completing no `INTAKE-*`/`REVIEW-*`/
+   `DISC-*` requirement the production screens still owe.
+5. `packages/agent` — the LLM boundary. **Last, not yet built.** Everything must work with the model stubbed
+   out.
 
-Suggested stack: TypeScript, Postgres, Prisma, Next.js, Tailwind, Vitest, Playwright. Deviation is fine; the package boundaries are not.
+Stack actually in use: TypeScript, Postgres (Phase 3.2+), Prisma, Next.js 16, Tailwind v4, Vitest, pnpm
+workspaces. Playwright is installed but not yet configured against `apps/web`. Deviation from any of this is
+fine; the package boundaries are not.
 
 ## Reading the spec
 
