@@ -71,6 +71,13 @@ export interface AssessmentViewProps {
    * never import this module either. */
   renderLineControls?: (assessmentLineId: string) => ReactNode;
   bulkAcceptBar?: ReactNode;
+  /** The sign-off panel, composed by the caller (Plan 05's integration
+   * pass) exactly the way renderLineControls/bulkAcceptBar already are —
+   * this module still never imports apps/web/src/server, and
+   * signoff-panel.tsx never imports this module either. Rendered only once
+   * the caller itself has decided every line is decided (this component
+   * does not re-derive that condition). */
+  signOffPanel?: ReactNode;
 }
 
 export function AssessmentView({
@@ -83,6 +90,7 @@ export function AssessmentView({
   pack,
   renderLineControls,
   bulkAcceptBar,
+  signOffPanel,
 }: AssessmentViewProps) {
   const detailByLineId = new Map(lineDetails.map((detail) => [detail.assessmentLineId, detail]));
   const sortedLines = [...assessment.lines].sort(compareByVerdict);
@@ -143,6 +151,7 @@ export function AssessmentView({
       </div>
 
       <TotalsRail assessment={assessment} currency={currency} />
+      {signOffPanel}
     </div>
   );
 }

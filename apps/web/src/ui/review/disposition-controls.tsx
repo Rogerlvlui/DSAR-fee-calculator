@@ -11,9 +11,10 @@
 // (`router.refresh()`) rather than computing a new total locally — the
 // browser must never derive a figure the server has not blessed.
 //
-// "Ask HR" is rendered (the card must be complete) but is permanently
-// disabled this plan: Plan 04 owns the INFO_REQUEST transition behind it,
-// per this plan's own assumptions.
+// "Ask HR" (FLAG lines only) posts to the info-request route with the same
+// reason field used for every other action, treated as the lawyer's query —
+// wired in Plan 05's integration pass (WINDOWS.md entry 5); askHr() and its
+// route have existed since Plan 04.
 //
 // Split in two, following apps/web/src/ui/intake/intake-form.tsx's own
 // precedent for a stateful, `useRouter()`-calling component: `useRouter()`
@@ -92,6 +93,11 @@ export interface DispositionControlsViewProps {
   onReasonChange: (value: string) => void;
   onAmountChange: (value: string) => void;
   onSubmit: (action: DispositionAction) => void;
+  /** FLAG lines only. Optional so this module's own colocated test (which
+   * renders every verdict without passing this) keeps compiling — the
+   * button still renders either way, disabled while pending, a no-op click
+   * when absent. */
+  onAskHr?: () => void;
 }
 
 /** Pure, props-driven — no fetch, no router, no internal state. This is
@@ -107,6 +113,7 @@ export function DispositionControlsView({
   onReasonChange,
   onAmountChange,
   onSubmit,
+  onAskHr,
 }: DispositionControlsViewProps) {
   const actions = VERDICT_ACTIONS[verdict];
 
@@ -152,15 +159,16 @@ export function DispositionControlsView({
         )}
 
         {verdict === "FLAG" ? (
-          // Rendered so the card is complete (PRD §10.3), permanently
-          // disabled this plan — Plan 04 wires the INFO_REQUEST transition
-          // behind it.
+          // The reason field above doubles as the lawyer's query: askHr()
+          // (apps/web/src/server/data/assessments.ts) applies the same
+          // minimum-length rule to it that every other disposition reason
+          // gets.
           <button
             type="button"
             data-testid="disposition-action"
             data-action="ask-hr"
-            disabled
-            title="Coming in a later plan"
+            disabled={pending}
+            onClick={() => onAskHr?.()}
           >
             Ask HR
           </button>
@@ -198,6 +206,10 @@ export interface DispositionControlsProps {
   assessmentLineId: string;
   verdict: Verdict;
   currency: CurrencyCode;
+  /** The matter this line's assessment belongs to — only used to build the
+   * Ask HR request's URL path; askHr() itself resolves the matter from the
+   * line id, the same lookup dispositionLine() already uses. */
+  matterId: string;
   /** External/test-driven in-flight flag — ORed with this component's own
    * submitting state. */
   pending?: boolean;
@@ -207,6 +219,7 @@ export function DispositionControls({
   assessmentLineId,
   verdict,
   currency,
+  matterId,
   pending: externalPending = false,
 }: DispositionControlsProps) {
   const router = useRouter();
@@ -240,6 +253,26 @@ export function DispositionControls({
     }
   }
 
+  async function handleAskHr() {
+    setAttemptedSubmit(true);
+    if (!hasSufficientReason(reason)) return;
+
+    setSubmitting(true);
+    setError(null);
+    try {
+      const response = await fetch(`/api/matters/${matterId}/info-request`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ assessmentLineId, query: reason }),
+      });
+      if (!response.ok) throw new Error(await readErrorMessage(response));
+      router.refresh();
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : "Something went wrong.");
+      setSubmitting(false);
+    }
+  }
+
   return (
     <DispositionControlsView
       verdict={verdict}
@@ -252,6 +285,7 @@ export function DispositionControls({
       onReasonChange={setReason}
       onAmountChange={setAmountMajor}
       onSubmit={handleSubmit}
+      onAskHr={handleAskHr}
     />
   );
 }

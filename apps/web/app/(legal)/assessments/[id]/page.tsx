@@ -8,17 +8,29 @@
 // composition. The pack status it hands both the strip and the pack rail
 // comes from the untransformed load result — never the engine-invocation
 // boundary's coerced copy.
+//
+// The sign-off panel (built and tested since Plan 04, wired here in Plan
+// 05's integration pass — WINDOWS.md entry 6) is composed the same way
+// renderLineControls/bulkAcceptBar already are: this page computes the
+// review-time preview (tallies, the not-yet-signed-off final amount, the
+// attestation text) from the SAME pure modules signOff() itself calls, so
+// what the lawyer reads here is never a second, drifting computation.
 
+import type { ReactNode } from "react";
+import { deriveEffectiveStatus } from "@dsar/rulepacks/stale";
 import { getCurrentActor } from "../../../../src/server/current-actor.ts";
 import { getAssessmentForLegalReview, listBulkAcceptableLineIds } from "../../../../src/server/data/assessments.ts";
 import { loadDemoPack } from "../../../../src/server/engine-invocation.ts";
 import { buildReviewView } from "../../../../src/server/review-view.ts";
 import { memoryMatterRepository } from "../../../../src/server/repositories/memory/matter-repository.ts";
 import { NotFoundError } from "../../../../src/server/errors.ts";
+import { computeFinalAmount, computeReviewTallies } from "../../../../src/domain/review-tallies.ts";
+import { renderAttestation } from "../../../../src/domain/attestation.ts";
 import { StatusStrip } from "../../../../src/ui/chrome/status-strip.tsx";
 import { AssessmentView } from "../../../../src/ui/review/assessment-view.tsx";
 import { DispositionControls } from "../../../../src/ui/review/disposition-controls.tsx";
 import { BulkAcceptBar } from "../../../../src/ui/review/bulk-accept-bar.tsx";
+import { SignOffPanel } from "../../../../src/ui/review/signoff-panel.tsx";
 
 export default async function LegalAssessmentPage({
   params,
@@ -36,6 +48,35 @@ export default async function LegalAssessmentPage({
   const pack = loadDemoPack();
   const reviewView = buildReviewView(assessment, matter, expenseLines);
   const eligibleLineIds = listBulkAcceptableLineIds(assessment);
+
+  const pendingCount = assessment.lines.filter((line) => line.disposition === "PENDING").length;
+  let signOffPanel: ReactNode = null;
+  if (pendingCount === 0) {
+    const tallies = computeReviewTallies(assessment.lines);
+    const finalAmount = computeFinalAmount(assessment.lines);
+    const flagsRequiringAck = assessment.matterLevelFlags.filter((flag) => flag.requiresAcknowledgement);
+    const now = new Date().toISOString();
+    const packIsStale = deriveEffectiveStatus(pack, now) === "STALE";
+    const attestationText = renderAttestation({
+      jurisdiction: pack.jurisdiction.name,
+      packId: assessment.rulePackId,
+      packVersion: assessment.rulePackVersion,
+      reviewedOn: pack.reviewedOn,
+      packIsStale,
+    });
+    signOffPanel = (
+      <SignOffPanel
+        assessmentId={assessment.id}
+        tallies={tallies}
+        finalAmount={finalAmount}
+        currency={matter.currency}
+        flagsRequiringAck={flagsRequiringAck}
+        attestationText={attestationText}
+        reviewedOnNotRecorded={pack.reviewedOn === null}
+        lawyerName={actor.user.displayName}
+      />
+    );
+  }
 
   return (
     <main>
@@ -84,10 +125,16 @@ export default async function LegalAssessmentPage({
           // scope), matching Annex A's own resolved-line summary treatment.
           if (!line || line.disposition !== "PENDING") return null;
           return (
-            <DispositionControls assessmentLineId={assessmentLineId} verdict={line.verdict} currency={matter.currency} />
+            <DispositionControls
+              assessmentLineId={assessmentLineId}
+              verdict={line.verdict}
+              currency={matter.currency}
+              matterId={matter.id}
+            />
           );
         }}
         bulkAcceptBar={<BulkAcceptBar assessmentId={assessment.id} eligibleLineIds={eligibleLineIds} />}
+        signOffPanel={signOffPanel}
       />
     </main>
   );
