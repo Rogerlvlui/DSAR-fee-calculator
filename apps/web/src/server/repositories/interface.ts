@@ -1,0 +1,33 @@
+// apps/web/src/server/repositories/interface.ts
+//
+// MatterRepository / AssessmentRepository as plain TypeScript interfaces.
+// Method vocabulary is @dsar/schemas types only — never a storage-specific
+// row shape. This module must import nothing from ./memory or a future
+// ./prisma directory: that single property is success criterion 4, and
+// .dependency-cruiser.cjs's no-store-impl-in-repository-interface rule
+// (Task 3) makes it a CI fact rather than a convention.
+//
+// The whole surface is authored now, including methods later plans consume,
+// so no later plan has to reopen this file.
+
+import "../server-only.ts";
+import type { Matter } from "@dsar/schemas/matter";
+import type { ExpenseLine } from "@dsar/schemas/expense-line";
+import type { Assessment } from "@dsar/schemas/assessment";
+
+export interface MatterRepository {
+  createMatter(matter: Matter): Promise<Matter>;
+  getMatter(id: string): Promise<Matter | null>;
+  updateMatter(matter: Matter): Promise<Matter>;
+  addExpenseLine(line: ExpenseLine): Promise<ExpenseLine>;
+  listExpenseLines(matterId: string): Promise<ExpenseLine[]>;
+  replaceExpenseLine(line: ExpenseLine): Promise<ExpenseLine>;
+  deleteExpenseLine(matterId: string, lineId: string): Promise<void>;
+}
+
+export interface AssessmentRepository {
+  saveAssessment(assessment: Assessment): Promise<Assessment>;
+  getAssessment(id: string): Promise<Assessment | null>;
+  getAssessmentByMatterId(matterId: string): Promise<Assessment | null>;
+  updateAssessment(assessment: Assessment): Promise<Assessment>;
+}

@@ -8,8 +8,9 @@
     "node": ">=20.9.0"
   },
   "scripts": {
+    "dev": "pnpm --filter @dsar/web dev",
     "test": "vitest run",
-    "typecheck": "tsc --build tsconfig.json",
+    "typecheck": "tsc --build tsconfig.json && tsc -p apps/web/tsconfig.json",
     "lint": "eslint .",
     "depcruise": "depcruise --config .dependency-cruiser.cjs packages/engine packages/schemas",
     "schema:json": "node packages/schemas/scripts/generate-json-schema.ts",

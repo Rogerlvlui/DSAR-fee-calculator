@@ -2,10 +2,27 @@
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
     "composite": true,
-    "rootDir": ".",
+    // Widened from "." (tests/ itself) to ".." (the repo root): 03.1-01's
+    // tests/routes/demo-pipeline.test.ts imports apps/web route handlers
+    // directly for the tracer's proof, which sit outside tests/'s own
+    // directory. A composite project's rootDir must be a common ancestor of
+    // every file the program reaches, or `tsc --build` refuses with TS6059/
+    // TS6307 — apps/web is deliberately NOT a project reference (see
+    // apps/web/tsconfig.json's own note), so widening this project's rootDir
+    // is the fix, not adding a reference. dist/ is gitignored and consumed
+    // by nothing else in the repo, so the resulting deeper output nesting
+    // under outDir is harmless.
+    "rootDir": "..",
     "outDir": "../dist/tests",
     "jsx": "react-jsx",
     "types": ["node"]
   },
-  "include": ["**/*.ts", "**/*.tsx"]
+  // "../apps/web/**/*.ts(x)" is needed alongside the project's own files:
+  // rootDir only says WHERE a file may live, "include" says WHICH files are
+  // added to the program — a file outside "include" is still TS6307 even
+  // once it satisfies rootDir. apps/web is otherwise typechecked on its own
+  // via `tsc -p apps/web/tsconfig.json` (see that file's own note); this
+  // entry exists solely so tests/routes/*.test.ts's direct imports of
+  // apps/web route handlers resolve inside this composite project too.
+  "include": ["**/*.ts", "**/*.tsx", "../apps/web/**/*.ts", "../apps/web/**/*.tsx"]
 }
