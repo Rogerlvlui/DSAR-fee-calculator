@@ -1,0 +1,13 @@
+# .gitattributes
+#
+# Closes WINDOWS.md ledger entry 1 (03.1-01 Task 3). This machine clones the
+# repository with automatic carriage-return conversion, so the three
+# committed schema artifacts under packages/schemas/schema/*.schema.json sit
+# in the working tree with CRLF line endings while
+# packages/schemas/scripts/generate-json-schema.ts always emits LF — and
+# packages/schemas/src/json-schema.test.ts compares the two byte for byte.
+# That drift test's strictness is the point (a schema regeneration drift
+# must be caught); the fix is this checkout setting, not a looser test.
+
+* text=auto
+*.json text eol=lf

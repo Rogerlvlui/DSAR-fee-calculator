@@ -105,10 +105,14 @@ describe("dependency-cruiser purity gate (T-1-PURITY)", () => {
     expect(output).toContain("no-money-formatting-in-engine");
   });
 
-  it("declares exactly four forbidden rules, asserted by name", () => {
+  it("declares exactly six forbidden rules, asserted by name", () => {
     // A future edit that renames or drops a rule is caught by name here,
     // rather than surfacing only as a silently-still-zero exit code
-    // elsewhere (T-2-10 gate-integrity requirement).
+    // elsewhere (T-2-10 gate-integrity requirement). Widened from four to
+    // six in 03.1-01 Task 3, which added no-store-impl-in-repository-
+    // interface and no-server-imports-in-ui for apps/web's repository-
+    // interface and UI/server boundaries (success criterion 4, T-03.1-05,
+    // T-03.1-06).
     const cfg = loadConfig();
     const names = cfg.forbidden.map((rule) => rule.name);
     expect(names).toEqual([
@@ -116,6 +120,8 @@ describe("dependency-cruiser purity gate (T-1-PURITY)", () => {
       "no-infra-in-engine",
       "no-fetch-in-engine",
       "no-money-formatting-in-engine",
+      "no-store-impl-in-repository-interface",
+      "no-server-imports-in-ui",
     ]);
   });
 });

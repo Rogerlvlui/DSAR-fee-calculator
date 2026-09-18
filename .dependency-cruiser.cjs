@@ -46,6 +46,22 @@ module.exports = {
       // specifier-only pattern.
       to: { path: ["^@dsar/schemas/money$", "packages/schemas/src/money"] },
     },
+    {
+      name: "no-store-impl-in-repository-interface",
+      severity: "error",
+      comment:
+        "The repository interface module must be swappable for a Prisma implementation later (Phase 3.2) without any screen or engine call site noticing — it must not itself depend on a concrete store (success criterion 4, Phase 03.1).",
+      from: { path: "^apps/web/src/server/repositories/interface\\.ts$" },
+      to: { path: "^apps/web/src/server/repositories/(memory|prisma)" },
+    },
+    {
+      name: "no-server-imports-in-ui",
+      severity: "error",
+      comment:
+        "The role checks, the repository and the pack loader are server-side; a presentational component under apps/web/src/ui must never import apps/web/src/server. This is the build-time half of the guarantee apps/web/src/server/server-only.ts gives at runtime (Phase 03.1).",
+      from: { path: "^apps/web/src/ui" },
+      to: { path: "^apps/web/src/server" },
+    },
   ],
   options: {
     doNotFollow: {

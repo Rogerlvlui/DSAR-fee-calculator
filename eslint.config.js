@@ -58,7 +58,13 @@ const LOCALE_METHOD_BAN_MESSAGE =
 
 export default tseslint.config(
   {
-    ignores: ["node_modules/**", "dist/**", ".next/**"],
+    // "**/.next/**" (not just root-level ".next/**"): 03.1-01 added
+    // apps/web, the repo's first Next.js app, so its build cache now lives
+    // nested at apps/web/.next/ — a root-anchored ".next/**" pattern never
+    // matched that, and `next build`/`next dev` output would otherwise
+    // reach eslint as raw Turbopack-bundled JS the moment either ever runs
+    // locally.
+    ignores: ["node_modules/**", "dist/**", "**/.next/**"],
   },
   {
     files: ["packages/engine/**/*.ts", "packages/schemas/**/*.ts"],
