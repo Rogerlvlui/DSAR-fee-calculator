@@ -19,6 +19,10 @@ import type { InfoRequest } from "../../domain/info-request.ts";
 export interface MatterRepository {
   createMatter(matter: Matter): Promise<Matter>;
   getMatter(id: string): Promise<Matter | null>;
+  // Added in the 03.1-REVIEW.md CR-01 fix: the legal assessments listing
+  // page needs to find matters awaiting review without knowing any id in
+  // advance — the whole point of a worklist rather than a passed-along link.
+  listMatters(): Promise<Matter[]>;
   updateMatter(matter: Matter): Promise<Matter>;
   addExpenseLine(line: ExpenseLine): Promise<ExpenseLine>;
   listExpenseLines(matterId: string): Promise<ExpenseLine[]>;

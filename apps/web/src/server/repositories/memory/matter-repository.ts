@@ -21,6 +21,10 @@ export const memoryMatterRepository: MatterRepository = {
     return matter ? structuredClone(matter) : null;
   },
 
+  async listMatters() {
+    return [...demoStore.matters.values()].map((matter) => structuredClone(matter));
+  },
+
   async updateMatter(matter) {
     const copy = structuredClone(matter);
     demoStore.matters.set(copy.id, copy);

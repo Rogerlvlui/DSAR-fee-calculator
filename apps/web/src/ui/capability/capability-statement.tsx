@@ -99,8 +99,9 @@ export function CapabilityStatement({ children }: CapabilityStatementProps) {
         <li>
           <span />
           <div>
-            Parts of the output are <b>drafted by an AI language model</b>. Those parts are
-            labelled. They may be wrong in wording even where the figures are right.
+            No AI language model drafts any part of this build&apos;s output. Every figure and
+            rationale you see comes from the deterministic engine applying the pack — never a
+            model.
           </div>
         </li>
         <li>

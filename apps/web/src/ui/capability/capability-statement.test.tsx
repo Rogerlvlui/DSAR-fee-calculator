@@ -27,7 +27,7 @@ describe("CAPABILITY: CapabilityStatement markup", () => {
     expect(html).toContain("<b>not decide anything</b>");
     expect(html).toContain("<b>cannot see your matter</b>");
     expect(html).toContain("<b>refuse to decide</b>");
-    expect(html).toContain("<b>drafted by an AI language model</b>");
+    expect(html).toContain("No AI language model drafts any part of this build");
   });
 
   it("CAPABILITY: renders the sixth bullet's no-persistent-data sentence verbatim, in the same list-item structure", () => {
