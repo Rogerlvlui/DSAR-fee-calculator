@@ -48,7 +48,19 @@
     "../apps/web/src/domain/**/*.ts",
     "../apps/web/src/ui/intake/matter-details-fields.tsx",
     "../apps/web/src/ui/intake/attestations-panel.tsx",
-    "../apps/web/src/ui/intake/expense-line-repeater.tsx"
+    "../apps/web/src/ui/intake/expense-line-repeater.tsx",
+    // 03.1-05 Task 2: tests/routes/honesty.test.ts renders the real root
+    // layout to prove the permanent marker's position relative to the
+    // children slot — it cannot do this under the jsdom "web" project
+    // (apps/web/**/*.test.tsx) because layout.tsx transitively imports
+    // apps/web/src/server/data/auth.ts, and server-only.ts's runtime guard
+    // throws the moment `window` exists, which jsdom always provides. The
+    // "routes" project's node environment has no `window`, so the guard
+    // never trips — the same reason tests/boundary/dom-denylist.test.ts
+    // (03.1-01) renders page.tsx files there rather than under "web".
+    "../apps/web/app/layout.tsx",
+    "../apps/web/src/ui/chrome/app-header.tsx",
+    "../apps/web/src/ui/chrome/demo-banner.tsx"
   ],
   "exclude": ["node_modules", "../apps/web/src/server/current-actor.ts"]
 }

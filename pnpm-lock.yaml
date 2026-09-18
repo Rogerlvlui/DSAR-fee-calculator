@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@dsar/rulepacks':
+        specifier: workspace:*
+        version: link:packages/rulepacks
       '@dsar/schemas':
         specifier: workspace:*
         version: link:packages/schemas

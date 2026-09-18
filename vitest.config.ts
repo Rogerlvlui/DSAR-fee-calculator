@@ -30,6 +30,20 @@ export default defineConfig({
         },
       },
       {
+        // 03.1-05's tests/routes/honesty.test.ts renders the real root
+        // layout (apps/web/app/layout.tsx, a .tsx file) directly, to prove
+        // the permanent marker's position without tripping the jsdom
+        // "web" project's server-only guard (see that test file's own
+        // header note). apps/web/tsconfig.json's "preserve" JSX mode
+        // (required by Next) leaves JSX untransformed for Vite — the same
+        // fix 03.1-01 already applied to the "web" and "boundary" projects
+        // once each first needed to import a real .tsx file.
+        oxc: {
+          jsx: {
+            runtime: "automatic",
+            importSource: "react",
+          },
+        },
         test: {
           name: "routes",
           environment: "node",
