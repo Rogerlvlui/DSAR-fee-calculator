@@ -15,8 +15,14 @@ import { POST as createMatterRoute } from "../../apps/web/app/api/matters/route.
 import { POST as addLineRoute } from "../../apps/web/app/api/matters/[id]/lines/route.ts";
 import { POST as submitRoute } from "../../apps/web/app/api/matters/[id]/submit/route.ts";
 import { POST as dispositionRoute } from "../../apps/web/app/api/assessment-lines/[id]/disposition/route.ts";
-import { DEMO_ROLE_COOKIE } from "../../apps/web/src/server/data/auth.ts";
+import { POST as bulkAcceptRoute } from "../../apps/web/app/api/assessments/[id]/bulk-accept/route.ts";
+import { DEMO_ROLE_COOKIE, DEMO_USERS } from "../../apps/web/src/server/data/auth.ts";
+import {
+  applyBulkAcceptDisposition,
+  listBulkAcceptableLineIds,
+} from "../../apps/web/src/server/data/assessments.ts";
 import { memoryAssessmentRepository } from "../../apps/web/src/server/repositories/memory/assessment-repository.ts";
+import { AssessmentLineSchema, type AssessmentLine } from "@dsar/schemas/assessment";
 
 const MATTERS_URL = "http://localhost/api/matters";
 const DISPOSITION_URL = "http://localhost/api/assessment-lines";
@@ -297,5 +303,99 @@ describe("DISPOSITION", () => {
 
     const stored = await storedLine(line.id);
     expect(stored?.disposition).toBe("PENDING");
+  });
+});
+
+const BULK_ACCEPT_URL = "http://localhost/api/assessments";
+
+function bulkAssessmentLine(overrides: Record<string, unknown>): AssessmentLine {
+  return AssessmentLineSchema.parse({
+    id: "line-1",
+    expenseLineId: "expense-1",
+    verdict: "ALLOW",
+    engineAmount: 1000,
+    appliedRuleId: "SG-PDPA.STAFF_TIME_SEARCH",
+    appliedCap: null,
+    basis: "Test basis.",
+    citation: { instrument: "Test instrument", provision: "s.1" },
+    flagReasons: [],
+    disposition: "PENDING",
+    lawyerAmount: null,
+    lawyerReason: null,
+    dispositionedBy: null,
+    dispositionedAt: null,
+    ...overrides,
+  });
+}
+
+describe("BULK-ACCEPT", () => {
+  it("BULK-ACCEPT: the eligible set for the real demo assessment is empty — every relevant rule in the committed pack is NEEDS_VERIFICATION", async () => {
+    const assessment = await buildFixtureAssessment();
+    // buildFixtureAssessment() returns the route's own JSON shape; re-fetch
+    // through the repository to get the real, schema-validated Assessment
+    // listBulkAcceptableLineIds expects.
+    const stored = await memoryAssessmentRepository.getAssessment(assessment.id);
+    expect(stored).not.toBeNull();
+    expect(listBulkAcceptableLineIds(stored!)).toEqual([]);
+  });
+
+  it("BULK-ACCEPT: a bulk-accept request with a reason shorter than ten non-whitespace characters is refused with 400 and no line is dispositioned", async () => {
+    const assessment = await buildFixtureAssessment();
+    const allowLine = findLine(assessment, "ALLOW");
+
+    const response = await bulkAcceptRoute(
+      jsonRequest(`${BULK_ACCEPT_URL}/${assessment.id}/bulk-accept`, "POST", {
+        lineIds: [allowLine.id],
+        reason: "short",
+      }),
+      { params: Promise.resolve({ id: assessment.id }) }
+    );
+    expect(response.status).toBe(400);
+
+    const stored = await storedLine(allowLine.id);
+    expect(stored?.disposition).toBe("PENDING");
+  });
+
+  it("BULK-ACCEPT: a bulk-accept request naming an ineligible line is refused with 400 and no line in the batch is dispositioned", async () => {
+    const assessment = await buildFixtureAssessment();
+    const allowLine = findLine(assessment, "ALLOW"); // ineligible: NEEDS_VERIFICATION
+    const flagLine = findLine(assessment, "FLAG"); // ineligible: wrong verdict
+
+    const response = await bulkAcceptRoute(
+      jsonRequest(`${BULK_ACCEPT_URL}/${assessment.id}/bulk-accept`, "POST", {
+        lineIds: [allowLine.id, flagLine.id],
+        reason: GOOD_REASON,
+      }),
+      { params: Promise.resolve({ id: assessment.id }) }
+    );
+    expect(response.status).toBe(400);
+
+    const storedAllow = await storedLine(allowLine.id);
+    const storedFlag = await storedLine(flagLine.id);
+    expect(storedAllow?.disposition).toBe("PENDING");
+    expect(storedFlag?.disposition).toBe("PENDING");
+  });
+
+  it("BULK-ACCEPT: applyBulkAcceptDisposition records the same reason, actor and timestamp on every named line and leaves every other line pending", () => {
+    const lines = [
+      bulkAssessmentLine({ id: "line-1" }),
+      bulkAssessmentLine({ id: "line-2" }),
+      bulkAssessmentLine({ id: "line-3" }),
+    ];
+    const now = "2026-09-18T12:00:00Z";
+
+    const updated = applyBulkAcceptDisposition(lines, ["line-1", "line-2"], GOOD_REASON, DEMO_USERS.LEGAL_REVIEWER.user, now);
+
+    const line1 = updated.find((line) => line.id === "line-1")!;
+    const line2 = updated.find((line) => line.id === "line-2")!;
+    const line3 = updated.find((line) => line.id === "line-3")!;
+
+    for (const line of [line1, line2]) {
+      expect(line.disposition).toBe("ACCEPTED");
+      expect(line.lawyerReason).toBe(GOOD_REASON);
+      expect(line.dispositionedBy).toEqual(DEMO_USERS.LEGAL_REVIEWER.user);
+      expect(line.dispositionedAt).toBe(now);
+    }
+    expect(line3.disposition).toBe("PENDING");
   });
 });

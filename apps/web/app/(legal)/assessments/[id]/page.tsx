@@ -10,7 +10,7 @@
 // boundary's coerced copy.
 
 import { getCurrentActor } from "../../../../src/server/current-actor.ts";
-import { getAssessmentForLegalReview } from "../../../../src/server/data/assessments.ts";
+import { getAssessmentForLegalReview, listBulkAcceptableLineIds } from "../../../../src/server/data/assessments.ts";
 import { loadDemoPack } from "../../../../src/server/engine-invocation.ts";
 import { buildReviewView } from "../../../../src/server/review-view.ts";
 import { memoryMatterRepository } from "../../../../src/server/repositories/memory/matter-repository.ts";
@@ -18,6 +18,7 @@ import { NotFoundError } from "../../../../src/server/errors.ts";
 import { StatusStrip } from "../../../../src/ui/chrome/status-strip.tsx";
 import { AssessmentView } from "../../../../src/ui/review/assessment-view.tsx";
 import { DispositionControls } from "../../../../src/ui/review/disposition-controls.tsx";
+import { BulkAcceptBar } from "../../../../src/ui/review/bulk-accept-bar.tsx";
 
 export default async function LegalAssessmentPage({
   params,
@@ -34,6 +35,7 @@ export default async function LegalAssessmentPage({
   const expenseLines = await memoryMatterRepository.listExpenseLines(assessment.matterId);
   const pack = loadDemoPack();
   const reviewView = buildReviewView(assessment, matter, expenseLines);
+  const eligibleLineIds = listBulkAcceptableLineIds(assessment);
 
   return (
     <main>
@@ -85,6 +87,7 @@ export default async function LegalAssessmentPage({
             <DispositionControls assessmentLineId={assessmentLineId} verdict={line.verdict} currency={matter.currency} />
           );
         }}
+        bulkAcceptBar={<BulkAcceptBar assessmentId={assessment.id} eligibleLineIds={eligibleLineIds} />}
       />
     </main>
   );
