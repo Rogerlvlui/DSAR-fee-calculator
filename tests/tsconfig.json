@@ -17,12 +17,25 @@
     "jsx": "react-jsx",
     "types": ["node"]
   },
-  // "../apps/web/**/*.ts(x)" is needed alongside the project's own files:
-  // rootDir only says WHERE a file may live, "include" says WHICH files are
-  // added to the program — a file outside "include" is still TS6307 even
-  // once it satisfies rootDir. apps/web is otherwise typechecked on its own
-  // via `tsc -p apps/web/tsconfig.json` (see that file's own note); this
-  // entry exists solely so tests/routes/*.test.ts's direct imports of
-  // apps/web route handlers resolve inside this composite project too.
-  "include": ["**/*.ts", "**/*.tsx", "../apps/web/**/*.ts", "../apps/web/**/*.tsx"]
+  // Targeted, not a blanket "../apps/web/**" glob: rootDir only says WHERE a
+  // file may live, "include" says WHICH files are added to the program — a
+  // file outside "include" is still TS6307 even once it satisfies rootDir.
+  // apps/web is otherwise typechecked on its own via
+  // `tsc -p apps/web/tsconfig.json` (see that file's own note, "bundler"
+  // resolution); these two globs cover exactly the route handlers and
+  // server/data-layer modules tests/routes/*.test.ts imports, under this
+  // project's inherited "nodenext" resolution. Deliberately NOT
+  // "../apps/web/app/**" or "../apps/web/src/**" wholesale: those also match
+  // apps/web/src/server/current-actor.ts, apps/web/app/layout.tsx and the
+  // page.tsx files, none of which any routes test imports, and
+  // current-actor.ts's "next/headers" import does not resolve under
+  // "nodenext" (next ships no "exports" map) the way it does under
+  // apps/web/tsconfig.json's "bundler" resolution.
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "../apps/web/app/api/**/*.ts",
+    "../apps/web/src/server/**/*.ts"
+  ],
+  "exclude": ["node_modules", "../apps/web/src/server/current-actor.ts"]
 }

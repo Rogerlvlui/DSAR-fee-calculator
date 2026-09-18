@@ -37,6 +37,20 @@ export default defineConfig({
         },
       },
       {
+        // tests/boundary/dom-denylist.test.ts dynamically imports every
+        // page.tsx under apps/web/app/** (its "glob half"). Once 03.1-01's
+        // Task 2 gave that glob real .tsx files to find, Vite needed a JSX
+        // transform to import them at all — apps/web/tsconfig.json's
+        // "preserve" JSX mode (required by Next) leaves JSX untransformed
+        // for a plain test runner. Same fix as the "web" project below;
+        // this is a regression this task's own page.tsx files introduced
+        // into a previously-passing boundary test, not a new capability.
+        oxc: {
+          jsx: {
+            runtime: "automatic",
+            importSource: "react",
+          },
+        },
         test: {
           name: "boundary",
           environment: "node",
@@ -69,6 +83,17 @@ export default defineConfig({
         },
       },
       {
+        // apps/web/tsconfig.json sets "jsx": "preserve" (Next's required
+        // mode), which leaves JSX untransformed for a plain test runner.
+        // This project-level `oxc` option (Vite 8 transforms through Oxc,
+        // not esbuild) overrides that for test files only — it changes
+        // nothing about how Next itself compiles the app.
+        oxc: {
+          jsx: {
+            runtime: "automatic",
+            importSource: "react",
+          },
+        },
         test: {
           name: "web",
           environment: "jsdom",
