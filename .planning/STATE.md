@@ -3,16 +3,16 @@ gsd_state_version: "1.0"
 current_phase: "03.1"
 current_phase_name: Demo Slice — In-Memory Determination Pipeline
 status: executing
-stopped_at: Completed 03.1-01-PLAN.md (Task 0 checkpoint approved, Tasks 1-3 executed)
-last_updated: "2026-09-18T02:10:33.000Z"
+stopped_at: Completed 03.1-02-PLAN.md (Tasks 1-3 executed)
+last_updated: "2026-09-18T06:23:56.574Z"
 last_activity: 2026-09-18
-last_activity_desc: Plan 03.1-01 (tracer slice) complete — apps/web scaffolded, one determination proven end to end
-state_head: c071561
+last_activity_desc: Plan 03.1-02 complete — capability statement gate, HR intake screen, HR confirmation page, AC-06 deny-list test re-pointed at the real form
+state_head: ec2dab8bbb466c71ef5160a3128b64e601cc77ba
 progress:
   total_phases: 10
   completed_phases: 3
   total_plans: 26
-  completed_plans: 19
+  completed_plans: 20
   percent: 30
 ---
 
@@ -28,9 +28,9 @@ See: .planning/PROJECT.md (updated 2026-09-13)
 ## Current Position
 
 Phase: 03.1 — Demo Slice — In-Memory Determination Pipeline
-Plan: 01 of 5 complete (wave 1 of 4)
-Status: Executing — Plan 03.1-01 (tracer slice) done, ready for wave 2 (Plans 03.1-02/03)
-Last activity: 2026-09-18 — Plan 03.1-01 complete: apps/web scaffolded by hand, one determination proven end to end through real HTTP, the real engine and the real committed SG-PDPA pack
+Plan: 02 of 5 complete (wave 2 of 4)
+Status: Executing — Plan 03.1-02 (capability statement + HR intake screen) done, ready for wave 2's sibling (Plan 03.1-03) or wave 3
+Last activity: 2026-09-18 — Plan 03.1-02 complete: capability statement gate, HR intake screen (matter details/attestations/expense-line repeater/claim footer), HR confirmation page, AC-06 deny-list test re-pointed at the real form
 
 Progress: [███░░░░░░░] 30%
 
@@ -38,7 +38,7 @@ Progress: [███░░░░░░░] 30%
 
 **Velocity:**
 
-- Total plans completed: 19
+- Total plans completed: 20
 - Average duration: —
 - Total execution time: —
 
@@ -49,7 +49,7 @@ Progress: [███░░░░░░░] 30%
 | 1 | 6 | - | - |
 | 02 | 7 | - | - |
 | 3 | 5 | - | - |
-| 03.1 | 1/5 | - | - |
+| 03.1 | 2/5 | - | - |
 
 **Recent Trend:**
 
@@ -80,6 +80,7 @@ Progress: [███░░░░░░░] 30%
 | Phase 03 P04 | 35min | 2 tasks | 10 files |
 | Phase 03 P05 | 30min | 3 tasks | 10 files |
 | Phase 03.1 P01 | 70min | 4 tasks | 45 files |
+| Phase 03.1 P02 | 30min | 3 tasks | 20 files |
 
 ## Accumulated Context
 
@@ -143,6 +144,9 @@ Recent decisions affecting current work:
 - [Phase 03.1]: [Phase 03.1 P01]: restingOnUnverifiedRules confirmed as 26640 through the real HTTP path against the real committed SG-PDPA pack (not PRD §14's published 10640) — every relevant rule in the real pack is NEEDS_VERIFICATION, so all three ALLOW/ALLOW_CAPPED lines rest on unverified rules; asserted with toBe(26640), pack content untouched
 - [Phase 03.1]: [Phase 03.1 P01]: tests/tsconfig.json's rootDir widened to the repo root, include narrowed to two targeted globs (apps/web/app/api/**, apps/web/src/server/**) plus an exclude for current-actor.ts — that file's next/headers import only resolves under apps/web/tsconfig.json's bundler moduleResolution, not this project's inherited nodenext
 - [Phase 03.1]: [Phase 03.1 P01]: gsd-tools.cjs still unavailable in this worktree (same as 03-03/03-04) — STATE.md/ROADMAP.md updated manually, SUMMARY.md's actuals computed by hand (git diff char count / 4, git rev-list --count)
+- [Phase 03.1]: [Phase 03.1 P02]: Requestor class rendered as fixed hint text, not an editable select, matching Annex A and this plan's own no-requestor-field-name acceptance criterion
+- [Phase 03.1]: [Phase 03.1 P02]: AddExpenseLineInput/replaceExpenseLine gained an optional claimedAmount, defense-in-depth only, so a crafted request disagreeing with quantity*unitRate is caught by ExpenseLineSchema's own invariant rather than the server always silently recomputing it
+- [Phase 03.1]: [Phase 03.1 P02]: Category select renders options only for codes present in the categories prop (grouped by the fixed PRD section10.2 four groups), never a hardcoded all-21 list, so an option never renders with no real pack-sourced label
 
 ### Pending Todos
 
@@ -175,6 +179,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-09-18T02:10:33.000Z
-Stopped at: Completed 03.1-01-PLAN.md (Task 0 checkpoint approved, Tasks 1-3 executed) — apps/web scaffolded, one determination proven end to end. Two build-blocking defects discovered and recorded (WINDOWS.md entries 2, 3), not fixed — see Blockers/Concerns above.
+Last session: 2026-09-18T06:23:56.439Z
+Stopped at: Completed 03.1-02-PLAN.md (Tasks 1-3 executed)
 Resume file: None
