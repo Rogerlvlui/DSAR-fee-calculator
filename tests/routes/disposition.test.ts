@@ -339,6 +339,45 @@ describe("BULK-ACCEPT", () => {
     expect(listBulkAcceptableLineIds(stored!)).toEqual([]);
   });
 
+  it("BULK-ACCEPT: the eligibility filter excludes capped, not-supported, flagged, unverified-rule and already-decided lines, in one fixture", () => {
+    // The real committed SG-PDPA pack has no VERIFIED rule at all (every
+    // relevant rule is NEEDS_VERIFICATION), so distinguishing "wrong
+    // verdict" from "unverified rule" needs a fixture pack with at least
+    // one VERIFIED rule — hence the injected `pack` override
+    // listBulkAcceptableLineIds accepts for exactly this reason. Cast via
+    // `unknown`: only `categoryRules` is read by the function under test.
+    const fixturePack = {
+      categoryRules: [
+        { ruleId: "TEST.VERIFIED_RULE", verificationStatus: "VERIFIED" },
+        { ruleId: "TEST.UNVERIFIED_RULE", verificationStatus: "NEEDS_VERIFICATION" },
+      ],
+    } as unknown as Parameters<typeof listBulkAcceptableLineIds>[1];
+
+    const assessment = {
+      lines: [
+        bulkAssessmentLine({ id: "capped", verdict: "ALLOW_CAPPED", appliedRuleId: "TEST.VERIFIED_RULE" }),
+        bulkAssessmentLine({ id: "disallow", verdict: "DISALLOW", engineAmount: 0, appliedRuleId: "TEST.VERIFIED_RULE" }),
+        bulkAssessmentLine({
+          id: "flagged",
+          verdict: "FLAG",
+          engineAmount: 0,
+          appliedRuleId: "TEST.VERIFIED_RULE",
+          flagReasons: [{ code: "UNCATEGORISED", message: "Test." }],
+        }),
+        bulkAssessmentLine({ id: "unverified", verdict: "ALLOW", appliedRuleId: "TEST.UNVERIFIED_RULE" }),
+        bulkAssessmentLine({
+          id: "already-decided",
+          verdict: "ALLOW",
+          appliedRuleId: "TEST.VERIFIED_RULE",
+          disposition: "ACCEPTED",
+        }),
+        bulkAssessmentLine({ id: "eligible", verdict: "ALLOW", appliedRuleId: "TEST.VERIFIED_RULE" }),
+      ],
+    } as unknown as Parameters<typeof listBulkAcceptableLineIds>[0];
+
+    expect(listBulkAcceptableLineIds(assessment, fixturePack)).toEqual(["eligible"]);
+  });
+
   it("BULK-ACCEPT: a bulk-accept request with a reason shorter than ten non-whitespace characters is refused with 400 and no line is dispositioned", async () => {
     const assessment = await buildFixtureAssessment();
     const allowLine = findLine(assessment, "ALLOW");

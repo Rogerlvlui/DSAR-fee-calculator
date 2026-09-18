@@ -182,13 +182,20 @@ export function applyBulkAcceptDisposition(
 
 // Eligible only when the line's verdict is the plain supported one (never
 // ALLOW_CAPPED), its applied rule's verification status is VERIFIED — read
-// from loadDemoPack()'s real, uncoerced result, never a literal — and its
-// disposition is still PENDING. For this demo's committed pack every
-// relevant rule is NEEDS_VERIFICATION, so this set is correctly empty; that
-// is the demo telling the truth, not a bug (03.1-UI-SPEC.md's Known
-// Deviation note).
-export function listBulkAcceptableLineIds(assessment: Assessment): string[] {
-  const pack = loadDemoPack();
+// from loadDemoPack()'s real, uncoerced result by default, never a literal
+// — and its disposition is still PENDING. For this demo's committed pack
+// every relevant rule is NEEDS_VERIFICATION, so this set is correctly
+// empty; that is the demo telling the truth, not a bug (03.1-UI-SPEC.md's
+// Known Deviation note). `pack` is an optional override purely so a unit
+// test can exercise every exclusion case (capped, not-supported, flagged,
+// unverified, already-decided) against a fixture with at least one
+// VERIFIED rule — the real committed pack has none, and every production
+// call site (this file's bulkAcceptLines, the legal review page) omits
+// this argument and gets the real one.
+export function listBulkAcceptableLineIds(
+  assessment: Assessment,
+  pack: ReturnType<typeof loadDemoPack> = loadDemoPack()
+): string[] {
   const ruleById = new Map(pack.categoryRules.map((rule) => [rule.ruleId, rule]));
 
   return assessment.lines
