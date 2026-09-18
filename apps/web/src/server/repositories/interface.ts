@@ -30,4 +30,8 @@ export interface AssessmentRepository {
   getAssessment(id: string): Promise<Assessment | null>;
   getAssessmentByMatterId(matterId: string): Promise<Assessment | null>;
   updateAssessment(assessment: Assessment): Promise<Assessment>;
+  // Added in Plan 03.1-03, Task 2: the disposition route only knows the
+  // assessment LINE id (from its own path segment), not the assessment id
+  // it belongs to — this is the lookup that resolves one from the other.
+  findByLineId(assessmentLineId: string): Promise<Assessment | null>;
 }

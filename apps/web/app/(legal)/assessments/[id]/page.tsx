@@ -17,6 +17,7 @@ import { memoryMatterRepository } from "../../../../src/server/repositories/memo
 import { NotFoundError } from "../../../../src/server/errors.ts";
 import { StatusStrip } from "../../../../src/ui/chrome/status-strip.tsx";
 import { AssessmentView } from "../../../../src/ui/review/assessment-view.tsx";
+import { DispositionControls } from "../../../../src/ui/review/disposition-controls.tsx";
 
 export default async function LegalAssessmentPage({
   params,
@@ -73,6 +74,16 @@ export default async function LegalAssessmentPage({
           reviewedOn: pack.reviewedOn,
           reviewDueOn: pack.reviewDueOn,
           openQuestions: pack.openQuestions,
+        }}
+        renderLineControls={(assessmentLineId) => {
+          const line = assessment.lines.find((candidate) => candidate.id === assessmentLineId);
+          // Once a line is decided, no further control is offered — this
+          // demo has no "undo a disposition" control (out of this plan's
+          // scope), matching Annex A's own resolved-line summary treatment.
+          if (!line || line.disposition !== "PENDING") return null;
+          return (
+            <DispositionControls assessmentLineId={assessmentLineId} verdict={line.verdict} currency={matter.currency} />
+          );
         }}
       />
     </main>

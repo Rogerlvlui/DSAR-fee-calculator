@@ -41,6 +41,11 @@
     "**/*.tsx",
     "../apps/web/app/api/**/*.ts",
     "../apps/web/src/server/**/*.ts",
+    // 03.1-03 Task 2: tests/routes/review-tallies.test.ts and
+    // disposition.test.ts import the domain modules directly — the same
+    // class of direct route/domain import demo-pipeline.test.ts (03.1-01)
+    // established for apps/web/app/api/** and src/server/**.
+    "../apps/web/src/domain/**/*.ts",
     "../apps/web/src/ui/intake/matter-details-fields.tsx",
     "../apps/web/src/ui/intake/attestations-panel.tsx",
     "../apps/web/src/ui/intake/expense-line-repeater.tsx"

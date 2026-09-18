@@ -31,4 +31,11 @@ export const memoryAssessmentRepository: AssessmentRepository = {
     demoStore.assessments.set(copy.id, copy);
     return structuredClone(copy);
   },
+
+  async findByLineId(assessmentLineId) {
+    const assessment = [...demoStore.assessments.values()].find((candidate) =>
+      candidate.lines.some((line) => line.id === assessmentLineId)
+    );
+    return assessment ? structuredClone(assessment) : null;
+  },
 };
