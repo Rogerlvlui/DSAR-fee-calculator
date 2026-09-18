@@ -3,16 +3,16 @@ gsd_state_version: "1.0"
 current_phase: "03.1"
 current_phase_name: Demo Slice — In-Memory Determination Pipeline
 status: executing
-stopped_at: Completed 03.1-02-PLAN.md (Tasks 1-3 executed)
-last_updated: "2026-09-18T06:23:56.574Z"
+stopped_at: Completed 03.1-03-PLAN.md (Tasks 1-3 executed)
+last_updated: "2026-09-18T15:05:00.000Z"
 last_activity: 2026-09-18
-last_activity_desc: Plan 03.1-02 complete — capability statement gate, HR intake screen, HR confirmation page, AC-06 deny-list test re-pointed at the real form
-state_head: ec2dab8bbb466c71ef5160a3128b64e601cc77ba
+last_activity_desc: Plan 03.1-03 complete — three-region legal review screen, server-enforced dispositions with a mandatory reason, verified-only bulk accept
+state_head: 1e15376e1dff3b2ebeaefe846b2138598d7f13dc
 progress:
   total_phases: 10
   completed_phases: 3
   total_plans: 26
-  completed_plans: 20
+  completed_plans: 21
   percent: 30
 ---
 
@@ -28,9 +28,9 @@ See: .planning/PROJECT.md (updated 2026-09-13)
 ## Current Position
 
 Phase: 03.1 — Demo Slice — In-Memory Determination Pipeline
-Plan: 02 of 5 complete (wave 2 of 4)
-Status: Executing — Plan 03.1-02 (capability statement + HR intake screen) done, ready for wave 2's sibling (Plan 03.1-03) or wave 3
-Last activity: 2026-09-18 — Plan 03.1-02 complete: capability statement gate, HR intake screen (matter details/attestations/expense-line repeater/claim footer), HR confirmation page, AC-06 deny-list test re-pointed at the real form
+Plan: 03 of 5 complete (wave 2 of 4)
+Status: Executing — Plan 03.1-03 (legal review screen, dispositions, bulk accept) done, wave 2 complete, ready for wave 3 (Plan 03.1-04)
+Last activity: 2026-09-18 — Plan 03.1-03 complete: three-region legal review screen (matter/pack rails, verdict-ordered cards, totals rail with suppressed headline), server-enforced per-line dispositions with a uniform mandatory-reason rule, and a bulk-accept bar scoped to verified supported lines (correctly empty against the real committed pack)
 
 Progress: [███░░░░░░░] 30%
 
@@ -81,6 +81,7 @@ Progress: [███░░░░░░░] 30%
 | Phase 03 P05 | 30min | 3 tasks | 10 files |
 | Phase 03.1 P01 | 70min | 4 tasks | 45 files |
 | Phase 03.1 P02 | 30min | 3 tasks | 20 files |
+| Phase 03.1 P03 | 55min | 3 tasks | 26 files |
 
 ## Accumulated Context
 
@@ -147,6 +148,11 @@ Recent decisions affecting current work:
 - [Phase 03.1]: [Phase 03.1 P02]: Requestor class rendered as fixed hint text, not an editable select, matching Annex A and this plan's own no-requestor-field-name acceptance criterion
 - [Phase 03.1]: [Phase 03.1 P02]: AddExpenseLineInput/replaceExpenseLine gained an optional claimedAmount, defense-in-depth only, so a crafted request disagreeing with quantity*unitRate is caught by ExpenseLineSchema's own invariant rather than the server always silently recomputing it
 - [Phase 03.1]: [Phase 03.1 P02]: Category select renders options only for codes present in the categories prop (grouped by the fixed PRD section10.2 four groups), never a hardcoded all-21 list, so an option never renders with no real pack-sourced label
+- [Phase 03.1]: [Phase 03.1 P03]: Every disposition requires a reason, uniformly, on the server (including a plain Accept) — Annex A's varying reason-label text is rendered verbatim but the length rule itself does not vary by verdict or action
+- [Phase 03.1]: [Phase 03.1 P03]: AssessmentRepository gained findByLineId() (interface.ts + memory implementation) — the disposition route only knows the assessment-line id, not its assessment id, and no existing method resolved one from the other
+- [Phase 03.1]: [Phase 03.1 P03]: listBulkAcceptableLineIds() gained an optional pack override (defaults to the real loadDemoPack()) so the five-way exclusion matrix (capped, not-supported, flagged, unverified-rule, already-decided) is testable in one fixture — the real committed SG-PDPA pack has zero VERIFIED category rules, so no fixture built against it alone could isolate any one exclusion case from "unverified rule"
+- [Phase 03.1]: [Phase 03.1 P03]: apps/web/src/domain/ established as a new directory for pure modules shared by apps/web/src/ui and apps/web/src/server (verdict-order.ts, review-tallies.ts, disposition-actions.ts) — neither prefix matches the no-server-imports-in-ui dependency-cruiser rule, so no new rule was needed
+- [Phase 03.1]: [Phase 03.1 P03]: DispositionControls/BulkAcceptBar each split into a stateful wrapper and a pure *View component — useRouter() throws ("invariant expected app router to be mounted") when a "use client" component calling it is rendered via bare renderToStaticMarkup() outside a real Next.js request, so only the pure half is ever rendered directly in this plan's own tests
 
 ### Pending Todos
 
@@ -179,6 +185,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-09-18T06:23:56.439Z
-Stopped at: Completed 03.1-02-PLAN.md (Tasks 1-3 executed)
+Last session: 2026-09-18T15:05:00.000Z
+Stopped at: Completed 03.1-03-PLAN.md (Tasks 1-3 executed)
 Resume file: None
