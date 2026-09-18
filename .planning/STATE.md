@@ -3,16 +3,16 @@ gsd_state_version: "1.0"
 current_phase: "03.1"
 current_phase_name: Demo Slice — In-Memory Determination Pipeline
 status: executing
-stopped_at: Completed 03.1-03-PLAN.md (Tasks 1-3 executed)
-last_updated: "2026-09-18T15:05:00.000Z"
+stopped_at: Completed 03.1-04-PLAN.md (Tasks 1-3 executed)
+last_updated: "2026-09-18T07:51:33.222Z"
 last_activity: 2026-09-18
-last_activity_desc: Plan 03.1-03 complete — three-region legal review screen, server-enforced dispositions with a mandatory reason, verified-only bulk accept
-state_head: 1e15376e1dff3b2ebeaefe846b2138598d7f13dc
+last_activity_desc: Plan 03.1-04 complete — sign-off gate and attestation, the Ask HR/INFO_REQUEST branch with its in-place recompute, and the HR result screen (figure, struck lines, honest notice draft)
+state_head: 0ddf0e1f041417a44ca7baaebd49e8adc3b1ca16
 progress:
   total_phases: 10
   completed_phases: 3
   total_plans: 26
-  completed_plans: 21
+  completed_plans: 22
   percent: 30
 ---
 
@@ -28,9 +28,9 @@ See: .planning/PROJECT.md (updated 2026-09-13)
 ## Current Position
 
 Phase: 03.1 — Demo Slice — In-Memory Determination Pipeline
-Plan: 03 of 5 complete (wave 2 of 4)
-Status: Executing — Plan 03.1-03 (legal review screen, dispositions, bulk accept) done, wave 2 complete, ready for wave 3 (Plan 03.1-04)
-Last activity: 2026-09-18 — Plan 03.1-03 complete: three-region legal review screen (matter/pack rails, verdict-ordered cards, totals rail with suppressed headline), server-enforced per-line dispositions with a uniform mandatory-reason rule, and a bulk-accept bar scoped to verified supported lines (correctly empty against the real committed pack)
+Plan: 04 of 5 complete (wave 3 of 4)
+Status: Executing — Plan 03.1-04 (sign-off, Ask HR/info-request, HR result screen) done, wave 3 complete, ready for wave 4 (Plan 03.1-05)
+Last activity: 2026-09-18 — Plan 03.1-04 complete: signOff() gate (six ordered refusals, the only write of finalAmount), the §9.5 attestation renderer, the Ask-HR/INFO_REQUEST branch with its in-place recompute (same assessment id, every disposition cleared), and the HR result screen (fee headline, struck lines with basis, never the lawyer's reasoning, and a notice draft that admits its wording is unauthored)
 
 Progress: [███░░░░░░░] 30%
 
@@ -82,6 +82,7 @@ Progress: [███░░░░░░░] 30%
 | Phase 03.1 P01 | 70min | 4 tasks | 45 files |
 | Phase 03.1 P02 | 30min | 3 tasks | 20 files |
 | Phase 03.1 P03 | 55min | 3 tasks | 26 files |
+| Phase 03.1 P04 | 75min | 3 tasks | 26 files |
 
 ## Accumulated Context
 
@@ -153,6 +154,9 @@ Recent decisions affecting current work:
 - [Phase 03.1]: [Phase 03.1 P03]: listBulkAcceptableLineIds() gained an optional pack override (defaults to the real loadDemoPack()) so the five-way exclusion matrix (capped, not-supported, flagged, unverified-rule, already-decided) is testable in one fixture — the real committed SG-PDPA pack has zero VERIFIED category rules, so no fixture built against it alone could isolate any one exclusion case from "unverified rule"
 - [Phase 03.1]: [Phase 03.1 P03]: apps/web/src/domain/ established as a new directory for pure modules shared by apps/web/src/ui and apps/web/src/server (verdict-order.ts, review-tallies.ts, disposition-actions.ts) — neither prefix matches the no-server-imports-in-ui dependency-cruiser rule, so no new rule was needed
 - [Phase 03.1]: [Phase 03.1 P03]: DispositionControls/BulkAcceptBar each split into a stateful wrapper and a pure *View component — useRouter() throws ("invariant expected app router to be mounted") when a "use client" component calling it is rendered via bare renderToStaticMarkup() outside a real Next.js request, so only the pure half is ever rendered directly in this plan's own tests
+- [Phase 03.1]: [Phase 03.1 P04]: attestationText is computed via the shared renderAttestation() and returned in signOff()'s response, never persisted on SignOffSchema — the frozen schema carries only attestationVersion + the affirmed boolean, per Phase 1's own recorded-verbatim-by-version design
+- [Phase 03.1]: [Phase 03.1 P04]: apps/web/src/server/state.ts extended with LEGAL_REVIEW->SIGNED_OFF, LEGAL_REVIEW->INFO_REQUEST, INFO_REQUEST->COMPUTING — a Rule 3 deviation beyond this plan's own declared file list, since dispositionLine/bulkAcceptLines/signOff all need the same INFO_REQUEST precondition
+- [Phase 03.1]: [Phase 03.1 P04]: resubmitAfterInfoRequest overwrites the existing assessment under its existing id, discarding the engine's own derived id — exactly one assessment exists per matter after a recompute, matching PRD section5's mirror-image rule
 
 ### Pending Todos
 
@@ -170,6 +174,7 @@ None yet.
 - Phase 3's last plan (03-05) is complete — all 5/5 plans executed — but PACK-09 remains genuinely Pending: only 9/21 (HK) and 6/15 (SG) categoryRules are authored, per D-16's deliberate deferral of full 21-category authoring across both reference packs to before Phase 6's convergence gate. This is the schedule long pole PROJECT.md already flags; not a new blocker, but now the only Phase 3 in-scope requirement still open.
 - validate.ts's assertNoUnauthoredContent does not yet scan flatFee.verificationNote, even though HK-PDPO's flatFee.verificationNote carries the UNAUTHORED token today — assertActiveReady still refuses HK-PDPO via MISSING_REVIEWER (reviewer fields are null), so no live gap in current behavior, but the scan should be added (touches packages/rulepacks/src/validate.ts) before HK-PDPO's reviewer fields are ever set, so a real flat-fee figure cannot slip through unscanned.
 - **`pnpm dev`/`next build` currently fail** — discovered via a voluntary smoke test during 03.1-01, recorded as WINDOWS.md ledger entries 2 and 3 (open_count is 2, not 0): (1) `packages/rulepacks/src/loader.ts`'s `RULEPACKS_ROOT` throws under Turbopack's page-data collection (`import.meta.dirname` undefined there) — a frozen Phase 3 file, out of 03.1-01's scope, needs a product-owner decision; (2) no `@tailwindcss/postcss` plugin is registered anywhere, so `apps/web/app/globals.css`'s `@theme` block is inert in a real build — fixing this needs a new package install, which requires its own package-legitimacy checkpoint (like Task 0's ulid one) before any later plan runs `pnpm add @tailwindcss/postcss`. **Resolve both before Plan 03.1-02 starts** — otherwise every subsequent plan's UI work accumulates on a stylesheet Tailwind isn't processing, and the actual stakeholder demo cannot run.
+- SignOffPanel (03.1-04) is not yet rendered on the legal review page, and disposition-controls.tsx's Ask HR button stays hardcoded disabled even though askHr()'s backend works — both outside 03.1-04's declared file list, recorded in WINDOWS.md entries 5-6, and squarely Plan 05's integration-pass scope
 
 ### Roadmap Evolution
 
@@ -185,6 +190,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-09-18T15:05:00.000Z
-Stopped at: Completed 03.1-03-PLAN.md (Tasks 1-3 executed)
+Last session: 2026-09-18T07:51:08.785Z
+Stopped at: Completed 03.1-04-PLAN.md (Tasks 1-3 executed)
 Resume file: None

@@ -159,14 +159,14 @@ PACK-08's sign-off-side block (a user who activated a pack version cannot sign o
   4. Persistence is the only throwaway: matters and assessments sit behind a repository interface whose in-memory implementation can be swapped for a Prisma one without touching a screen or the engine — proven by the interface module having no import from any store implementation
   5. The demo never overstates itself — the capability statement and status strip are present, the notice is watermarked DRAFT, and the running build carries a visible marker that it holds no persistent data
 
-**Plans**: 3/5 plans executed across 4 waves
+**Plans**: 4/5 plans executed across 4 waves
 
 Plans:
 
 - [x] 03.1-01-PLAN.md — Tracer: one determination end to end (scaffold, in-memory repository behind a swappable interface, data access layer, three route handlers, the demo-only pack coercion, the first honest render, and the CI gates that make the interface-purity claim a fact) — wave 1 — complete 2026-09-18
 - [x] 03.1-02-PLAN.md — The first-use capability statement and the HR intake screen, plus AC-06's deny-list boundary test re-pointed at the real form — wave 2 — complete 2026-09-18
 - [x] 03.1-03-PLAN.md — The legal review screen, per-verdict dispositions with a server-enforced mandatory reason, and the verified-only bulk-accept bar — wave 2 — complete 2026-09-18
-- [ ] 03.1-04-PLAN.md — Sign-off under the §9.5 attestation, the information-request branch with an in-place recompute, and the HR result and draft notice — wave 3
+- [x] 03.1-04-PLAN.md — Sign-off under the §9.5 attestation, the information-request branch with an in-place recompute, and the HR result and draft notice — wave 3
 - [ ] 03.1-05-PLAN.md — The documented cold-start command, the presenter walkthrough script, the honesty audit suite and the full-path end-to-end test — wave 4
 
 **UI hint**: yes
@@ -292,7 +292,7 @@ Where capacity allows, Phases 2, 3, 4 and 5 may run concurrently — they have z
 | 1. Schemas Freeze and Walking Skeleton | 6/6 | Complete    | 2026-09-15 |
 | 2. Deterministic Fee Engine | 7/7 | Complete    | 2026-09-16 |
 | 3. Rule Packs and Pack Admin | 5/5 | Complete    | 2026-09-18 |
-| 3.1 Demo Slice — In-Memory Determination Pipeline | 2/5 | In Progress|  |
+| 3.1 Demo Slice — In-Memory Determination Pipeline | 4/5 | In Progress|  |
 | 3.2 Database Boundary and Audit Immutability | 0/3 | Planned (inherited from Phase 1) | - |
 | 4. Workflow and Audit Backbone | 0/TBD | Not started | - |
 | 5. HR Intake and Disclosure Shell | 0/TBD | Not started | - |
