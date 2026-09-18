@@ -10,12 +10,19 @@ import "./server-only.ts";
 import type { MatterStatus } from "@dsar/schemas/matter-status";
 import { ConflictError } from "./errors.ts";
 
-// Only the edges this plan's own pipeline exercises: DRAFT -> COMPUTING (on
+// Only the edges the pipelines built so far exercise: DRAFT -> COMPUTING (on
 // submit), COMPUTING -> LEGAL_REVIEW (on a successful assess()), and
-// COMPUTING -> DRAFT (the PRD §10.7 engine-error rollback).
+// COMPUTING -> DRAFT (the PRD §10.7 engine-error rollback) from Plan 01/02;
+// LEGAL_REVIEW -> SIGNED_OFF (sign-off) and LEGAL_REVIEW -> INFO_REQUEST
+// (Ask HR), plus INFO_REQUEST -> COMPUTING (HR's re-submission re-running
+// the same COMPUTING -> LEGAL_REVIEW edge above) from Plan 04. Phase 4 owns
+// the real guarded executor over the frozen `GuardInput`; nothing should
+// grow beside this beyond the edges an actual built pipeline exercises.
 const PERMITTED_TRANSITIONS: Partial<Record<MatterStatus, readonly MatterStatus[]>> = {
   DRAFT: ["COMPUTING"],
   COMPUTING: ["LEGAL_REVIEW", "DRAFT"],
+  LEGAL_REVIEW: ["SIGNED_OFF", "INFO_REQUEST"],
+  INFO_REQUEST: ["COMPUTING"],
 };
 
 export function assertTransition(from: MatterStatus, to: MatterStatus): void {

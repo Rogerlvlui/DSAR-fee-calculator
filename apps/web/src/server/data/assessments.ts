@@ -1,20 +1,41 @@
 // apps/web/src/server/data/assessments.ts
 
 import "../server-only.ts";
-import type { Assessment, AssessmentLine } from "@dsar/schemas/assessment";
+import type { Assessment, AssessmentLine, SignOff } from "@dsar/schemas/assessment";
 import { MinorSchema, type Minor, type UserRef } from "@dsar/schemas/primitives";
 import { FREE_TEXT_LIMITS } from "@dsar/schemas/constants";
-import { ForbiddenError, NotFoundError, ValidationError } from "../errors.ts";
+import { deriveEffectiveStatus } from "@dsar/rulepacks/stale";
+import { ConflictError, ForbiddenError, NotFoundError, ValidationError } from "../errors.ts";
 import { requireRole, type DemoActor } from "./auth.ts";
 import { memoryAssessmentRepository } from "../repositories/memory/assessment-repository.ts";
 import { memoryMatterRepository } from "../repositories/memory/matter-repository.ts";
 import { loadDemoPack } from "../engine-invocation.ts";
+import { assertTransition } from "../state.ts";
+import { newUlid } from "../ids.ts";
 import {
   hasSufficientReason,
   isActionPermitted,
   MIN_REASON_NON_WHITESPACE_CHARS,
   type DispositionAction,
 } from "../../domain/disposition-actions.ts";
+import { computeFinalAmount } from "../../domain/review-tallies.ts";
+import { ATTESTATION_TEMPLATE_VERSION, renderAttestation } from "../../domain/attestation.ts";
+import type { InfoRequest } from "../../domain/info-request.ts";
+
+// Fetches the matter for an assessment and refuses (409) unless it is in
+// legal review — the state precondition dispositionLine, bulkAcceptLines
+// and signOff all share, so all three refuse with a conflict while the
+// matter sits in the information-requested state (T-03.1-26).
+async function requireAssessmentInLegalReview(assessment: Assessment) {
+  const matter = await memoryMatterRepository.getMatter(assessment.matterId);
+  if (!matter) throw new NotFoundError(`No matter found for assessment '${assessment.id}'`);
+  if (matter.status !== "LEGAL_REVIEW") {
+    throw new ConflictError(
+      `Matter '${matter.id}' is not in legal review (currently ${matter.status}) — this action is refused`
+    );
+  }
+  return matter;
+}
 
 export async function getAssessmentForLegalReview(
   actor: DemoActor,
@@ -87,6 +108,8 @@ export async function dispositionLine(
   if (!assessment) throw new NotFoundError(`No assessment line with id '${assessmentLineId}'`);
   const line = assessment.lines.find((candidate) => candidate.id === assessmentLineId);
   if (!line) throw new NotFoundError(`No assessment line with id '${assessmentLineId}'`);
+
+  await requireAssessmentInLegalReview(assessment);
 
   if (!isActionPermitted(line.verdict, input.action)) {
     throw new ValidationError(`Action '${input.action}' is not permitted for a '${line.verdict}' line`);
@@ -223,6 +246,8 @@ export async function bulkAcceptLines(
   const assessment = await memoryAssessmentRepository.getAssessment(assessmentId);
   if (!assessment) throw new NotFoundError(`No assessment with id '${assessmentId}'`);
 
+  await requireAssessmentInLegalReview(assessment);
+
   assertSufficientReason(input.reason);
 
   if (input.lineIds.length === 0) {
@@ -242,4 +267,154 @@ export async function bulkAcceptLines(
   await memoryAssessmentRepository.updateAssessment(updatedAssessment);
 
   return updatedLines.filter((line) => input.lineIds.includes(line.id));
+}
+
+// ---------------------------------------------------------------------------
+// signOff — the gate, the attestation, and the only write of finalAmount
+// ---------------------------------------------------------------------------
+
+export interface SignOffInput {
+  qualification: string;
+  acknowledgedFlags: string[];
+  attestation: boolean;
+}
+
+export interface SignOffResult {
+  assessment: Assessment;
+  // Not persisted on the frozen SignOff record (it carries no free-text
+  // field for this) — returned alongside so the panel and this function's
+  // own tests can prove the SAME shared renderAttestation() produced it,
+  // rather than either side hand-copying a second string.
+  attestationText: string;
+}
+
+// requireRole first, then refuse at the FIRST failure among: the matter is
+// not in legal review; any line is still pending; any matter flag requiring
+// acknowledgement is missing from the supplied list; the supplied list
+// names a flag the assessment does not carry; the attestation is not
+// affirmed; the qualification is empty after trimming. A refusal writes
+// nothing at all — not the record, not the amount, not the status.
+export async function signOff(
+  actor: DemoActor,
+  assessmentId: string,
+  input: SignOffInput
+): Promise<SignOffResult> {
+  requireRole(actor, "LEGAL_REVIEWER");
+
+  const assessment = await memoryAssessmentRepository.getAssessment(assessmentId);
+  if (!assessment) throw new NotFoundError(`No assessment with id '${assessmentId}'`);
+
+  const matter = await requireAssessmentInLegalReview(assessment);
+
+  if (assessment.lines.some((line) => line.disposition === "PENDING")) {
+    throw new ValidationError("Every line must be dispositioned before sign-off");
+  }
+
+  const flagsRequiringAck = assessment.matterLevelFlags.filter((flag) => flag.requiresAcknowledgement);
+  const acknowledgedSet = new Set(input.acknowledgedFlags);
+  for (const flag of flagsRequiringAck) {
+    if (!acknowledgedSet.has(flag.id)) {
+      throw new ValidationError(`Matter flag '${flag.id}' requires acknowledgement before sign-off`);
+    }
+  }
+
+  const knownFlagIds = new Set(assessment.matterLevelFlags.map((flag) => flag.id));
+  for (const id of input.acknowledgedFlags) {
+    if (!knownFlagIds.has(id)) {
+      throw new ValidationError(`Acknowledged flag '${id}' is not one of this assessment's matter-level flags`);
+    }
+  }
+
+  if (input.attestation !== true) {
+    throw new ValidationError("The attestation must be affirmed before sign-off");
+  }
+
+  const qualification = input.qualification.trim();
+  if (qualification.length === 0) {
+    throw new ValidationError("Qualification is required before sign-off");
+  }
+
+  // Only now — every condition met — do we compute anything or write
+  // anything. This is the only module in the codebase that writes
+  // finalAmount, and it is never derived from the draft baseline.
+  const finalAmount = computeFinalAmount(assessment.lines);
+
+  const pack = loadDemoPack(); // real, uncoerced — never the ACTIVE-coerced copy
+  const now = new Date().toISOString();
+  const packIsStale = deriveEffectiveStatus(pack, now) === "STALE";
+  const attestationText = renderAttestation({
+    jurisdiction: pack.jurisdiction.name,
+    packId: assessment.rulePackId,
+    packVersion: assessment.rulePackVersion,
+    reviewedOn: pack.reviewedOn,
+    packIsStale,
+  });
+
+  const signOffRecord: SignOff = {
+    lawyer: actor.user,
+    lawyerName: actor.user.displayName,
+    qualification,
+    signedAt: now,
+    finalAmount,
+    acknowledgedFlags: input.acknowledgedFlags,
+    attestation: true,
+    attestationVersion: ATTESTATION_TEMPLATE_VERSION,
+  };
+
+  const updatedAssessment: Assessment = {
+    ...assessment,
+    totals: { ...assessment.totals, finalAmount },
+    signOff: signOffRecord,
+  };
+  await memoryAssessmentRepository.updateAssessment(updatedAssessment);
+
+  assertTransition("LEGAL_REVIEW", "SIGNED_OFF");
+  await memoryMatterRepository.updateMatter({ ...matter, status: "SIGNED_OFF" });
+
+  return { assessment: updatedAssessment, attestationText };
+}
+
+// ---------------------------------------------------------------------------
+// askHr — the information-request branch
+// ---------------------------------------------------------------------------
+
+export interface AskHrInput {
+  query: string;
+}
+
+// Requires the legal-reviewer role, validates the query by the same
+// minimum-length rule dispositions use, appends the request, and
+// transitions the matter from legal review to information requested. Writes
+// no disposition on the line: it is still undecided, which is exactly why
+// the lawyer is asking.
+export async function askHr(
+  actor: DemoActor,
+  assessmentLineId: string,
+  input: AskHrInput
+): Promise<InfoRequest> {
+  requireRole(actor, "LEGAL_REVIEWER");
+
+  const assessment = await memoryAssessmentRepository.findByLineId(assessmentLineId);
+  if (!assessment) throw new NotFoundError(`No assessment line with id '${assessmentLineId}'`);
+  const line = assessment.lines.find((candidate) => candidate.id === assessmentLineId);
+  if (!line) throw new NotFoundError(`No assessment line with id '${assessmentLineId}'`);
+
+  const matter = await requireAssessmentInLegalReview(assessment);
+
+  assertSufficientReason(input.query);
+
+  const request: InfoRequest = {
+    id: newUlid(),
+    matterId: matter.id,
+    assessmentLineId,
+    query: input.query,
+    raisedBy: { id: actor.user.id, displayName: actor.user.displayName },
+    raisedAt: new Date().toISOString(),
+  };
+  await memoryAssessmentRepository.appendInfoRequest(request);
+
+  assertTransition("LEGAL_REVIEW", "INFO_REQUEST");
+  await memoryMatterRepository.updateMatter({ ...matter, status: "INFO_REQUEST" });
+
+  return request;
 }
