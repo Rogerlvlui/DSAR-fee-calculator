@@ -14,7 +14,11 @@ export async function POST(
   context: { params: Promise<{ id: string }> }
 ): Promise<Response> {
   try {
-    const { id } = await context.params;
+    // decodeURIComponent: assessment ids are colon-joined and arrive
+    // percent-encoded from Next's dynamic segment here — see the review
+    // page's own note (apps/web/app/(legal)/assessments/[id]/page.tsx).
+    const { id: rawId } = await context.params;
+    const id = decodeURIComponent(rawId);
     const body = (await request.json()) as SignOffInput;
     const actor = resolveActorFromCookieHeader(request.headers.get("cookie"));
     const result = await signOff(actor, id, body);

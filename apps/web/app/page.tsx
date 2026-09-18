@@ -21,10 +21,10 @@ export default async function LandingPage() {
         </p>
         <ul>
           <li>
-            <a href="/hr/matters/new">Create a fee claim, as HR</a>
+            <a href="/matters/new">Create a fee claim, as HR</a>
           </li>
           <li>
-            <a href="/legal/assessments">Open an assessment, as Legal</a>
+            <a href="/assessments">Open an assessment, as Legal</a>
           </li>
         </ul>
       </main>

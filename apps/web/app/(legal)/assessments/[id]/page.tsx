@@ -37,7 +37,16 @@ export default async function LegalAssessmentPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = await params;
+  // decodeURIComponent: assessment ids are colon-joined
+  // (`assessment:{matterId}:{packId}:{packVersion}:{timestamp}`,
+  // packages/engine's deriveAssessmentId) and Next's dynamic-segment param
+  // arrives percent-encoded rather than auto-decoded under this app's
+  // current Turbopack dev setup — confirmed live: an unencoded lookup 404s.
+  // No test in this phase catches this class of bug, since every route
+  // test drives handlers directly with a hand-built params object,
+  // bypassing real URL decoding entirely.
+  const { id: rawId } = await params;
+  const id = decodeURIComponent(rawId);
   const actor = await getCurrentActor();
   const assessment = await getAssessmentForLegalReview(actor, id);
   const matter = await memoryMatterRepository.getMatter(assessment.matterId);

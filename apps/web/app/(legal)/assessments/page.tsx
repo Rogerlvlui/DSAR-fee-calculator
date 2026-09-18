@@ -30,7 +30,7 @@ export default async function AssessmentsListPage() {
         <ul data-testid="assessments-list">
           {entries.map(({ matter, assessmentId }) => (
             <li key={assessmentId}>
-              <a href={`/legal/assessments/${assessmentId}`}>
+              <a href={`/assessments/${assessmentId}`}>
                 {matter.reference} — {matter.status === "SIGNED_OFF" ? "Signed off" : "Awaiting review"}
               </a>
             </li>

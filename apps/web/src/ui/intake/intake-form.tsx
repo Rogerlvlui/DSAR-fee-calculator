@@ -191,7 +191,7 @@ export function IntakeForm({ packView, defaultReference }: IntakeFormProps) {
       });
       if (!submitResponse.ok) throw new Error(await readErrorMessage(submitResponse));
 
-      router.push(`/hr/matters/${matter.id}/submitted`);
+      router.push(`/matters/${matter.id}/submitted`);
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : "Something went wrong.");
       setSubmitting(false);
