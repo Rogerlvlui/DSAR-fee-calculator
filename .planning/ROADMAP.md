@@ -154,7 +154,7 @@ PACK-08's sign-off-side block (a user who activated a pack version cannot sign o
 **Success Criteria** (what must be TRUE):
 
   1. From a cold checkout, one documented command starts the app and a presenter drives the whole path in a browser with no database, no Docker and no network: create a matter, itemise the PRD §14 reference fixture's six lines, submit, disposition every line, sign off, and read the notice
-  2. Every figure is computed, never hardcoded — the numbers come from `packages/engine` applying the authored SG-PDPA pack, and the reference fixture reproduces its §14 expected values exactly: `claimedTotal` 888.00, `draftBaseline` 266.40, `disallowedTotal` 126.60, `flaggedTotal` 495.00 across 2 items, `restingOnUnverifiedRules` 106.40, and `finalAmount` `null` until sign-off
+  2. Every figure is computed, never hardcoded — the numbers come from `packages/engine` applying the authored SG-PDPA pack. `claimedTotal` 888.00, `draftBaseline` 266.40, `disallowedTotal` 126.60, `flaggedTotal` 495.00 across 2 items, and `finalAmount` `null` until sign-off all reproduce PRD §14 exactly. `restingOnUnverifiedRules` is **266.40, not PRD §14's published 106.40** — proven correct against the real committed pack in 03.1-01: every one of the pack's six relevant category rules is `NEEDS_VERIFICATION` (not just two, as PRD §14's worked example assumes), so all three allowed/capped lines rest on unverified rules and the whole `draftBaseline` does too. The pack content is not edited to force the PRD's number (product owner's confirmed decision, 2026-09-18); this is the correct expected value for any later plan/verifier to check against.
   3. The anti-automation-bias controls are real rather than staged: no headline total renders while any line is PENDING, every disposition demands its reason, bulk accept is offered only for ALLOW lines with VERIFIED rules, and every line shows its rule ID, pack-authored basis and citation without further interaction
   4. Persistence is the only throwaway: matters and assessments sit behind a repository interface whose in-memory implementation can be swapped for a Prisma one without touching a screen or the engine — proven by the interface module having no import from any store implementation
   5. The demo never overstates itself — the capability statement and status strip are present, the notice is watermarked DRAFT, and the running build carries a visible marker that it holds no persistent data
@@ -162,7 +162,7 @@ PACK-08's sign-off-side block (a user who activated a pack version cannot sign o
 **Plans**: 5 plans across 4 waves
 
 Plans:
-- [ ] 03.1-01-PLAN.md — Tracer: one determination end to end (scaffold, in-memory repository behind a swappable interface, data access layer, three route handlers, the demo-only pack coercion, the first honest render, and the CI gates that make the interface-purity claim a fact) — wave 1
+- [x] 03.1-01-PLAN.md — Tracer: one determination end to end (scaffold, in-memory repository behind a swappable interface, data access layer, three route handlers, the demo-only pack coercion, the first honest render, and the CI gates that make the interface-purity claim a fact) — wave 1 — complete 2026-09-18
 - [ ] 03.1-02-PLAN.md — The first-use capability statement and the HR intake screen, plus AC-06's deny-list boundary test re-pointed at the real form — wave 2
 - [ ] 03.1-03-PLAN.md — The legal review screen, per-verdict dispositions with a server-enforced mandatory reason, and the verified-only bulk-accept bar — wave 2
 - [ ] 03.1-04-PLAN.md — Sign-off under the §9.5 attestation, the information-request branch with an in-place recompute, and the HR result and draft notice — wave 3
@@ -291,7 +291,7 @@ Where capacity allows, Phases 2, 3, 4 and 5 may run concurrently — they have z
 | 1. Schemas Freeze and Walking Skeleton | 6/6 | Complete    | 2026-09-15 |
 | 2. Deterministic Fee Engine | 7/7 | Complete    | 2026-09-16 |
 | 3. Rule Packs and Pack Admin | 5/5 | Complete    | 2026-09-18 |
-| 3.1 Demo Slice — In-Memory Determination Pipeline | 0/TBD | Not started | - |
+| 3.1 Demo Slice — In-Memory Determination Pipeline | 1/5 | In Progress | - |
 | 3.2 Database Boundary and Audit Immutability | 0/3 | Planned (inherited from Phase 1) | - |
 | 4. Workflow and Audit Backbone | 0/TBD | Not started | - |
 | 5. HR Intake and Disclosure Shell | 0/TBD | Not started | - |

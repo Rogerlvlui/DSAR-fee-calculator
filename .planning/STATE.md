@@ -2,18 +2,18 @@
 gsd_state_version: "1.0"
 current_phase: "03.1"
 current_phase_name: Demo Slice — In-Memory Determination Pipeline
-status: planning
-stopped_at: Phase 3 complete, ready to plan Phase 03.1
-last_updated: "2026-09-17T16:13:09.698Z"
+status: executing
+stopped_at: Completed 03.1-01-PLAN.md (Task 0 checkpoint approved, Tasks 1-3 executed)
+last_updated: "2026-09-18T02:10:33.000Z"
 last_activity: 2026-09-18
-last_activity_desc: Phase 3 complete, transitioned to Phase 03.1
-state_head: 611094bf1aef4ed7777d00e94f58e7029e3c967e
+last_activity_desc: Plan 03.1-01 (tracer slice) complete — apps/web scaffolded, one determination proven end to end
+state_head: c071561
 progress:
   total_phases: 10
-  completed_phases: 1
-  total_plans: 21
-  completed_plans: 18
-  percent: 10
+  completed_phases: 3
+  total_plans: 26
+  completed_plans: 19
+  percent: 30
 ---
 
 # Project State
@@ -23,22 +23,22 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-13)
 
 **Core value:** A lawyer can defend the output by saying "the engine applied rule HK-PDPO.STAFF_TIME_REDACT_EXEMPT, version 2026.09.1, authored by X on date Y, and struck the line" — never "the model assessed the claim."
-**Current focus:** Phase 03 — Rule Packs and Pack Admin
+**Current focus:** Phase 03.1 — Demo Slice — In-Memory Determination Pipeline
 
 ## Current Position
 
 Phase: 03.1 — Demo Slice — In-Memory Determination Pipeline
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-09-18 — Phase 3 complete, transitioned to Phase 03.1
+Plan: 01 of 5 complete (wave 1 of 4)
+Status: Executing — Plan 03.1-01 (tracer slice) done, ready for wave 2 (Plans 03.1-02/03)
+Last activity: 2026-09-18 — Plan 03.1-01 complete: apps/web scaffolded by hand, one determination proven end to end through real HTTP, the real engine and the real committed SG-PDPA pack
 
-Progress: [█░░░░░░░░░] 10%
+Progress: [███░░░░░░░] 30%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 18
+- Total plans completed: 19
 - Average duration: —
 - Total execution time: —
 
@@ -49,6 +49,7 @@ Progress: [█░░░░░░░░░] 10%
 | 1 | 6 | - | - |
 | 02 | 7 | - | - |
 | 3 | 5 | - | - |
+| 03.1 | 1/5 | - | - |
 
 **Recent Trend:**
 
@@ -78,6 +79,7 @@ Progress: [█░░░░░░░░░] 10%
 | Phase 03 P03 | 50min | 3 tasks | 8 files |
 | Phase 03 P04 | 35min | 2 tasks | 10 files |
 | Phase 03 P05 | 30min | 3 tasks | 10 files |
+| Phase 03.1 P01 | 70min | 4 tasks | 45 files |
 
 ## Accumulated Context
 
@@ -136,6 +138,11 @@ Recent decisions affecting current work:
 - [Phase 03]: [Phase 03 P05]: HK-PDPO and SG-PDPA committed by transcription only — 9/21 (HK) and 6/15 (SG) categoryRules authored from PRD §7.5/§7.6, remaining 12/15 as generateStubCategoryRules() placeholders; FlatFeeSchema.verificationNote (D-22) lets HK's flatFee.amount:0 carry the UNAUTHORED marker; PACK-12 marked complete in REQUIREMENTS.md (structural half genuinely discharged), PACK-09 deliberately left Pending (D-16 defers full 21-category authoring + ACTIVE to before Phase 6)
 - [Phase 03]: [Phase 03 P05]: assertActiveReady's actual thrown code for both reference packs is MISSING_REVIEWER, not the plan-stated UNAUTHORED_CONTENT — authoredBy/reviewedBy/reviewedOn transcribed as null per PRD, and REVIEWER_IDENTITY (03-03) runs before UNAUTHORED_CONTENT in ACTIVE_READY_CHECK_ORDER; test asserts the real, verified code (Rule 1 deviation, documented in 03-05-SUMMARY.md)
 - [Phase 03]: [Phase 03 P05]: validate.ts's assertNoUnauthoredContent still does NOT scan flatFee.verificationNote — flagged in 03-03-SUMMARY as deferred here once the field existed, but adding the scan touches validate.ts, outside this plan's declared files (Task 1 only widens rule-pack.ts); recommend a Phase 3.2/Phase 6 follow-up task
+- [Phase 03.1]: [Phase 03.1 P01]: ulid npm package approved by product owner at Task 0's blocking-human checkpoint (npmjs.com verified: 3.0.2, github.com/ulid/javascript, ~7.6M weekly downloads, MIT, 0 deps, no install script)
+- [Phase 03.1]: [Phase 03.1 P01]: server-only npm package deliberately NOT installed — replaced by a local guard module (apps/web/src/server/server-only.ts, a window-typeof throw) plus the no-server-imports-in-ui dependency-cruiser rule, per 03.1-RESEARCH.md's own recorded assumption; gives the same runtime+build-time guarantees with no new dependency and no Vitest resolution workaround
+- [Phase 03.1]: [Phase 03.1 P01]: restingOnUnverifiedRules confirmed as 26640 through the real HTTP path against the real committed SG-PDPA pack (not PRD §14's published 10640) — every relevant rule in the real pack is NEEDS_VERIFICATION, so all three ALLOW/ALLOW_CAPPED lines rest on unverified rules; asserted with toBe(26640), pack content untouched
+- [Phase 03.1]: [Phase 03.1 P01]: tests/tsconfig.json's rootDir widened to the repo root, include narrowed to two targeted globs (apps/web/app/api/**, apps/web/src/server/**) plus an exclude for current-actor.ts — that file's next/headers import only resolves under apps/web/tsconfig.json's bundler moduleResolution, not this project's inherited nodenext
+- [Phase 03.1]: [Phase 03.1 P01]: gsd-tools.cjs still unavailable in this worktree (same as 03-03/03-04) — STATE.md/ROADMAP.md updated manually, SUMMARY.md's actuals computed by hand (git diff char count / 4, git rev-list --count)
 
 ### Pending Todos
 
@@ -152,6 +159,7 @@ None yet.
 - PACK-04's HTTP half (409 refusal on a stale pack, in-flight-review full-width notice) and PACK-05's assessment-side half (AC-40's "existing assessment untouched by new activation") remain undischarged after 03-04 — both need a route/review screen (Phases 5/6) or persisted assessments (Phase 3.2) that do not exist yet. REQUIREMENTS.md correctly still shows both Pending.
 - Phase 3's last plan (03-05) is complete — all 5/5 plans executed — but PACK-09 remains genuinely Pending: only 9/21 (HK) and 6/15 (SG) categoryRules are authored, per D-16's deliberate deferral of full 21-category authoring across both reference packs to before Phase 6's convergence gate. This is the schedule long pole PROJECT.md already flags; not a new blocker, but now the only Phase 3 in-scope requirement still open.
 - validate.ts's assertNoUnauthoredContent does not yet scan flatFee.verificationNote, even though HK-PDPO's flatFee.verificationNote carries the UNAUTHORED token today — assertActiveReady still refuses HK-PDPO via MISSING_REVIEWER (reviewer fields are null), so no live gap in current behavior, but the scan should be added (touches packages/rulepacks/src/validate.ts) before HK-PDPO's reviewer fields are ever set, so a real flat-fee figure cannot slip through unscanned.
+- **`pnpm dev`/`next build` currently fail** — discovered via a voluntary smoke test during 03.1-01, recorded as WINDOWS.md ledger entries 2 and 3 (open_count is 2, not 0): (1) `packages/rulepacks/src/loader.ts`'s `RULEPACKS_ROOT` throws under Turbopack's page-data collection (`import.meta.dirname` undefined there) — a frozen Phase 3 file, out of 03.1-01's scope, needs a product-owner decision; (2) no `@tailwindcss/postcss` plugin is registered anywhere, so `apps/web/app/globals.css`'s `@theme` block is inert in a real build — fixing this needs a new package install, which requires its own package-legitimacy checkpoint (like Task 0's ulid one) before any later plan runs `pnpm add @tailwindcss/postcss`. **Resolve both before Plan 03.1-02 starts** — otherwise every subsequent plan's UI work accumulates on a stylesheet Tailwind isn't processing, and the actual stakeholder demo cannot run.
 
 ### Roadmap Evolution
 
@@ -167,6 +175,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-09-17T22:12:19.000Z
-Stopped at: Phase 3 complete, ready to plan Phase 03.1
+Last session: 2026-09-18T02:10:33.000Z
+Stopped at: Completed 03.1-01-PLAN.md (Task 0 checkpoint approved, Tasks 1-3 executed) — apps/web scaffolded, one determination proven end to end. Two build-blocking defects discovered and recorded (WINDOWS.md entries 2, 3), not fixed — see Blockers/Concerns above.
 Resume file: None
