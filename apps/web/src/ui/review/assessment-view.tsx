@@ -1,130 +1,148 @@
 // apps/web/src/ui/review/assessment-view.tsx
 //
-// The minimal but real review body, props in and markup out. For each line:
-// a verdict badge whose text names the verdict in words, HR's own
-// description quoted next to the category label, the claimed arithmetic,
-// the applied rule id, the pack-authored basis and the citation — the last
-// three always visible, never behind a disclosure control. A totals region
-// renders the six figures through formatMinor only. While any line is
-// PENDING, the headline renders the hidden state and no final figure is
-// rendered at all. Imports nothing from the app's server-side module tree.
-// Plan 03 expands this into the full card layout, ordering and controls —
-// this is deliberately not that yet.
+// The three-region legal review screen (PRD §10.3): the matter/pack context
+// rail on the left, the sorted stack of line cards in the centre, and the
+// totals rail (with the suppressed-while-pending headline) on the right.
+// Cards are ordered by the domain's compareByVerdict comparator — never by
+// the position a line happens to occupy in assessment.lines. Expands Plan
+// 01's minimal version (03.1-01); keeps its props-in/markup-out shape and
+// imports nothing from apps/web/src/server.
 
-import type { Assessment, Verdict } from "@dsar/schemas/assessment";
-import type { ExpenseLine } from "@dsar/schemas/expense-line";
+import type { ReactNode } from "react";
+import type { Assessment } from "@dsar/schemas/assessment";
+import type { ExpenseUnit } from "@dsar/schemas/expense-line";
+import type { RequestorClass } from "@dsar/schemas/matter";
+import type { ControllerType, Minor, MatterFlag } from "@dsar/schemas/primitives";
 import type { CurrencyCode } from "@dsar/schemas/primitives";
-import { formatMinor } from "@dsar/schemas/money";
-import { EXPENSE_CATEGORY_LABELS } from "@dsar/schemas/taxonomy";
+import type { FeePosture, VerificationStatus } from "@dsar/schemas/rule-pack";
+import { compareByVerdict } from "../../domain/verdict-order.ts";
+import { LineCard } from "./line-card.tsx";
+import { MatterRail, type MatterRailAdvisoryDeadline } from "./matter-rail.tsx";
+import { PackRail } from "./pack-rail.tsx";
+import { TotalsRail } from "./totals-rail.tsx";
+
+export interface AssessmentViewLineDetail {
+  assessmentLineId: string;
+  seq: number;
+  categoryLabel: string;
+  description: string;
+  quantity: number;
+  unit: ExpenseUnit;
+  unitRate: Minor;
+  claimedAmount: Minor;
+  verificationStatus: VerificationStatus;
+}
+
+export interface AssessmentViewMatter {
+  reference: string;
+  jurisdictionName: string;
+  legalEntity: string;
+  controllerType: ControllerType;
+  requestReceivedOn: string;
+  requestorClass: RequestorClass;
+  identityVerified: boolean;
+  identityVerifiedNote: string | null;
+  scopeClarified: boolean;
+}
+
+export interface AssessmentViewPack {
+  packId: string;
+  version: string;
+  status: string;
+  feePosture: FeePosture;
+  authoredByDisplayName: string | null;
+  reviewedByDisplayName: string | null;
+  reviewedOn: string | null;
+  reviewDueOn: string;
+  openQuestions: readonly string[];
+}
 
 export interface AssessmentViewProps {
   assessment: Assessment;
-  expenseLines: readonly ExpenseLine[];
   currency: CurrencyCode;
+  lineDetails: readonly AssessmentViewLineDetail[];
+  matterFlags: readonly MatterFlag[];
+  advisoryDeadline: MatterRailAdvisoryDeadline | null;
+  matter: AssessmentViewMatter;
+  pack: AssessmentViewPack;
+  /** Per-line disposition controls, keyed by assessment line id — composed
+   * here (Task 2/3 of this plan) so this module still never imports
+   * apps/web/src/server, and disposition-controls.tsx/bulk-accept-bar.tsx
+   * never import this module either. */
+  renderLineControls?: (assessmentLineId: string) => ReactNode;
+  bulkAcceptBar?: ReactNode;
 }
 
-// UI-SPEC Copywriting Contract, verbatim.
-const VERDICT_LABELS: Record<Verdict, string> = {
-  FLAG: "Needs your decision",
-  ALLOW: "Supported by rule",
-  ALLOW_CAPPED: "Supported — reduced to cap",
-  DISALLOW: "Not supported",
-};
-
-const HIDDEN_HEADLINE_TEXT = "— hidden —";
-
-function pendingCountSentence(pendingCount: number): string {
-  return `${pendingCount} line${pendingCount === 1 ? "" : "s"} still need your decision`;
-}
-
-function formatCitation(citation: Assessment["lines"][number]["citation"]): string {
-  const parts = [`${citation.instrument} ${citation.provision}`.trim()];
-  if (citation.guidance) parts.push(citation.guidance);
-  if (citation.note) parts.push(citation.note);
-  return parts.join(" — ");
-}
-
-export function AssessmentView({ assessment, expenseLines, currency }: AssessmentViewProps) {
-  const expenseLineById = new Map(expenseLines.map((line) => [line.id, line]));
-  const pendingCount = assessment.lines.filter((line) => line.disposition === "PENDING").length;
+export function AssessmentView({
+  assessment,
+  currency,
+  lineDetails,
+  matterFlags,
+  advisoryDeadline,
+  matter,
+  pack,
+  renderLineControls,
+  bulkAcceptBar,
+}: AssessmentViewProps) {
+  const detailByLineId = new Map(lineDetails.map((detail) => [detail.assessmentLineId, detail]));
+  const sortedLines = [...assessment.lines].sort(compareByVerdict);
 
   return (
     <div data-testid="assessment-view">
-      <div data-testid="assessment-lines">
-        {assessment.lines.map((line) => {
-          const expenseLine = expenseLineById.get(line.expenseLineId);
-          const categoryLabel = expenseLine ? EXPENSE_CATEGORY_LABELS[expenseLine.categoryCode] : null;
+      <MatterRail
+        reference={matter.reference}
+        jurisdictionName={matter.jurisdictionName}
+        legalEntity={matter.legalEntity}
+        controllerType={matter.controllerType}
+        requestReceivedOn={matter.requestReceivedOn}
+        requestorClass={matter.requestorClass}
+        identityVerified={matter.identityVerified}
+        identityVerifiedNote={matter.identityVerifiedNote}
+        scopeClarified={matter.scopeClarified}
+        matterFlags={matterFlags}
+        advisoryDeadline={advisoryDeadline}
+      />
 
-          return (
-            <article key={line.id} data-testid="assessment-line" data-verdict={line.verdict}>
-              <div>
-                <span data-testid="verdict-badge">{VERDICT_LABELS[line.verdict]}</span>
-                {categoryLabel ? <span data-testid="category-label"> {categoryLabel}</span> : null}
-              </div>
+      <PackRail
+        packId={pack.packId}
+        version={pack.version}
+        status={pack.status}
+        feePosture={pack.feePosture}
+        authoredByDisplayName={pack.authoredByDisplayName}
+        reviewedByDisplayName={pack.reviewedByDisplayName}
+        reviewedOn={pack.reviewedOn}
+        reviewDueOn={pack.reviewDueOn}
+        openQuestions={pack.openQuestions}
+      />
 
-              {expenseLine ? (
-                <div data-testid="hr-description">
-                  <span>HR's description</span>
-                  <q>{expenseLine.description}</q>
-                </div>
-              ) : null}
-
-              {expenseLine ? (
-                <div data-testid="claimed-arithmetic">
-                  Claimed {expenseLine.quantity} {expenseLine.unit} ×{" "}
-                  {formatMinor(expenseLine.unitRate, currency)} ={" "}
-                  {formatMinor(expenseLine.claimedAmount, currency)} → engine{" "}
-                  {formatMinor(line.engineAmount, currency)}
-                </div>
-              ) : null}
-
-              <div data-testid="applied-rule-id">{line.appliedRuleId}</div>
-              <div data-testid="basis">{line.basis}</div>
-              <div data-testid="citation">{formatCitation(line.citation)}</div>
-            </article>
-          );
-        })}
-      </div>
-
-      <div data-testid="totals">
-        <div>
-          <dt>Claimed by HR</dt>
-          <dd>{formatMinor(assessment.totals.claimedTotal, currency)}</dd>
-        </div>
-        <div>
-          <dt>Supported by rules</dt>
-          <dd>{formatMinor(assessment.totals.draftBaseline, currency)}</dd>
-        </div>
-        <div>
-          <dt>↳ resting on unverified rules</dt>
-          <dd>{formatMinor(assessment.totals.restingOnUnverifiedRules, currency)}</dd>
-        </div>
-        <div>
-          <dt>Not supported</dt>
-          <dd>{formatMinor(assessment.totals.disallowedTotal, currency)}</dd>
-        </div>
-        <div>
-          <dt>Needs your decision</dt>
-          <dd>{formatMinor(assessment.totals.flaggedTotal, currency)}</dd>
+      <div data-testid="cards-region">
+        {bulkAcceptBar}
+        <div data-testid="assessment-lines">
+          {sortedLines.map((line) => {
+            const detail = detailByLineId.get(line.id);
+            if (!detail) return null;
+            return (
+              <LineCard
+                key={line.id}
+                line={line}
+                seq={detail.seq}
+                categoryLabel={detail.categoryLabel}
+                description={detail.description}
+                quantity={detail.quantity}
+                unit={detail.unit}
+                unitRate={detail.unitRate}
+                claimedAmount={detail.claimedAmount}
+                currency={currency}
+                verificationStatus={detail.verificationStatus}
+              >
+                {renderLineControls ? renderLineControls(line.id) : null}
+              </LineCard>
+            );
+          })}
         </div>
       </div>
 
-      <div data-testid="headline">
-        <div>Recommended fee</div>
-        {pendingCount > 0 ? (
-          <>
-            <div data-testid="headline-hidden">{HIDDEN_HEADLINE_TEXT}</div>
-            <div data-testid="headline-sub">{pendingCountSentence(pendingCount)}</div>
-          </>
-        ) : (
-          <>
-            <div data-testid="headline-value">
-              {formatMinor(assessment.totals.finalAmount ?? assessment.totals.draftBaseline, currency)}
-            </div>
-            <div data-testid="headline-sub">Not yet signed off</div>
-          </>
-        )}
-      </div>
+      <TotalsRail assessment={assessment} currency={currency} />
     </div>
   );
 }

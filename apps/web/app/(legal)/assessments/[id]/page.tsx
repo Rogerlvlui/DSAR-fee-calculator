@@ -2,15 +2,17 @@
 //
 // An async server component: await the route params, resolve the actor,
 // call getAssessmentForLegalReview, load the untransformed pack with
-// loadDemoPack(), and pass plain props down to the status strip and the
-// assessment view. The page fetches and authorises; it renders nothing
-// itself beyond composition. The pack status it hands the strip comes from
-// the untransformed load result — never the engine-invocation boundary's
-// coerced copy.
+// loadDemoPack(), build the review view (apps/web/src/server/review-view.ts)
+// and pass plain props down to the status strip and the assessment view.
+// The page fetches and authorises; it renders nothing itself beyond
+// composition. The pack status it hands both the strip and the pack rail
+// comes from the untransformed load result — never the engine-invocation
+// boundary's coerced copy.
 
 import { getCurrentActor } from "../../../../src/server/current-actor.ts";
 import { getAssessmentForLegalReview } from "../../../../src/server/data/assessments.ts";
 import { loadDemoPack } from "../../../../src/server/engine-invocation.ts";
+import { buildReviewView } from "../../../../src/server/review-view.ts";
 import { memoryMatterRepository } from "../../../../src/server/repositories/memory/matter-repository.ts";
 import { NotFoundError } from "../../../../src/server/errors.ts";
 import { StatusStrip } from "../../../../src/ui/chrome/status-strip.tsx";
@@ -30,6 +32,7 @@ export default async function LegalAssessmentPage({
   }
   const expenseLines = await memoryMatterRepository.listExpenseLines(assessment.matterId);
   const pack = loadDemoPack();
+  const reviewView = buildReviewView(assessment, matter, expenseLines);
 
   return (
     <main>
@@ -43,7 +46,35 @@ export default async function LegalAssessmentPage({
         authoredByDisplayName={pack.authoredBy?.displayName ?? null}
         reviewedByDisplayName={pack.reviewedBy?.displayName ?? null}
       />
-      <AssessmentView assessment={assessment} expenseLines={expenseLines} currency={matter.currency} />
+      <AssessmentView
+        assessment={assessment}
+        currency={matter.currency}
+        lineDetails={reviewView.lines}
+        matterFlags={reviewView.matterFlags}
+        advisoryDeadline={reviewView.advisoryDeadline}
+        matter={{
+          reference: matter.reference,
+          jurisdictionName: pack.jurisdiction.name,
+          legalEntity: matter.legalEntity,
+          controllerType: matter.controllerType,
+          requestReceivedOn: matter.requestReceivedOn,
+          requestorClass: matter.requestorClass,
+          identityVerified: matter.identityVerified,
+          identityVerifiedNote: matter.identityVerifiedNote,
+          scopeClarified: matter.scopeClarified,
+        }}
+        pack={{
+          packId: pack.packId,
+          version: pack.version,
+          status: pack.status,
+          feePosture: pack.feePosture[matter.controllerType],
+          authoredByDisplayName: pack.authoredBy?.displayName ?? null,
+          reviewedByDisplayName: pack.reviewedBy?.displayName ?? null,
+          reviewedOn: pack.reviewedOn,
+          reviewDueOn: pack.reviewDueOn,
+          openQuestions: pack.openQuestions,
+        }}
+      />
     </main>
   );
 }
