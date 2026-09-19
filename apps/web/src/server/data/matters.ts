@@ -724,3 +724,17 @@ export async function listReviewableMatters(actor: DemoActor): Promise<Reviewabl
   }
   return views;
 }
+
+// NAV-02 (Plan 05-04) — the in-app substitute NS-3's ban on outbound email
+// requires: a preparer's own worklist of every matter they created. Mirrors
+// listReviewableMatters's exact shape (requireRole as the first statement,
+// then a filtered repository read). The ownership filter is currently
+// unobservable in the live demo (one seeded HR_PREPARER identity), but is
+// written correctly anyway — its own test constructs two distinct actors
+// inline to prove it, rather than relying on the single seeded identity.
+export async function listMattersForPreparer(actor: DemoActor): Promise<Matter[]> {
+  requireRole(actor, "HR_PREPARER");
+
+  const matters = await memoryMatterRepository.listMatters();
+  return matters.filter((matter) => matter.createdBy.id === actor.user.id);
+}
