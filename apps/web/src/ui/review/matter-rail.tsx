@@ -129,7 +129,7 @@ export function MatterRail({
           <b>
             {formatAdvisoryDate(advisoryDeadline.dueDateIso)} — {advisoryDeadline.daysRemaining} days
           </b>
-          . <b>{ADVISORY_QUALIFIER.split(". ")[0]}.</b> {ADVISORY_QUALIFIER.split(". ")[1]}
+          . <b>{ADVISORY_QUALIFIER}</b>
         </div>
       ) : null}
     </aside>
