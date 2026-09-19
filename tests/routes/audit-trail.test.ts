@@ -16,6 +16,7 @@ import { POST as addLineRoute } from "../../apps/web/app/api/matters/[id]/lines/
 import { POST as submitRoute } from "../../apps/web/app/api/matters/[id]/submit/route.ts";
 import { POST as infoRequestRoute } from "../../apps/web/app/api/matters/[id]/info-request/route.ts";
 import { POST as resubmitRoute } from "../../apps/web/app/api/matters/[id]/resubmit/route.ts";
+import { POST as recomputeRoute } from "../../apps/web/app/api/assessments/[id]/recompute/route.ts";
 import { POST as dispositionRoute } from "../../apps/web/app/api/assessment-lines/[id]/disposition/route.ts";
 import { POST as signoffRoute } from "../../apps/web/app/api/assessments/[id]/signoff/route.ts";
 import { DEMO_ROLE_COOKIE, DEMO_USERS } from "../../apps/web/src/server/data/auth.ts";
@@ -437,5 +438,112 @@ describe("AUDIT-TRAIL", () => {
     expect(infoRequested).toHaveLength(1);
     expect(infoRequested[0]!.payload.entityId).toBe(line.id);
     expect(infoRequested[0]!.actorRole).toBe("LEGAL_REVIEWER");
+  });
+
+  // 04-REVIEW.md CR-01: resubmitAfterInfoRequest and recomputeAgainstCurrentPack
+  // originally had no rollback if the engine's recompute threw — a matter
+  // was left permanently stranded in COMPUTING. Both now share
+  // computeInPlaceOrRollback (matters.ts), the same rollback shape this
+  // file's own submitForAssessment test above already proves. controllerType
+  // is immutable through every real route once a matter exists, so the only
+  // way to make the SECOND engine call fail without also failing the FIRST
+  // is a direct repository write between them — the same technique the
+  // bulk-accept test elsewhere in this suite already uses to engineer a
+  // scenario no real route can reach on its own.
+  it("AUDIT-TRAIL: when a resubmission's recompute throws, the matter rolls back to draft and a COMPUTE_FAILED record carries the reason (04-REVIEW.md CR-01)", async () => {
+    const matter = await createMatterWithOneLine();
+    const submitResponse = await submitRoute(jsonRequest(`${MATTERS_URL}/${matter.id}/submit`, "POST", {}), {
+      params: Promise.resolve({ id: matter.id }),
+    });
+    const assessment = (await submitResponse.json()) as FixtureAssessment;
+
+    await infoRequestRoute(
+      jsonRequest(
+        `${MATTERS_URL}/${matter.id}/info-request`,
+        "POST",
+        { assessmentLineId: assessment.lines[0]!.id, query: "Can you confirm the vendor invoiced this line?" },
+        LEGAL_COOKIE
+      ),
+      { params: Promise.resolve({ id: matter.id }) }
+    );
+
+    const infoRequestedMatter = await memoryMatterRepository.getMatter(matter.id);
+    if (!infoRequestedMatter) throw new Error("expected matter to exist");
+    await memoryMatterRepository.updateMatter({ ...infoRequestedMatter, controllerType: "PUBLIC_AGENCY" });
+
+    const resubmitResponse = await resubmitRoute(jsonRequest(`${MATTERS_URL}/${matter.id}/resubmit`, "POST", {}), {
+      params: Promise.resolve({ id: matter.id }),
+    });
+    expect(resubmitResponse.status).toBe(500);
+
+    const storedMatter = await memoryMatterRepository.getMatter(matter.id);
+    expect(storedMatter?.status).toBe("DRAFT");
+
+    const events = await memoryAuditEventWriter.listByMatter(matter.id);
+    const failed = eventsOfType(events, "COMPUTE_FAILED");
+    expect(failed).toHaveLength(1);
+    expect(failed[0]!.payload.before).toBe("COMPUTING");
+    expect(typeof failed[0]!.payload.after).toBe("string");
+    expect((failed[0]!.payload.after as string).length).toBeGreaterThan(0);
+  });
+
+  it("AUDIT-TRAIL: when a lawyer-initiated recompute throws, the matter rolls back to draft and a COMPUTE_FAILED record carries the reason (04-REVIEW.md CR-01)", async () => {
+    const matter = await createMatterWithOneLine();
+    const submitResponse = await submitRoute(jsonRequest(`${MATTERS_URL}/${matter.id}/submit`, "POST", {}), {
+      params: Promise.resolve({ id: matter.id }),
+    });
+    const assessment = (await submitResponse.json()) as FixtureAssessment;
+
+    const legalReviewMatter = await memoryMatterRepository.getMatter(matter.id);
+    if (!legalReviewMatter) throw new Error("expected matter to exist");
+    await memoryMatterRepository.updateMatter({ ...legalReviewMatter, controllerType: "PUBLIC_AGENCY" });
+
+    const recomputeResponse = await recomputeRoute(
+      jsonRequest(`http://localhost/api/assessments/${assessment.id}/recompute`, "POST", {}, LEGAL_COOKIE),
+      { params: Promise.resolve({ id: assessment.id }) }
+    );
+    expect(recomputeResponse.status).toBe(500);
+
+    const storedMatter = await memoryMatterRepository.getMatter(matter.id);
+    expect(storedMatter?.status).toBe("DRAFT");
+
+    const events = await memoryAuditEventWriter.listByMatter(matter.id);
+    const failed = eventsOfType(events, "COMPUTE_FAILED");
+    expect(failed).toHaveLength(1);
+    expect(failed[0]!.payload.before).toBe("COMPUTING");
+  });
+
+  // 04-REVIEW.md CR-02: recomputeAgainstCurrentPack never recorded an event
+  // for its own RECOMPUTE transition (LEGAL_REVIEW -> COMPUTING) — only the
+  // subsequent COMPUTED event was written, indistinguishable from any other
+  // path that happens to produce one. It now records a SUBMITTED-type event
+  // for that transition, mirroring resubmitAfterInfoRequest's own SUBMITTED
+  // record for its RESUBMIT transition.
+  it("AUDIT-TRAIL: a lawyer-initiated recompute leaves a SUBMITTED record for its own RECOMPUTE transition, in addition to the COMPUTED record (04-REVIEW.md CR-02)", async () => {
+    const matter = await createMatterWithOneLine();
+    const submitResponse = await submitRoute(jsonRequest(`${MATTERS_URL}/${matter.id}/submit`, "POST", {}), {
+      params: Promise.resolve({ id: matter.id }),
+    });
+    const assessment = (await submitResponse.json()) as FixtureAssessment;
+
+    const before = await memoryAuditEventWriter.listByMatter(matter.id);
+    const submittedBefore = eventsOfType(before, "SUBMITTED").length;
+    const computedBefore = eventsOfType(before, "COMPUTED").length;
+
+    const recomputeResponse = await recomputeRoute(
+      jsonRequest(`http://localhost/api/assessments/${assessment.id}/recompute`, "POST", {}, LEGAL_COOKIE),
+      { params: Promise.resolve({ id: assessment.id }) }
+    );
+    expect(recomputeResponse.status).toBe(200);
+
+    const after = await memoryAuditEventWriter.listByMatter(matter.id);
+    const submittedAfter = eventsOfType(after, "SUBMITTED");
+    const computedAfter = eventsOfType(after, "COMPUTED");
+    expect(submittedAfter).toHaveLength(submittedBefore + 1);
+    expect(computedAfter).toHaveLength(computedBefore + 1);
+
+    const recomputeSubmitted = submittedAfter[submittedAfter.length - 1]!;
+    expect(recomputeSubmitted.payload.before).toBe("LEGAL_REVIEW");
+    expect(recomputeSubmitted.payload.after).toBe("COMPUTING");
   });
 });

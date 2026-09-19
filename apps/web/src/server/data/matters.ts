@@ -376,6 +376,82 @@ export async function submitForAssessment(actor: DemoActor, matterId: string): P
 }
 
 // ---------------------------------------------------------------------------
+// computeInPlaceOrRollback — shared by resubmitAfterInfoRequest and
+// recomputeAgainstCurrentPack (04-REVIEW.md CR-01)
+// ---------------------------------------------------------------------------
+
+// Both callers drive a matter into COMPUTING and then re-run the engine
+// in place through ../recompute.ts. Unlike submitForAssessment, neither
+// originally wrapped that call in a try/catch: packages/engine's own
+// checkPreconditions() independently re-checks the pack's reviewDueOn
+// against the LIVE wall clock on every call (the demo's
+// coercePackForDemoEngine() forces pack.status to "ACTIVE" for the guard's
+// benefit, but cannot mask this from the engine itself), so once the
+// committed pack's reviewDueOn date passes, an uncaught throw here left the
+// matter permanently stranded in COMPUTING — no guard row accepts COMPUTING
+// as an origin except COMPUTE_SUCCEEDED/COMPUTE_FAILED, and nothing called
+// either. This helper applies the same rollback shape submitForAssessment
+// already relies on: COMPUTE_FAILED's guard is unconditional from COMPUTING
+// to DRAFT regardless of which of the three call sites got the matter
+// there, so it is directly reusable here.
+async function computeInPlaceOrRollback(args: {
+  matter: Matter;
+  lines: ExpenseLine[];
+  existing: Assessment;
+  pack: ReturnType<typeof coercePackForDemoEngine>;
+  actor: DemoActor;
+  computingStatus: Matter["status"];
+  guardInputForRollback: ReturnType<typeof buildGuardInput>;
+}): Promise<Assessment> {
+  const { matter, lines, existing, pack, actor, computingStatus, guardInputForRollback } = args;
+
+  try {
+    const updatedAssessment = recomputeAssessment({ matter, lines, existing });
+    await memoryAssessmentRepository.updateAssessment(updatedAssessment);
+
+    const computeGuardInput = buildGuardInput({ matter, lines, assessment: updatedAssessment, pack, actor });
+    const computeOutcome = evaluateTransition(computingStatus, "COMPUTE_SUCCEEDED", computeGuardInput);
+    if (!computeOutcome.allowed) {
+      throw new ConflictError(computeOutcome.reason);
+    }
+    await memoryMatterRepository.updateMatter({ ...matter, status: computeOutcome.to });
+    await recordAuditEvent({
+      matterId: matter.id,
+      actor,
+      type: "COMPUTED",
+      payload: transitionPayload(computingStatus, computeOutcome.to),
+      rulePackVersion: pack.version,
+      engineVersion: ENGINE_VERSION,
+    });
+    return updatedAssessment;
+  } catch (error) {
+    // The rollback write is ordered BEFORE its own audit record, mirroring
+    // submitForAssessment: a matter stranded in COMPUTING by a logging
+    // failure is a worse outcome than a missing record of a failure that is
+    // itself already visible in the matter's status.
+    const failOutcome = evaluateTransition(computingStatus, "COMPUTE_FAILED", guardInputForRollback);
+    if (!failOutcome.allowed) {
+      // Unreachable in practice — COMPUTE_FAILED's guard is unconditional
+      // (packages/workflow/src/transitions.ts) — but fail loudly rather
+      // than silently leave the matter stranded in COMPUTING if a future
+      // edit ever changes that.
+      throw new Error(`Internal error: rollback transition refused (${failOutcome.reason})`);
+    }
+    await memoryMatterRepository.updateMatter({ ...matter, status: failOutcome.to });
+    const reason = error instanceof Error ? error.message : String(error);
+    await recordAuditEvent({
+      matterId: matter.id,
+      actor,
+      type: "COMPUTE_FAILED",
+      payload: transitionPayload(computingStatus, reason),
+      rulePackVersion: pack.version,
+      engineVersion: ENGINE_VERSION,
+    });
+    throw error;
+  }
+}
+
+// ---------------------------------------------------------------------------
 // resubmitAfterInfoRequest — the in-place recompute (PRD §5's mirror-image
 // rule)
 // ---------------------------------------------------------------------------
@@ -425,23 +501,19 @@ export async function resubmitAfterInfoRequest(actor: DemoActor, matterId: strin
   // See recompute.ts's module note: the derived id is discarded in favour
   // of the existing one on purpose — do not "fix" this to use the engine's
   // own derived id. recomputeAssessment() also clears the first-opened
-  // record as part of this same operation.
-  const updatedAssessment = recomputeAssessment({ matter, lines, existing });
-  await memoryAssessmentRepository.updateAssessment(updatedAssessment);
-
-  const computeGuardInput = buildGuardInput({ matter, lines, assessment: updatedAssessment, pack, actor });
-  const computeOutcome = evaluateTransition(resubmitOutcome.to, "COMPUTE_SUCCEEDED", computeGuardInput);
-  if (!computeOutcome.allowed) {
-    throw new ConflictError(computeOutcome.reason);
-  }
-  await memoryMatterRepository.updateMatter({ ...matter, status: computeOutcome.to });
-  await recordAuditEvent({
-    matterId,
+  // record as part of this same operation. If the engine throws (see
+  // computeInPlaceOrRollback's own note — a dated, provable failure mode
+  // once the committed pack's reviewDueOn passes), the matter rolls back to
+  // DRAFT with a COMPUTE_FAILED record rather than being stranded in
+  // COMPUTING forever (04-REVIEW.md CR-01).
+  const updatedAssessment = await computeInPlaceOrRollback({
+    matter,
+    lines,
+    existing,
+    pack,
     actor,
-    type: "COMPUTED",
-    payload: transitionPayload(resubmitOutcome.to, computeOutcome.to),
-    rulePackVersion: pack.version,
-    engineVersion: ENGINE_VERSION,
+    computingStatus: resubmitOutcome.to,
+    guardInputForRollback: guardInput,
   });
 
   await memoryAssessmentRepository.clearInfoRequests(matterId);
@@ -485,28 +557,41 @@ export async function recomputeAgainstCurrentPack(actor: DemoActor, assessmentId
   if (!recomputeOutcome.allowed) {
     throw new ConflictError(recomputeOutcome.reason);
   }
+
+  const statusBeforeRecompute = matter.status;
   await memoryMatterRepository.updateMatter({ ...matter, status: recomputeOutcome.to });
+
+  // A record of the RECOMPUTE transition itself, mirroring
+  // resubmitAfterInfoRequest's SUBMITTED event for its own RESUBMIT
+  // transition (04-REVIEW.md CR-02). Without this, the audit log could not
+  // distinguish "a lawyer deliberately discarded every existing disposition
+  // and recomputed against the current pack" from any other path that
+  // happens to produce a COMPUTED event with before: "COMPUTING" — this is
+  // the one guarded, lawyer-only, disposition-destroying transition in the
+  // whole table, and it must leave a direct trace of itself.
+  await recordAuditEvent({
+    matterId: matter.id,
+    actor,
+    type: "SUBMITTED",
+    payload: transitionPayload(statusBeforeRecompute, recomputeOutcome.to),
+    rulePackVersion: pack.version,
+    engineVersion: ENGINE_VERSION,
+  });
 
   // See recompute.ts's module note: the derived id is discarded in favour
   // of the existing one on purpose, and the first-opened record is cleared
   // as part of the same operation so the next review pass measures its own
-  // elapsed time, not the one before this recompute.
-  const updatedAssessment = recomputeAssessment({ matter, lines, existing });
-  await memoryAssessmentRepository.updateAssessment(updatedAssessment);
-
-  const computeGuardInput = buildGuardInput({ matter, lines, assessment: updatedAssessment, pack, actor });
-  const computeOutcome = evaluateTransition(recomputeOutcome.to, "COMPUTE_SUCCEEDED", computeGuardInput);
-  if (!computeOutcome.allowed) {
-    throw new ConflictError(computeOutcome.reason);
-  }
-  await memoryMatterRepository.updateMatter({ ...matter, status: computeOutcome.to });
-  await recordAuditEvent({
-    matterId: matter.id,
+  // elapsed time, not the one before this recompute. If the engine throws,
+  // the matter rolls back to DRAFT with a COMPUTE_FAILED record rather than
+  // being stranded in COMPUTING forever (04-REVIEW.md CR-01).
+  const updatedAssessment = await computeInPlaceOrRollback({
+    matter,
+    lines,
+    existing,
+    pack,
     actor,
-    type: "COMPUTED",
-    payload: transitionPayload(recomputeOutcome.to, computeOutcome.to),
-    rulePackVersion: pack.version,
-    engineVersion: ENGINE_VERSION,
+    computingStatus: recomputeOutcome.to,
+    guardInputForRollback: guardInput,
   });
 
   return updatedAssessment;
