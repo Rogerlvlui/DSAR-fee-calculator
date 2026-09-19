@@ -318,17 +318,23 @@ export async function submitForAssessment(actor: DemoActor, matterId: string): P
 
   try {
     const assessment = assessMatter({ matter, lines });
-    const saved = await memoryAssessmentRepository.saveAssessment(assessment);
 
     // COMPUTING -> LEGAL_REVIEW: ask the executor for the destination
     // rather than writing "LEGAL_REVIEW" as a literal. `submitOutcome.to`
     // (not a hand-written "COMPUTING" literal) is the `from` state here —
     // it is the executor's own answer to the SUBMIT transition above.
-    const computeGuardInput = buildGuardInput({ matter, lines, assessment: saved, pack, actor });
+    //
+    // The guard is evaluated against the freshly computed (not yet
+    // persisted) assessment BEFORE saveAssessment runs (04-REVIEW.md
+    // WR-01): saving first and only then checking the guard would leave an
+    // orphaned assessment in the repository, attached to a matter that has
+    // already rolled back to DRAFT, on any future guard refusal here.
+    const computeGuardInput = buildGuardInput({ matter, lines, assessment, pack, actor });
     const computeOutcome = evaluateTransition(submitOutcome.to, "COMPUTE_SUCCEEDED", computeGuardInput);
     if (!computeOutcome.allowed) {
       throw new ConflictError(computeOutcome.reason);
     }
+    const saved = await memoryAssessmentRepository.saveAssessment(assessment);
     await memoryMatterRepository.updateMatter({ ...matter, status: computeOutcome.to });
     await recordAuditEvent({
       matterId,
