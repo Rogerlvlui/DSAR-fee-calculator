@@ -199,15 +199,36 @@ export default tseslint.config(
     // guard package (packages/workflow) legitimately names every status by
     // value in its own declared TRANSITIONS table, and the user-interface
     // and test trees construct fixtures — both are out of scope by design.
-    files: ["apps/web/src/server/**/*.ts", "apps/web/app/**/*.ts"],
+    //
+    // Widened (04-REVIEW.md WR-03) to also match `.tsx` under
+    // apps/web/app/ — the original `files` glob was `.ts`-only, so a server
+    // component (like a page under this same directory) constructing a
+    // literal status value was never linted by this rule at all. `.tsx`
+    // is not added under apps/web/src/server/, which carries no JSX.
+    files: ["apps/web/src/server/**/*.ts", "apps/web/app/**/*.{ts,tsx}"],
     languageOptions: {
       parser: tseslint.parser,
+      parserOptions: {
+        // Required for `.tsx` parsing without a `project` (this block, like
+        // every other one in this file, is purely syntactic) — the parser
+        // does not infer JSX support from the file extension alone here.
+        ecmaFeatures: { jsx: true },
+      },
     },
     rules: {
       "no-restricted-syntax": [
         "error",
         {
           selector: `Property[key.name='status'][value.type='Literal'][value.value=${MATTER_STATUS_LITERAL_PATTERN}]`,
+          message: STATUS_WRITE_MESSAGE,
+        },
+        {
+          // The original selector only matches an object-literal property
+          // (`{ status: "DRAFT" }`); a direct member-expression assignment
+          // (`matter.status = "DRAFT";`) is an AssignmentExpression over a
+          // MemberExpression, not a Property node, and was a second,
+          // complete bypass of this rule (04-REVIEW.md WR-03).
+          selector: `AssignmentExpression[left.type='MemberExpression'][left.property.name='status'][right.type='Literal'][right.value=${MATTER_STATUS_LITERAL_PATTERN}]`,
           message: STATUS_WRITE_MESSAGE,
         },
       ],
