@@ -17,6 +17,8 @@ import { formatMinor, MINOR_UNIT_DECIMALS } from "@dsar/schemas/money";
 import type { ExpenseUnit } from "@dsar/schemas/expense-line";
 import type { ExpenseCategoryCode } from "@dsar/schemas/taxonomy";
 import type { VerificationStatus } from "@dsar/schemas/rule-pack";
+import { FREE_TEXT_LIMITS } from "@dsar/schemas/constants";
+import { detectLikelyPersonalData } from "@dsar/schemas/personal-data-pattern";
 
 export interface RepeaterCategoryOption {
   categoryCode: ExpenseCategoryCode;
@@ -360,10 +362,24 @@ export function ExpenseLineRepeater({ lines, onChange, categories, currency }: E
                   <input
                     name="description"
                     value={line.description}
-                    maxLength={300}
+                    maxLength={FREE_TEXT_LIMITS.description}
                     onChange={(event) => updateLine(line.key, { description: event.target.value })}
                   />
                 </label>
+                {(() => {
+                  const patternMatch = detectLikelyPersonalData(line.description);
+                  return patternMatch.matched ? (
+                    <p data-testid="description-pattern-warning" className="hint stern">
+                      This looks like it might contain personal data — {patternMatch.reason}. Personal data does
+                      not belong in this field.
+                    </p>
+                  ) : null;
+                })()}
+                {line.description.length > 0 ? (
+                  <p data-testid="description-counter" className="hint">
+                    {line.description.length} / {FREE_TEXT_LIMITS.description} characters
+                  </p>
+                ) : null}
 
                 <label>
                   <span>Qty</span>

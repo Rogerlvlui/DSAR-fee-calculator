@@ -7,6 +7,7 @@
 import { describe, expect, it } from "vitest";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { FREE_TEXT_LIMITS } from "@dsar/schemas/constants";
 import {
   ExpenseLineRepeater,
   EMPTY_STATE_HEADING,
@@ -156,5 +157,31 @@ describe("REPEATER: category-contextual hint", () => {
   it("REPEATER: renders the hint supplied by the category's view-model entry, not a hard-coded sentence", () => {
     const html = renderRepeater([draft({ categoryCode: "PHOTOCOPY_PRINT", unit: "PAGE", incurredByGrade: null })]);
     expect(html).toContain("Photocopying is capped at the pack per-page rate, view-model supplied.");
+  });
+});
+
+describe("REPEATER: description free-text limit and pattern warning", () => {
+  it("REPEATER: the description field's maxLength reads FREE_TEXT_LIMITS.description, not a literal 300", () => {
+    const html = renderRepeater([draft({})]);
+    expect(html).toContain(`maxLength="${FREE_TEXT_LIMITS.description}"`);
+  });
+
+  it("REPEATER: a description matching detectLikelyPersonalData renders the warning sentence with the reason interpolated", () => {
+    const html = renderRepeater([draft({ description: "contact jane.doe@example.com" })]);
+    expect(html).toContain('data-testid="description-pattern-warning"');
+    expect(html).toContain("email address");
+  });
+
+  it("REPEATER: a description that does not match renders no warning element at all", () => {
+    const html = renderRepeater([draft({ description: "ordinary description" })]);
+    expect(html).not.toContain('data-testid="description-pattern-warning"');
+  });
+
+  it("REPEATER: the description counter reads '{n} / {limit} characters' once non-empty, and renders nothing at zero length", () => {
+    const withText = renderRepeater([draft({ description: "abcde" })]);
+    expect(withText).toContain(`5 / ${FREE_TEXT_LIMITS.description} characters`);
+
+    const empty = renderRepeater([draft({ description: "" })]);
+    expect(empty).not.toContain('data-testid="description-counter"');
   });
 });

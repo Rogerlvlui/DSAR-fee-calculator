@@ -9,6 +9,8 @@
 
 "use client";
 
+import { detectLikelyPersonalData } from "@dsar/schemas/personal-data-pattern";
+
 export interface AttestationsValue {
   identityVerified: boolean;
   identityVerifiedNote: string;
@@ -31,6 +33,7 @@ export const IDENTITY_NOTE_WARNING =
   "Do not enter the requestor's name, NRIC/FIN or any personal data here. Reference your verification record instead.";
 
 export function AttestationsPanel({ value, onChange, noteMaxLength }: AttestationsPanelProps) {
+  const notePatternMatch = detectLikelyPersonalData(value.identityVerifiedNote);
   return (
     <section data-testid="attestations-panel">
       <h2>Attestations</h2>
@@ -56,6 +59,17 @@ export function AttestationsPanel({ value, onChange, noteMaxLength }: Attestatio
           <p data-testid="identity-note-warning" className="hint stern">
             {IDENTITY_NOTE_WARNING}
           </p>
+          {notePatternMatch.matched ? (
+            <p data-testid="identity-note-pattern-warning" className="hint stern">
+              This looks like it might contain personal data — {notePatternMatch.reason}. Personal data does not
+              belong in this field.
+            </p>
+          ) : null}
+          {value.identityVerifiedNote.length > 0 ? (
+            <p data-testid="identity-note-counter" className="hint">
+              {value.identityVerifiedNote.length} / {noteMaxLength} characters
+            </p>
+          ) : null}
         </div>
       </div>
 
