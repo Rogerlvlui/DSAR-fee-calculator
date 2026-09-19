@@ -3,11 +3,11 @@ gsd_state_version: "1.0"
 current_phase: "04"
 current_phase_name: Workflow and Audit Backbone
 status: executing
-stopped_at: Completed 04-05-PLAN.md (correction after sign-off via SUPERSEDE, the closing transition to CLOSED, matter-created/line-added/edited/deleted audit records, the whole-lifecycle proof) — Phase 04 complete, ready for /gsd-plan-phase 5
-last_updated: "2026-09-19T18:00:00.000Z"
+stopped_at: Phase 04 fully closed out — 5/5 plans, code review (04-REVIEW.md, 2 critical + 3 warning findings, all fixed), security audit (04-SECURITY.md, 32/32 threats closed), and phase-goal verification (04-VERIFICATION.md, passed, 5/5 must-haves) all complete — ready for /gsd-plan-phase 5
+last_updated: "2026-09-19T21:50:00.000Z"
 last_activity: 2026-09-19
-last_activity_desc: Phase 04 Plan 05 complete — Phase 04 (Workflow and Audit Backbone) is now fully executed (5/5 plans). raiseCorrection() discharges STATE-05 (a correction is a second assessment under a freshly generated identifier; the signed original is read and never rewritten, proven by a deep-clone snapshot comparison); markNoticeSent now drives SIGNED_OFF -> CLOSED through the guarded executor; matter creation and every line add/edit/delete now leaves an audit record; one whole-lifecycle test drives draft through closed, around the information-request branch, and asserts the ordered event-type sequence in one comparison. 04-VALIDATION.md fully populated, nyquist_compliant: true.
-state_head: 9962cc1
+last_activity_desc: Phase 04 closed out end to end. Code review found 2 Critical (no rollback if the engine throws inside resubmitAfterInfoRequest/recomputeAgainstCurrentPack, stranding a matter in COMPUTING forever with no audit trail; recomputeAgainstCurrentPack never audited its own RECOMPUTE transition) and 3 Warnings (an orphaned-assessment edge case in submitForAssessment; the HR result page reading expense lines straight off the repository with no role check; two bypasses in the T-04-19 status-write ESLint gate — .tsx files and member-expression assignment) — all five fixed in five follow-up commits with new regression tests. Security audit then verified all 32 threats in the phase's threat register closed (0 open), re-checking the threats the fixes touched. Phase-goal verification passed, 5/5 ROADMAP success criteria confirmed against the codebase (STATE-04 correctly still Pending, no false database-immutability claim). Full suite green (732/732, up from the 725/725 recorded at 04-05's own completion).
+state_head: 6677fa0
 progress:
   total_phases: 10
   completed_phases: 1
@@ -23,14 +23,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-13)
 
 **Core value:** A lawyer can defend the output by saying "the engine applied rule HK-PDPO.STAFF_TIME_REDACT_EXEMPT, version 2026.09.1, authored by X on date Y, and struck the line" — never "the model assessed the claim."
-**Current focus:** Phase 04 — Workflow and Audit Backbone — COMPLETE (5/5 plans); 03.2 Database Boundary remains separately planned, runs concurrently per ROADMAP.md; next up is Phase 5 (HR Intake and Disclosure Shell)
+**Current focus:** Phase 04 — Workflow and Audit Backbone — FULLY CLOSED OUT (5/5 plans + code review + security audit + phase-goal verification, all passed); 03.2 Database Boundary remains separately planned, runs concurrently per ROADMAP.md; next up is Phase 5 (HR Intake and Disclosure Shell)
 
 ## Current Position
 
 Phase: 04 — Workflow and Audit Backbone
-Plan: 5/5 complete — Phase 04 done
-Status: Phase complete — ready for `/gsd-plan-phase 5` (and `/gsd-verify-work 04`)
-Last activity: 2026-09-19 — 04-05 complete: raiseCorrection() (STATE-05), the SIGNED_OFF -> CLOSED closing transition via markNoticeSent, matter-created/line-added/edited/deleted audit records, and the whole-lifecycle test proving the phase's first and fourth success criteria. Full suite green (725/725, up from the 705/705 baseline recorded at the start of this plan)
+Plan: 5/5 complete — Phase 04 done, review/security/verification all passed
+Status: Phase fully closed out — ready for `/gsd-plan-phase 5`
+Last activity: 2026-09-19 — Post-execution pipeline complete: 04-REVIEW.md (2 critical + 3 warning findings, all fixed in 5 follow-up commits with regression tests), 04-SECURITY.md (32/32 threats closed, 0 open), 04-VERIFICATION.md (passed, 5/5 must-haves, STATE-04 correctly still Pending). Full suite green (732/732, up from the 705/705 baseline recorded at the start of plan 04-05)
 
 Progress: [█████████░] 90%
 
@@ -220,6 +220,7 @@ None yet.
 - Phase 04's 04-01 (tracer), 04-02 (full guard table + purity/determinism gates), 04-03 (pack-lifecycle stream + DPO export), 04-04 (remaining status-literal retrofit + recompute + state.ts deletion + lint gate) and 04-05 (correction after sign-off, the closing transition, intake-act records, the whole-lifecycle proof) are all complete — Phase 04 is done. STATE-02, STATE-03, STATE-05, AUDIT-01 and AUDIT-03 are now Complete — every status write in apps/web/src/server/data/{matters,assessments}.ts flows through packages/workflow's evaluateTransition, a CI-enforced ESLint rule bans any literal MatterStatus write outside it, recomputeAgainstCurrentPack discharges STATE-03's PRD-table row, raiseCorrection() discharges STATE-05's row (a correction is a second assessment under a freshly generated identifier, the signed original read-and-never-rewritten again, proven by a deep-clone snapshot comparison), markNoticeSent now drives SIGNED_OFF -> CLOSED through the same guarded executor, and every disposition/bulk-accept/sign-off/ask-HR/notice-sent act plus matter-created/line-added/edited/deleted intake act leaves a provenance-complete audit record. AUDIT-01's pack-activation clause remains discharged only structurally (writer proven in 04-03, no admin screen exists to call it from — PACK-07, Phase 3.2), matching the same treatment already applied to AUDIT-04. STATE-04 remains Pending, needing Phase 3.2's real Postgres.
 - **Genuine, deliberately unresolved gap (checkpoint 04-05-CP, Option A, WINDOWS.md entry 9):** PRD §5's SUPERSEDE row gives the SUPERSEDED status no outgoing transition. Once a correction is raised after sign-off, the matter (and the new, unreviewed correction sitting on it) is in a state the guard table permits no further move from — there is no route today for a named lawyer to review and re-sign a correction. This is a spec gap, not a code shortcut: it needs a product-owner decision (a PRD amendment adding a re-entry row, or an equivalent mechanism) before any later phase can build "review and re-sign a correction." Not invented or resolved by 04-05 — resolving it was explicitly out of scope per the pre-resolved checkpoint.
 - gsd-tools.cjs remains unavailable in this worktree during 04-01/04-02/04-03/04-04/04-05 execution (same recurring gap as 03-03/03-04/03.1) — STATE.md/ROADMAP.md/REQUIREMENTS.md updated manually again this plan.
+- **Phase 04's post-execution pipeline is complete.** Code review (04-REVIEW.md) found 2 Critical findings — CR-01: `resubmitAfterInfoRequest`/`recomputeAgainstCurrentPack` had no rollback if the engine threw, stranding a matter in COMPUTING forever with no audit trail once the committed pack's `reviewDueOn` (2027-03-12) passes; CR-02: `recomputeAgainstCurrentPack` never audited its own RECOMPUTE transition — and 3 Warnings (an orphaned-assessment edge case in `submitForAssessment`; the HR result page bypassing the role-checked data layer for its expense-line read, the same UNREG-1 class of gap as 03.1; two ESLint status-write-gate bypasses, `.tsx` files and member-expression assignment). All five fixed directly (fix(04-review): ... commits) with new regression tests; full suite stayed green throughout. Security audit (04-SECURITY.md) then verified all 32 registered threats closed (0 open), re-checking T-04-19/T-04-21/T-04-24 specifically against the post-fix code. Phase-goal verification (04-VERIFICATION.md) passed, 5/5 ROADMAP success criteria confirmed directly against the codebase — no live dev-server walkthrough was possible (pre-existing, documented build-machine limitation), so verification relied on the route-level test suite (real `Request` objects through real route handlers) plus direct code reads.
 
 ### Roadmap Evolution
 
@@ -235,6 +236,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-09-19T18:00:00.000Z
-Stopped at: Completed 04-05-PLAN.md — Phase 04 (Workflow and Audit Backbone) is complete (5/5 plans). raiseCorrection() (STATE-05), the SIGNED_OFF -> CLOSED closing transition, matter-created/line-added/edited/deleted audit records, and the whole-lifecycle proof all land. 04-VALIDATION.md fully populated, nyquist_compliant: true. Full suite green (725/725). Ready for `/gsd-plan-phase 5` and `/gsd-verify-work 04`.
+Last session: 2026-09-19T21:50:00.000Z
+Stopped at: Phase 04 (Workflow and Audit Backbone) fully closed out — 5/5 plans, plus the post-execution pipeline: code review (04-REVIEW.md, 2 critical + 3 warning findings, all fixed with regression tests), security audit (04-SECURITY.md, 32/32 threats closed), and phase-goal verification (04-VERIFICATION.md, passed, 5/5 must-haves). Full suite green (732/732). Ready for `/gsd-plan-phase 5`.
 Resume file: None
