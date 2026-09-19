@@ -1,19 +1,19 @@
 ---
 gsd_state_version: "1.0"
-current_phase: "04"
-current_phase_name: Workflow and Audit Backbone
-status: executing
-stopped_at: Phase 04 fully closed out — 5/5 plans, code review (04-REVIEW.md, 2 critical + 3 warning findings, all fixed), security audit (04-SECURITY.md, 32/32 threats closed), and phase-goal verification (04-VERIFICATION.md, passed, 5/5 must-haves) all complete — ready for /gsd-plan-phase 5
-last_updated: "2026-09-19T21:50:00.000Z"
+current_phase: "05"
+current_phase_name: HR Intake and Disclosure Shell
+status: planned
+stopped_at: Phase 05 planned — 6 plans across 4 waves (05-01/05-02 wave 1, 05-03 wave 2, 05-04/05-05 wave 3, 05-06 wave 4), covering all 16 Phase 5 requirements (INTAKE-01..09, NAV-02, BOUND-03/04, DISC-01/02/03/05) — ready for /gsd-execute-phase 5
+last_updated: "2026-09-19T22:30:00.000Z"
 last_activity: 2026-09-19
-last_activity_desc: Phase 04 closed out end to end. Code review found 2 Critical (no rollback if the engine throws inside resubmitAfterInfoRequest/recomputeAgainstCurrentPack, stranding a matter in COMPUTING forever with no audit trail; recomputeAgainstCurrentPack never audited its own RECOMPUTE transition) and 3 Warnings (an orphaned-assessment edge case in submitForAssessment; the HR result page reading expense lines straight off the repository with no role check; two bypasses in the T-04-19 status-write ESLint gate — .tsx files and member-expression assignment) — all five fixed in five follow-up commits with new regression tests. Security audit then verified all 32 threats in the phase's threat register closed (0 open), re-checking the threats the fixes touched. Phase-goal verification passed, 5/5 ROADMAP success criteria confirmed against the codebase (STATE-04 correctly still Pending, no false database-immutability claim). Full suite green (732/732, up from the 725/725 recorded at 04-05's own completion).
+last_activity_desc: Phase 05 planned. 05-RESEARCH.md and 05-UI-SPEC.md (both already complete) established that most of Phase 5's requirement list was already discharged by Phase 3.1's intake form; planning scoped to the five genuinely net-new/modified work items research identified — disclosure-shell wiring (StatusStrip/CapabilityStatement), the real nine-jurisdiction rule-pack status resolver replacing Phase 3.1's SG-only hardcoded fallback, the /matters list (NAV-02), draft autosave (INTAKE-09), and the personal-data pattern detector (BOUND-04) — plus a closing DISC-03 banned-word scan and INTAKE-08 test-strengthening plan that runs last, once every other plan's new copy exists to scan. gsd-tools.cjs unavailable in this worktree (same recurring gap as Phases 3-4) — ROADMAP.md/STATE.md updated manually.
 state_head: 6677fa0
 progress:
   total_phases: 10
   completed_phases: 1
-  total_plans: 31
+  total_plans: 37
   completed_plans: 28
-  percent: 90
+  percent: 76
 ---
 
 # Project State
@@ -23,16 +23,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-13)
 
 **Core value:** A lawyer can defend the output by saying "the engine applied rule HK-PDPO.STAFF_TIME_REDACT_EXEMPT, version 2026.09.1, authored by X on date Y, and struck the line" — never "the model assessed the claim."
-**Current focus:** Phase 04 — Workflow and Audit Backbone — FULLY CLOSED OUT (5/5 plans + code review + security audit + phase-goal verification, all passed); 03.2 Database Boundary remains separately planned, runs concurrently per ROADMAP.md; next up is Phase 5 (HR Intake and Disclosure Shell)
+**Current focus:** Phase 05 — HR Intake and Disclosure Shell — PLANNED (6 plans across 4 waves, ready for `/gsd-execute-phase 5`); Phase 04 (Workflow and Audit Backbone) fully closed out; 03.2 Database Boundary remains separately planned, runs concurrently per ROADMAP.md
 
 ## Current Position
 
-Phase: 04 — Workflow and Audit Backbone
-Plan: 5/5 complete — Phase 04 done, review/security/verification all passed
-Status: Phase fully closed out — ready for `/gsd-plan-phase 5`
-Last activity: 2026-09-19 — Post-execution pipeline complete: 04-REVIEW.md (2 critical + 3 warning findings, all fixed in 5 follow-up commits with regression tests), 04-SECURITY.md (32/32 threats closed, 0 open), 04-VERIFICATION.md (passed, 5/5 must-haves, STATE-04 correctly still Pending). Full suite green (732/732, up from the 705/705 baseline recorded at the start of plan 04-05)
+Phase: 05 — HR Intake and Disclosure Shell
+Plan: 0/6 — planned, not yet executed
+Status: Planning complete — ready for `/gsd-execute-phase 5`
+Last activity: 2026-09-19 — 05-RESEARCH.md and 05-UI-SPEC.md (both already complete before this planning pass) established the existing-vs-new baseline: most of INTAKE-01..08 was already discharged by Phase 3.1's intake form. Planning produced 05-01-PLAN.md through 05-06-PLAN.md, scoped to the five net-new/modified work items research identified plus a closing verification plan, covering all 16 Phase 5 requirements.
 
-Progress: [█████████░] 90%
+Progress: [███████░░░] 76%
 
 ## Performance Metrics
 
@@ -198,6 +198,15 @@ Recent decisions affecting current work:
 - [Phase 04]: [Phase 04 P05]: New audit payload builders (matterCreatedPayload, expenseLineAddedPayload/EditedPayload/DeletedPayload) deliberately snapshot only categoryCode/quantity/unit/unitRate/claimedAmount — the free-text fields (vendorName, evidenceRef, hrNote) are excluded from this append-only-forever log on purpose
 - [Phase 04]: [Phase 04 P05]: tests/routes/workflow-tracer.test.ts's event counts updated (2->4, 0->1) — an expected consequence of MATTER_CREATED/LINE_ADDED now writing to the same matter's log this pre-existing test reads, following the identical precedent 04-04 already established for this file
 - [Phase 04]: [Phase 04 P05]: Phase 04 (Workflow and Audit Backbone) is now complete — 5/5 plans, all of STATE-02/STATE-03/STATE-05/AUDIT-01/AUDIT-03/AUDIT-04/BOUND-05 discharged (AUDIT-01's pack-activation clause and AUDIT-04 both structurally-only, no admin caller yet); only STATE-04 (database-level immutability) remains Pending, owned by Phase 3.2
+- [Phase 05 planning]: `StatusStrip` stays a page-level composition, never a layout-level one — a Next.js App Router route-group layout does not receive a descendant dynamic segment's params, so a single strip correct for a specific matter, a cross-jurisdiction list and a not-yet-created draft cannot be computed generically at `(hr)/layout.tsx`/`(legal)/layout.tsx`; only `CapabilityStatement`'s acknowledgement gate moves to the layout
+- [Phase 05 planning]: `jurisdiction-packs.ts` (Plan 05-03) replaces `pack-view.ts` outright rather than running the two in parallel — `pack-view.ts` had exactly 3 call sites, all within 05-03's own scope, so no shim was left behind, matching this codebase's established "delete the stand-in" precedent (Phase 04 P04's `state.ts` deletion)
+- [Phase 05 planning]: `/hr/matters` (NAV-02) and `/legal/assessments` deliberately carry no `StatusStrip` — a cross-jurisdiction worklist has no single jurisdiction/pack to show; both list screens are treated identically on this point
+- [Phase 05 planning]: `hrNote` stays absent from the v1 intake UI — PRD §10.2's row-field list never names it, and 05-RESEARCH.md's own risk assessment on this question was Low either way; documented rather than silently dropped (05-RESEARCH.md Assumption A1)
+- [Phase 05 planning]: The personal-data pattern detector's three regex shapes (email, SG NRIC/FIN token, 7+-digit run) are RESEARCH's own proposed shapes, implemented verbatim as a reasonable starting set — not yet product-owner-ratified (05-RESEARCH.md Assumption A3); the warn-only design means a later tuning pass touches only `packages/schemas/src/personal-data-pattern.ts`
+- [Phase 05 planning]: Draft autosave (Plan 05-05) writes to `localStorage` but never restores on reload — the literal requirement is "autosave every 10 seconds with save state shown," and PROJECT.md's "no server-persisted drafts" boundary plus the total absence of any restore pattern elsewhere in this codebase both support keeping this minimal
+- [Phase 05 planning]: DISC-03's UI banned-word scan (Plan 05-06, last wave, depends on every other Phase 5 plan) renders real components and scans extracted text, rather than enumerating exported string constants the way `packages/engine`'s own precedent does — `apps/web` has no single "messages.ts"-equivalent strings module (05-RESEARCH.md Wave 0 Gaps), so a render-and-scan technique (mirroring `tests/boundary/dom-denylist.test.ts`'s own approach) is the proportionate fix rather than a new i18n-file refactor
+- [Phase 05 planning]: INTAKE-01/04/05/06/07 (already built by Phase 3.1, never marked complete per that phase's own stated policy) are marked complete by Phase 5 on the strength of the existing, already-passing test suite (confirmed in Plan 05-06's regression sweep), not rebuilt — per this planning session's explicit scope instruction not to re-plan already-built substance
+- [Phase 05 planning]: gsd-tools.cjs remains unavailable in this worktree — ROADMAP.md/STATE.md updated manually, matching the recurring gap recorded for Phases 3-4
 
 ### Pending Todos
 
@@ -236,6 +245,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-09-19T21:50:00.000Z
-Stopped at: Phase 04 (Workflow and Audit Backbone) fully closed out — 5/5 plans, plus the post-execution pipeline: code review (04-REVIEW.md, 2 critical + 3 warning findings, all fixed with regression tests), security audit (04-SECURITY.md, 32/32 threats closed), and phase-goal verification (04-VERIFICATION.md, passed, 5/5 must-haves). Full suite green (732/732). Ready for `/gsd-plan-phase 5`.
+Last session: 2026-09-19T22:30:00.000Z
+Stopped at: Phase 05 (HR Intake and Disclosure Shell) planned — 6 plans across 4 waves (05-01/05-02 wave 1, 05-03 wave 2 depends on 05-01, 05-04/05-05 wave 3 depend on 05-03, 05-06 wave 4 depends on all five). All 16 Phase 5 requirements mapped: INTAKE-02/03 → 05-03; INTAKE-09 → 05-05; NAV-02/DISC-05 → 05-04; BOUND-03/04 → 05-02; DISC-01/02 → 05-01 (+05-03 for the HR-side StatusStrip wiring); DISC-03 → 05-06; INTAKE-01/04/05/06/07/08 (already built by Phase 3.1, confirmed rather than rebuilt) → 05-06. Ready for `/gsd-execute-phase 5`.
 Resume file: None
