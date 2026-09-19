@@ -209,7 +209,7 @@ Why this exists: Docker is unavailable on the build machine and the presentation
 
 Plans:
 - [x] 04-01-PLAN.md — Tracer: `packages/workflow` and `packages/audit` stood up, one submission transition guarded and audited end to end
-- [ ] 04-02-PLAN.md — The full PRD §5 guard table, plus the dependency and determinism gates that keep the guard package pure
+- [x] 04-02-PLAN.md — The full PRD §5 guard table, plus the dependency and determinism gates that keep the guard package pure
 - [ ] 04-03-PLAN.md — The D-21 pack-lifecycle event stream, the `DPO_ADMIN` demo identity, and the role-gated audit log export
 - [ ] 04-04-PLAN.md — Retrofit every remaining status literal through the executor, add the lawyer recompute, delete `state.ts`, and lint-gate direct status writes
 - [ ] 04-05-PLAN.md — Correction after sign-off (`SUPERSEDED`), the closing transition, intake-side events, and the whole-lifecycle audit proof
