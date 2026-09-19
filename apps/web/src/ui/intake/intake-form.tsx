@@ -28,6 +28,7 @@ import {
   type RepeaterCategoryOption,
 } from "./expense-line-repeater.tsx";
 import { ClaimFooter } from "./claim-footer.tsx";
+import { StatusStrip } from "../chrome/status-strip.tsx";
 
 // Structurally identical to apps/web/src/server/jurisdiction-packs.ts's
 // JurisdictionPackView — deliberately re-declared here rather than
@@ -208,6 +209,21 @@ export function IntakeForm({ packsByJurisdiction, defaultReference }: IntakeForm
 
   return (
     <div data-testid="intake-form">
+      <StatusStrip
+        matterReference={matterDetails.reference}
+        jurisdictionName={currentJurisdictionPack.jurisdictionName}
+        rulePackId={currentJurisdictionPack.packId ?? "—"}
+        rulePackVersion={currentJurisdictionPack.version ?? "—"}
+        packStatus={currentJurisdictionPack.displayStatus === "NO_USABLE_PACK" ? "—" : currentJurisdictionPack.displayStatus}
+        authoredByDisplayName={currentJurisdictionPack.authoredByDisplayName}
+        reviewedByDisplayName={currentJurisdictionPack.reviewedByDisplayName}
+        reviewedOn={currentJurisdictionPack.reviewedOn}
+        // A jurisdiction with no usable pack has no review-due date to
+        // speak of; a large positive number reads as unremarkable rather
+        // than alarming, rather than inventing a stale/urgent tone for a
+        // jurisdiction that was never usable in the first place.
+        daysUntilReviewDue={currentJurisdictionPack.daysUntilReviewDue ?? 9999}
+      />
       <MatterDetailsFields
         value={matterDetails}
         onChange={setMatterDetails}

@@ -16,17 +16,34 @@ import { getCurrentActor } from "../../../../src/server/current-actor.ts";
 import { getExpenseLinesForHr, getHrMatterStatus, getNoticeSentAt } from "../../../../src/server/data/matters.ts";
 import { getSignedOffAssessmentForHr } from "../../../../src/server/data/assessments.ts";
 import { loadDemoPack } from "../../../../src/server/engine-invocation.ts";
+import { buildJurisdictionPackViews } from "../../../../src/server/jurisdiction-packs.ts";
 import { EXPENSE_CATEGORY_LABELS } from "@dsar/schemas/taxonomy";
 import type { Minor } from "@dsar/schemas/primitives";
 import { buildNoticeDraft } from "../../../../src/domain/notice-draft.ts";
 import { ResultView, type ResultViewLine } from "../../../../src/ui/hr/result-view.tsx";
 import { NoticeBlock } from "../../../../src/ui/hr/notice-block.tsx";
 import { InfoRequestPanel, type InfoRequestPanelQuery } from "../../../../src/ui/hr/info-request-panel.tsx";
+import { StatusStrip } from "../../../../src/ui/chrome/status-strip.tsx";
 
 export default async function HrMatterPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const actor = await getCurrentActor();
   const { matter, infoRequests } = await getHrMatterStatus(actor, id);
+  const now = new Date().toISOString();
+  const jurisdictionPack = buildJurisdictionPackViews(now)[matter.jurisdictionCode];
+  const statusStrip = (
+    <StatusStrip
+      matterReference={matter.reference}
+      jurisdictionName={jurisdictionPack.jurisdictionName}
+      rulePackId={jurisdictionPack.packId ?? "—"}
+      rulePackVersion={jurisdictionPack.version ?? "—"}
+      packStatus={jurisdictionPack.displayStatus === "NO_USABLE_PACK" ? "—" : jurisdictionPack.displayStatus}
+      authoredByDisplayName={jurisdictionPack.authoredByDisplayName}
+      reviewedByDisplayName={jurisdictionPack.reviewedByDisplayName}
+      reviewedOn={jurisdictionPack.reviewedOn}
+      daysUntilReviewDue={jurisdictionPack.daysUntilReviewDue ?? 9999}
+    />
+  );
 
   if (matter.status === "INFO_REQUEST") {
     const queries: InfoRequestPanelQuery[] = infoRequests.map((request) => ({
@@ -39,6 +56,7 @@ export default async function HrMatterPage({ params }: { params: Promise<{ id: s
     return (
       <main>
         <h1 className="screen">Fee assessment — {matter.reference}</h1>
+        {statusStrip}
         <InfoRequestPanel matterId={matter.id} queries={queries} />
       </main>
     );
@@ -52,6 +70,7 @@ export default async function HrMatterPage({ params }: { params: Promise<{ id: s
     return (
       <main>
         <h1 className="screen">Fee assessment — {matter.reference}</h1>
+        {statusStrip}
         <p data-testid="hr-waiting">
           Legal has been notified. You&apos;ll see the assessed fee once a lawyer has reviewed and
           signed it off. You will not see a draft figure before then.
