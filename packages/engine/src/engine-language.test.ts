@@ -31,6 +31,14 @@ import { describe, expect, it } from "vitest";
 import { LEGAL_CONCLUSION_BANNED_WORDS } from "@dsar/schemas/constants";
 import * as messages from "./messages.ts";
 
+// Not imported from tests/boundary/banned-word-matcher.ts (which
+// tests/boundary/ui-banned-words.test.ts uses for the same matcher logic,
+// against the same word list): packages/engine's own composite tsconfig
+// has a `rootDir` of packages/engine/src, and a cross-package import to
+// tests/ trips `tsc --build`'s TS6059 ("rootDir is expected to contain all
+// source files"). Kept as an identical, independently-maintained copy of
+// the exact same one-line construction rather than forcing a shared file
+// across a tsconfig boundary that does not allow it.
 function findBannedWord(text: string): string | null {
   for (const word of LEGAL_CONCLUSION_BANNED_WORDS) {
     const pattern = new RegExp(`\\b${word}\\b`); // case-sensitive by default, word-boundary anchored
