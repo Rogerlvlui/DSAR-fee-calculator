@@ -45,7 +45,11 @@ export default async function HrMatterPage({ params }: { params: Promise<{ id: s
     );
   }
 
-  if (matter.status !== "SIGNED_OFF") {
+  // Widened (04-05 Task 2) to also let CLOSED through: once marking the
+  // notice sent closes the matter, a closed matter is still a signed one,
+  // and the preparer must not lose sight of the figure the moment it
+  // closes. Every earlier status still falls into the waiting branch.
+  if (matter.status !== "SIGNED_OFF" && matter.status !== "CLOSED") {
     return (
       <main>
         <h1 className="screen">Fee assessment — {matter.reference}</h1>

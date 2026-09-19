@@ -21,8 +21,30 @@ import { buildGuardInput } from "../guard-input.ts";
 import { recordAuditEvent } from "../audit-trail.ts";
 import { evaluateTransition } from "@dsar/workflow/evaluate-transition";
 import { INITIAL_MATTER_STATUS } from "@dsar/workflow/transitions";
-import { transitionPayload } from "@dsar/audit/payload-builders";
+import {
+  expenseLineAddedPayload,
+  expenseLineDeletedPayload,
+  expenseLineEditedPayload,
+  matterCreatedPayload,
+  transitionPayload,
+} from "@dsar/audit/payload-builders";
+import type { Json } from "@dsar/schemas/primitives";
 import { ENGINE_VERSION } from "@dsar/engine";
+
+// A snapshot of the fields that actually build a claim, shared by the
+// LINE_ADDED/LINE_EDITED/LINE_DELETED audit records below — see
+// packages/audit/src/payload-builders.ts's own note on why the free-text
+// fields (vendorName, evidenceRef, hrNote) are deliberately excluded from
+// an append-only log.
+function toLineSnapshot(line: ExpenseLine): Record<string, Json> {
+  return {
+    categoryCode: line.categoryCode,
+    quantity: line.quantity,
+    unit: line.unit,
+    unitRate: line.unitRate,
+    claimedAmount: line.claimedAmount,
+  };
+}
 
 export interface CreateMatterInput {
   reference: string;
@@ -67,7 +89,22 @@ export async function createMatter(actor: DemoActor, input: CreateMatterInput): 
     createdAt: new Date().toISOString(),
   });
 
-  return memoryMatterRepository.createMatter(matter);
+  const created = await memoryMatterRepository.createMatter(matter);
+
+  // The first record of the acts that produce a claim (04-05 Task 2) — a
+  // log covering only the decisions made about a claim, and not the claim
+  // itself coming into existence, cannot reconstruct how a fee was
+  // reached.
+  await recordAuditEvent({
+    matterId: created.id,
+    actor,
+    type: "MATTER_CREATED",
+    payload: matterCreatedPayload(created.id, created.status),
+    rulePackVersion: null,
+    engineVersion: null,
+  });
+
+  return created;
 }
 
 export interface AddExpenseLineInput {
@@ -122,7 +159,18 @@ export async function addExpenseLine(
     hrNote: input.hrNote ?? null,
   });
 
-  return memoryMatterRepository.addExpenseLine(line);
+  const created = await memoryMatterRepository.addExpenseLine(line);
+
+  await recordAuditEvent({
+    matterId,
+    actor,
+    type: "LINE_ADDED",
+    payload: expenseLineAddedPayload(created.id, toLineSnapshot(created)),
+    rulePackVersion: null,
+    engineVersion: null,
+  });
+
+  return created;
 }
 
 // Refuses unless the matter is still DRAFT — a signal that has already been
@@ -166,7 +214,18 @@ export async function replaceExpenseLine(
     hrNote: input.hrNote ?? null,
   });
 
-  return memoryMatterRepository.replaceExpenseLine(line);
+  const updated = await memoryMatterRepository.replaceExpenseLine(line);
+
+  await recordAuditEvent({
+    matterId,
+    actor,
+    type: "LINE_EDITED",
+    payload: expenseLineEditedPayload(updated.id, toLineSnapshot(existing), toLineSnapshot(updated)),
+    rulePackVersion: null,
+    engineVersion: null,
+  });
+
+  return updated;
 }
 
 // Same DRAFT-only refusal as replaceExpenseLine, for the same reason
@@ -187,6 +246,15 @@ export async function deleteExpenseLine(actor: DemoActor, matterId: string, line
   if (!existing) throw new NotFoundError(`No expense line with id '${lineId}' on matter '${matterId}'`);
 
   await memoryMatterRepository.deleteExpenseLine(matterId, lineId);
+
+  await recordAuditEvent({
+    matterId,
+    actor,
+    type: "LINE_DELETED",
+    payload: expenseLineDeletedPayload(existing.id, toLineSnapshot(existing)),
+    rulePackVersion: null,
+    engineVersion: null,
+  });
 }
 
 // The pipeline: assert the matter is DRAFT, assert at least one expense line
@@ -475,10 +543,16 @@ declare global {
 const noticeSentAtByMatterId: Map<string, string> =
   globalThis.__dsarNoticeSentAt ?? (globalThis.__dsarNoticeSentAt = new Map());
 
-// Requires the HR-preparer role, refuses unless the matter is signed off,
-// and records the date. It sends nothing — there is no outbound email of
-// any kind anywhere in this system (NS-3), which is why the boundary note
-// above this control exists.
+// Requires the HR-preparer role, asks the executor for the MARK_SENT
+// transition and writes the destination it returns, and records the date.
+// It sends nothing — there is no outbound email of any kind anywhere in
+// this system (NS-3), which is why the boundary note above this control
+// exists; this transition records a date and moves a status, nothing
+// else. (04-05 Task 2 — reverses 03.1-04's recorded assumption that this
+// stayed a status-preserving side-fact; that deferral was written before
+// a guarded executor existed, and this phase's own first success
+// criterion names the closed status explicitly as something a matter must
+// be drivable to. The outputs phase still owns document generation.)
 export async function markNoticeSent(
   actor: DemoActor,
   matterId: string
@@ -487,14 +561,29 @@ export async function markNoticeSent(
 
   const matter = await memoryMatterRepository.getMatter(matterId);
   if (!matter) throw new NotFoundError(`No matter with id '${matterId}'`);
-  if (matter.status !== "SIGNED_OFF") {
-    throw new ConflictError(
-      `Matter '${matterId}' is not signed off (currently ${matter.status}) — cannot mark notice sent`
-    );
+
+  const lines = await memoryMatterRepository.listExpenseLines(matterId);
+  const guardInput = buildGuardInput({ matter, lines, assessment: null, pack: null, actor });
+  const markSentOutcome = evaluateTransition(matter.status, "MARK_SENT", guardInput);
+  if (!markSentOutcome.allowed) {
+    throw new ConflictError(markSentOutcome.reason);
   }
 
   const noticeSentAt = new Date().toISOString();
   noticeSentAtByMatterId.set(matterId, noticeSentAt);
+
+  const statusBeforeMarkSent = matter.status;
+  await memoryMatterRepository.updateMatter({ ...matter, status: markSentOutcome.to });
+
+  await recordAuditEvent({
+    matterId,
+    actor,
+    type: "NOTICE_MARKED_SENT",
+    payload: transitionPayload(statusBeforeMarkSent, markSentOutcome.to),
+    rulePackVersion: null,
+    engineVersion: null,
+  });
+
   return { matterId, noticeSentAt };
 }
 

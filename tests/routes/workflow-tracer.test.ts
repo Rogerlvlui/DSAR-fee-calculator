@@ -84,13 +84,16 @@ describe("WORKFLOW-TRACER — one guarded, audited transition end to end", () =>
     const storedMatter = await memoryMatterRepository.getMatter(matter.id);
     expect(storedMatter?.status).toBe("LEGAL_REVIEW");
 
-    // Two provenance-complete records now: SUBMITTED (this plan's one
-    // converted edge, 04-01) and COMPUTED (04-04's conversion of the
+    // Four provenance-complete records now: MATTER_CREATED and LINE_ADDED
+    // (04-05's intake-act records), SUBMITTED (this plan's one converted
+    // edge, 04-01) and COMPUTED (04-04's conversion of the
     // COMPUTING -> LEGAL_REVIEW edge) — counted by event type, per
     // 04-04-PLAN.md's own instruction, since later plans in this phase add
     // further event types to the same matter's log.
     const events = await memoryAuditEventWriter.listByMatter(matter.id);
-    expect(events).toHaveLength(2);
+    expect(events).toHaveLength(4);
+    expect(events.filter((e) => e.type === "MATTER_CREATED")).toHaveLength(1);
+    expect(events.filter((e) => e.type === "LINE_ADDED")).toHaveLength(1);
 
     const submittedEvent = events.find((e) => e.type === "SUBMITTED");
     if (!submittedEvent) throw new Error("expected exactly one SUBMITTED audit event");
@@ -113,7 +116,7 @@ describe("WORKFLOW-TRACER — one guarded, audited transition end to end", () =>
     expect(computedEvent.engineVersion).toBe(ENGINE_VERSION);
   });
 
-  it("WORKFLOW-TRACER: a matter with no expense lines is refused, leaves the matter in DRAFT, and writes no audit record", async () => {
+  it("WORKFLOW-TRACER: a matter with no expense lines is refused, leaves the matter in DRAFT, and writes no submission-related audit record", async () => {
     const matter = await createDemoMatter("DSAR-WORKFLOW-TRACER-0002");
 
     const submitResponse = await submitRoute(jsonRequest(`${BASE_URL}/${matter.id}/submit`, {}), {
@@ -126,8 +129,8 @@ describe("WORKFLOW-TRACER — one guarded, audited transition end to end", () =>
     // the guard's identical condition is proven directly and separately in
     // packages/workflow/src/evaluate-transition.test.ts. What this test
     // proves is the OUTCOME every refusal path — pre-existing check or
-    // guard — must share: the matter stays in DRAFT and no audit record is
-    // written.
+    // guard — must share: the matter stays in DRAFT and no SUBMITTED/COMPUTED
+    // record is written.
     expect(submitResponse.status).toBeGreaterThanOrEqual(400);
     const body = (await submitResponse.json()) as { error?: string };
     expect(body.error?.toLowerCase()).toContain("expense line");
@@ -135,7 +138,12 @@ describe("WORKFLOW-TRACER — one guarded, audited transition end to end", () =>
     const storedMatter = await memoryMatterRepository.getMatter(matter.id);
     expect(storedMatter?.status).toBe("DRAFT");
 
+    // One record exists — MATTER_CREATED, from creating the matter above,
+    // before any submission was ever attempted (04-05's intake-act
+    // records). No SUBMITTED or COMPUTED record exists for the refused
+    // submission itself.
     const events = await memoryAuditEventWriter.listByMatter(matter.id);
-    expect(events).toHaveLength(0);
+    expect(events).toHaveLength(1);
+    expect(events[0]?.type).toBe("MATTER_CREATED");
   });
 });
