@@ -21,7 +21,7 @@
     {
       "number": "3.1",
       "name": "Demo Slice — In-Memory Determination Pipeline",
-      "status": "in_progress"
+      "status": "complete"
     },
     {
       "number": "3.2",
@@ -56,8 +56,8 @@
   ],
   "next": {
     "command": "/gsd:progress --next",
-    "label": "Advance to the next step",
-    "reason": "Phase 03.1 of 10 · 30% · executing"
+    "label": "Advance to the next step (plan phase 03.2)",
+    "reason": "Phase 03.2 of 10 — needs a plan"
   },
-  "updated_at": "2026-09-18T07:50:41.806Z"
+  "updated_at": "2026-09-19T00:21:19.427Z"
 }

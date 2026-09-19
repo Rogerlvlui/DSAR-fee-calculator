@@ -1,19 +1,19 @@
 ---
 gsd_state_version: "1.0"
-current_phase: "03.1"
-current_phase_name: Demo Slice — In-Memory Determination Pipeline
-status: executing
-stopped_at: Completed 03.1-05-PLAN.md (Tasks 1-3 executed, plus a Rule 1 deviation ahead of Task 1) — phase 03.1 all 5 plans complete, awaiting phase verification
-last_updated: "2026-09-18T18:00:00.000Z"
-last_activity: 2026-09-18
-last_activity_desc: Plan 03.1-05 complete — SignOffPanel/Ask HR wired into the legal review page (WINDOWS.md entries 5-6 closed), README/DEMO-WALKTHROUGH.md docs, the five-honesty-properties HONESTY test suite, and the end-to-end WALKTHROUGH test. Phase 03.1 (5/5 plans) complete.
-state_head: 40aca11
+current_phase: "03.2"
+current_phase_name: Database Boundary and Audit Immutability
+status: planning
+stopped_at: Phase 3.1 complete, ready to plan Phase 03.2
+last_updated: "2026-09-19T00:21:19.369Z"
+last_activity: 2026-09-19
+last_activity_desc: Phase 3.1 complete, transitioned to Phase 03.2
+state_head: 181fd8c022fe6751ad4acee76f740eee2b67e505
 progress:
   total_phases: 10
-  completed_phases: 4
+  completed_phases: 1
   total_plans: 26
   completed_plans: 23
-  percent: 40
+  percent: 10
 ---
 
 # Project State
@@ -27,18 +27,18 @@ See: .planning/PROJECT.md (updated 2026-09-13)
 
 ## Current Position
 
-Phase: 03.1 — Demo Slice — In-Memory Determination Pipeline
-Plan: 05 of 5 complete (wave 4 of 4) — phase complete
-Status: Executing — Plan 03.1-05 done; all 5 plans / 4 waves of Phase 03.1 complete. Awaiting phase verification (orchestrator).
-Last activity: 2026-09-18 — Plan 03.1-05 complete: closed the SignOffPanel/Ask-HR wiring gap (WINDOWS.md entries 5-6), added README.md's "Running the demo" section and docs/DEMO-WALKTHROUGH.md, the HONESTY test suite (coercion isolation, banned-word scan, layout marker position, four rendered-screen assertions), the end-to-end WALKTHROUGH test (hand-computed final amount 46640, HR refusal-then-success ordering, one-assessment-per-matter invariant, cross-run independence), and closed out 03.1-VALIDATION.md's Per-Task Verification Map (every row green except the one genuinely manual presenter click-path).
+Phase: 03.2 — Database Boundary and Audit Immutability
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-09-19 — Phase 3.1 complete, transitioned to Phase 03.2
 
-Progress: [████░░░░░░] 40%
+Progress: [█░░░░░░░░░] 10%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 20
+- Total plans completed: 23
 - Average duration: —
 - Total execution time: —
 
@@ -50,6 +50,7 @@ Progress: [████░░░░░░] 40%
 | 02 | 7 | - | - |
 | 3 | 5 | - | - |
 | 03.1 | 5/5 | - | - |
+| 3.1 | 5 | - | - |
 
 **Recent Trend:**
 
@@ -197,5 +198,5 @@ Items acknowledged and deferred at milestone close, most recent first:
 ## Session Continuity
 
 Last session: 2026-09-18T18:00:00.000Z
-Stopped at: Completed 03.1-05-PLAN.md (Tasks 1-3 executed, plus a Rule 1 deviation ahead of Task 1) — Phase 03.1 complete, awaiting phase verification
+Stopped at: Phase 3.1 complete, ready to plan Phase 03.2
 Resume file: None

@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Schemas Freeze** - Freeze every core type and author the data model; the walking skeleton moved to Phase 3.2 with the database (completed 2026-09-15)
 - [x] **Phase 2: Deterministic Fee Engine** - `assess()` against hand-built fixture packs, with purity and money correctness proven by CI (completed 2026-09-16)
 - [x] **Phase 3: Rule Packs and Pack Admin** - Loader, validator, nine packs with HK and SG authored in full, and the audited activation gate (completed 2026-09-18)
-- [ ] **Phase 3.1: Demo Slice — In-Memory Determination Pipeline** (INSERTED) - The whole determination running as live software with no database, for a stakeholder presentation
+- [x] **Phase 3.1: Demo Slice — In-Memory Determination Pipeline** (INSERTED) - The whole determination running as live software with no database, for a stakeholder presentation (completed 2026-09-19)
 - [ ] **Phase 3.2: Database Boundary and Audit Immutability** (INSERTED) - The three Docker-dependent plans deferred out of Phase 1, run once Docker exists
 - [ ] **Phase 4: Workflow and Audit Backbone** - Guarded transitions, immutable sign-off, and the append-only event log every later phase writes to
 - [ ] **Phase 5: HR Intake and Disclosure Shell** - HR can itemise a claim inside a shell that states what the tool is and is not
@@ -292,7 +292,7 @@ Where capacity allows, Phases 2, 3, 4 and 5 may run concurrently — they have z
 | 1. Schemas Freeze and Walking Skeleton | 6/6 | Complete    | 2026-09-15 |
 | 2. Deterministic Fee Engine | 7/7 | Complete    | 2026-09-16 |
 | 3. Rule Packs and Pack Admin | 5/5 | Complete    | 2026-09-18 |
-| 3.1 Demo Slice — In-Memory Determination Pipeline | 4/5 | In Progress|  |
+| 3.1 Demo Slice — In-Memory Determination Pipeline | 5/5 | Complete    | 2026-09-19 |
 | 3.2 Database Boundary and Audit Immutability | 0/3 | Planned (inherited from Phase 1) | - |
 | 4. Workflow and Audit Backbone | 0/TBD | Not started | - |
 | 5. HR Intake and Disclosure Shell | 0/TBD | Not started | - |
