@@ -9,12 +9,14 @@ import { ConflictError, ForbiddenError, NotFoundError, ValidationError } from ".
 import { requireRole, type DemoActor } from "./auth.ts";
 import { memoryAssessmentRepository } from "../repositories/memory/assessment-repository.ts";
 import { memoryMatterRepository } from "../repositories/memory/matter-repository.ts";
-import { loadDemoPack } from "../engine-invocation.ts";
+import { coercePackForDemoEngine, loadDemoPack } from "../engine-invocation.ts";
 import { assertTransition } from "../state.ts";
 import { newUlid } from "../ids.ts";
 import { elapsedReviewMs, recordAssessmentOpened } from "@dsar/audit/review-session";
-import { dispositionPayload } from "@dsar/audit/payload-builders";
+import { dispositionPayload, signOffPayload } from "@dsar/audit/payload-builders";
 import { recordAuditEvent } from "../audit-trail.ts";
+import { buildGuardInput } from "../guard-input.ts";
+import { evaluateTransition } from "@dsar/workflow/evaluate-transition";
 import {
   hasSufficientReason,
   isActionPermitted,
@@ -421,6 +423,25 @@ export async function signOff(
     attestationVersion: ATTESTATION_TEMPLATE_VERSION,
   };
 
+  // The guard is a second, STRUCTURAL check — every refusal above stays
+  // exactly where it is and in the same order, because those are the
+  // specific, human-readable refusals the panel renders. This does not
+  // replace them.
+  const lines = await memoryMatterRepository.listExpenseLines(matter.id);
+  const coercedPack = coercePackForDemoEngine(pack);
+  const guardInput = buildGuardInput({
+    matter,
+    lines,
+    assessment,
+    pack: coercedPack,
+    actor,
+    acknowledgedFlags: input.acknowledgedFlags,
+  });
+  const signOffOutcome = evaluateTransition(matter.status, "SIGN_OFF", guardInput);
+  if (!signOffOutcome.allowed) {
+    throw new ConflictError(signOffOutcome.reason);
+  }
+
   const updatedAssessment: Assessment = {
     ...assessment,
     totals: { ...assessment.totals, finalAmount },
@@ -428,8 +449,17 @@ export async function signOff(
   };
   await memoryAssessmentRepository.updateAssessment(updatedAssessment);
 
-  assertTransition("LEGAL_REVIEW", "SIGNED_OFF");
-  await memoryMatterRepository.updateMatter({ ...matter, status: "SIGNED_OFF" });
+  const statusBeforeSignOff = matter.status;
+  await memoryMatterRepository.updateMatter({ ...matter, status: signOffOutcome.to });
+
+  await recordAuditEvent({
+    matterId: matter.id,
+    actor,
+    type: "SIGNED_OFF",
+    payload: signOffPayload(statusBeforeSignOff, signOffOutcome.to, elapsedReviewMs(assessment.id, now)),
+    rulePackVersion: assessment.rulePackVersion,
+    engineVersion: assessment.engineVersion,
+  });
 
   return { assessment: updatedAssessment, attestationText };
 }

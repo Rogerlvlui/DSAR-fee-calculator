@@ -149,7 +149,7 @@ describe("AUDIT-WRITER — memoryAuditEventWriter", () => {
     const payloads: AuditPayload[] = [
       transitionPayload("DRAFT", "COMPUTING"),
       dispositionPayload({ lineId: "line-1", before: "PENDING", after: "STRUCK", elapsedReviewMs: 1000 }),
-      signOffPayload(5000),
+      signOffPayload("LEGAL_REVIEW", "SIGNED_OFF", 5000),
       informationRequestPayload({ assessmentLineId: "line-1", query: "Please confirm the vendor invoice" }),
     ];
     for (const payload of payloads) {

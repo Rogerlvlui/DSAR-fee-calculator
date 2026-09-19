@@ -17,6 +17,7 @@ import { POST as submitRoute } from "../../apps/web/app/api/matters/[id]/submit/
 import { POST as infoRequestRoute } from "../../apps/web/app/api/matters/[id]/info-request/route.ts";
 import { POST as resubmitRoute } from "../../apps/web/app/api/matters/[id]/resubmit/route.ts";
 import { POST as dispositionRoute } from "../../apps/web/app/api/assessment-lines/[id]/disposition/route.ts";
+import { POST as signoffRoute } from "../../apps/web/app/api/assessments/[id]/signoff/route.ts";
 import { DEMO_ROLE_COOKIE, DEMO_USERS } from "../../apps/web/src/server/data/auth.ts";
 import { getAssessmentForLegalReview, bulkAcceptLines } from "../../apps/web/src/server/data/assessments.ts";
 import { memoryMatterRepository } from "../../apps/web/src/server/repositories/memory/matter-repository.ts";
@@ -311,5 +312,71 @@ describe("AUDIT-TRAIL", () => {
     }
     // A single elapsed reading is taken once for the whole batch.
     expect(dispositioned[0]!.payload.elapsedReviewMs).toBe(dispositioned[1]!.payload.elapsedReviewMs);
+  });
+
+  it("AUDIT-TRAIL: signing off transitions through the executor and writes one SIGNED_OFF record carrying the before/after status and an elapsed figure", async () => {
+    const matter = await createMatterWithOneLine();
+    const submitResponse = await submitRoute(jsonRequest(`${MATTERS_URL}/${matter.id}/submit`, "POST", {}), {
+      params: Promise.resolve({ id: matter.id }),
+    });
+    const assessment = (await submitResponse.json()) as FixtureAssessment;
+    const line = assessment.lines[0]!;
+
+    // The single-line fixture always FLAGs (100% materiality) — STRIKE it
+    // so every line is dispositioned before sign-off is attempted.
+    const dispositionResponse = await dispositionRoute(
+      jsonRequest(
+        `http://localhost/api/assessment-lines/${line.id}/disposition`,
+        "POST",
+        { action: "STRIKE", reason: "Sighted the underlying records and it checks out." },
+        LEGAL_COOKIE
+      ),
+      { params: Promise.resolve({ id: line.id }) }
+    );
+    expect(dispositionResponse.status).toBe(200);
+
+    const signoffResponse = await signoffRoute(
+      jsonRequest(
+        `http://localhost/api/assessments/${assessment.id}/signoff`,
+        "POST",
+        { qualification: "Advocate & Solicitor, Singapore", acknowledgedFlags: [], attestation: true },
+        LEGAL_COOKIE
+      ),
+      { params: Promise.resolve({ id: assessment.id }) }
+    );
+    expect(signoffResponse.status).toBe(200);
+
+    const events = await memoryAuditEventWriter.listByMatter(matter.id);
+    const signedOff = eventsOfType(events, "SIGNED_OFF");
+    expect(signedOff).toHaveLength(1);
+    expect(signedOff[0]!.payload.before).toBe("LEGAL_REVIEW");
+    expect(signedOff[0]!.payload.after).toBe("SIGNED_OFF");
+    expect(Number.isInteger(signedOff[0]!.payload.elapsedReviewMs)).toBe(true);
+    expect(signedOff[0]!.payload.elapsedReviewMs).toBeGreaterThanOrEqual(0);
+  });
+
+  it("AUDIT-TRAIL: sign-off with any line still pending is still refused, still leaves the matter in legal review, and still writes no record", async () => {
+    const matter = await createMatterWithOneLine();
+    const submitResponse = await submitRoute(jsonRequest(`${MATTERS_URL}/${matter.id}/submit`, "POST", {}), {
+      params: Promise.resolve({ id: matter.id }),
+    });
+    const assessment = (await submitResponse.json()) as FixtureAssessment;
+
+    const signoffResponse = await signoffRoute(
+      jsonRequest(
+        `http://localhost/api/assessments/${assessment.id}/signoff`,
+        "POST",
+        { qualification: "Advocate & Solicitor, Singapore", acknowledgedFlags: [], attestation: true },
+        LEGAL_COOKIE
+      ),
+      { params: Promise.resolve({ id: assessment.id }) }
+    );
+    expect(signoffResponse.status).toBe(400);
+
+    const matterAfter = await memoryMatterRepository.getMatter(matter.id);
+    expect(matterAfter?.status).toBe("LEGAL_REVIEW");
+
+    const events = await memoryAuditEventWriter.listByMatter(matter.id);
+    expect(eventsOfType(events, "SIGNED_OFF")).toHaveLength(0);
   });
 });

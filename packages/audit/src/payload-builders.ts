@@ -40,9 +40,16 @@ export function dispositionPayload(args: DispositionPayloadArgs): AuditPayload {
 }
 
 // AUDIT-03: SIGNED_OFF is the other event type the writer requires an
-// elapsedReviewMs figure on.
-export function signOffPayload(elapsedReviewMs: number): AuditPayload {
-  return { field: "signOff", after: "SIGNED_OFF", elapsedReviewMs };
+// elapsedReviewMs figure on. field: "status" (not "signOff") — a sign-off
+// IS a status transition (LEGAL_REVIEW -> SIGNED_OFF), the same shape
+// transitionPayload's before/after pair already uses for every other
+// transition in this log. Not yet called by any production code when this
+// builder was first authored (04-01) — plan 04-04's signOff conversion is
+// its first real caller, which is why this signature widened from a bare
+// elapsedReviewMs to also carry the before/after pair before that first
+// use, rather than after.
+export function signOffPayload(before: string, after: string, elapsedReviewMs: number): AuditPayload {
+  return { field: "status", before, after, elapsedReviewMs };
 }
 
 export interface InformationRequestPayloadArgs {
