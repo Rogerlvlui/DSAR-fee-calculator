@@ -10,10 +10,9 @@ import { requireRole, type DemoActor } from "./auth.ts";
 import { memoryAssessmentRepository } from "../repositories/memory/assessment-repository.ts";
 import { memoryMatterRepository } from "../repositories/memory/matter-repository.ts";
 import { coercePackForDemoEngine, loadDemoPack } from "../engine-invocation.ts";
-import { assertTransition } from "../state.ts";
 import { newUlid } from "../ids.ts";
 import { elapsedReviewMs, recordAssessmentOpened } from "@dsar/audit/review-session";
-import { dispositionPayload, signOffPayload } from "@dsar/audit/payload-builders";
+import { dispositionPayload, informationRequestPayload, signOffPayload } from "@dsar/audit/payload-builders";
 import { recordAuditEvent } from "../audit-trail.ts";
 import { buildGuardInput } from "../guard-input.ts";
 import { evaluateTransition } from "@dsar/workflow/evaluate-transition";
@@ -473,10 +472,11 @@ export interface AskHrInput {
 }
 
 // Requires the legal-reviewer role, validates the query by the same
-// minimum-length rule dispositions use, appends the request, and
-// transitions the matter from legal review to information requested. Writes
-// no disposition on the line: it is still undecided, which is exactly why
-// the lawyer is asking.
+// minimum-length rule dispositions use, asks the executor for the
+// RAISE_QUERY transition, appends the request, writes the destination the
+// executor returns, and records an INFO_REQUESTED audit event. Writes no
+// disposition on the line: it is still undecided, which is exactly why the
+// lawyer is asking.
 export async function askHr(
   actor: DemoActor,
   assessmentLineId: string,
@@ -493,6 +493,17 @@ export async function askHr(
 
   assertSufficientReason(input.query);
 
+  // The PRD's "on at least one line" is the calling action's own content
+  // (which line the query names), not a state precondition the guard can
+  // see — RAISE_QUERY's only guarded precondition is a recorded lawyer
+  // identity, so no pack lookup is needed here.
+  const lines = await memoryMatterRepository.listExpenseLines(matter.id);
+  const guardInput = buildGuardInput({ matter, lines, assessment, pack: null, actor });
+  const raiseQueryOutcome = evaluateTransition(matter.status, "RAISE_QUERY", guardInput);
+  if (!raiseQueryOutcome.allowed) {
+    throw new ConflictError(raiseQueryOutcome.reason);
+  }
+
   const request: InfoRequest = {
     id: newUlid(),
     matterId: matter.id,
@@ -503,8 +514,16 @@ export async function askHr(
   };
   await memoryAssessmentRepository.appendInfoRequest(request);
 
-  assertTransition("LEGAL_REVIEW", "INFO_REQUEST");
-  await memoryMatterRepository.updateMatter({ ...matter, status: "INFO_REQUEST" });
+  await memoryMatterRepository.updateMatter({ ...matter, status: raiseQueryOutcome.to });
+
+  await recordAuditEvent({
+    matterId: matter.id,
+    actor,
+    type: "INFO_REQUESTED",
+    payload: informationRequestPayload({ assessmentLineId, query: input.query }),
+    rulePackVersion: assessment.rulePackVersion,
+    engineVersion: assessment.engineVersion,
+  });
 
   return request;
 }

@@ -233,6 +233,36 @@ describe("AUDIT-TRAIL", () => {
     expect(dispositioned[0]!.payload.elapsedReviewMs).toBeGreaterThanOrEqual(0);
   });
 
+  it("AUDIT-TRAIL: an elapsed figure taken after a decision is a non-negative integer and is at least as large as the time actually elapsed in the test", async () => {
+    const matter = await createMatterWithOneLine();
+    const submitResponse = await submitRoute(jsonRequest(`${MATTERS_URL}/${matter.id}/submit`, "POST", {}), {
+      params: Promise.resolve({ id: matter.id }),
+    });
+    const assessment = (await submitResponse.json()) as FixtureAssessment;
+    const line = assessment.lines[0]!;
+
+    await getAssessmentForLegalReview(DEMO_USERS.LEGAL_REVIEWER, assessment.id);
+    await new Promise((resolve) => setTimeout(resolve, 30));
+
+    const dispositionResponse = await dispositionRoute(
+      jsonRequest(
+        `http://localhost/api/assessment-lines/${line.id}/disposition`,
+        "POST",
+        { action: "STRIKE", reason: "Sighted the underlying records and it checks out." },
+        LEGAL_COOKIE
+      ),
+      { params: Promise.resolve({ id: line.id }) }
+    );
+    expect(dispositionResponse.status).toBe(200);
+
+    const events = await memoryAuditEventWriter.listByMatter(matter.id);
+    const dispositioned = eventsOfType(events, "LINE_DISPOSITIONED");
+    const figure = dispositioned[0]!.payload.elapsedReviewMs;
+    expect(Number.isInteger(figure)).toBe(true);
+    expect(figure).toBeGreaterThanOrEqual(0);
+    expect(figure!).toBeGreaterThanOrEqual(25);
+  });
+
   it("AUDIT-TRAIL: a refused disposition writes no record at all", async () => {
     const matter = await createMatterWithOneLine();
     const submitResponse = await submitRoute(jsonRequest(`${MATTERS_URL}/${matter.id}/submit`, "POST", {}), {
@@ -378,5 +408,34 @@ describe("AUDIT-TRAIL", () => {
 
     const events = await memoryAuditEventWriter.listByMatter(matter.id);
     expect(eventsOfType(events, "SIGNED_OFF")).toHaveLength(0);
+  });
+
+  it("AUDIT-TRAIL: asking for information transitions through the executor and writes one INFO_REQUESTED record", async () => {
+    const matter = await createMatterWithOneLine();
+    const submitResponse = await submitRoute(jsonRequest(`${MATTERS_URL}/${matter.id}/submit`, "POST", {}), {
+      params: Promise.resolve({ id: matter.id }),
+    });
+    const assessment = (await submitResponse.json()) as FixtureAssessment;
+    const line = assessment.lines[0]!;
+
+    const response = await infoRequestRoute(
+      jsonRequest(
+        `${MATTERS_URL}/${matter.id}/info-request`,
+        "POST",
+        { assessmentLineId: line.id, query: "Can you confirm the vendor invoiced this line?" },
+        LEGAL_COOKIE
+      ),
+      { params: Promise.resolve({ id: matter.id }) }
+    );
+    expect(response.status).toBe(201);
+
+    const matterAfter = await memoryMatterRepository.getMatter(matter.id);
+    expect(matterAfter?.status).toBe("INFO_REQUEST");
+
+    const events = await memoryAuditEventWriter.listByMatter(matter.id);
+    const infoRequested = eventsOfType(events, "INFO_REQUESTED");
+    expect(infoRequested).toHaveLength(1);
+    expect(infoRequested[0]!.payload.entityId).toBe(line.id);
+    expect(infoRequested[0]!.actorRole).toBe("LEGAL_REVIEWER");
   });
 });
