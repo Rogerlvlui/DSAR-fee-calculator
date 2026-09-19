@@ -205,7 +205,16 @@ Why this exists: Docker is unavailable on the build machine and the presentation
   4. Every transition, disposition, pack activation and sign-off emits an audit event carrying actor, role, server timestamp, before and after, pack version and engine version, and an event whose payload carries an undeclared key is rejected as a validation error (AC-35, §12.1)
   5. The DPO can export the audit log, and elapsed review time — measured from when the reviewer first opened the assessment — is present on every `LINE_DISPOSITIONED` and `SIGNED_OFF` event
 
-**Plans**: TBD
+**Plans**: 5 plans across 4 waves — a tracer slice first, then the guard table and the second audit stream in parallel, then the retrofit of Phase 3.1's seven status literals, then the correction path and the lifecycle proof
+
+Plans:
+- [ ] 04-01-PLAN.md — Tracer: `packages/workflow` and `packages/audit` stood up, one submission transition guarded and audited end to end
+- [ ] 04-02-PLAN.md — The full PRD §5 guard table, plus the dependency and determinism gates that keep the guard package pure
+- [ ] 04-03-PLAN.md — The D-21 pack-lifecycle event stream, the `DPO_ADMIN` demo identity, and the role-gated audit log export
+- [ ] 04-04-PLAN.md — Retrofit every remaining status literal through the executor, add the lawyer recompute, delete `state.ts`, and lint-gate direct status writes
+- [ ] 04-05-PLAN.md — Correction after sign-off (`SUPERSEDED`), the closing transition, intake-side events, and the whole-lifecycle audit proof
+
+**Note**: STATE-04 (a write to a `SIGNED_OFF` assessment failing at the database) is explicitly out of this phase's scope — it needs a live Postgres constraint and this build machine has no Docker. It stays with Phase 3.2, which owns the real persistence layer, and success criterion 3 above is therefore only half-dischargeable here (the API's 409 refusal), with the database half deferred.
 
 ### Phase 5: HR Intake and Disclosure Shell
 
