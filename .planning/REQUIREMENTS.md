@@ -77,26 +77,26 @@
 
 - [ ] **BOUND-01**: No file-upload endpoint exists, and a multipart POST to any endpoint returns 415 (AC-05)
 - [x] **BOUND-02**: No Prisma field and no form input name matches the personal-data deny-list, asserted over the generated client's field names and over the rendered DOM of every form route (AC-06)
-- [ ] **BOUND-03**: Free-text fields enforce their length limits — 300, 500, 200, 1000 characters — and carry explicit warnings against entering personal data (§12.1)
-- [ ] **BOUND-04**: A pattern check warns, and never blocks, on likely personal data in intake notes and in `lawyerReason` on the review screen (§12.1)
+- [x] **BOUND-03**: Free-text fields enforce their length limits — 300, 500, 200, 1000 characters — and carry explicit warnings against entering personal data (§12.1)
+- [x] **BOUND-04**: A pattern check warns, and never blocks, on likely personal data in intake notes and in `lawyerReason` on the review screen (§12.1)
 - [x] **BOUND-05**: `AuditEvent.payload` stores only changed fields from the closed declared set, and an undeclared key is a validation error (§12.1)
 
 ### HR intake
 
-- [ ] **INTAKE-01**: HR creates a matter with reference, jurisdiction, legal entity, controller type, request received date, currency and requestor class (§10.2)
-- [ ] **INTAKE-02**: Selecting a jurisdiction shows the pack's status inline immediately, including "no usable rule pack — contact Legal" (§10.2)
-- [ ] **INTAKE-03**: A jurisdiction whose posture is `NO_EXPRESS_AUTHORITY` or `PROHIBITED` shows the heads-up notice before any expense entry is offered (§10.2)
-- [ ] **INTAKE-04**: Three attestations are captured as booleans, each with a one-line explanation of why it is being asked (§10.2)
-- [ ] **INTAKE-05**: Expense lines are entered through a repeater with category-grouped selection, units constrained by category, and a computed read-only amount (§10.2)
-- [ ] **INTAKE-06**: Category-contextual hints drawn from the pack are shown on category selection (§10.2)
-- [ ] **INTAKE-07**: A running claimed total sits in a sticky footer labelled as the claim and not the fee (§10.2)
-- [ ] **INTAKE-08**: A currency that is not the jurisdiction's designated currency is blocked as form-level validation and again server-side, naming both currencies (AC-42)
-- [ ] **INTAKE-09**: Drafts autosave every 10 seconds with save state shown (§10.1)
+- [x] **INTAKE-01**: HR creates a matter with reference, jurisdiction, legal entity, controller type, request received date, currency and requestor class (§10.2)
+- [x] **INTAKE-02**: Selecting a jurisdiction shows the pack's status inline immediately, including "no usable rule pack — contact Legal" (§10.2)
+- [x] **INTAKE-03**: A jurisdiction whose posture is `NO_EXPRESS_AUTHORITY` or `PROHIBITED` shows the heads-up notice before any expense entry is offered (§10.2)
+- [x] **INTAKE-04**: Three attestations are captured as booleans, each with a one-line explanation of why it is being asked (§10.2)
+- [x] **INTAKE-05**: Expense lines are entered through a repeater with category-grouped selection, units constrained by category, and a computed read-only amount (§10.2)
+- [x] **INTAKE-06**: Category-contextual hints drawn from the pack are shown on category selection (§10.2)
+- [x] **INTAKE-07**: A running claimed total sits in a sticky footer labelled as the claim and not the fee (§10.2)
+- [x] **INTAKE-08**: A currency that is not the jurisdiction's designated currency is blocked as form-level validation and again server-side, naming both currencies (AC-42)
+- [x] **INTAKE-09**: Drafts autosave every 10 seconds with save state shown (§10.1)
 
 ### Navigation
 
 - [ ] **NAV-01**: `/legal/queue` lists matters in `LEGAL_REVIEW` and `INFO_REQUEST` for the lawyer's jurisdiction, sortable by advisory deadline and age, with no SLA colouring or escalation that would make it case management *(research; bounded by NS-5)*
-- [ ] **NAV-02**: `/hr/matters` lists the preparer's own matters and their status, serving as the in-app substitute for the notification NS-3 forbids sending *(research)*
+- [x] **NAV-02**: `/hr/matters` lists the preparer's own matters and their status, serving as the in-app substitute for the notification NS-3 forbids sending *(research)*
 - [ ] **NAV-03**: Queue and list are keyboard navigable, extending the existing shortcut help overlay *(research)*
 
 ### Legal review
@@ -140,11 +140,11 @@
 
 ### Risk disclosure
 
-- [ ] **DISC-01**: The capability statement is a full page that cannot be skipped, requires typing an acknowledgement, and is re-shown whenever `statementVersion` increments (AC-30)
-- [ ] **DISC-02**: A non-dismissible status strip renders on every authenticated screen with jurisdiction, pack id and version, reviewing lawyer, reviewed date and review-due state (AC-31)
-- [ ] **DISC-03**: No engine-derived UI string contains any canonical banned word, asserted by a lint rule over the strings file (AC-32a)
+- [x] **DISC-01**: The capability statement is a full page that cannot be skipped, requires typing an acknowledgement, and is re-shown whenever `statementVersion` increments (AC-30)
+- [x] **DISC-02**: A non-dismissible status strip renders on every authenticated screen with jurisdiction, pack id and version, reviewing lawyer, reviewed date and review-due state (AC-31)
+- [x] **DISC-03**: No engine-derived UI string contains any canonical banned word, asserted by a lint rule over the strings file (AC-32a)
 - [ ] **DISC-04**: Every verdict badge's accessible name includes its verdict in words, and no badge conveys verdict by colour alone (AC-32b)
-- [ ] **DISC-05**: Every rendered deadline figure carries the word "Advisory" within its own container (AC-15a)
+- [x] **DISC-05**: Every rendered deadline figure carries the word "Advisory" within its own container (AC-15a)
 - [ ] **DISC-06**: Empty, error and edge states behave exactly as specified in §10.7 rather than being improvised (§10.7)
 
 ### LLM boundary
@@ -291,20 +291,20 @@ Every v1 requirement maps to exactly one phase in `.planning/ROADMAP.md`.
 | ACCESS-08 | Phase 3.2 | Pending |
 | BOUND-01 | Phase 3.2 | Pending |
 | BOUND-02 | Phase 1 | Complete |
-| BOUND-03 | Phase 5 | Pending |
-| BOUND-04 | Phase 5 | Pending |
+| BOUND-03 | Phase 5 | Complete |
+| BOUND-04 | Phase 5 | Complete |
 | BOUND-05 | Phase 4 | Complete |
-| INTAKE-01 | Phase 5 | Pending |
-| INTAKE-02 | Phase 5 | Pending |
-| INTAKE-03 | Phase 5 | Pending |
-| INTAKE-04 | Phase 5 | Pending |
-| INTAKE-05 | Phase 5 | Pending |
-| INTAKE-06 | Phase 5 | Pending |
-| INTAKE-07 | Phase 5 | Pending |
-| INTAKE-08 | Phase 5 | Pending |
-| INTAKE-09 | Phase 5 | Pending |
+| INTAKE-01 | Phase 5 | Complete |
+| INTAKE-02 | Phase 5 | Complete |
+| INTAKE-03 | Phase 5 | Complete |
+| INTAKE-04 | Phase 5 | Complete |
+| INTAKE-05 | Phase 5 | Complete |
+| INTAKE-06 | Phase 5 | Complete |
+| INTAKE-07 | Phase 5 | Complete |
+| INTAKE-08 | Phase 5 | Complete |
+| INTAKE-09 | Phase 5 | Complete |
 | NAV-01 | Phase 6 | Pending |
-| NAV-02 | Phase 5 | Pending |
+| NAV-02 | Phase 5 | Complete |
 | NAV-03 | Phase 6 | Pending |
 | REVIEW-01 | Phase 6 | Pending |
 | REVIEW-02 | Phase 6 | Pending |
@@ -333,11 +333,11 @@ Every v1 requirement maps to exactly one phase in `.planning/ROADMAP.md`.
 | AUDIT-02 | Phase 3.2 | Pending |
 | AUDIT-03 | Phase 4 | Complete |
 | AUDIT-04 | Phase 4 | Complete |
-| DISC-01 | Phase 5 | Pending |
-| DISC-02 | Phase 5 | Pending |
-| DISC-03 | Phase 5 | Pending |
+| DISC-01 | Phase 5 | Complete |
+| DISC-02 | Phase 5 | Complete |
+| DISC-03 | Phase 5 | Complete |
 | DISC-04 | Phase 6 | Pending |
-| DISC-05 | Phase 5 | Pending |
+| DISC-05 | Phase 5 | Complete |
 | DISC-06 | Phase 7 | Pending |
 | LLM-01 | Phase 8 | Pending |
 | LLM-02 | Phase 8 | Pending |

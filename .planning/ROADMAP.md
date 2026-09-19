@@ -19,7 +19,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3.1: Demo Slice — In-Memory Determination Pipeline** (INSERTED) - The whole determination running as live software with no database, for a stakeholder presentation (completed 2026-09-19)
 - [ ] **Phase 3.2: Database Boundary and Audit Immutability** (INSERTED) - The three Docker-dependent plans deferred out of Phase 1, run once Docker exists
 - [x] **Phase 4: Workflow and Audit Backbone** - Guarded transitions, immutable sign-off, and the append-only event log every later phase writes to (completed 2026-09-19; STATE-04's database half stays with Phase 3.2, as already noted below)
-- [ ] **Phase 5: HR Intake and Disclosure Shell** - HR can itemise a claim inside a shell that states what the tool is and is not
+- [x] **Phase 5: HR Intake and Disclosure Shell** - HR can itemise a claim inside a shell that states what the tool is and is not (completed 2026-09-20)
 - [ ] **Phase 6: Convergence and Legal Review** - Golden files pass, then the line-by-line review screen with its automation-bias controls
 - [ ] **Phase 7: Sign-off, Outputs and Edge States** - The sign-off gate, the internal record, the requestor notice, and every §10.7 state
 - [ ] **Phase 8: LLM Job 1 — Category Suggestion** - One advisory suggestion, verbatim-validated, that never moves a verdict or an amount
@@ -230,26 +230,26 @@ Plans:
   4. Every authenticated screen carries the non-dismissible status strip with jurisdiction, pack id and version, reviewing lawyer, reviewed date and review-due state (AC-31), and no user reaches any screen without passing the unskippable capability statement, which re-appears whenever `statementVersion` increments (AC-30)
   5. The personal-data boundary holds at field level: every free-text field enforces its 300/500/200/1000 limit with an explicit warning, the shared pattern detector warns and never blocks, no string in the UI strings file contains a banned word (AC-32a), and every rendered deadline carries "Advisory" inside its own container (AC-15a)
 
-**Plans**: 6 plans across 4 waves
+**Plans**: 6 plans across 4 waves — all complete
 
 Plans:
 **Wave 1**
 
-- [ ] 05-01-PLAN.md — Disclosure-shell foundations: `StatusStrip` reconciled to AC-31's field list, `CapabilityStatement`'s `statementVersion` re-show mechanism, both mounted via the `(hr)`/`(legal)` route-group layouts
-- [ ] 05-02-PLAN.md — Personal-data field discipline: the `FREE_TEXT_LIMITS.description` fix, and `detectLikelyPersonalData` wired to `description`/`identityVerifiedNote`
+- [x] 05-01-PLAN.md — Disclosure-shell foundations: `StatusStrip` reconciled to AC-31's field list, `CapabilityStatement`'s `statementVersion` re-show mechanism, both mounted via the `(hr)`/`(legal)` route-group layouts
+- [x] 05-02-PLAN.md — Personal-data field discipline: the `FREE_TEXT_LIMITS.description` fix, and `detectLikelyPersonalData` wired to `description`/`identityVerifiedNote`
 
 **Wave 2** *(blocked on 05-01)*
 
-- [ ] 05-03-PLAN.md — Real nine-jurisdiction rule-pack status resolution (`jurisdiction-packs.ts`), replacing the SG-only hardcoded fallback; the actual expense-entry gate; `StatusStrip` composed onto the HR screens
+- [x] 05-03-PLAN.md — Real nine-jurisdiction rule-pack status resolution (`jurisdiction-packs.ts`), replacing the SG-only hardcoded fallback; the actual expense-entry gate; `StatusStrip` composed onto the HR screens
 
 **Wave 3** *(blocked on 05-03)*
 
-- [ ] 05-04-PLAN.md — `/matters` (NAV-02), the shared advisory-deadline extraction, and the collapsed HR-facing status label
-- [ ] 05-05-PLAN.md — Client-local draft autosave every 10 seconds with a visible save-state indicator
+- [x] 05-04-PLAN.md — `/matters` (NAV-02), the shared advisory-deadline extraction, and the collapsed HR-facing status label
+- [x] 05-05-PLAN.md — Client-local draft autosave every 10 seconds with a visible save-state indicator
 
 **Wave 4** *(blocked on 05-01 through 05-05)*
 
-- [ ] 05-06-PLAN.md — The banned-word UI scan (DISC-03), the strengthened AC-42 route-test proof, and the phase-wide regression sweep
+- [x] 05-06-PLAN.md — The banned-word UI scan (DISC-03), the strengthened AC-42 route-test proof, and the phase-wide regression sweep
 
 **UI hint**: yes
 
@@ -324,7 +324,7 @@ Where capacity allows, Phases 2, 3, 4 and 5 may run concurrently — they have z
 | 3.1 Demo Slice — In-Memory Determination Pipeline | 5/5 | Complete    | 2026-09-19 |
 | 3.2 Database Boundary and Audit Immutability | 0/3 | Planned (inherited from Phase 1) | - |
 | 4. Workflow and Audit Backbone | 5/5 | Complete    | 2026-09-19 |
-| 5. HR Intake and Disclosure Shell | 0/6 | Planned | - |
+| 5. HR Intake and Disclosure Shell | 6/6 | Complete    | 2026-09-20 |
 | 6. Convergence and Legal Review | 0/TBD | Not started | - |
 | 7. Sign-off, Outputs and Edge States | 0/TBD | Not started | - |
 | 8. LLM Job 1 — Category Suggestion | 0/TBD | Not started | - |
