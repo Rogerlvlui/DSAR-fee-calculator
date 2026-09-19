@@ -228,6 +228,15 @@ export function IntakeForm({ packsByJurisdiction, defaultReference }: IntakeForm
       });
       if (!submitResponse.ok) throw new Error(await readErrorMessage(submitResponse));
 
+      // 05-REVIEW-ADDENDUM.md WR-03: the autosaved draft can carry exactly
+      // the personal-data-shaped free text detectLikelyPersonalData exists
+      // to warn about (identityVerifiedNote, line descriptions) — it must
+      // not persist in localStorage indefinitely once the matter it was
+      // drafting is already submitted. Cleared immediately before
+      // navigating away, mirroring this module's own "never reaches the
+      // network or the audit log" write-only autosave boundary.
+      window.localStorage.removeItem(INTAKE_DRAFT_STORAGE_KEY);
+
       router.push(`/matters/${matter.id}/submitted`);
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : "Something went wrong.");

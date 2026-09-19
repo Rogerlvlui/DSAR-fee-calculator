@@ -325,3 +325,96 @@ describe("INTAKE-FORM: autosave indicator", () => {
     expect(INTAKE_DRAFT_STORAGE_KEY).toBe("dsar_demo_intake_draft");
   });
 });
+
+// 05-REVIEW-ADDENDUM.md WR-03: handleSubmit never cleared the autosaved
+// draft after a successful submit, so localStorage kept a copy of exactly
+// the personal-data-shaped free text the pattern detector exists to warn
+// about, indefinitely, after the matter it was drafting was already
+// submitted. Interactive (createRoot + act + native dispatchEvent), the
+// same technique apps/web/src/ui/capability/capability-statement.test.tsx
+// already establishes for this codebase rather than a new testing-library
+// dependency — real fetch is stubbed via vi.stubGlobal so the full
+// handleSubmit pipeline (create matter, add each line, submit) runs
+// end-to-end against fake responses.
+describe("INTAKE-FORM: clearing the autosaved draft on successful submit (WR-03)", () => {
+  it("INTAKE-FORM: removes the autosaved draft from localStorage immediately after a successful submit", async () => {
+    const { act } = await import("react");
+    const { createRoot } = await import("react-dom/client");
+
+    window.localStorage.setItem(INTAKE_DRAFT_STORAGE_KEY, JSON.stringify({ stale: "draft" }));
+
+    const fetchMock = vi.fn(async (input: string | URL | Request) => {
+      const url = String(input);
+      if (url === "/api/matters") {
+        return new Response(JSON.stringify({ id: "matter-wr03" }), { status: 201 });
+      }
+      if (/\/api\/matters\/.+\/lines$/.test(url)) {
+        return new Response(JSON.stringify({ id: "line-wr03" }), { status: 201 });
+      }
+      if (/\/api\/matters\/.+\/submit$/.test(url)) {
+        return new Response(JSON.stringify({}), { status: 200 });
+      }
+      throw new Error(`INTAKE-FORM WR-03 test: unexpected fetch to ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const packsByJurisdiction = packsByJurisdictionFixture();
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const root = createRoot(container);
+    act(() => {
+      root.render(React.createElement(IntakeForm, { packsByJurisdiction, defaultReference: "DSAR-2026-0001" }));
+    });
+
+    // Satisfy computeIntakeDisabledReason's full ladder: matter details
+    // (only legalEntity is empty by default), both attestations, and at
+    // least one valid line — via the repeater's own "Fill in the example
+    // rows" affordance rather than hand-simulating six rows of typing.
+    const legalEntityInput = container.querySelector('input[name="legalEntity"]') as HTMLInputElement;
+    const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value")?.set;
+    act(() => {
+      nativeInputValueSetter?.call(legalEntityInput, "Acme Pte Ltd");
+      legalEntityInput.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+
+    const identityCheckbox = container.querySelector('input[name="identityVerified"]') as HTMLInputElement;
+    const scopeCheckbox = container.querySelector('input[name="scopeClarified"]') as HTMLInputElement;
+    act(() => {
+      identityCheckbox.click();
+    });
+    act(() => {
+      scopeCheckbox.click();
+    });
+
+    const fillExampleButton = Array.from(container.querySelectorAll("button")).find(
+      (button) => button.textContent === "Fill in the example rows"
+    );
+    act(() => {
+      fillExampleButton?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+
+    const submitButton = Array.from(container.querySelectorAll("button")).find(
+      (button) => button.textContent === "Submit to Legal"
+    ) as HTMLButtonElement;
+    expect(submitButton.disabled).toBe(false);
+
+    await act(async () => {
+      submitButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      // Flush the sequential awaited fetches (create matter -> six lines ->
+      // submit) — each mocked fetch resolves on a microtask, so repeated
+      // Promise.resolve() ticks drain the whole chain without a real timer.
+      for (let tick = 0; tick < 40; tick += 1) {
+        await Promise.resolve();
+      }
+    });
+
+    expect(fetchMock).toHaveBeenCalled();
+    expect(window.localStorage.getItem(INTAKE_DRAFT_STORAGE_KEY)).toBeNull();
+
+    act(() => {
+      root.unmount();
+    });
+    container.remove();
+    vi.unstubAllGlobals();
+  });
+});
