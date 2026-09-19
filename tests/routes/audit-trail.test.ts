@@ -14,17 +14,22 @@ import { describe, expect, it } from "vitest";
 import { POST as createMatterRoute } from "../../apps/web/app/api/matters/route.ts";
 import { POST as addLineRoute } from "../../apps/web/app/api/matters/[id]/lines/route.ts";
 import { POST as submitRoute } from "../../apps/web/app/api/matters/[id]/submit/route.ts";
+import { POST as infoRequestRoute } from "../../apps/web/app/api/matters/[id]/info-request/route.ts";
+import { POST as resubmitRoute } from "../../apps/web/app/api/matters/[id]/resubmit/route.ts";
+import { DEMO_ROLE_COOKIE } from "../../apps/web/src/server/data/auth.ts";
 import { memoryMatterRepository } from "../../apps/web/src/server/repositories/memory/matter-repository.ts";
 import { memoryAssessmentRepository } from "../../apps/web/src/server/repositories/memory/assessment-repository.ts";
 import { memoryAuditEventWriter } from "@dsar/audit/memory/audit-event-writer";
 import { ENGINE_VERSION } from "@dsar/engine";
 
 const MATTERS_URL = "http://localhost/api/matters";
+const LEGAL_COOKIE = `${DEMO_ROLE_COOKIE}=LEGAL_REVIEWER`;
+const HR_COOKIE = `${DEMO_ROLE_COOKIE}=HR_PREPARER`;
 
-function jsonRequest(url: string, method: string, body: unknown): Request {
+function jsonRequest(url: string, method: string, body: unknown, cookie: string = HR_COOKIE): Request {
   return new Request(url, {
     method,
-    headers: { "content-type": "application/json" },
+    headers: { "content-type": "application/json", cookie },
     body: JSON.stringify(body),
   });
 }
@@ -61,6 +66,12 @@ const ONE_LINE_INPUT = {
   evidenceRef: null,
   hrNote: null,
 };
+
+interface FixtureAssessment {
+  id: string;
+  matterId: string;
+  lines: { id: string; verdict: string; expenseLineId: string }[];
+}
 
 async function createMatterWithOneLine(overrides: Partial<typeof VALID_MATTER_INPUT_BASE> = {}): Promise<{ id: string }> {
   const matterResponse = await createMatterRoute(
@@ -133,5 +144,38 @@ describe("AUDIT-TRAIL", () => {
     expect(failed[0]!.payload.before).toBe("COMPUTING");
     expect(typeof failed[0]!.payload.after).toBe("string");
     expect((failed[0]!.payload.after as string).length).toBeGreaterThan(0);
+  });
+
+  it("AUDIT-TRAIL: a resubmission after an information request leaves a SUBMITTED record and a COMPUTED record, and the stored assessment keeps its identity", async () => {
+    const matter = await createMatterWithOneLine();
+    const submitResponse = await submitRoute(jsonRequest(`${MATTERS_URL}/${matter.id}/submit`, "POST", {}), {
+      params: Promise.resolve({ id: matter.id }),
+    });
+    const assessment = (await submitResponse.json()) as FixtureAssessment;
+
+    await infoRequestRoute(
+      jsonRequest(
+        `${MATTERS_URL}/${matter.id}/info-request`,
+        "POST",
+        { assessmentLineId: assessment.lines[0]!.id, query: "Can you confirm the vendor invoiced this line?" },
+        LEGAL_COOKIE
+      ),
+      { params: Promise.resolve({ id: matter.id }) }
+    );
+
+    const resubmitResponse = await resubmitRoute(jsonRequest(`${MATTERS_URL}/${matter.id}/resubmit`, "POST", {}), {
+      params: Promise.resolve({ id: matter.id }),
+    });
+    expect(resubmitResponse.status).toBe(200);
+    const recomputed = (await resubmitResponse.json()) as FixtureAssessment;
+    expect(recomputed.id).toBe(assessment.id);
+
+    const events = await memoryAuditEventWriter.listByMatter(matter.id);
+    // Two SUBMITTED (the original submission, then the resubmission) and
+    // two COMPUTED (the original computation, then the recompute) — counted
+    // by type, so this does not assume anything about the INFO_REQUESTED
+    // event another plan's task adds to the same log.
+    expect(eventsOfType(events, "SUBMITTED")).toHaveLength(2);
+    expect(eventsOfType(events, "COMPUTED")).toHaveLength(2);
   });
 });

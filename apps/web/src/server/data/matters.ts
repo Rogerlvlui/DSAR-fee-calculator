@@ -10,8 +10,8 @@ import { MatterSchema, type Matter } from "@dsar/schemas/matter";
 import { ExpenseLineSchema, type ExpenseLine } from "@dsar/schemas/expense-line";
 import type { Assessment } from "@dsar/schemas/assessment";
 import { newUlid } from "../ids.ts";
-import { assertTransition } from "../state.ts";
 import { assessMatter, coercePackForDemoEngine, loadDemoPack } from "../engine-invocation.ts";
+import { recomputeAssessment } from "../recompute.ts";
 import { ConflictError, NotFoundError, ValidationError } from "../errors.ts";
 import { requireRole, type DemoActor } from "./auth.ts";
 import { memoryMatterRepository } from "../repositories/memory/matter-repository.ts";
@@ -300,19 +300,14 @@ export async function submitForAssessment(actor: DemoActor, matterId: string): P
 // ---------------------------------------------------------------------------
 
 // Requires the HR-preparer role, refuses unless the matter is in the
-// information-requested state, transitions to COMPUTING, re-runs
-// assessMatter() over the CURRENT lines, and then — the part that is easy
-// to get backwards — stores the new result under the EXISTING assessment's
-// identifier, overwriting its content. The engine derives its own
-// identifier from its inputs; that derived id is deliberately discarded in
-// favour of the one already on file, so this recompute mutates the
-// existing Assessment in place (same id) rather than creating a second
-// record — a different frozen lifecycle status, reserved for a correction
-// made after sign-off, exists for that other case; this recompute runs
-// strictly before sign-off and never touches that status at all.
-// assessMatter() itself starts every line PENDING with no lawyer amount,
-// reason, actor or timestamp, so nothing from the old dispositions can
-// survive the overwrite.
+// information-requested state (via the executor's RESUBMIT row), records a
+// SUBMITTED event, delegates the in-place mutation to ../recompute.ts (see
+// its module note for why the derived id is discarded), asks the executor
+// for the COMPUTE_SUCCEEDED transition, records a COMPUTED event, and only
+// then clears the outstanding information requests. recomputeAssessment()
+// starts every line PENDING with no lawyer amount, reason, actor or
+// timestamp, and clears the assessment's first-opened record, so nothing
+// from the old review pass can survive the overwrite.
 export async function resubmitAfterInfoRequest(actor: DemoActor, matterId: string): Promise<Assessment> {
   requireRole(actor, "HR_PREPARER");
 
@@ -325,18 +320,48 @@ export async function resubmitAfterInfoRequest(actor: DemoActor, matterId: strin
   const existing = await memoryAssessmentRepository.getAssessmentByMatterId(matterId);
   if (!existing) throw new NotFoundError(`No assessment found for matter '${matterId}'`);
 
-  assertTransition("INFO_REQUEST", "COMPUTING");
-  await memoryMatterRepository.updateMatter({ ...matter, status: "COMPUTING" });
-
   const lines = await memoryMatterRepository.listExpenseLines(matterId);
-  const recomputed = assessMatter({ matter, lines });
-  // See module note above: the derived id is discarded in favour of the
-  // existing one on purpose — do not "fix" this to use recomputed.id.
-  const updatedAssessment: Assessment = { ...recomputed, id: existing.id };
+  const loadedPack = loadDemoPack();
+  const pack = coercePackForDemoEngine(loadedPack);
+  const guardInput = buildGuardInput({ matter, lines, assessment: existing, pack, actor });
+
+  const resubmitOutcome = evaluateTransition(matter.status, "RESUBMIT", guardInput);
+  if (!resubmitOutcome.allowed) {
+    throw new ConflictError(resubmitOutcome.reason);
+  }
+
+  const statusBeforeResubmit = matter.status;
+  await memoryMatterRepository.updateMatter({ ...matter, status: resubmitOutcome.to });
+  await recordAuditEvent({
+    matterId,
+    actor,
+    type: "SUBMITTED",
+    payload: transitionPayload(statusBeforeResubmit, resubmitOutcome.to),
+    rulePackVersion: pack.version,
+    engineVersion: ENGINE_VERSION,
+  });
+
+  // See recompute.ts's module note: the derived id is discarded in favour
+  // of the existing one on purpose — do not "fix" this to use the engine's
+  // own derived id. recomputeAssessment() also clears the first-opened
+  // record as part of this same operation.
+  const updatedAssessment = recomputeAssessment({ matter, lines, existing });
   await memoryAssessmentRepository.updateAssessment(updatedAssessment);
 
-  assertTransition("COMPUTING", "LEGAL_REVIEW");
-  await memoryMatterRepository.updateMatter({ ...matter, status: "LEGAL_REVIEW" });
+  const computeGuardInput = buildGuardInput({ matter, lines, assessment: updatedAssessment, pack, actor });
+  const computeOutcome = evaluateTransition(resubmitOutcome.to, "COMPUTE_SUCCEEDED", computeGuardInput);
+  if (!computeOutcome.allowed) {
+    throw new ConflictError(computeOutcome.reason);
+  }
+  await memoryMatterRepository.updateMatter({ ...matter, status: computeOutcome.to });
+  await recordAuditEvent({
+    matterId,
+    actor,
+    type: "COMPUTED",
+    payload: transitionPayload(resubmitOutcome.to, computeOutcome.to),
+    rulePackVersion: pack.version,
+    engineVersion: ENGINE_VERSION,
+  });
 
   await memoryAssessmentRepository.clearInfoRequests(matterId);
 
