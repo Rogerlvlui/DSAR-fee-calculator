@@ -84,20 +84,33 @@ describe("WORKFLOW-TRACER — one guarded, audited transition end to end", () =>
     const storedMatter = await memoryMatterRepository.getMatter(matter.id);
     expect(storedMatter?.status).toBe("LEGAL_REVIEW");
 
+    // Two provenance-complete records now: SUBMITTED (this plan's one
+    // converted edge, 04-01) and COMPUTED (04-04's conversion of the
+    // COMPUTING -> LEGAL_REVIEW edge) — counted by event type, per
+    // 04-04-PLAN.md's own instruction, since later plans in this phase add
+    // further event types to the same matter's log.
     const events = await memoryAuditEventWriter.listByMatter(matter.id);
-    expect(events).toHaveLength(1);
+    expect(events).toHaveLength(2);
 
-    const event = events[0];
-    if (!event) throw new Error("expected exactly one audit event");
-    expect(event.type).toBe("SUBMITTED");
-    expect(event.matterId).toBe(matter.id);
-    expect(event.actor.id).toEqual(expect.any(String));
-    expect(event.actorRole).toBe("HR_PREPARER");
-    expect(event.at).toEqual(expect.any(String));
-    expect(event.payload.before).toBe("DRAFT");
-    expect(event.payload.after).toBe("COMPUTING");
-    expect(event.rulePackVersion).toBe("2026.09.1");
-    expect(event.engineVersion).toBe(ENGINE_VERSION);
+    const submittedEvent = events.find((e) => e.type === "SUBMITTED");
+    if (!submittedEvent) throw new Error("expected exactly one SUBMITTED audit event");
+    expect(submittedEvent.matterId).toBe(matter.id);
+    expect(submittedEvent.actor.id).toEqual(expect.any(String));
+    expect(submittedEvent.actorRole).toBe("HR_PREPARER");
+    expect(submittedEvent.at).toEqual(expect.any(String));
+    expect(submittedEvent.payload.before).toBe("DRAFT");
+    expect(submittedEvent.payload.after).toBe("COMPUTING");
+    expect(submittedEvent.rulePackVersion).toBe("2026.09.1");
+    expect(submittedEvent.engineVersion).toBe(ENGINE_VERSION);
+
+    const computedEvent = events.find((e) => e.type === "COMPUTED");
+    if (!computedEvent) throw new Error("expected exactly one COMPUTED audit event");
+    expect(computedEvent.matterId).toBe(matter.id);
+    expect(computedEvent.actorRole).toBe("HR_PREPARER");
+    expect(computedEvent.payload.before).toBe("COMPUTING");
+    expect(computedEvent.payload.after).toBe("LEGAL_REVIEW");
+    expect(computedEvent.rulePackVersion).toBe("2026.09.1");
+    expect(computedEvent.engineVersion).toBe(ENGINE_VERSION);
   });
 
   it("WORKFLOW-TRACER: a matter with no expense lines is refused, leaves the matter in DRAFT, and writes no audit record", async () => {

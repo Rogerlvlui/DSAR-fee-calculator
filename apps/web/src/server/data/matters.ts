@@ -186,11 +186,15 @@ export async function deleteExpenseLine(actor: DemoActor, matterId: string, line
 // exists, ask packages/workflow's guarded executor for the SUBMIT
 // transition and write the destination IT returns (never a literal chosen
 // here), record the SUBMITTED audit event, call assessMatter, save the
-// assessment, transition COMPUTING to LEGAL_REVIEW, and return the computed
-// Assessment itself (its `id` is the assessment identifier the route hands
-// back). If assessMatter throws, return the matter to DRAFT and rethrow —
-// PRD §10.7's engine-error row requires the matter to land back in Draft
-// with no partial figures saved.
+// assessment, ask the executor for the COMPUTE_SUCCEEDED transition and
+// write ITS destination, record a COMPUTED audit event, and return the
+// computed Assessment itself (its `id` is the assessment identifier the
+// route hands back). If assessMatter throws, ask the executor for the
+// COMPUTE_FAILED transition, write its destination BEFORE recording the
+// failure (so a logging problem cannot strand the matter in COMPUTING),
+// record a COMPUTE_FAILED audit event carrying the failure reason, and
+// rethrow — PRD §10.7's engine-error row requires the matter to land back
+// in Draft with no partial figures saved.
 //
 // The two early checks below (DRAFT-only, at-least-one-line) are the
 // pre-existing 03.1 business-rule checks, left unmodified — they are not
@@ -221,18 +225,18 @@ export async function submitForAssessment(actor: DemoActor, matterId: string): P
   const loadedPack = loadDemoPack();
   const pack = coercePackForDemoEngine(loadedPack);
   const guardInput = buildGuardInput({ matter, lines, assessment: null, pack, actor });
-  const outcome = evaluateTransition(matter.status, "SUBMIT", guardInput);
-  if (!outcome.allowed) {
-    throw new ConflictError(outcome.reason);
+  const submitOutcome = evaluateTransition(matter.status, "SUBMIT", guardInput);
+  if (!submitOutcome.allowed) {
+    throw new ConflictError(submitOutcome.reason);
   }
 
   const statusBeforeSubmit = matter.status;
-  await memoryMatterRepository.updateMatter({ ...matter, status: outcome.to });
+  await memoryMatterRepository.updateMatter({ ...matter, status: submitOutcome.to });
   await recordAuditEvent({
     matterId,
     actor,
     type: "SUBMITTED",
-    payload: transitionPayload(statusBeforeSubmit, outcome.to),
+    payload: transitionPayload(statusBeforeSubmit, submitOutcome.to),
     rulePackVersion: pack.version,
     engineVersion: ENGINE_VERSION,
   });
@@ -240,12 +244,52 @@ export async function submitForAssessment(actor: DemoActor, matterId: string): P
   try {
     const assessment = assessMatter({ matter, lines });
     const saved = await memoryAssessmentRepository.saveAssessment(assessment);
-    assertTransition("COMPUTING", "LEGAL_REVIEW");
-    await memoryMatterRepository.updateMatter({ ...matter, status: "LEGAL_REVIEW" });
+
+    // COMPUTING -> LEGAL_REVIEW: ask the executor for the destination
+    // rather than writing "LEGAL_REVIEW" as a literal. `submitOutcome.to`
+    // (not a hand-written "COMPUTING" literal) is the `from` state here —
+    // it is the executor's own answer to the SUBMIT transition above.
+    const computeGuardInput = buildGuardInput({ matter, lines, assessment: saved, pack, actor });
+    const computeOutcome = evaluateTransition(submitOutcome.to, "COMPUTE_SUCCEEDED", computeGuardInput);
+    if (!computeOutcome.allowed) {
+      throw new ConflictError(computeOutcome.reason);
+    }
+    await memoryMatterRepository.updateMatter({ ...matter, status: computeOutcome.to });
+    await recordAuditEvent({
+      matterId,
+      actor,
+      type: "COMPUTED",
+      payload: transitionPayload(submitOutcome.to, computeOutcome.to),
+      rulePackVersion: pack.version,
+      engineVersion: ENGINE_VERSION,
+    });
     return saved;
   } catch (error) {
-    assertTransition("COMPUTING", "DRAFT");
-    await memoryMatterRepository.updateMatter({ ...matter, status: "DRAFT" });
+    // The rollback write is ordered BEFORE its own audit record: a matter
+    // stranded in COMPUTING by a logging failure is a worse outcome than a
+    // missing record of a failure that is itself already visible in the
+    // matter's status (04-04-PLAN.md's own assumption).
+    const failOutcome = evaluateTransition(submitOutcome.to, "COMPUTE_FAILED", guardInput);
+    if (!failOutcome.allowed) {
+      // Unreachable in practice — the COMPUTE_FAILED row's guard is
+      // unconditional (packages/workflow/src/transitions.ts) — but fail
+      // loudly rather than silently leave the matter stranded in COMPUTING
+      // if a future edit ever changes that.
+      throw new Error(`Internal error: rollback transition refused (${failOutcome.reason})`);
+    }
+    await memoryMatterRepository.updateMatter({ ...matter, status: failOutcome.to });
+    const reason = error instanceof Error ? error.message : String(error);
+    await recordAuditEvent({
+      matterId,
+      actor,
+      type: "COMPUTE_FAILED",
+      // The changed-value position (`after`) carries the failure reason,
+      // not the destination status — the destination is already visible on
+      // the matter itself.
+      payload: transitionPayload(submitOutcome.to, reason),
+      rulePackVersion: pack.version,
+      engineVersion: ENGINE_VERSION,
+    });
     throw error;
   }
 }
