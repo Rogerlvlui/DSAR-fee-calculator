@@ -19,6 +19,32 @@ export interface StatusStripProps {
   packStatus: string;
   authoredByDisplayName: string | null;
   reviewedByDisplayName: string | null;
+  /** The pack's own `reviewedOn` date, verbatim, or `null` when never reviewed. */
+  reviewedOn: string | null;
+  /** `@dsar/rulepacks/stale`'s `daysUntilReviewDue` — the same `<= 30`
+   * threshold `packages/engine/src/matter-flags.ts`'s `STALE_PACK_WARNING`
+   * already uses, so this component reuses that boundary rather than
+   * inventing a second one. Not subject to the "Pack status always warns"
+   * constraint below — it makes no claim about authoring completeness, only
+   * calendar timing. */
+  daysUntilReviewDue: number;
+}
+
+const REVIEW_DUE_SOON_THRESHOLD_DAYS = 30;
+
+type ReviewDueTone = "current" | "due-soon" | "stale";
+
+function deriveReviewDueTone(daysUntilReviewDue: number): ReviewDueTone {
+  if (daysUntilReviewDue < 0) return "stale";
+  if (daysUntilReviewDue <= REVIEW_DUE_SOON_THRESHOLD_DAYS) return "due-soon";
+  return "current";
+}
+
+function formatReviewDueLabel(daysUntilReviewDue: number): string {
+  const tone = deriveReviewDueTone(daysUntilReviewDue);
+  if (tone === "stale") return "Stale — past its review date";
+  if (tone === "due-soon") return `Due in ${daysUntilReviewDue} days`;
+  return "Current";
 }
 
 // UI-SPEC Copywriting Contract, verbatim — required by this phase's
@@ -45,6 +71,8 @@ export function StatusStrip({
   packStatus,
   authoredByDisplayName,
   reviewedByDisplayName,
+  reviewedOn,
+  daysUntilReviewDue,
 }: StatusStripProps) {
   return (
     <div role="group" aria-label="Rule pack status" data-testid="status-strip">
@@ -70,6 +98,14 @@ export function StatusStrip({
       <div>
         <dt>Authored / reviewed by</dt>
         <dd>{formatAuthoredReviewedBy(authoredByDisplayName, reviewedByDisplayName)}</dd>
+      </div>
+      <div>
+        <dt>Reviewed</dt>
+        <dd>{reviewedOn ?? "Not yet reviewed"}</dd>
+      </div>
+      <div>
+        <dt>Review due</dt>
+        <dd>{formatReviewDueLabel(daysUntilReviewDue)}</dd>
       </div>
     </div>
   );

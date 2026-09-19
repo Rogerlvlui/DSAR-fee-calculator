@@ -66,6 +66,8 @@ describe("HONESTY: the pack-status cell reports the real status", () => {
         packStatus: "DRAFT",
         authoredByDisplayName: null,
         reviewedByDisplayName: null,
+        reviewedOn: null,
+        daysUntilReviewDue: 400,
       })
     );
 
