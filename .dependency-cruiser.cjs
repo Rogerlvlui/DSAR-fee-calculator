@@ -62,6 +62,41 @@ module.exports = {
       from: { path: "^apps/web/src/ui" },
       to: { path: "^apps/web/src/server" },
     },
+    {
+      name: "no-io-in-workflow",
+      severity: "error",
+      comment:
+        "packages/workflow must be pure: no I/O, no network — the same purity discipline packages/engine already carries (PRD §5, 04-02-PLAN.md).",
+      from: { path: "^packages/workflow" },
+      to: {
+        dependencyTypes: ["core"],
+        path: "^(fs|net|http|https|dns|child_process|worker_threads)$",
+      },
+    },
+    {
+      name: "no-infra-in-workflow",
+      severity: "error",
+      comment:
+        "packages/workflow must not reach Prisma, Next.js, apps/, or the sibling agent/audit/documents/rulepacks packages — the guard decides, it never reaches for what it decides about. A dependency on packages/audit in particular would let a guard write an event, which is the anti-pattern 04-RESEARCH.md calls out by name.",
+      from: { path: "^packages/workflow" },
+      to: {
+        // Both the package-exports specifier and the resolved source path
+        // are covered: a workspace package's own subpath-export map
+        // (`"./*": "./src/*.ts"`) frequently fails to resolve inside
+        // dependency-cruiser's own module resolution, in which case it
+        // matches against the raw specifier text instead of a resolved
+        // path — the same double-coverage the no-money-formatting-in-engine
+        // rule already relies on above.
+        path: [
+          "^@prisma/client$",
+          "^@prisma/internals$",
+          "^next$",
+          "^@dsar/(agent|audit|documents|rulepacks)",
+          "^packages/(agent|audit|documents|rulepacks)",
+          "^apps/",
+        ],
+      },
+    },
   ],
   options: {
     doNotFollow: {

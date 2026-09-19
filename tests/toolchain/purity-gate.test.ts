@@ -52,6 +52,15 @@ describe("dependency-cruiser purity gate (T-1-PURITY)", () => {
     expect(exitCode).toBe(0);
   });
 
+  it("reports zero violations over the real packages/workflow", async () => {
+    const cfg = loadConfig();
+    const { exitCode } = await runCruise(
+      [path.join(ROOT, "packages/workflow"), path.join(ROOT, "packages/audit")],
+      { forbidden: cfg.forbidden }
+    );
+    expect(exitCode).toBe(0);
+  });
+
   it("reports no-io-in-engine over a violating fixture (gate proven to fire)", async () => {
     // Widen no-io-in-engine's `from` to include the fixture directory, so
     // this proves the RULE fires — a real `depcruise packages/engine` run
@@ -105,14 +114,68 @@ describe("dependency-cruiser purity gate (T-1-PURITY)", () => {
     expect(output).toContain("no-money-formatting-in-engine");
   });
 
-  it("declares exactly six forbidden rules, asserted by name", () => {
+  it("reports no-io-in-workflow over a violating fixture (gate proven to fire)", async () => {
+    // Widen no-io-in-workflow's `from` to include the fixture directory, so
+    // this proves the RULE fires — a real `depcruise packages/workflow`
+    // run never sees the fixture (it lives under tests/fixtures/).
+    const cfg = loadConfig();
+    const widenedForbidden = cfg.forbidden.map((rule) =>
+      rule.name === "no-io-in-workflow"
+        ? {
+            ...rule,
+            from: { path: "^(packages/workflow|tests/fixtures/workflow-io-violation)" },
+          }
+        : rule
+    );
+
+    const { exitCode, output } = await runCruise(
+      [
+        path.join(ROOT, "packages/workflow"),
+        path.join(ROOT, "packages/audit"),
+        path.join(ROOT, "tests/fixtures/workflow-io-violation"),
+      ],
+      { forbidden: widenedForbidden }
+    );
+
+    expect(exitCode).not.toBe(0);
+    expect(output).toContain("no-io-in-workflow");
+  });
+
+  it("reports no-infra-in-workflow over a violating fixture (gate proven to fire)", async () => {
+    // Same widen-the-rule-scope technique, over the same fixture, which
+    // also imports @dsar/audit/interface — proving a guard package cannot
+    // acquire a dependency on the audit package it must never write
+    // through directly.
+    const cfg = loadConfig();
+    const widenedForbidden = cfg.forbidden.map((rule) =>
+      rule.name === "no-infra-in-workflow"
+        ? {
+            ...rule,
+            from: { path: "^(packages/workflow|tests/fixtures/workflow-io-violation)" },
+          }
+        : rule
+    );
+
+    const { exitCode, output } = await runCruise(
+      [
+        path.join(ROOT, "packages/workflow"),
+        path.join(ROOT, "packages/audit"),
+        path.join(ROOT, "tests/fixtures/workflow-io-violation"),
+      ],
+      { forbidden: widenedForbidden }
+    );
+
+    expect(exitCode).not.toBe(0);
+    expect(output).toContain("no-infra-in-workflow");
+  });
+
+  it("declares exactly eight forbidden rules, asserted by name", () => {
     // A future edit that renames or drops a rule is caught by name here,
     // rather than surfacing only as a silently-still-zero exit code
-    // elsewhere (T-2-10 gate-integrity requirement). Widened from four to
-    // six in 03.1-01 Task 3, which added no-store-impl-in-repository-
-    // interface and no-server-imports-in-ui for apps/web's repository-
-    // interface and UI/server boundaries (success criterion 4, T-03.1-05,
-    // T-03.1-06).
+    // elsewhere (T-2-10 gate-integrity requirement). Widened from six to
+    // eight in 04-02 Task 2, which added no-io-in-workflow and
+    // no-infra-in-workflow for the guard package's purity boundary
+    // (T-04-10).
     const cfg = loadConfig();
     const names = cfg.forbidden.map((rule) => rule.name);
     expect(names).toEqual([
@@ -122,6 +185,8 @@ describe("dependency-cruiser purity gate (T-1-PURITY)", () => {
       "no-money-formatting-in-engine",
       "no-store-impl-in-repository-interface",
       "no-server-imports-in-ui",
+      "no-io-in-workflow",
+      "no-infra-in-workflow",
     ]);
   });
 });

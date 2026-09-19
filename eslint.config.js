@@ -56,6 +56,24 @@ const MATH_RANDOM_BAN_MESSAGE =
 const LOCALE_METHOD_BAN_MESSAGE =
   "Locale-dependent formatting would make the same input produce different results on a different host — `toLocale*` calls are banned in packages/engine.";
 
+// T-04-11 / 04-02-PLAN.md Task 2: packages/workflow must be as deterministic
+// as packages/engine — same input, same refusal, on any host. GuardInput's
+// frozen eleven-member shape carries no clock at all (unlike the engine,
+// which at least receives an injected `now`), so there is no exception to
+// carve out here: any Date use in this package would be a guard reading
+// state it was deliberately never given. Each ban below carries its own
+// distinct message, mirroring the engine's determinism block.
+const WORKFLOW_DATE_BAN_MESSAGE =
+  "packages/workflow's GuardInput carries no clock at all — `Date` is banned here.";
+const WORKFLOW_INTL_BAN_MESSAGE =
+  "Locale-dependent output would make the same input produce different results on a different host — `Intl` is banned in packages/workflow.";
+const WORKFLOW_CRYPTO_BAN_MESSAGE =
+  "A guard's outcome must be derived from the frozen GuardInput, not randomness — `crypto` is banned in packages/workflow.";
+const WORKFLOW_MATH_RANDOM_BAN_MESSAGE =
+  "packages/workflow must be deterministic — `Math.random` is banned here (Math itself, e.g. Math.floor, remains allowed).";
+const WORKFLOW_LOCALE_METHOD_BAN_MESSAGE =
+  "Locale-dependent formatting would make the same input produce different results on a different host — `toLocale*` calls are banned in packages/workflow.";
+
 export default tseslint.config(
   {
     // "**/.next/**" (not just root-level ".next/**"): 03.1-01 added
@@ -104,6 +122,36 @@ export default tseslint.config(
         {
           selector: `MemberExpression[property.name=/^toLocale/]`,
           message: LOCALE_METHOD_BAN_MESSAGE,
+        },
+      ],
+    },
+  },
+  {
+    // packages/workflow-only determinism bans (T-04-11). Scoped separately
+    // from the packages/engine block above: this package carries no money
+    // fields at all, so the money-brand selectors do not apply here, and
+    // each message below names packages/workflow specifically rather than
+    // packages/engine.
+    files: ["packages/workflow/**/*.ts"],
+    languageOptions: {
+      parser: tseslint.parser,
+    },
+    rules: {
+      "no-restricted-globals": [
+        "error",
+        { name: "Date", message: WORKFLOW_DATE_BAN_MESSAGE },
+        { name: "Intl", message: WORKFLOW_INTL_BAN_MESSAGE },
+        { name: "crypto", message: WORKFLOW_CRYPTO_BAN_MESSAGE },
+      ],
+      "no-restricted-properties": [
+        "error",
+        { object: "Math", property: "random", message: WORKFLOW_MATH_RANDOM_BAN_MESSAGE },
+      ],
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: `MemberExpression[property.name=/^toLocale/]`,
+          message: WORKFLOW_LOCALE_METHOD_BAN_MESSAGE,
         },
       ],
     },
