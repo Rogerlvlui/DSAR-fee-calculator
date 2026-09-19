@@ -19,6 +19,15 @@ import { useEffect, useState, type ReactNode } from "react";
 
 export const CAPABILITY_ACK_STORAGE_KEY = "dsar_demo_capability_ack";
 
+// Bump this to force every browser to see the statement again (a content
+// change to the bullets above, or a new disclosure obligation). The stored
+// value is this constant's string form, not a bare "true" — Phase 3.1's own
+// original sentinel. A stored value is "acknowledged" only when it parses to
+// a finite number >= this constant; `Number.parseInt("true", 10)` is `NaN`,
+// so the legacy sentinel already falls through to "not acknowledged" with no
+// special-casing required.
+export const CAPABILITY_STATEMENT_VERSION = 1;
+
 const CONFIRMATION_PHRASE = "i understand";
 
 /**
@@ -40,7 +49,9 @@ export function CapabilityStatement({ children }: CapabilityStatementProps) {
   const [typed, setTyped] = useState("");
 
   useEffect(() => {
-    if (window.localStorage.getItem(CAPABILITY_ACK_STORAGE_KEY) === "true") {
+    const stored = window.localStorage.getItem(CAPABILITY_ACK_STORAGE_KEY);
+    const storedVersion = stored === null ? Number.NaN : Number.parseInt(stored, 10);
+    if (Number.isFinite(storedVersion) && storedVersion >= CAPABILITY_STATEMENT_VERSION) {
       setAcknowledged(true);
     }
   }, []);
@@ -52,7 +63,7 @@ export function CapabilityStatement({ children }: CapabilityStatementProps) {
   const canContinue = isConfirmationPhraseConfirmed(typed);
 
   function handleContinue() {
-    window.localStorage.setItem(CAPABILITY_ACK_STORAGE_KEY, "true");
+    window.localStorage.setItem(CAPABILITY_ACK_STORAGE_KEY, String(CAPABILITY_STATEMENT_VERSION));
     setAcknowledged(true);
   }
 
