@@ -12,6 +12,7 @@ import { memoryMatterRepository } from "../repositories/memory/matter-repository
 import { loadDemoPack } from "../engine-invocation.ts";
 import { assertTransition } from "../state.ts";
 import { newUlid } from "../ids.ts";
+import { recordAssessmentOpened } from "@dsar/audit/review-session";
 import {
   hasSufficientReason,
   isActionPermitted,
@@ -37,6 +38,11 @@ async function requireAssessmentInLegalReview(assessment: Assessment) {
   return matter;
 }
 
+// Records the assessment as first opened, at the server's current instant,
+// on every read (AUDIT-03) — recordAssessmentOpened() is idempotent and
+// keeps the earliest instant, so a lawyer reloading the screen does not
+// reset their own clock. This is the only place the elapsed-review origin
+// is established.
 export async function getAssessmentForLegalReview(
   actor: DemoActor,
   assessmentId: string
@@ -45,6 +51,7 @@ export async function getAssessmentForLegalReview(
 
   const assessment = await memoryAssessmentRepository.getAssessment(assessmentId);
   if (!assessment) throw new NotFoundError(`No assessment with id '${assessmentId}'`);
+  recordAssessmentOpened(assessment.id, new Date().toISOString());
   return assessment;
 }
 

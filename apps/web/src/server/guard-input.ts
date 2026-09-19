@@ -29,10 +29,16 @@ export interface BuildGuardInputArgs {
   assessment: Assessment | null;
   pack: RulePack | null;
   actor: DemoActor;
+  // The flags the lawyer has acknowledged on THIS sign-off request — absent
+  // for every call site except signOff (04-04-PLAN.md Task 2), which is the
+  // only action this codebase has that carries an acknowledgement list at
+  // all. Defaults to empty, matching every other caller's "no tracking
+  // exists for this action" reality.
+  acknowledgedFlags?: readonly string[];
 }
 
 export function buildGuardInput(args: BuildGuardInputArgs): GuardInput {
-  const { matter, lines, assessment, pack, actor } = args;
+  const { matter, lines, assessment, pack, actor, acknowledgedFlags = [] } = args;
 
   // Derived from the two intake attestations the intake form itself treats
   // as blocking (identity verified and scope clarified). The dispute
@@ -59,9 +65,7 @@ export function buildGuardInput(args: BuildGuardInputArgs): GuardInput {
     attestationsAddressed,
     pendingLineCount,
     matterLevelFlagsRequiringAck,
-    // No flag-acknowledgement tracking exists yet anywhere in this codebase
-    // (that UI lands in a later phase) — always empty until then.
-    acknowledgedFlags: [],
+    acknowledgedFlags: [...acknowledgedFlags],
     // Server-side only, from the resolved actor — never taken from the
     // request body (T-04-06).
     lawyerIdentity: actor.role === "LEGAL_REVIEWER" ? actor.user : null,

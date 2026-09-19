@@ -16,10 +16,12 @@ import { POST as addLineRoute } from "../../apps/web/app/api/matters/[id]/lines/
 import { POST as submitRoute } from "../../apps/web/app/api/matters/[id]/submit/route.ts";
 import { POST as infoRequestRoute } from "../../apps/web/app/api/matters/[id]/info-request/route.ts";
 import { POST as resubmitRoute } from "../../apps/web/app/api/matters/[id]/resubmit/route.ts";
-import { DEMO_ROLE_COOKIE } from "../../apps/web/src/server/data/auth.ts";
+import { DEMO_ROLE_COOKIE, DEMO_USERS } from "../../apps/web/src/server/data/auth.ts";
+import { getAssessmentForLegalReview } from "../../apps/web/src/server/data/assessments.ts";
 import { memoryMatterRepository } from "../../apps/web/src/server/repositories/memory/matter-repository.ts";
 import { memoryAssessmentRepository } from "../../apps/web/src/server/repositories/memory/assessment-repository.ts";
 import { memoryAuditEventWriter } from "@dsar/audit/memory/audit-event-writer";
+import { elapsedReviewMs } from "@dsar/audit/review-session";
 import { ENGINE_VERSION } from "@dsar/engine";
 
 const MATTERS_URL = "http://localhost/api/matters";
@@ -177,5 +179,23 @@ describe("AUDIT-TRAIL", () => {
     // event another plan's task adds to the same log.
     expect(eventsOfType(events, "SUBMITTED")).toHaveLength(2);
     expect(eventsOfType(events, "COMPUTED")).toHaveLength(2);
+  });
+
+  it("AUDIT-TRAIL: reading an assessment for review records the moment it was first opened, and reading it again does not move that moment", async () => {
+    const matter = await createMatterWithOneLine();
+    const submitResponse = await submitRoute(jsonRequest(`${MATTERS_URL}/${matter.id}/submit`, "POST", {}), {
+      params: Promise.resolve({ id: matter.id }),
+    });
+    const assessment = (await submitResponse.json()) as FixtureAssessment;
+
+    await getAssessmentForLegalReview(DEMO_USERS.LEGAL_REVIEWER, assessment.id);
+    await new Promise((resolve) => setTimeout(resolve, 20));
+
+    // A second read must NOT move the recorded origin — if it did, the
+    // elapsed figure measured now would be close to zero instead of at
+    // least the ~20ms that has genuinely passed since the first read.
+    await getAssessmentForLegalReview(DEMO_USERS.LEGAL_REVIEWER, assessment.id);
+    const elapsed = elapsedReviewMs(assessment.id, new Date().toISOString());
+    expect(elapsed).toBeGreaterThanOrEqual(15);
   });
 });
