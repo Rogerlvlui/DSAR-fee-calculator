@@ -21,7 +21,12 @@ import {
 } from "./matter-details-fields.tsx";
 import { AttestationsPanel, IDENTITY_NOTE_WARNING, type AttestationsValue } from "./attestations-panel.tsx";
 import { ClaimFooter, CLAIM_NOT_FEE_SENTENCE } from "./claim-footer.tsx";
-import { computeIntakeDisabledReason, IntakeForm, type IntakeFormJurisdictionPackView } from "./intake-form.tsx";
+import {
+  computeIntakeDisabledReason,
+  IntakeForm,
+  INTAKE_DRAFT_STORAGE_KEY,
+  type IntakeFormJurisdictionPackView,
+} from "./intake-form.tsx";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: () => {} }),
@@ -260,5 +265,24 @@ describe("INTAKE-FORM: computeIntakeDisabledReason", () => {
         lines: [{ categoryCode: "STAFF_TIME_SEARCH", description: "Search", quantity: 4, rateMajor: "40.00" }],
       })
     ).toBeNull();
+  });
+});
+
+describe("INTAKE-FORM: autosave indicator", () => {
+  it("INTAKE-FORM: renders AutosaveIndicator as the first element inside data-testid=\"intake-form\"", () => {
+    const packsByJurisdiction = packsByJurisdictionFixture();
+    const html = renderToStaticMarkup(
+      React.createElement(IntakeForm, { packsByJurisdiction, defaultReference: "DSAR-2026-0001" })
+    );
+    const formStart = html.indexOf('data-testid="intake-form"');
+    const indicatorIndex = html.indexOf('data-testid="autosave-indicator"');
+    const statusStripIndex = html.indexOf('data-testid="status-strip"');
+    expect(formStart).toBeGreaterThanOrEqual(0);
+    expect(indicatorIndex).toBeGreaterThan(formStart);
+    expect(indicatorIndex).toBeLessThan(statusStripIndex);
+  });
+
+  it("INTAKE-FORM: the autosave storage key is a module-level exported constant", () => {
+    expect(INTAKE_DRAFT_STORAGE_KEY).toBe("dsar_demo_intake_draft");
   });
 });

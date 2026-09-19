@@ -29,6 +29,12 @@ import {
 } from "./expense-line-repeater.tsx";
 import { ClaimFooter } from "./claim-footer.tsx";
 import { StatusStrip } from "../chrome/status-strip.tsx";
+import { useDraftAutosave } from "./use-draft-autosave.ts";
+import { AutosaveIndicator } from "./autosave-indicator.tsx";
+
+// Module-level so a future caller (or a test asserting on it) has one name
+// to import, rather than a re-typed literal.
+export const INTAKE_DRAFT_STORAGE_KEY = "dsar_demo_intake_draft";
 
 // Structurally identical to apps/web/src/server/jurisdiction-packs.ts's
 // JurisdictionPackView — deliberately re-declared here rather than
@@ -148,6 +154,11 @@ export function IntakeForm({ packsByJurisdiction, defaultReference }: IntakeForm
 
   const claimedTotalMinor = lines.reduce((total, line) => total + computeLineAmountMinor(line, currency), 0);
 
+  // INTAKE-09 — a 10-second client-local autosave, write-only (no
+  // restore-on-reload; see this component's own SUMMARY for the deliberate
+  // scope line). Never reaches the network or this codebase's audit log.
+  const autosave = useDraftAutosave(INTAKE_DRAFT_STORAGE_KEY, { matterDetails, attestations, lines });
+
   async function handleSubmit() {
     setSubmitting(true);
     setSubmitError(null);
@@ -209,6 +220,7 @@ export function IntakeForm({ packsByJurisdiction, defaultReference }: IntakeForm
 
   return (
     <div data-testid="intake-form">
+      <AutosaveIndicator status={autosave.status} savedAt={autosave.savedAt} />
       <StatusStrip
         matterReference={matterDetails.reference}
         jurisdictionName={currentJurisdictionPack.jurisdictionName}
