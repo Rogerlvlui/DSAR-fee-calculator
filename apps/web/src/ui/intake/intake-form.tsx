@@ -18,7 +18,12 @@ import { FREE_TEXT_LIMITS } from "@dsar/schemas/constants";
 import type { ExpenseCategoryCode } from "@dsar/schemas/taxonomy";
 import type { FeePosture, FeePostureMap, VerificationStatus } from "@dsar/schemas/rule-pack";
 
-import { MatterDetailsFields, canOfferExpenseEntry, type MatterDetailsValue } from "./matter-details-fields.tsx";
+import {
+  MatterDetailsFields,
+  canOfferExpenseEntry,
+  humanizePackDisplayStatus,
+  type MatterDetailsValue,
+} from "./matter-details-fields.tsx";
 import { AttestationsPanel, type AttestationsValue } from "./attestations-panel.tsx";
 import {
   ExpenseLineRepeater,
@@ -238,7 +243,7 @@ export function IntakeForm({ packsByJurisdiction, defaultReference }: IntakeForm
         jurisdictionName={currentJurisdictionPack.jurisdictionName}
         rulePackId={currentJurisdictionPack.packId ?? "—"}
         rulePackVersion={currentJurisdictionPack.version ?? "—"}
-        packStatus={currentJurisdictionPack.displayStatus === "NO_USABLE_PACK" ? "—" : currentJurisdictionPack.displayStatus}
+        packStatus={humanizePackDisplayStatus(currentJurisdictionPack.displayStatus)}
         authoredByDisplayName={currentJurisdictionPack.authoredByDisplayName}
         reviewedByDisplayName={currentJurisdictionPack.reviewedByDisplayName}
         reviewedOn={currentJurisdictionPack.reviewedOn}

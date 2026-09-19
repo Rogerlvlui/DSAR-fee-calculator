@@ -18,6 +18,7 @@ import { getCurrentActor } from "../../../../../src/server/current-actor.ts";
 import { getHrMatterStatus } from "../../../../../src/server/data/matters.ts";
 import { buildJurisdictionPackViews } from "../../../../../src/server/jurisdiction-packs.ts";
 import { StatusStrip } from "../../../../../src/ui/chrome/status-strip.tsx";
+import { humanizePackDisplayStatus } from "../../../../../src/ui/intake/matter-details-fields.tsx";
 
 export default async function MatterSubmittedPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -34,7 +35,7 @@ export default async function MatterSubmittedPage({ params }: { params: Promise<
         jurisdictionName={jurisdictionPack.jurisdictionName}
         rulePackId={jurisdictionPack.packId ?? "—"}
         rulePackVersion={jurisdictionPack.version ?? "—"}
-        packStatus={jurisdictionPack.displayStatus === "NO_USABLE_PACK" ? "—" : jurisdictionPack.displayStatus}
+        packStatus={humanizePackDisplayStatus(jurisdictionPack.displayStatus)}
         authoredByDisplayName={jurisdictionPack.authoredByDisplayName}
         reviewedByDisplayName={jurisdictionPack.reviewedByDisplayName}
         reviewedOn={jurisdictionPack.reviewedOn}

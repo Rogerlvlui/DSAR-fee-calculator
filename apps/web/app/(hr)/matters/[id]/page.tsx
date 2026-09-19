@@ -17,6 +17,7 @@ import { getExpenseLinesForHr, getHrMatterStatus, getNoticeSentAt } from "../../
 import { getSignedOffAssessmentForHr } from "../../../../src/server/data/assessments.ts";
 import { loadDemoPack } from "../../../../src/server/engine-invocation.ts";
 import { buildJurisdictionPackViews } from "../../../../src/server/jurisdiction-packs.ts";
+import { humanizePackDisplayStatus } from "../../../../src/ui/intake/matter-details-fields.tsx";
 import { EXPENSE_CATEGORY_LABELS } from "@dsar/schemas/taxonomy";
 import type { Minor } from "@dsar/schemas/primitives";
 import { buildNoticeDraft } from "../../../../src/domain/notice-draft.ts";
@@ -37,7 +38,7 @@ export default async function HrMatterPage({ params }: { params: Promise<{ id: s
       jurisdictionName={jurisdictionPack.jurisdictionName}
       rulePackId={jurisdictionPack.packId ?? "—"}
       rulePackVersion={jurisdictionPack.version ?? "—"}
-      packStatus={jurisdictionPack.displayStatus === "NO_USABLE_PACK" ? "—" : jurisdictionPack.displayStatus}
+      packStatus={humanizePackDisplayStatus(jurisdictionPack.displayStatus)}
       authoredByDisplayName={jurisdictionPack.authoredByDisplayName}
       reviewedByDisplayName={jurisdictionPack.reviewedByDisplayName}
       reviewedOn={jurisdictionPack.reviewedOn}
