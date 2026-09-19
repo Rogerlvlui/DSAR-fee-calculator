@@ -11,9 +11,12 @@
 // that non-nullability is a freeze escalation this phase does not take.
 //
 // The pack-lifecycle writer is declared here but NOT implemented this
-// plan: implementing it, and the real write path from a real admin action,
-// is plan 04-03's job (04-RESEARCH.md Pitfall 1). This phase must not be
-// read as having discharged that half twice.
+// plan. Implementing it in-memory, proven by direct unit tests with no
+// admin UI to drive it from, is plan 04-03's job. The write path from a
+// REAL pack-activation admin action remains Phase 3.2's work (PACK-07,
+// relocated there by D-20) — no /admin/rulepacks screen exists yet for
+// this stream to be wired to (04-RESEARCH.md Pitfall 1). This phase must
+// not be read as having discharged that half twice.
 
 import type { AuditEvent } from "@dsar/schemas/audit-event";
 import type { AuditEventType, Role, UserRef } from "@dsar/schemas/primitives";
