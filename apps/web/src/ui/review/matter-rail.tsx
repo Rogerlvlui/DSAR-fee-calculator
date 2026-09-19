@@ -12,13 +12,16 @@
 import type { ControllerType } from "@dsar/schemas/primitives";
 import type { RequestorClass } from "@dsar/schemas/matter";
 import type { MatterFlag } from "@dsar/schemas/primitives";
+import { ADVISORY_QUALIFIER } from "../../domain/advisory-deadline.ts";
 
-// Structurally identical to apps/web/src/server/review-view.ts's
+// Structurally identical to apps/web/src/domain/advisory-deadline.ts's
 // AdvisoryDeadlineView — deliberately re-declared here rather than
 // imported, matching apps/web/src/ui/intake/intake-form.tsx's existing
-// precedent, so this module (under apps/web/src/ui) never imports
-// apps/web/src/server, even for a type-only import (dependency-cruiser
-// tracks those too).
+// precedent, so this module (under apps/web/src/ui) never imports a
+// server-adjacent type even type-only (dependency-cruiser tracks those
+// too). Only the STRING constant (ADVISORY_QUALIFIER) is imported, since
+// apps/web/src/domain/ is the shared, non-server-only home both
+// apps/web/src/ui and apps/web/src/server already import from.
 export interface MatterRailAdvisoryDeadline {
   basis: "FEE_NOTIFICATION" | "RESPONSE_DEADLINE_FALLBACK";
   dueDateIso: string;
@@ -35,9 +38,6 @@ const REQUESTOR_CLASS_LABELS: Record<RequestorClass, string> = {
   CURRENT_EMPLOYEE: "Current employee",
   OTHER: "Other",
 };
-
-export const ADVISORY_QUALIFIER =
-  "Advisory only. This tool is not the deadline system of record.";
 
 function formatAdvisoryDate(isoDate: string): string {
   const [year, month, day] = isoDate.split("-");
@@ -129,7 +129,7 @@ export function MatterRail({
           <b>
             {formatAdvisoryDate(advisoryDeadline.dueDateIso)} — {advisoryDeadline.daysRemaining} days
           </b>
-          . <b>Advisory only.</b> This tool is not the deadline system of record.
+          . <b>{ADVISORY_QUALIFIER.split(". ")[0]}.</b> {ADVISORY_QUALIFIER.split(". ")[1]}
         </div>
       ) : null}
     </aside>

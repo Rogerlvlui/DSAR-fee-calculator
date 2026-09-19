@@ -17,7 +17,6 @@
 // inventing a fee-notification date the pack doesn't set.
 
 import "./server-only.ts";
-import { daysUntil } from "@dsar/engine/calendar-math";
 import type { Assessment } from "@dsar/schemas/assessment";
 import type { Matter } from "@dsar/schemas/matter";
 import type { ExpenseLine, ExpenseUnit } from "@dsar/schemas/expense-line";
@@ -25,6 +24,7 @@ import type { MatterFlag, Minor } from "@dsar/schemas/primitives";
 import type { VerificationStatus } from "@dsar/schemas/rule-pack";
 import { EXPENSE_CATEGORY_LABELS } from "@dsar/schemas/taxonomy";
 import { loadDemoPack } from "./engine-invocation.ts";
+import { computeAdvisoryDeadline, type AdvisoryDeadlineView } from "../domain/advisory-deadline.ts";
 
 export interface ReviewLineView {
   assessmentLineId: string;
@@ -39,45 +39,10 @@ export interface ReviewLineView {
   verificationStatus: VerificationStatus;
 }
 
-export interface AdvisoryDeadlineView {
-  /** "FEE_NOTIFICATION" when the pack sets its own fee-notification
-   * deadline; "RESPONSE_DEADLINE_FALLBACK" when it doesn't (this pack) and
-   * the response deadline is shown instead, exactly as Annex A does. */
-  basis: "FEE_NOTIFICATION" | "RESPONSE_DEADLINE_FALLBACK";
-  dueDateIso: string;
-  daysRemaining: number;
-}
-
 export interface ReviewView {
   lines: ReviewLineView[];
   matterFlags: readonly MatterFlag[];
   advisoryDeadline: AdvisoryDeadlineView | null;
-}
-
-function addDaysToIsoDate(isoDate: string, days: number): string {
-  const [year, month, day] = isoDate.split("-").map(Number) as [number, number, number];
-  const date = new Date(Date.UTC(year, month - 1, day));
-  date.setUTCDate(date.getUTCDate() + days);
-  return date.toISOString().slice(0, 10);
-}
-
-function computeAdvisoryDeadline(
-  matter: Matter,
-  constraints: { feeNotificationDeadlineDays: number | null; responseDeadlineDays: number | null },
-  nowIso: string
-): AdvisoryDeadlineView | null {
-  const basis: AdvisoryDeadlineView["basis"] | null =
-    constraints.feeNotificationDeadlineDays != null
-      ? "FEE_NOTIFICATION"
-      : constraints.responseDeadlineDays != null
-        ? "RESPONSE_DEADLINE_FALLBACK"
-        : null;
-  if (basis === null) return null;
-
-  const days =
-    basis === "FEE_NOTIFICATION" ? constraints.feeNotificationDeadlineDays! : constraints.responseDeadlineDays!;
-  const dueDateIso = addDaysToIsoDate(matter.requestReceivedOn, days);
-  return { basis, dueDateIso, daysRemaining: daysUntil(nowIso, dueDateIso) };
 }
 
 export function buildReviewView(
