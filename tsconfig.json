@@ -4,6 +4,8 @@
     { "path": "./packages/schemas" },
     { "path": "./packages/engine" },
     { "path": "./packages/rulepacks" },
+    { "path": "./packages/workflow" },
+    { "path": "./packages/audit" },
     { "path": "./tests" }
   ]
 }

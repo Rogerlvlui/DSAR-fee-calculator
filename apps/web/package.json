@@ -9,9 +9,11 @@
     "start": "next start"
   },
   "dependencies": {
+    "@dsar/audit": "workspace:*",
     "@dsar/engine": "workspace:*",
     "@dsar/rulepacks": "workspace:*",
     "@dsar/schemas": "workspace:*",
+    "@dsar/workflow": "workspace:*",
     "next": "16.3.5",
     "react": "19.3.0",
     "react-dom": "19.3.0",

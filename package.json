@@ -21,8 +21,11 @@
     "db:migrate:dev": "prisma migrate dev"
   },
   "dependencies": {
+    "@dsar/audit": "workspace:*",
+    "@dsar/engine": "workspace:*",
     "@dsar/rulepacks": "workspace:*",
     "@dsar/schemas": "workspace:*",
+    "@dsar/workflow": "workspace:*",
     "@prisma/client": "7.10.0",
     "@prisma/internals": "7.10.0",
     "next": "16.3.5",

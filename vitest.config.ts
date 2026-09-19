@@ -30,6 +30,20 @@ export default defineConfig({
         },
       },
       {
+        test: {
+          name: "workflow",
+          environment: "node",
+          include: ["packages/workflow/src/**/*.test.ts"],
+        },
+      },
+      {
+        test: {
+          name: "audit",
+          environment: "node",
+          include: ["packages/audit/src/**/*.test.ts"],
+        },
+      },
+      {
         // 03.1-05's tests/routes/honesty.test.ts renders the real root
         // layout (apps/web/app/layout.tsx, a .tsx file) directly, to prove
         // the permanent marker's position without tripping the jsdom

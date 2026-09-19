@@ -8,12 +8,21 @@ importers:
 
   .:
     dependencies:
+      '@dsar/audit':
+        specifier: workspace:*
+        version: link:packages/audit
+      '@dsar/engine':
+        specifier: workspace:*
+        version: link:packages/engine
       '@dsar/rulepacks':
         specifier: workspace:*
         version: link:packages/rulepacks
       '@dsar/schemas':
         specifier: workspace:*
         version: link:packages/schemas
+      '@dsar/workflow':
+        specifier: workspace:*
+        version: link:packages/workflow
       '@prisma/client':
         specifier: 7.10.0
         version: 7.10.0(prisma@7.10.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(magicast@0.5.5)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@6.0.3))(typescript@6.0.3)
@@ -90,6 +99,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@dsar/audit':
+        specifier: workspace:*
+        version: link:../../packages/audit
       '@dsar/engine':
         specifier: workspace:*
         version: link:../../packages/engine
@@ -99,6 +111,9 @@ importers:
       '@dsar/schemas':
         specifier: workspace:*
         version: link:../../packages/schemas
+      '@dsar/workflow':
+        specifier: workspace:*
+        version: link:../../packages/workflow
       next:
         specifier: 16.3.5
         version: 16.3.5(@types/node@26.5.1)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -114,6 +129,16 @@ importers:
       zod:
         specifier: 4.6.5
         version: 4.6.5
+
+  packages/audit:
+    dependencies:
+      '@dsar/schemas':
+        specifier: workspace:*
+        version: link:../schemas
+    devDependencies:
+      '@types/node':
+        specifier: 26.5.1
+        version: 26.5.1
 
   packages/engine:
     dependencies:
@@ -150,6 +175,16 @@ importers:
       fast-check:
         specifier: 4.10.0
         version: 4.10.0
+
+  packages/workflow:
+    dependencies:
+      '@dsar/schemas':
+        specifier: workspace:*
+        version: link:../schemas
+    devDependencies:
+      '@types/node':
+        specifier: 26.5.1
+        version: 26.5.1
 
 packages:
 

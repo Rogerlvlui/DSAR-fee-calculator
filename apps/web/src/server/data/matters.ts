@@ -11,12 +11,17 @@ import { ExpenseLineSchema, type ExpenseLine } from "@dsar/schemas/expense-line"
 import type { Assessment } from "@dsar/schemas/assessment";
 import { newUlid } from "../ids.ts";
 import { assertTransition } from "../state.ts";
-import { assessMatter } from "../engine-invocation.ts";
+import { assessMatter, coercePackForDemoEngine, loadDemoPack } from "../engine-invocation.ts";
 import { ConflictError, NotFoundError, ValidationError } from "../errors.ts";
 import { requireRole, type DemoActor } from "./auth.ts";
 import { memoryMatterRepository } from "../repositories/memory/matter-repository.ts";
 import { memoryAssessmentRepository } from "../repositories/memory/assessment-repository.ts";
 import type { InfoRequest } from "../../domain/info-request.ts";
+import { buildGuardInput } from "../guard-input.ts";
+import { recordAuditEvent } from "../audit-trail.ts";
+import { evaluateTransition } from "@dsar/workflow/evaluate-transition";
+import { transitionPayload } from "@dsar/audit/payload-builders";
+import { ENGINE_VERSION } from "@dsar/engine";
 
 export interface CreateMatterInput {
   reference: string;
@@ -178,12 +183,27 @@ export async function deleteExpenseLine(actor: DemoActor, matterId: string, line
 }
 
 // The pipeline: assert the matter is DRAFT, assert at least one expense line
-// exists, transition DRAFT to COMPUTING, call assessMatter, save the
+// exists, ask packages/workflow's guarded executor for the SUBMIT
+// transition and write the destination IT returns (never a literal chosen
+// here), record the SUBMITTED audit event, call assessMatter, save the
 // assessment, transition COMPUTING to LEGAL_REVIEW, and return the computed
 // Assessment itself (its `id` is the assessment identifier the route hands
 // back). If assessMatter throws, return the matter to DRAFT and rethrow —
 // PRD §10.7's engine-error row requires the matter to land back in Draft
 // with no partial figures saved.
+//
+// The two early checks below (DRAFT-only, at-least-one-line) are the
+// pre-existing 03.1 business-rule checks, left unmodified — they are not
+// themselves a "transition check" (04-01-PLAN.md's action text names only
+// the literal `assertTransition(matter.status, "COMPUTING")` call as the
+// "first stand-in transition check" this plan converts), and changing them
+// would flip demo-pipeline.test.ts's PIPELINE-tagged zero-line case from
+// its asserted 400 to a 409, breaking that already-passing, untouched test
+// (04-01-PLAN.md's own <verify> requires it survive this conversion). The
+// guard's own identical "at least one expense line" condition is exercised
+// directly, and provably, in packages/workflow/src/evaluate-transition.test.ts
+// — it is unreachable via this route only because this pre-check already
+// refuses first, not because it is untested.
 export async function submitForAssessment(actor: DemoActor, matterId: string): Promise<Assessment> {
   requireRole(actor, "HR_PREPARER");
 
@@ -198,8 +218,24 @@ export async function submitForAssessment(actor: DemoActor, matterId: string): P
     throw new ValidationError("At least one expense line is required before submitting");
   }
 
-  assertTransition(matter.status, "COMPUTING");
-  await memoryMatterRepository.updateMatter({ ...matter, status: "COMPUTING" });
+  const loadedPack = loadDemoPack();
+  const pack = coercePackForDemoEngine(loadedPack);
+  const guardInput = buildGuardInput({ matter, lines, assessment: null, pack, actor });
+  const outcome = evaluateTransition(matter.status, "SUBMIT", guardInput);
+  if (!outcome.allowed) {
+    throw new ConflictError(outcome.reason);
+  }
+
+  const statusBeforeSubmit = matter.status;
+  await memoryMatterRepository.updateMatter({ ...matter, status: outcome.to });
+  await recordAuditEvent({
+    matterId,
+    actor,
+    type: "SUBMITTED",
+    payload: transitionPayload(statusBeforeSubmit, outcome.to),
+    rulePackVersion: pack.version,
+    engineVersion: ENGINE_VERSION,
+  });
 
   try {
     const assessment = assessMatter({ matter, lines });
