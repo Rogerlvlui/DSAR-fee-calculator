@@ -4,17 +4,39 @@
 // legal entity, controller type, request received date, currency and
 // requestor class. Currency is derived from the chosen jurisdiction through
 // JURISDICTION_CURRENCY and rendered read-only — it is not a free choice.
-// The heads-up paragraph (PRD §10.2, verbatim) renders the moment the
-// current jurisdiction/controller-type combination's fee posture records
-// no express authority or prohibits a fee, before section 3 becomes
-// reachable. Imports nothing from apps/web/src/server — feePosture arrives
-// as a prop, already resolved by the caller.
+// The five-state jurisdiction-pack readout (INTAKE-02/03, 05-03 Plan)
+// renders the moment a jurisdiction is chosen, sourced from the
+// `jurisdictionPack` prop the caller resolves server-side for ALL nine
+// jurisdictions (apps/web/src/server/jurisdiction-packs.ts) — never a
+// single hardcoded fallback. `MatterDetailsJurisdictionPack` is a
+// structurally identical re-declaration of that module's `JurisdictionPackView`
+// (03.1's own precedent, intake-form.tsx's `IntakeFormPackView`) rather than
+// an import, even type-only, so dependency-cruiser's specifier-text
+// matching for the no-server-imports-in-ui rule cannot flag it. Imports
+// nothing from apps/web/src/server.
 
 "use client";
 
 import { JURISDICTION_CURRENCY, type ControllerType, type CurrencyCode, type JurisdictionCode } from "@dsar/schemas/primitives";
 import type { RequestorClass } from "@dsar/schemas/matter";
-import type { FeePosture } from "@dsar/schemas/rule-pack";
+import type { FeePosture, FeePostureMap } from "@dsar/schemas/rule-pack";
+
+export type MatterDetailsJurisdictionPackDisplayStatus =
+  | "ACTIVE"
+  | "ACTIVE_REVIEW_DUE_SOON"
+  | "STALE"
+  | "DRAFT"
+  | "NO_USABLE_PACK";
+
+export interface MatterDetailsJurisdictionPack {
+  jurisdictionCode: JurisdictionCode;
+  jurisdictionName: string;
+  packId: string | null;
+  version: string | null;
+  displayStatus: MatterDetailsJurisdictionPackDisplayStatus;
+  daysUntilReviewDue: number | null;
+  feePosture: FeePostureMap | null;
+}
 
 export interface MatterDetailsValue {
   reference: string;
@@ -53,11 +75,40 @@ const REQUESTOR_CLASS_LABELS: Record<RequestorClass, string> = {
   OTHER: "Other",
 };
 
-const HEADS_UP_POSTURES = new Set<FeePosture>(["NO_EXPRESS_AUTHORITY", "PROHIBITED"]);
+export const HEADS_UP_POSTURES = new Set<FeePosture>(["NO_EXPRESS_AUTHORITY", "PROHIBITED"]);
 
 /** PRD §10.2's heads-up paragraph, verbatim with {Jurisdiction} filled in. */
 export function headsUpMessage(jurisdictionName: string): string {
   return `Heads up — ${jurisdictionName}. Our rule pack records no clear legal basis for charging a fee for a data access request in this jurisdiction. You can still record the costs, but the likely outcome is that Legal advises charging nothing. Talk to Legal before spending time on this.`;
+}
+
+// UI-SPEC's five jurisdiction-pack-status copy strings, verbatim.
+function jurisdictionStatusLabel(jurisdictionPack: MatterDetailsJurisdictionPack): string {
+  switch (jurisdictionPack.displayStatus) {
+    case "ACTIVE":
+      return "Active";
+    case "ACTIVE_REVIEW_DUE_SOON":
+      return `Active — review due in ${jurisdictionPack.daysUntilReviewDue} days`;
+    case "STALE":
+      return "Stale — past its review date. New matters in this jurisdiction cannot be submitted.";
+    case "DRAFT":
+      return "Draft — not yet authored for this jurisdiction";
+    case "NO_USABLE_PACK":
+      return "No usable rule pack — contact Legal";
+  }
+}
+
+/** The gating predicate `intake-form.tsx` uses to decide whether to render
+ * the expense-line repeater — false when there is no usable pack at all, or
+ * when the resolved posture is one of the two heads-up postures. */
+export function canOfferExpenseEntry(
+  jurisdictionPack: MatterDetailsJurisdictionPack,
+  controllerType: ControllerType
+): boolean {
+  if (jurisdictionPack.displayStatus === "NO_USABLE_PACK") return false;
+  const posture = jurisdictionPack.feePosture?.[controllerType];
+  if (posture && HEADS_UP_POSTURES.has(posture)) return false;
+  return true;
 }
 
 export interface MatterDetailsFieldsProps {
@@ -65,15 +116,15 @@ export interface MatterDetailsFieldsProps {
   onChange: (value: MatterDetailsValue) => void;
   /** Derived by the caller via JURISDICTION_CURRENCY[value.jurisdictionCode]. */
   currency: CurrencyCode;
-  /** The real fee posture for value.jurisdictionCode + value.controllerType,
-   * already resolved by the caller from the loaded pack view — this
-   * component never invents one. */
-  feePosture: FeePosture;
+  /** The chosen jurisdiction's own resolved pack view — every one of the
+   * nine jurisdictions, never a single hardcoded fallback. */
+  jurisdictionPack: MatterDetailsJurisdictionPack;
 }
 
-export function MatterDetailsFields({ value, onChange, currency, feePosture }: MatterDetailsFieldsProps) {
+export function MatterDetailsFields({ value, onChange, currency, jurisdictionPack }: MatterDetailsFieldsProps) {
   const jurisdictionName = JURISDICTION_NAMES[value.jurisdictionCode];
-  const showHeadsUp = HEADS_UP_POSTURES.has(feePosture);
+  const feePosture = jurisdictionPack.feePosture?.[value.controllerType] ?? null;
+  const showHeadsUp = jurisdictionPack.displayStatus !== "NO_USABLE_PACK" && feePosture !== null && HEADS_UP_POSTURES.has(feePosture);
 
   function set<K extends keyof MatterDetailsValue>(key: K, next: MatterDetailsValue[K]) {
     onChange({ ...value, [key]: next });
@@ -104,6 +155,9 @@ export function MatterDetailsFields({ value, onChange, currency, feePosture }: M
               </option>
             ))}
           </select>
+          <p data-testid="jurisdiction-pack-status" className="hint">
+            {jurisdictionStatusLabel(jurisdictionPack)}
+          </p>
         </label>
         <label>
           <span>Legal entity</span>
@@ -159,7 +213,11 @@ export function MatterDetailsFields({ value, onChange, currency, feePosture }: M
         Requestor class: <b>{REQUESTOR_CLASS_LABELS[value.requestorClass].toLowerCase()}</b>. There is no field
         for the requestor&apos;s name or ID anywhere in this tool.
       </p>
-      {showHeadsUp ? (
+      {jurisdictionPack.displayStatus === "NO_USABLE_PACK" ? (
+        <div data-testid="no-usable-pack-notice" className="posture">
+          No usable rule pack — contact Legal
+        </div>
+      ) : showHeadsUp ? (
         <div data-testid="heads-up-warning" className="posture">
           {headsUpMessage(jurisdictionName)}
         </div>

@@ -205,7 +205,15 @@ describe("DOM form-input deny-list — intake component half (BOUND-02)", () => 
         },
         onChange: () => {},
         currency: "SGD",
-        feePosture: "PERMITTED_REASONABLE",
+        jurisdictionPack: {
+          jurisdictionCode: "SG",
+          jurisdictionName: "Singapore",
+          packId: "SG-PDPA",
+          version: "2026.09.1",
+          displayStatus: "DRAFT",
+          daysUntilReviewDue: 400,
+          feePosture: { PRIVATE_ORGANISATION: "PERMITTED_REASONABLE", PUBLIC_AGENCY: "NO_EXPRESS_AUTHORITY" },
+        },
       })
     );
 

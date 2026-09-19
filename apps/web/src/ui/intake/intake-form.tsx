@@ -5,8 +5,9 @@
 // line, then the submit route, and navigates to the confirmation page —
 // every figure is still computed by the engine after this call, never
 // here. This module and the four it composes import nothing from
-// apps/web/src/server; the pack view arrives as a prop, already built by
-// apps/web/src/server/pack-view.ts.
+// apps/web/src/server; all nine jurisdictions' pack views arrive as a prop
+// (packsByJurisdiction), already built server-side by
+// apps/web/src/server/jurisdiction-packs.ts.
 
 "use client";
 
@@ -17,7 +18,7 @@ import { FREE_TEXT_LIMITS } from "@dsar/schemas/constants";
 import type { ExpenseCategoryCode } from "@dsar/schemas/taxonomy";
 import type { FeePosture, FeePostureMap, VerificationStatus } from "@dsar/schemas/rule-pack";
 
-import { MatterDetailsFields, type MatterDetailsValue } from "./matter-details-fields.tsx";
+import { MatterDetailsFields, canOfferExpenseEntry, type MatterDetailsValue } from "./matter-details-fields.tsx";
 import { AttestationsPanel, type AttestationsValue } from "./attestations-panel.tsx";
 import {
   ExpenseLineRepeater,
@@ -28,16 +29,23 @@ import {
 } from "./expense-line-repeater.tsx";
 import { ClaimFooter } from "./claim-footer.tsx";
 
-// Structurally identical to apps/web/src/server/pack-view.ts's
-// IntakePackView — deliberately re-declared here rather than imported, so
-// this module (under apps/web/src/ui) never imports apps/web/src/server
-// (the no-server-imports-in-ui dependency-cruiser rule, 03.1-01 Task 3).
-export interface IntakeFormPackView {
-  packId: string;
-  version: string;
-  status: string;
+// Structurally identical to apps/web/src/server/jurisdiction-packs.ts's
+// JurisdictionPackView — deliberately re-declared here rather than
+// imported, so this module (under apps/web/src/ui) never imports
+// apps/web/src/server (the no-server-imports-in-ui dependency-cruiser rule,
+// 03.1-01 Task 3). Same precedent as MatterDetailsJurisdictionPack.
+export interface IntakeFormJurisdictionPackView {
   jurisdictionCode: JurisdictionCode;
-  feePosture: FeePostureMap;
+  jurisdictionName: string;
+  packId: string | null;
+  version: string | null;
+  displayStatus: "ACTIVE" | "ACTIVE_REVIEW_DUE_SOON" | "STALE" | "DRAFT" | "NO_USABLE_PACK";
+  daysUntilReviewDue: number | null;
+  feePosture: FeePostureMap | null;
+  constraints: { feeNotificationDeadlineDays: number | null; responseDeadlineDays: number | null } | null;
+  authoredByDisplayName: string | null;
+  reviewedByDisplayName: string | null;
+  reviewedOn: string | null;
   categories: {
     categoryCode: ExpenseCategoryCode;
     label: string;
@@ -47,7 +55,7 @@ export interface IntakeFormPackView {
 }
 
 export interface IntakeFormProps {
-  packView: IntakeFormPackView;
+  packsByJurisdiction: Record<JurisdictionCode, IntakeFormJurisdictionPackView>;
   defaultReference: string;
 }
 
@@ -97,12 +105,15 @@ async function readErrorMessage(response: Response): Promise<string> {
   }
 }
 
-export function IntakeForm({ packView, defaultReference }: IntakeFormProps) {
+export function IntakeForm({ packsByJurisdiction, defaultReference }: IntakeFormProps) {
   const router = useRouter();
 
   const [matterDetails, setMatterDetails] = useState<MatterDetailsValue>({
     reference: defaultReference,
-    jurisdictionCode: packView.jurisdictionCode,
+    // Every jurisdiction is now resolved equally — no privileged "the"
+    // pack to derive a default from — so SG is a literal default reference
+    // point, not a derived one.
+    jurisdictionCode: "SG",
     legalEntity: "",
     controllerType: "PRIVATE_ORGANISATION",
     requestReceivedOn: new Date().toISOString().slice(0, 10),
@@ -120,10 +131,7 @@ export function IntakeForm({ packView, defaultReference }: IntakeFormProps) {
 
   const currency: CurrencyCode = JURISDICTION_CURRENCY[matterDetails.jurisdictionCode];
 
-  const feePosture: FeePosture =
-    matterDetails.jurisdictionCode === packView.jurisdictionCode
-      ? packView.feePosture[matterDetails.controllerType]
-      : "NO_EXPRESS_AUTHORITY";
+  const currentJurisdictionPack = packsByJurisdiction[matterDetails.jurisdictionCode];
 
   const matterDetailsValid =
     matterDetails.reference.trim().length > 0 &&
@@ -200,22 +208,22 @@ export function IntakeForm({ packView, defaultReference }: IntakeFormProps) {
 
   return (
     <div data-testid="intake-form">
-      <MatterDetailsFields value={matterDetails} onChange={setMatterDetails} currency={currency} feePosture={feePosture} />
+      <MatterDetailsFields
+        value={matterDetails}
+        onChange={setMatterDetails}
+        currency={currency}
+        jurisdictionPack={currentJurisdictionPack}
+      />
 
-      {matterDetailsValid ? (
-        <>
-          <AttestationsPanel
-            value={attestations}
-            onChange={setAttestations}
-            noteMaxLength={FREE_TEXT_LIMITS.identityVerifiedNote}
-          />
-          <ExpenseLineRepeater
-            lines={lines}
-            onChange={setLines}
-            categories={packView.categories}
-            currency={currency}
-          />
-        </>
+      {matterDetailsValid ? <AttestationsPanel value={attestations} onChange={setAttestations} noteMaxLength={FREE_TEXT_LIMITS.identityVerifiedNote} /> : null}
+
+      {matterDetailsValid && canOfferExpenseEntry(currentJurisdictionPack, matterDetails.controllerType) ? (
+        <ExpenseLineRepeater
+          lines={lines}
+          onChange={setLines}
+          categories={currentJurisdictionPack.categories}
+          currency={currency}
+        />
       ) : null}
 
       <ClaimFooter
