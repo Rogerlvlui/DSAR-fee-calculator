@@ -211,7 +211,7 @@ Plans:
 - [x] 04-01-PLAN.md — Tracer: `packages/workflow` and `packages/audit` stood up, one submission transition guarded and audited end to end
 - [x] 04-02-PLAN.md — The full PRD §5 guard table, plus the dependency and determinism gates that keep the guard package pure
 - [x] 04-03-PLAN.md — The D-21 pack-lifecycle event stream, the `DPO_ADMIN` demo identity, and the role-gated audit log export
-- [ ] 04-04-PLAN.md — Retrofit every remaining status literal through the executor, add the lawyer recompute, delete `state.ts`, and lint-gate direct status writes
+- [x] 04-04-PLAN.md — Retrofit every remaining status literal through the executor, add the lawyer recompute, delete `state.ts`, and lint-gate direct status writes
 - [ ] 04-05-PLAN.md — Correction after sign-off (`SUPERSEDED`), the closing transition, intake-side events, and the whole-lifecycle audit proof
 
 **Note**: STATE-04 (a write to a `SIGNED_OFF` assessment failing at the database) is explicitly out of this phase's scope — it needs a live Postgres constraint and this build machine has no Docker. It stays with Phase 3.2, which owns the real persistence layer, and success criterion 3 above is therefore only half-dischargeable here (the API's 409 refusal), with the database half deferred.
@@ -303,7 +303,7 @@ Where capacity allows, Phases 2, 3, 4 and 5 may run concurrently — they have z
 | 3. Rule Packs and Pack Admin | 5/5 | Complete    | 2026-09-18 |
 | 3.1 Demo Slice — In-Memory Determination Pipeline | 5/5 | Complete    | 2026-09-19 |
 | 3.2 Database Boundary and Audit Immutability | 0/3 | Planned (inherited from Phase 1) | - |
-| 4. Workflow and Audit Backbone | 3/5 | In progress | - |
+| 4. Workflow and Audit Backbone | 4/5 | In progress | - |
 | 5. HR Intake and Disclosure Shell | 0/TBD | Not started | - |
 | 6. Convergence and Legal Review | 0/TBD | Not started | - |
 | 7. Sign-off, Outputs and Edge States | 0/TBD | Not started | - |

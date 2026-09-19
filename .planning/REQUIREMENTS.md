@@ -22,8 +22,8 @@
 ### State machine
 
 - [x] **STATE-01**: `MatterStatus` is a closed set of seven states, and no other status value exists anywhere in the system (§5)
-- [ ] **STATE-02**: Every transition is evaluated by a guarded state machine implementing §5's guard table, not by ad-hoc status writes (§5)
-- [ ] **STATE-03**: Recompute before sign-off (`LEGAL_REVIEW` → `COMPUTING`) mutates the existing `Assessment` in place — same `id`, new pack and engine version, all dispositions cleared — rather than creating a new row (§5)
+- [x] **STATE-02**: Every transition is evaluated by a guarded state machine implementing §5's guard table, not by ad-hoc status writes (§5)
+- [x] **STATE-03**: Recompute before sign-off (`LEGAL_REVIEW` → `COMPUTING`) mutates the existing `Assessment` in place — same `id`, new pack and engine version, all dispositions cleared — rather than creating a new row (§5)
 - [ ] **STATE-04**: A write to a `SIGNED_OFF` assessment fails at the database, not only at the API, which returns 409 (AC-33)
 - [ ] **STATE-05**: A correction after sign-off creates a new assessment and marks the previous one `SUPERSEDED`, retaining it verbatim (AC-33)
 
@@ -133,9 +133,9 @@
 
 ### Audit
 
-- [ ] **AUDIT-01**: Every state transition, line disposition, pack activation and sign-off emits an audit event with actor, role, server timestamp, before and after, pack version and engine version (AC-35)
+- [x] **AUDIT-01**: Every state transition, line disposition, pack activation and sign-off emits an audit event with actor, role, server timestamp, before and after, pack version and engine version (AC-35)
 - [ ] **AUDIT-02**: The application database role has no UPDATE, DELETE or TRUNCATE on the audit table, and an attempted update fails at the database (AC-34, extended per research)
-- [ ] **AUDIT-03**: Elapsed review time is recorded on every `LINE_DISPOSITIONED` and `SIGNED_OFF` event, measured from when the reviewer first opened the assessment (§6.5)
+- [x] **AUDIT-03**: Elapsed review time is recorded on every `LINE_DISPOSITIONED` and `SIGNED_OFF` event, measured from when the reviewer first opened the assessment (§6.5)
 - [x] **AUDIT-04**: The DPO can export the audit log (§3)
 
 ### Risk disclosure
@@ -248,8 +248,8 @@ Every v1 requirement maps to exactly one phase in `.planning/ROADMAP.md`.
 | SCHEMA-06 | Phase 1 | Complete |
 | SCHEMA-07 | Phase 1 | Complete |
 | STATE-01 | Phase 1 (schema) + 3.2 (database) | Complete |
-| STATE-02 | Phase 4 | Pending |
-| STATE-03 | Phase 4 | Pending |
+| STATE-02 | Phase 4 | Complete |
+| STATE-03 | Phase 4 | Complete |
 | STATE-04 | Phase 4 | Pending |
 | STATE-05 | Phase 4 | Pending |
 | ENGINE-01 | Phase 2 | Complete |
@@ -329,9 +329,9 @@ Every v1 requirement maps to exactly one phase in `.planning/ROADMAP.md`.
 | DOC-03 | Phase 7 | Pending |
 | DOC-04 | Phase 7 | Pending |
 | DOC-05 | Phase 7 | Pending |
-| AUDIT-01 | Phase 4 | Pending |
+| AUDIT-01 | Phase 4 | Complete |
 | AUDIT-02 | Phase 3.2 | Pending |
-| AUDIT-03 | Phase 4 | Pending |
+| AUDIT-03 | Phase 4 | Complete |
 | AUDIT-04 | Phase 4 | Complete |
 | DISC-01 | Phase 5 | Pending |
 | DISC-02 | Phase 5 | Pending |
