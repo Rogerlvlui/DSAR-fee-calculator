@@ -1,10 +1,10 @@
 ---
 schema_version: 1
-open_count: 2
+open_count: 3
 waived_count: 0
 fixed_count: 6
-total_count: 8
-last_updated: 2026-09-18T16:35:47.301Z
+total_count: 9
+last_updated: 2026-09-19T00:00:00.000Z
 ---
 
 # Broken Windows Ledger
@@ -23,6 +23,7 @@ last_updated: 2026-09-18T16:35:47.301Z
 | 6 | 03.1 | deviation | apps/web/app/(legal)/assessments/[id]/page.tsx |  | SignOffPanel is built and tested (signoff-panel.tsx/test.tsx) but not yet rendered on the actual legal review page — Plan 04's file list deliberately excludes this page and assessment-view.tsx; wiring is Plan 05's integration pass, which owns the phase's end-to-end WALKTHROUGH test. | fixed |  | 2026-09-18T07:45:15.842Z | 2026-09-18T18:00:00.000Z |
 | 7 | 03.1 | unmet-truth | apps/web/app/page.tsx |  | Phase-goal verification found ROADMAP Success Criterion 1 (a stakeholder can drive the whole path in a browser) genuinely failed live: every internal link used the (hr)/(legal) route-group names as URL prefixes (/hr/matters/new, /legal/assessments), but Next.js route groups never contribute a URL segment - the real paths are /matters/new, /assessments etc. No test in this phase caught it since every route test drives Route Handlers directly, bypassing Next's real router entirely. Fixed: corrected all 4 call sites (apps/web/app/page.tsx, (legal)/assessments/page.tsx, intake-form.tsx's router.push). Confirmed live via a full curl-driven walkthrough through the real dev server, matching the WALKTHROUGH test's expected finalAmount (46640). | fixed |  | 2026-09-18T16:35:30.339Z | 2026-09-18T16:35:40.164Z |
 | 8 | 03.1 | unrun-verify | apps/web/app/(legal)/assessments/[id]/page.tsx |  | Phase-goal verification found the live legal-review and disposition/bulk-accept/signoff routes 500 on any real request: assessment ids and assessment-line ids are colon-joined (packages/engine's deriveAssessmentId/deriveAssessmentLineId), and Next's [id] dynamic segment arrives percent-encoded rather than auto-decoded under this app's Turbopack dev setup, so the raw lookup always 404s (surfaced as 500). No test caught it since every route test passes params directly, bypassing real URL decoding. Fixed: decodeURIComponent(id) added at all 4 affected call sites (the legal review page, signoff route, bulk-accept route, disposition route). Confirmed live via a full curl-driven walkthrough including dispositions and sign-off, matching the WALKTHROUGH test's expected finalAmount (46640). | fixed |  | 2026-09-18T16:35:40.806Z | 2026-09-18T16:35:47.301Z |
+| 9 | 04 | deviation | apps/web/src/server/data/assessments.ts |  | Checkpoint 04-05-CP (transcribed literally, Option A, per the product owner's pre-execution resolution): PRD §5's SUPERSEDE row gives the SUPERSEDED status no outgoing transition, so once raiseCorrection() moves a matter there, the new correction it just raised sits in a state the guard table permits no further move from — including no route back to legal review or sign-off. The correction is recorded (a new assessment, the old one untouched) but is not yet reviewable or re-signable by a named lawyer under today's transition table. This is a genuine gap in the PRD's own specification, not a coding shortcut: resolving it needs a product-owner decision (a PRD amendment adding a re-entry row, or an equivalent mechanism) before any later phase can build "review and re-sign a correction." Tracked here and in STATE.md's Blockers/Concerns; not invented or resolved by this plan. | open |  | 2026-09-19T00:00:00.000Z |  |
 
 ````json
 [
@@ -121,6 +122,18 @@ last_updated: 2026-09-18T16:35:47.301Z
     "reason": "",
     "recorded_at": "2026-09-18T16:35:40.806Z",
     "resolved_at": "2026-09-18T16:35:47.301Z"
+  },
+  {
+    "id": 9,
+    "kind": "deviation",
+    "phase": "04",
+    "file": "apps/web/src/server/data/assessments.ts",
+    "line": null,
+    "description": "Checkpoint 04-05-CP (transcribed literally, Option A, per the product owner's pre-execution resolution): PRD §5's SUPERSEDE row gives the SUPERSEDED status no outgoing transition, so once raiseCorrection() moves a matter there, the new correction it just raised sits in a state the guard table permits no further move from — including no route back to legal review or sign-off. The correction is recorded (a new assessment, the old one untouched) but is not yet reviewable or re-signable by a named lawyer under today's transition table. This is a genuine gap in the PRD's own specification, not a coding shortcut: resolving it needs a product-owner decision (a PRD amendment adding a re-entry row, or an equivalent mechanism) before any later phase can build \"review and re-sign a correction.\" Tracked here and in STATE.md's Blockers/Concerns; not invented or resolved by this plan.",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-19T00:00:00.000Z",
+    "resolved_at": null
   }
 ]
 ````

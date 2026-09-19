@@ -25,7 +25,7 @@
 - [x] **STATE-02**: Every transition is evaluated by a guarded state machine implementing §5's guard table, not by ad-hoc status writes (§5)
 - [x] **STATE-03**: Recompute before sign-off (`LEGAL_REVIEW` → `COMPUTING`) mutates the existing `Assessment` in place — same `id`, new pack and engine version, all dispositions cleared — rather than creating a new row (§5)
 - [ ] **STATE-04**: A write to a `SIGNED_OFF` assessment fails at the database, not only at the API, which returns 409 (AC-33)
-- [ ] **STATE-05**: A correction after sign-off creates a new assessment and marks the previous one `SUPERSEDED`, retaining it verbatim (AC-33)
+- [x] **STATE-05**: A correction after sign-off creates a new assessment and marks the previous one `SUPERSEDED`, retaining it verbatim (AC-33)
 
 ### Engine
 
@@ -251,7 +251,7 @@ Every v1 requirement maps to exactly one phase in `.planning/ROADMAP.md`.
 | STATE-02 | Phase 4 | Complete |
 | STATE-03 | Phase 4 | Complete |
 | STATE-04 | Phase 4 | Pending |
-| STATE-05 | Phase 4 | Pending |
+| STATE-05 | Phase 4 | Complete |
 | ENGINE-01 | Phase 2 | Complete |
 | ENGINE-02 | Phase 2 | Complete |
 | ENGINE-03 | Phase 2 | Complete |

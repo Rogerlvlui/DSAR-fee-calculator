@@ -3,17 +3,17 @@ gsd_state_version: "1.0"
 current_phase: "04"
 current_phase_name: Workflow and Audit Backbone
 status: executing
-stopped_at: Completed 04-04-PLAN.md (every remaining status literal retrofitted through the guarded executor, lawyer-initiated recompute, state.ts deleted, literal-status lint gate) — ready for 04-05
-last_updated: "2026-09-19T13:25:00.000Z"
+stopped_at: Completed 04-05-PLAN.md (correction after sign-off via SUPERSEDE, the closing transition to CLOSED, matter-created/line-added/edited/deleted audit records, the whole-lifecycle proof) — Phase 04 complete, ready for /gsd-plan-phase 5
+last_updated: "2026-09-19T18:00:00.000Z"
 last_activity: 2026-09-19
-last_activity_desc: Phase 04 Plan 04 complete — submitForAssessment/resubmitAfterInfoRequest/signOff/askHr all converted from the state.ts stand-in to packages/workflow's evaluateTransition, a new recomputeAgainstCurrentPack discharges STATE-03's PRD-table row, every disposition/bulk-accept/sign-off/ask-HR act now leaves a provenance-complete audit record with an elapsed-review figure, state.ts deleted with no shim, and a bespoke ESLint rule (STATUS-WRITE-GATE, 4 tests) makes "no literal matter-status write" a CI fact
-state_head: 4cd0a3c
+last_activity_desc: Phase 04 Plan 05 complete — Phase 04 (Workflow and Audit Backbone) is now fully executed (5/5 plans). raiseCorrection() discharges STATE-05 (a correction is a second assessment under a freshly generated identifier; the signed original is read and never rewritten, proven by a deep-clone snapshot comparison); markNoticeSent now drives SIGNED_OFF -> CLOSED through the guarded executor; matter creation and every line add/edit/delete now leaves an audit record; one whole-lifecycle test drives draft through closed, around the information-request branch, and asserts the ordered event-type sequence in one comparison. 04-VALIDATION.md fully populated, nyquist_compliant: true.
+state_head: 9962cc1
 progress:
   total_phases: 10
   completed_phases: 1
   total_plans: 31
-  completed_plans: 27
-  percent: 87
+  completed_plans: 28
+  percent: 90
 ---
 
 # Project State
@@ -23,16 +23,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-13)
 
 **Core value:** A lawyer can defend the output by saying "the engine applied rule HK-PDPO.STAFF_TIME_REDACT_EXEMPT, version 2026.09.1, authored by X on date Y, and struck the line" — never "the model assessed the claim."
-**Current focus:** Phase 04 — Workflow and Audit Backbone (Plan 04/5 complete — every remaining status literal retrofitted, recompute, state.ts deleted, lint gate; 03.2 Database Boundary remains separately planned, runs concurrently per ROADMAP.md)
+**Current focus:** Phase 04 — Workflow and Audit Backbone — COMPLETE (5/5 plans); 03.2 Database Boundary remains separately planned, runs concurrently per ROADMAP.md; next up is Phase 5 (HR Intake and Disclosure Shell)
 
 ## Current Position
 
 Phase: 04 — Workflow and Audit Backbone
-Plan: 04/5 complete
-Status: In progress — ready to plan/execute 04-05
-Last activity: 2026-09-19 — 04-04 complete: submitForAssessment/resubmitAfterInfoRequest/signOff/askHr converted from the state.ts stand-in to the guarded executor, recomputeAgainstCurrentPack added (STATE-03), every disposition/bulk-accept/sign-off/ask-HR act now audited with an elapsed-review figure, state.ts deleted, STATUS-WRITE-GATE lint rule added (4 tests), full suite green (705/705)
+Plan: 5/5 complete — Phase 04 done
+Status: Phase complete — ready for `/gsd-plan-phase 5` (and `/gsd-verify-work 04`)
+Last activity: 2026-09-19 — 04-05 complete: raiseCorrection() (STATE-05), the SIGNED_OFF -> CLOSED closing transition via markNoticeSent, matter-created/line-added/edited/deleted audit records, and the whole-lifecycle test proving the phase's first and fourth success criteria. Full suite green (725/725, up from the 705/705 baseline recorded at the start of this plan)
 
-Progress: [████████░░] 87%
+Progress: [█████████░] 90%
 
 ## Performance Metrics
 
@@ -51,7 +51,7 @@ Progress: [████████░░] 87%
 | 3 | 5 | - | - |
 | 03.1 | 5/5 | - | - |
 | 3.1 | 5 | - | - |
-| 04 | 4/5 | - | - |
+| 04 | 5/5 | - | - |
 
 **Recent Trend:**
 
@@ -90,6 +90,7 @@ Progress: [████████░░] 87%
 | Phase 04 P02 | 35min | 2 tasks | 11 files |
 | Phase 04 P03 | 30min | 2 tasks | 7 files |
 | Phase 04 P04 | 130min | 3 tasks (10 commits) | 15 files |
+| Phase 04 P05 | 55min | 3 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -190,6 +191,13 @@ Recent decisions affecting current work:
 - [Phase 04]: [Phase 04 P04]: createMatter's birth status now reads packages/workflow's INITIAL_MATTER_STATUS constant instead of a bare "DRAFT" literal — a newly created matter has no transition INTO it for the executor to evaluate, so a named constant is the honest expression of that and lets the new lint rule ban all seven MatterStatus literals with no carved-out exception
 - [Phase 04]: [Phase 04 P04]: The T-04-19 status-write ESLint rule is a bespoke no-restricted-syntax rule (not dependency-cruiser, not a Matter.status type narrowing) scoped to apps/web/src/server/**/*.ts and apps/web/app/**/*.ts — the first ESLint config block to ever match apps/web files, which surfaced (and this plan fixed) two pre-existing dead `eslint-disable-next-line no-var` comments unrelated to the new rule
 - [Phase 04]: [Phase 04 P04]: The status-write rule accepts a known false-positive gap — MatterStatus's "DRAFT" and RulePackStatus's "DRAFT" are the identical string, so a purely syntactic rule cannot distinguish which schema a `status` property belongs to; the fixture's rule-pack-status negative control deliberately uses "ACTIVE" (unambiguous) rather than "DRAFT" to keep the gate's own proof honest about what it can and cannot see
+- [Phase 04]: [Phase 04 P05]: Checkpoint 04-05-CP pre-resolved by the product owner before execution — Option A (literal transcription): a correction moves the matter to SUPERSEDED and raises a second assessment under a freshly generated identifier; the PRD's own table gives SUPERSEDED no outgoing row, so the open "how does a correction get re-reviewed and re-signed" question is tracked as a blocker (WINDOWS.md entry 9), not resolved by inventing a table row
+- [Phase 04]: [Phase 04 P05]: raiseCorrection() deliberately does not call recompute.ts's recomputeAssessment() — that module preserves an identity because its record is not yet final; raiseCorrection() creates a new identity because the record it corrects (SIGNED_OFF or CLOSED) is final and must survive untouched. Each module's own comment points at the other, and a source-scan test (tests/routes/correction.test.ts) asserts assessments.ts carries no import statement naming recompute.ts
+- [Phase 04]: [Phase 04 P05]: getAssessmentByMatterId's semantics changed from first-match to last-match (memory/assessment-repository.ts) — identical behaviour while a matter holds one assessment; the difference only appears after a correction, and a new listAssessmentsByMatterId() was added for callers that need the whole history
+- [Phase 04]: [Phase 04 P05]: markNoticeSent (SIGNED_OFF -> CLOSED) reverses 03.1-04's recorded assumption that this transition stayed status-preserving — that deferral was written before a guarded executor existed, and this phase's own first success criterion names the closed status explicitly; getSignedOffAssessmentForHr widened to permit CLOSED alongside SIGNED_OFF so the preparer does not lose the figure the moment the matter closes
+- [Phase 04]: [Phase 04 P05]: New audit payload builders (matterCreatedPayload, expenseLineAddedPayload/EditedPayload/DeletedPayload) deliberately snapshot only categoryCode/quantity/unit/unitRate/claimedAmount — the free-text fields (vendorName, evidenceRef, hrNote) are excluded from this append-only-forever log on purpose
+- [Phase 04]: [Phase 04 P05]: tests/routes/workflow-tracer.test.ts's event counts updated (2->4, 0->1) — an expected consequence of MATTER_CREATED/LINE_ADDED now writing to the same matter's log this pre-existing test reads, following the identical precedent 04-04 already established for this file
+- [Phase 04]: [Phase 04 P05]: Phase 04 (Workflow and Audit Backbone) is now complete — 5/5 plans, all of STATE-02/STATE-03/STATE-05/AUDIT-01/AUDIT-03/AUDIT-04/BOUND-05 discharged (AUDIT-01's pack-activation clause and AUDIT-04 both structurally-only, no admin caller yet); only STATE-04 (database-level immutability) remains Pending, owned by Phase 3.2
 
 ### Pending Todos
 
@@ -209,8 +217,9 @@ None yet.
 - **`pnpm dev`/`next build` currently fail** — discovered via a voluntary smoke test during 03.1-01, recorded as WINDOWS.md ledger entries 2 and 3 (open_count is 2, not 0): (1) `packages/rulepacks/src/loader.ts`'s `RULEPACKS_ROOT` throws under Turbopack's page-data collection (`import.meta.dirname` undefined there) — a frozen Phase 3 file, out of 03.1-01's scope, needs a product-owner decision; (2) no `@tailwindcss/postcss` plugin is registered anywhere, so `apps/web/app/globals.css`'s `@theme` block is inert in a real build — fixing this needs a new package install, which requires its own package-legitimacy checkpoint (like Task 0's ulid one) before any later plan runs `pnpm add @tailwindcss/postcss`. **Resolve both before Plan 03.1-02 starts** — otherwise every subsequent plan's UI work accumulates on a stylesheet Tailwind isn't processing, and the actual stakeholder demo cannot run.
 - ~~SignOffPanel (03.1-04) is not yet rendered on the legal review page, and disposition-controls.tsx's Ask HR button stays hardcoded disabled~~ — **resolved in Plan 03.1-05** (WINDOWS.md entries 5-6 marked fixed): both are now wired into the actual legal review page.
 - Phase 03.1 is now complete (5/5 plans) but its manual click-through row (03.1-VALIDATION.md's 05-manual) has never actually been run — `pnpm dev`/`next build` still cannot start on this build machine (WINDOWS.md entries 2-4, still open). A product-owner decision on the frozen Phase 3 `RULEPACKS_ROOT`/Turbopack issue and the Tailwind/Lightning-CSS native-binary crash is the prerequisite before that one manual row can move from "not run" to genuinely verified.
-- Phase 04's 04-01 (tracer), 04-02 (full guard table + purity/determinism gates), 04-03 (pack-lifecycle stream + DPO export) and 04-04 (remaining status-literal retrofit + recompute + state.ts deletion + lint gate) are all complete. STATE-02, STATE-03, AUDIT-01 and AUDIT-03 are now Complete — every status write in apps/web/src/server/data/{matters,assessments}.ts flows through packages/workflow's evaluateTransition, a CI-enforced ESLint rule bans any literal MatterStatus write outside it, recomputeAgainstCurrentPack discharges STATE-03's PRD-table row, and every disposition/bulk-accept/sign-off/ask-HR act leaves a provenance-complete audit record with an elapsed-review figure. AUDIT-01's pack-activation clause remains discharged only structurally (writer proven in 04-03, no admin screen exists to call it from — PACK-07, Phase 3.2), matching the same treatment already applied to AUDIT-04. STATE-04 and STATE-05 remain Pending — 04-05 (correction after sign-off, the closing transition, and STATE-04's database half in Phase 3.2) is next.
-- gsd-tools.cjs remains unavailable in this worktree during 04-01/04-02/04-03/04-04 execution (same recurring gap as 03-03/03-04/03.1) — STATE.md/ROADMAP.md/REQUIREMENTS.md updated manually again this plan.
+- Phase 04's 04-01 (tracer), 04-02 (full guard table + purity/determinism gates), 04-03 (pack-lifecycle stream + DPO export), 04-04 (remaining status-literal retrofit + recompute + state.ts deletion + lint gate) and 04-05 (correction after sign-off, the closing transition, intake-act records, the whole-lifecycle proof) are all complete — Phase 04 is done. STATE-02, STATE-03, STATE-05, AUDIT-01 and AUDIT-03 are now Complete — every status write in apps/web/src/server/data/{matters,assessments}.ts flows through packages/workflow's evaluateTransition, a CI-enforced ESLint rule bans any literal MatterStatus write outside it, recomputeAgainstCurrentPack discharges STATE-03's PRD-table row, raiseCorrection() discharges STATE-05's row (a correction is a second assessment under a freshly generated identifier, the signed original read-and-never-rewritten again, proven by a deep-clone snapshot comparison), markNoticeSent now drives SIGNED_OFF -> CLOSED through the same guarded executor, and every disposition/bulk-accept/sign-off/ask-HR/notice-sent act plus matter-created/line-added/edited/deleted intake act leaves a provenance-complete audit record. AUDIT-01's pack-activation clause remains discharged only structurally (writer proven in 04-03, no admin screen exists to call it from — PACK-07, Phase 3.2), matching the same treatment already applied to AUDIT-04. STATE-04 remains Pending, needing Phase 3.2's real Postgres.
+- **Genuine, deliberately unresolved gap (checkpoint 04-05-CP, Option A, WINDOWS.md entry 9):** PRD §5's SUPERSEDE row gives the SUPERSEDED status no outgoing transition. Once a correction is raised after sign-off, the matter (and the new, unreviewed correction sitting on it) is in a state the guard table permits no further move from — there is no route today for a named lawyer to review and re-sign a correction. This is a spec gap, not a code shortcut: it needs a product-owner decision (a PRD amendment adding a re-entry row, or an equivalent mechanism) before any later phase can build "review and re-sign a correction." Not invented or resolved by 04-05 — resolving it was explicitly out of scope per the pre-resolved checkpoint.
+- gsd-tools.cjs remains unavailable in this worktree during 04-01/04-02/04-03/04-04/04-05 execution (same recurring gap as 03-03/03-04/03.1) — STATE.md/ROADMAP.md/REQUIREMENTS.md updated manually again this plan.
 
 ### Roadmap Evolution
 
@@ -226,6 +235,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-09-19T13:25:00.000Z
-Stopped at: Completed 04-04-PLAN.md — every remaining status literal retrofitted through the guarded executor, recomputeAgainstCurrentPack added (STATE-03), every disposition/bulk-accept/sign-off/ask-HR act audited with an elapsed-review figure, state.ts deleted with no shim, STATUS-WRITE-GATE lint rule added, full suite green (705/705)
+Last session: 2026-09-19T18:00:00.000Z
+Stopped at: Completed 04-05-PLAN.md — Phase 04 (Workflow and Audit Backbone) is complete (5/5 plans). raiseCorrection() (STATE-05), the SIGNED_OFF -> CLOSED closing transition, matter-created/line-added/edited/deleted audit records, and the whole-lifecycle proof all land. 04-VALIDATION.md fully populated, nyquist_compliant: true. Full suite green (725/725). Ready for `/gsd-plan-phase 5` and `/gsd-verify-work 04`.
 Resume file: None

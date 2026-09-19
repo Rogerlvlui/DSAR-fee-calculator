@@ -18,7 +18,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: Rule Packs and Pack Admin** - Loader, validator, nine packs with HK and SG authored in full, and the audited activation gate (completed 2026-09-18)
 - [x] **Phase 3.1: Demo Slice — In-Memory Determination Pipeline** (INSERTED) - The whole determination running as live software with no database, for a stakeholder presentation (completed 2026-09-19)
 - [ ] **Phase 3.2: Database Boundary and Audit Immutability** (INSERTED) - The three Docker-dependent plans deferred out of Phase 1, run once Docker exists
-- [ ] **Phase 4: Workflow and Audit Backbone** - Guarded transitions, immutable sign-off, and the append-only event log every later phase writes to
+- [x] **Phase 4: Workflow and Audit Backbone** - Guarded transitions, immutable sign-off, and the append-only event log every later phase writes to (completed 2026-09-19; STATE-04's database half stays with Phase 3.2, as already noted below)
 - [ ] **Phase 5: HR Intake and Disclosure Shell** - HR can itemise a claim inside a shell that states what the tool is and is not
 - [ ] **Phase 6: Convergence and Legal Review** - Golden files pass, then the line-by-line review screen with its automation-bias controls
 - [ ] **Phase 7: Sign-off, Outputs and Edge States** - The sign-off gate, the internal record, the requestor notice, and every §10.7 state
@@ -212,7 +212,7 @@ Plans:
 - [x] 04-02-PLAN.md — The full PRD §5 guard table, plus the dependency and determinism gates that keep the guard package pure
 - [x] 04-03-PLAN.md — The D-21 pack-lifecycle event stream, the `DPO_ADMIN` demo identity, and the role-gated audit log export
 - [x] 04-04-PLAN.md — Retrofit every remaining status literal through the executor, add the lawyer recompute, delete `state.ts`, and lint-gate direct status writes
-- [ ] 04-05-PLAN.md — Correction after sign-off (`SUPERSEDED`), the closing transition, intake-side events, and the whole-lifecycle audit proof
+- [x] 04-05-PLAN.md — Correction after sign-off (`SUPERSEDED`), the closing transition, intake-side events, and the whole-lifecycle audit proof
 
 **Note**: STATE-04 (a write to a `SIGNED_OFF` assessment failing at the database) is explicitly out of this phase's scope — it needs a live Postgres constraint and this build machine has no Docker. It stays with Phase 3.2, which owns the real persistence layer, and success criterion 3 above is therefore only half-dischargeable here (the API's 409 refusal), with the database half deferred.
 
@@ -303,7 +303,7 @@ Where capacity allows, Phases 2, 3, 4 and 5 may run concurrently — they have z
 | 3. Rule Packs and Pack Admin | 5/5 | Complete    | 2026-09-18 |
 | 3.1 Demo Slice — In-Memory Determination Pipeline | 5/5 | Complete    | 2026-09-19 |
 | 3.2 Database Boundary and Audit Immutability | 0/3 | Planned (inherited from Phase 1) | - |
-| 4. Workflow and Audit Backbone | 4/5 | In progress | - |
+| 4. Workflow and Audit Backbone | 5/5 | Complete    | 2026-09-19 |
 | 5. HR Intake and Disclosure Shell | 0/TBD | Not started | - |
 | 6. Convergence and Legal Review | 0/TBD | Not started | - |
 | 7. Sign-off, Outputs and Edge States | 0/TBD | Not started | - |
