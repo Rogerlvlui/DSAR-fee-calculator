@@ -369,6 +369,69 @@ export async function resubmitAfterInfoRequest(actor: DemoActor, matterId: strin
 }
 
 // ---------------------------------------------------------------------------
+// recomputeAgainstCurrentPack — the row PRD §5's table has and this system
+// has never had a caller for (STATE-03)
+// ---------------------------------------------------------------------------
+
+// Requires the LEGAL_REVIEWER role, refuses via the executor's RECOMPUTE
+// row unless the matter is in legal review, delegates the in-place
+// mutation to ../recompute.ts (same shared module resubmitAfterInfoRequest
+// uses — the mirror-image rule is written once), then asks the executor
+// for the COMPUTE_SUCCEEDED transition and writes that destination.
+// Exactly one assessment exists for the matter afterwards, under the
+// identity it already had. This never marks anything SUPERSEDED: that
+// status exists solely for a correction made after sign-off, and this
+// function runs strictly before one.
+//
+// No screen drives this yet (Phase 6 owns the legal review screen's
+// recompute affordance) — a thin route is what makes the transition, its
+// guard and its audit record drivable and testable now.
+export async function recomputeAgainstCurrentPack(actor: DemoActor, assessmentId: string): Promise<Assessment> {
+  requireRole(actor, "LEGAL_REVIEWER");
+
+  const existing = await memoryAssessmentRepository.getAssessment(assessmentId);
+  if (!existing) throw new NotFoundError(`No assessment with id '${assessmentId}'`);
+
+  const matter = await memoryMatterRepository.getMatter(existing.matterId);
+  if (!matter) throw new NotFoundError(`No matter found for assessment '${assessmentId}'`);
+
+  const lines = await memoryMatterRepository.listExpenseLines(matter.id);
+  const loadedPack = loadDemoPack();
+  const pack = coercePackForDemoEngine(loadedPack);
+  const guardInput = buildGuardInput({ matter, lines, assessment: existing, pack, actor });
+
+  const recomputeOutcome = evaluateTransition(matter.status, "RECOMPUTE", guardInput);
+  if (!recomputeOutcome.allowed) {
+    throw new ConflictError(recomputeOutcome.reason);
+  }
+  await memoryMatterRepository.updateMatter({ ...matter, status: recomputeOutcome.to });
+
+  // See recompute.ts's module note: the derived id is discarded in favour
+  // of the existing one on purpose, and the first-opened record is cleared
+  // as part of the same operation so the next review pass measures its own
+  // elapsed time, not the one before this recompute.
+  const updatedAssessment = recomputeAssessment({ matter, lines, existing });
+  await memoryAssessmentRepository.updateAssessment(updatedAssessment);
+
+  const computeGuardInput = buildGuardInput({ matter, lines, assessment: updatedAssessment, pack, actor });
+  const computeOutcome = evaluateTransition(recomputeOutcome.to, "COMPUTE_SUCCEEDED", computeGuardInput);
+  if (!computeOutcome.allowed) {
+    throw new ConflictError(computeOutcome.reason);
+  }
+  await memoryMatterRepository.updateMatter({ ...matter, status: computeOutcome.to });
+  await recordAuditEvent({
+    matterId: matter.id,
+    actor,
+    type: "COMPUTED",
+    payload: transitionPayload(recomputeOutcome.to, computeOutcome.to),
+    rulePackVersion: pack.version,
+    engineVersion: ENGINE_VERSION,
+  });
+
+  return updatedAssessment;
+}
+
+// ---------------------------------------------------------------------------
 // The HR-scoped status read + markNoticeSent (PRD §10.4)
 // ---------------------------------------------------------------------------
 
