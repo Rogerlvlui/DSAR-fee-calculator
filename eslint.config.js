@@ -74,6 +74,43 @@ const WORKFLOW_MATH_RANDOM_BAN_MESSAGE =
 const WORKFLOW_LOCALE_METHOD_BAN_MESSAGE =
   "Locale-dependent formatting would make the same input produce different results on a different host — `toLocale*` calls are banned in packages/workflow.";
 
+// T-04-19 / 04-04-PLAN.md Task 3: no code path in apps/web's server or
+// route code may write a literal MatterStatus value as an object
+// property — every status a matter reaches must be the destination
+// packages/workflow's evaluateTransition() returned. This is deliberately
+// a bespoke ESLint rule, not a dependency-cruiser rule and not a
+// narrowing of Matter.status's frozen type:
+//   - dependency-cruiser inspects the import graph only; it has no way to
+//     see an object-literal key like `{ status: "COMPUTING" }` at all —
+//     the same reasoning this file's own money-branding rule (above) and
+//     .dependency-cruiser.cjs's purity rules already document for why
+//     each tool is scoped to the class of violation it can actually see.
+//   - Matter is a frozen, additive-only schema (packages/schemas/FREEZE.md
+//     D-09); narrowing `status`'s type to a branded non-literal type is a
+//     freeze escalation this phase has no mandate to take.
+// This is the third time this codebase has had to write down which tool
+// polices which class of rule (04-RESEARCH.md Pattern 2, Assumptions Log
+// A1) — recorded here again because both alternatives look plausible to a
+// later reader.
+//
+// A literal is the thing banned, not the property: `status: outcome.to`
+// (the executor's own returned destination) is an Identifier/
+// MemberExpression node, never a Literal, so it never matches this
+// selector and stays legal — that is the whole point.
+//
+// Known, accepted false-positive: MatterStatus's "DRAFT" and
+// RulePackStatus's "DRAFT" are the identical string, and this is a purely
+// syntactic rule with no type information to tell which schema a given
+// `status` property belongs to. INITIAL_MATTER_STATUS (a named constant,
+// never a literal) already routes around this for a matter's own birth
+// status, so the residual risk is an unrelated `status: "DRAFT"` on some
+// other object in this scope — a case this codebase does not currently
+// have (verified by grep before authoring this rule).
+const STATUS_WRITE_MESSAGE =
+  "A matter's status must be written from the guarded executor's own returned destination, never a literal — route the write through packages/workflow's evaluateTransition().";
+const MATTER_STATUS_LITERAL_PATTERN =
+  "/^(DRAFT|COMPUTING|LEGAL_REVIEW|INFO_REQUEST|SIGNED_OFF|CLOSED|SUPERSEDED)$/";
+
 export default tseslint.config(
   {
     // "**/.next/**" (not just root-level ".next/**"): 03.1-01 added
@@ -152,6 +189,26 @@ export default tseslint.config(
         {
           selector: `MemberExpression[property.name=/^toLocale/]`,
           message: WORKFLOW_LOCALE_METHOD_BAN_MESSAGE,
+        },
+      ],
+    },
+  },
+  {
+    // 04-04-PLAN.md Task 3 — the literal-status ban, scoped to the
+    // application's server directory and its route directory only. The
+    // guard package (packages/workflow) legitimately names every status by
+    // value in its own declared TRANSITIONS table, and the user-interface
+    // and test trees construct fixtures — both are out of scope by design.
+    files: ["apps/web/src/server/**/*.ts", "apps/web/app/**/*.ts"],
+    languageOptions: {
+      parser: tseslint.parser,
+    },
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: `Property[key.name='status'][value.type='Literal'][value.value=${MATTER_STATUS_LITERAL_PATTERN}]`,
+          message: STATUS_WRITE_MESSAGE,
         },
       ],
     },

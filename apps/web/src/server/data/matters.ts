@@ -470,7 +470,6 @@ export async function getHrMatterStatus(actor: DemoActor, matterId: string): Pro
 // outputs. Anchored to globalThis for the same Fast-Refresh-survival reason
 // apps/web/src/server/repositories/memory/store.ts's demoStore is.
 declare global {
-  // eslint-disable-next-line no-var
   var __dsarNoticeSentAt: Map<string, string> | undefined;
 }
 const noticeSentAtByMatterId: Map<string, string> =
