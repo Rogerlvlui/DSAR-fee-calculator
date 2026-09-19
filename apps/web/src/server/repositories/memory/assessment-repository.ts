@@ -20,10 +20,28 @@ export const memoryAssessmentRepository: AssessmentRepository = {
   },
 
   async getAssessmentByMatterId(matterId) {
-    const assessment = [...demoStore.assessments.values()].find(
+    // Returns the LAST assessment written for this matter, not the first.
+    // With exactly one assessment on file (every matter, before a
+    // correction ever exists) this is identical to the old first-match
+    // behaviour. Once a correction has been raised, two assessments share
+    // a matterId — the signed original and the newly raised correction —
+    // and every preparer-facing and legal-review read must see the live
+    // one, never the superseded original it replaced.
+    const matches = [...demoStore.assessments.values()].filter(
       (candidate) => candidate.matterId === matterId
     );
+    const assessment = matches.at(-1) ?? null;
     return assessment ? structuredClone(assessment) : null;
+  },
+
+  async listAssessmentsByMatterId(matterId) {
+    // Map iteration order is insertion order, and a correction is always
+    // saved under a freshly generated id rather than overwriting an
+    // existing key, so this is already "in the order they were written"
+    // with no separate sort needed.
+    return [...demoStore.assessments.values()]
+      .filter((candidate) => candidate.matterId === matterId)
+      .map((candidate) => structuredClone(candidate));
   },
 
   async updateAssessment(assessment) {

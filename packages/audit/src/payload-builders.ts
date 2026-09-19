@@ -14,6 +14,7 @@
 // of these to carry.
 
 import type { AuditPayload } from "@dsar/schemas/audit-event";
+import type { Json } from "@dsar/schemas/primitives";
 
 export function transitionPayload(before: string, after: string): AuditPayload {
   return { field: "status", before, after };
@@ -85,4 +86,45 @@ export function packActivatedPayload(before: string, after: string): AuditPayloa
 // versioned JSON, not duplicated into the audit payload.
 export function packEditedPayload(field: string): AuditPayload {
   return { field };
+}
+
+// ---------------------------------------------------------------------------
+// Plan 04-05's builders: the SUPERSEDE transition, and the intake acts that
+// produce a claim (matter creation, adding/editing/deleting a cost line) —
+// the acts a log covering only decisions would leave unaccounted for.
+// ---------------------------------------------------------------------------
+
+// PRD §5's SUPERSEDE row: names the SUPERSEDED assessment as the entity —
+// not the correction raised alongside it — carrying the matter's own
+// before/after status pair, the same shape transitionPayload uses for
+// every other status transition in this log.
+export function supersededPayload(supersededAssessmentId: string, before: string, after: string): AuditPayload {
+  return { entityId: supersededAssessmentId, field: "status", before, after };
+}
+
+// Names the matter and the status it was born in — there is no `before`
+// for a birth event.
+export function matterCreatedPayload(matterId: string, birthStatus: string): AuditPayload {
+  return { entityId: matterId, field: "status", after: birthStatus };
+}
+
+// A snapshot of the fields that actually build a claim — category,
+// quantity, unit, rate and the derived claimed amount — deliberately
+// excluding the free-text fields (vendorName, evidenceRef, hrNote):
+// this table is append-only forever (AC-34), and it should not also
+// become the permanent home for free text nobody asked it to keep.
+export function expenseLineAddedPayload(lineId: string, snapshot: Record<string, Json>): AuditPayload {
+  return { entityId: lineId, field: "expenseLine", after: snapshot };
+}
+
+export function expenseLineEditedPayload(
+  lineId: string,
+  before: Record<string, Json>,
+  after: Record<string, Json>
+): AuditPayload {
+  return { entityId: lineId, field: "expenseLine", before, after };
+}
+
+export function expenseLineDeletedPayload(lineId: string, snapshot: Record<string, Json>): AuditPayload {
+  return { entityId: lineId, field: "expenseLine", before: snapshot };
 }

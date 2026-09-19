@@ -34,6 +34,14 @@ export interface AssessmentRepository {
   saveAssessment(assessment: Assessment): Promise<Assessment>;
   getAssessment(id: string): Promise<Assessment | null>;
   getAssessmentByMatterId(matterId: string): Promise<Assessment | null>;
+  // Added in Plan 04-05, Task 1: a matter can now hold more than one
+  // assessment once a correction has superseded a signed-off one (PRD §5's
+  // SUPERSEDE row) — the single lookup above is no longer sufficient on its
+  // own, because it cannot express "give me the whole history," only "give
+  // me one" (and, since this plan, "give me the LATEST one"). A caller that
+  // needs to prove exactly two assessments exist, in the order they were
+  // written, must be able to ask for that directly.
+  listAssessmentsByMatterId(matterId: string): Promise<Assessment[]>;
   updateAssessment(assessment: Assessment): Promise<Assessment>;
   // Added in Plan 03.1-03, Task 2: the disposition route only knows the
   // assessment LINE id (from its own path segment), not the assessment id

@@ -9,10 +9,15 @@ import { ConflictError, ForbiddenError, NotFoundError, ValidationError } from ".
 import { requireRole, type DemoActor } from "./auth.ts";
 import { memoryAssessmentRepository } from "../repositories/memory/assessment-repository.ts";
 import { memoryMatterRepository } from "../repositories/memory/matter-repository.ts";
-import { coercePackForDemoEngine, loadDemoPack } from "../engine-invocation.ts";
+import { assessMatter, coercePackForDemoEngine, loadDemoPack } from "../engine-invocation.ts";
 import { newUlid } from "../ids.ts";
 import { elapsedReviewMs, recordAssessmentOpened } from "@dsar/audit/review-session";
-import { dispositionPayload, informationRequestPayload, signOffPayload } from "@dsar/audit/payload-builders";
+import {
+  dispositionPayload,
+  informationRequestPayload,
+  signOffPayload,
+  supersededPayload,
+} from "@dsar/audit/payload-builders";
 import { recordAuditEvent } from "../audit-trail.ts";
 import { buildGuardInput } from "../guard-input.ts";
 import { evaluateTransition } from "@dsar/workflow/evaluate-transition";
@@ -59,7 +64,13 @@ export async function getAssessmentForLegalReview(
 }
 
 // PRD §0 non-negotiable #2, enforced here in the data layer rather than by
-// hiding a link: HR never sees an unreviewed assessment.
+// hiding a link: HR never sees an unreviewed assessment. Widened (04-05
+// Task 2) to also permit CLOSED: once marking the notice sent closes the
+// matter, a closed matter is still a signed one, and the preparer must not
+// lose sight of the figure they were just shown the moment it closes.
+// Every earlier status still refuses exactly as before.
+const HR_VISIBLE_MATTER_STATUSES: ReadonlySet<string> = new Set(["SIGNED_OFF", "CLOSED"]);
+
 export async function getSignedOffAssessmentForHr(
   actor: DemoActor,
   matterId: string
@@ -68,7 +79,7 @@ export async function getSignedOffAssessmentForHr(
 
   const matter = await memoryMatterRepository.getMatter(matterId);
   if (!matter) throw new NotFoundError(`No matter with id '${matterId}'`);
-  if (matter.status !== "SIGNED_OFF") {
+  if (!HR_VISIBLE_MATTER_STATUSES.has(matter.status)) {
     throw new ForbiddenError(
       `Matter '${matterId}' has not been signed off (currently ${matter.status}) — HR may not see an assessment before sign-off`
     );
@@ -526,4 +537,74 @@ export async function askHr(
   });
 
   return request;
+}
+
+// ---------------------------------------------------------------------------
+// raiseCorrection — a signed-off record is immutable; a correction is a
+// SECOND assessment that supersedes it, never an edit (PRD §5's SUPERSEDE
+// row, AC-33). Checkpoint 04-05-CP settled how this is represented: Option
+// A, transcribed literally from the PRD's own table — the matter moves to
+// SUPERSEDED, the signed assessment is never touched, and the correction is
+// raised with every line undecided. The PRD's table gives SUPERSEDED no
+// outgoing row, so the correction is recorded but not yet reviewable or
+// re-signable under today's transition table — a genuine, deliberately
+// unresolved gap, tracked in STATE.md's Blockers/Concerns and WINDOWS.md
+// rather than papered over here or resolved by inventing a table row the
+// PRD does not have.
+// ---------------------------------------------------------------------------
+
+// Requires the reviewer role, reads the matter and refuses via the
+// executor's SUPERSEDE row unless it is currently signed off or closed
+// (both origins that row names). Deliberately does NOT call
+// recomputeAssessment() (../recompute.ts) — that module's whole point is to
+// PRESERVE an identity, because the record it mutates has not yet reached
+// SIGNED_OFF. This function must CREATE a new identity, because the record
+// it is correcting is final and must survive untouched. See recompute.ts's
+// own module note, which points back here — keeping the two separate, each
+// commented against the other, is what stops a later reader from "removing
+// the duplication" and quietly merging a correction into an overwrite.
+export async function raiseCorrection(actor: DemoActor, assessmentId: string): Promise<Assessment> {
+  requireRole(actor, "LEGAL_REVIEWER");
+
+  // THE SIGNED ASSESSMENT BELOW IS READ AND NEVER WRITTEN AGAIN. Do not
+  // update it, do not clear its dispositions, do not null its sign-off —
+  // this is the immutability boundary the product's whole defensibility
+  // claim rests on.
+  const signedAssessment = await memoryAssessmentRepository.getAssessment(assessmentId);
+  if (!signedAssessment) throw new NotFoundError(`No assessment with id '${assessmentId}'`);
+
+  const matter = await memoryMatterRepository.getMatter(signedAssessment.matterId);
+  if (!matter) throw new NotFoundError(`No matter found for assessment '${assessmentId}'`);
+
+  const lines = await memoryMatterRepository.listExpenseLines(matter.id);
+  const guardInput = buildGuardInput({ matter, lines, assessment: signedAssessment, pack: null, actor });
+  const supersedeOutcome = evaluateTransition(matter.status, "SUPERSEDE", guardInput);
+  if (!supersedeOutcome.allowed) {
+    throw new ConflictError(supersedeOutcome.reason);
+  }
+
+  // THE LINE THAT MUST NOT BE GOT WRONG: the engine derives its own
+  // assessment id from its inputs, and the matter's lines have not
+  // changed, so assessMatter()'s own derived id here would equal
+  // `signedAssessment.id` — saving under it would silently overwrite the
+  // very record this whole path exists to preserve. A freshly generated
+  // identifier, assigned explicitly, is the only thing standing between a
+  // correction and the destruction of the evidence it corrects.
+  const recomputed = assessMatter({ matter, lines });
+  const correction: Assessment = { ...recomputed, id: newUlid() };
+  await memoryAssessmentRepository.saveAssessment(correction);
+
+  const statusBeforeSupersede = matter.status;
+  await memoryMatterRepository.updateMatter({ ...matter, status: supersedeOutcome.to });
+
+  await recordAuditEvent({
+    matterId: matter.id,
+    actor,
+    type: "SUPERSEDED",
+    payload: supersededPayload(signedAssessment.id, statusBeforeSupersede, supersedeOutcome.to),
+    rulePackVersion: correction.rulePackVersion,
+    engineVersion: correction.engineVersion,
+  });
+
+  return correction;
 }

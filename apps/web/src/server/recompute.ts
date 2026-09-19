@@ -16,6 +16,13 @@
 // a recompute and forget the reset (04-RESEARCH.md Pitfall 3) — a second
 // review pass measured from the first pass's opening would silently
 // corrupt the one signal AUDIT-03's elapsed figure exists to produce.
+//
+// NOT used by data/assessments.ts's raiseCorrection() (04-05, the
+// SUPERSEDE row) — that function's whole point is the mirror image of this
+// one: it CREATES a new identity because the record it corrects is final
+// (SIGNED_OFF or CLOSED) and must survive untouched, where this module
+// PRESERVES an identity because the record it mutates is not yet final.
+// See raiseCorrection()'s own module note, which points back here.
 
 import "./server-only.ts";
 import type { Matter } from "@dsar/schemas/matter";
