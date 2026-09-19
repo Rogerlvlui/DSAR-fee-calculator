@@ -136,7 +136,15 @@ describe("INTAKE — HR intake screen's server side", () => {
     // stored" half of this assertion is the body itself naming the
     // currency/jurisdiction mismatch as a validation issue, not a generic
     // 400.
-    const body = (await response.json()) as { issues?: { path: string[] }[] };
-    expect(body.issues?.some((issue) => issue.path.includes("currency"))).toBe(true);
+    const body = (await response.json()) as { issues?: { path: string[]; message: string }[] };
+    const currencyIssue = body.issues?.find((issue) => issue.path.includes("currency"));
+    expect(currencyIssue).toBeDefined();
+    // INTAKE-08: the message must name BOTH currency codes this test's own
+    // request body sent — the selected "HKD" and the SG jurisdiction's
+    // expected "SGD" — not merely that a "currency" field is implicated. A
+    // future edit to the schema's message template that silently dropped
+    // either literal code would fail this assertion.
+    expect(currencyIssue?.message).toContain("HKD");
+    expect(currencyIssue?.message).toContain("SGD");
   });
 });
