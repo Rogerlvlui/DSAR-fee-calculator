@@ -265,10 +265,19 @@ export interface BulkAcceptInput {
 // in the batch is written — a partially applied batch would leave the
 // lawyer with a screen that is half decided and no way to tell which half
 // (T-03.1-16).
+//
+// `pack` is an optional override for the same reason
+// listBulkAcceptableLineIds's own `pack` parameter is: the real committed
+// SG-PDPA pack has no VERIFIED rule at all, so the real pipeline can never
+// exercise a successful bulk-accept, and a unit test needs a fixture pack
+// with at least one VERIFIED rule to prove the audit-writing behavior
+// below. Every production call site (the bulk-accept route) omits this
+// argument and gets the real one.
 export async function bulkAcceptLines(
   actor: DemoActor,
   assessmentId: string,
-  input: BulkAcceptInput
+  input: BulkAcceptInput,
+  pack: ReturnType<typeof loadDemoPack> = loadDemoPack()
 ): Promise<AssessmentLine[]> {
   requireRole(actor, "LEGAL_REVIEWER");
 
@@ -283,7 +292,7 @@ export async function bulkAcceptLines(
     throw new ValidationError("At least one line id is required for bulk accept");
   }
 
-  const eligibleIds = new Set(listBulkAcceptableLineIds(assessment));
+  const eligibleIds = new Set(listBulkAcceptableLineIds(assessment, pack));
   for (const lineId of input.lineIds) {
     if (!eligibleIds.has(lineId)) {
       throw new ValidationError(`Line '${lineId}' is not eligible for bulk accept`);
@@ -294,6 +303,28 @@ export async function bulkAcceptLines(
   const updatedLines = applyBulkAcceptDisposition(assessment.lines, input.lineIds, input.reason, actor.user, now);
   const updatedAssessment: Assessment = { ...assessment, lines: updatedLines };
   await memoryAssessmentRepository.updateAssessment(updatedAssessment);
+
+  // One record per line in the batch, each with its own line id and its
+  // own prior disposition, all sharing a single elapsed reading taken once
+  // for the batch — the batch write above is already all-or-nothing, so
+  // these are only written after it succeeds.
+  const elapsed = elapsedReviewMs(assessment.id, now);
+  for (const lineId of input.lineIds) {
+    const priorLine = assessment.lines.find((candidate) => candidate.id === lineId);
+    await recordAuditEvent({
+      matterId: assessment.matterId,
+      actor,
+      type: "LINE_DISPOSITIONED",
+      payload: dispositionPayload({
+        lineId,
+        before: priorLine?.disposition ?? "PENDING",
+        after: "ACCEPTED",
+        elapsedReviewMs: elapsed,
+      }),
+      rulePackVersion: assessment.rulePackVersion,
+      engineVersion: assessment.engineVersion,
+    });
+  }
 
   return updatedLines.filter((line) => input.lineIds.includes(line.id));
 }

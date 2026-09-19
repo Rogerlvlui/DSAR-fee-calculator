@@ -18,7 +18,7 @@ import { POST as infoRequestRoute } from "../../apps/web/app/api/matters/[id]/in
 import { POST as resubmitRoute } from "../../apps/web/app/api/matters/[id]/resubmit/route.ts";
 import { POST as dispositionRoute } from "../../apps/web/app/api/assessment-lines/[id]/disposition/route.ts";
 import { DEMO_ROLE_COOKIE, DEMO_USERS } from "../../apps/web/src/server/data/auth.ts";
-import { getAssessmentForLegalReview } from "../../apps/web/src/server/data/assessments.ts";
+import { getAssessmentForLegalReview, bulkAcceptLines } from "../../apps/web/src/server/data/assessments.ts";
 import { memoryMatterRepository } from "../../apps/web/src/server/repositories/memory/matter-repository.ts";
 import { memoryAssessmentRepository } from "../../apps/web/src/server/repositories/memory/assessment-repository.ts";
 import { memoryAuditEventWriter } from "@dsar/audit/memory/audit-event-writer";
@@ -253,5 +253,63 @@ describe("AUDIT-TRAIL", () => {
 
     const events = await memoryAuditEventWriter.listByMatter(matter.id);
     expect(eventsOfType(events, "LINE_DISPOSITIONED")).toHaveLength(0);
+  });
+
+  it("AUDIT-TRAIL: accepting several lines at once writes one LINE_DISPOSITIONED record per line, each naming its own line id, sharing one elapsed figure", async () => {
+    // The real committed SG-PDPA pack has no VERIFIED rule at all, so the
+    // real pipeline can never produce a bulk-accept-eligible line
+    // (tests/routes/disposition.test.ts's own BULK-ACCEPT suite already
+    // documents this). bulkAcceptLines's optional `pack` override (added
+    // this plan, mirroring listBulkAcceptableLineIds's existing one) is
+    // what makes this provable — every production call site still omits it.
+    const matterResponse = await createMatterRoute(
+      jsonRequest(MATTERS_URL, "POST", { ...VALID_MATTER_INPUT_BASE, reference: nextReference() })
+    );
+    const matter = (await matterResponse.json()) as { id: string };
+    for (const input of [ONE_LINE_INPUT, { ...ONE_LINE_INPUT, categoryCode: "PHOTOCOPY_PRINT", unit: "PAGE" }]) {
+      const lineResponse = await addLineRoute(jsonRequest(`${MATTERS_URL}/${matter.id}/lines`, "POST", input), {
+        params: Promise.resolve({ id: matter.id }),
+      });
+      expect(lineResponse.status).toBe(201);
+    }
+    const submitResponse = await submitRoute(jsonRequest(`${MATTERS_URL}/${matter.id}/submit`, "POST", {}), {
+      params: Promise.resolve({ id: matter.id }),
+    });
+    expect(submitResponse.status).toBe(200);
+    const assessment = (await submitResponse.json()) as FixtureAssessment;
+
+    const stored = await memoryAssessmentRepository.getAssessment(assessment.id);
+    if (!stored) throw new Error("expected the fixture assessment to be stored");
+    const patchedLines = stored.lines.map((line) => ({
+      ...line,
+      verdict: "ALLOW" as const,
+      disposition: "PENDING" as const,
+      appliedRuleId: "TEST.VERIFIED_RULE",
+    }));
+    await memoryAssessmentRepository.updateAssessment({ ...stored, lines: patchedLines });
+    const eligibleLineIds = patchedLines.map((line) => line.id);
+
+    const fixturePack = {
+      categoryRules: [{ ruleId: "TEST.VERIFIED_RULE", verificationStatus: "VERIFIED" }],
+    } as unknown as Parameters<typeof bulkAcceptLines>[3];
+
+    const updated = await bulkAcceptLines(
+      DEMO_USERS.LEGAL_REVIEWER,
+      assessment.id,
+      { lineIds: eligibleLineIds, reason: "Sighted the vendor invoice separately and it checks out." },
+      fixturePack
+    );
+    expect(updated).toHaveLength(2);
+
+    const events = await memoryAuditEventWriter.listByMatter(matter.id);
+    const dispositioned = eventsOfType(events, "LINE_DISPOSITIONED");
+    expect(dispositioned).toHaveLength(2);
+    expect(dispositioned.map((event) => event.payload.entityId).sort()).toEqual([...eligibleLineIds].sort());
+    for (const event of dispositioned) {
+      expect(event.payload.before).toBe("PENDING");
+      expect(event.payload.after).toBe("ACCEPTED");
+    }
+    // A single elapsed reading is taken once for the whole batch.
+    expect(dispositioned[0]!.payload.elapsedReviewMs).toBe(dispositioned[1]!.payload.elapsedReviewMs);
   });
 });
