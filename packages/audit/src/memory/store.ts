@@ -8,12 +8,22 @@
 // happened. The monotonic id counter lives in the SAME anchored object as
 // the events, so a refresh cannot reset the counter while keeping the
 // events.
+//
+// The pack-lifecycle collection (plan 04-03) lives inside this SAME
+// globalThis-anchored object, alongside the matter-scoped one, for the
+// identical reason — a refresh must not be able to reset one stream's
+// counter while leaving the other's events in place. It is a genuinely
+// separate Map with its own monotonic counter (D-21: a pack-lifecycle event
+// has no matter to key from), never merged into `events`.
 
 import type { AuditEvent } from "@dsar/schemas/audit-event";
+import type { PackLifecycleEvent } from "../interface.ts";
 
 interface AuditStore {
   events: Map<string, AuditEvent>;
   nextId: number;
+  packLifecycleEvents: Map<string, PackLifecycleEvent>;
+  nextPackLifecycleId: number;
 }
 
 declare global {
@@ -26,4 +36,6 @@ export const auditStore: AuditStore =
   (globalThis.__dsarAuditStore = {
     events: new Map(),
     nextId: 1,
+    packLifecycleEvents: new Map(),
+    nextPackLifecycleId: 1,
   });

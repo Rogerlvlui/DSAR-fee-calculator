@@ -60,3 +60,22 @@ export function informationRequestPayload(args: InformationRequestPayloadArgs): 
     after: args.query,
   };
 }
+
+// Plan 04-03's two pack-lifecycle builders. Both return the same frozen
+// AuditPayload type as every builder above — the pack-lifecycle stream
+// (packages/audit/src/memory/pack-lifecycle-event-writer.ts) validates
+// against this identical schema, never a second one, so a sixth key fails
+// the type check here before it could ever reach a runtime rejection.
+
+// A pack activation's changed field is the pack's own lifecycle status
+// (e.g. "draft" -> "active"), carried as the before/after pair.
+export function packActivatedPayload(before: string, after: string): AuditPayload {
+  return { field: "status", before, after };
+}
+
+// A pack edit names the field that changed on the pack; it carries no
+// before/after pair of its own — the edited value lives in the pack's own
+// versioned JSON, not duplicated into the audit payload.
+export function packEditedPayload(field: string): AuditPayload {
+  return { field };
+}
