@@ -20,6 +20,7 @@ import type { InfoRequest } from "../../domain/info-request.ts";
 import { buildGuardInput } from "../guard-input.ts";
 import { recordAuditEvent } from "../audit-trail.ts";
 import { evaluateTransition } from "@dsar/workflow/evaluate-transition";
+import { INITIAL_MATTER_STATUS } from "@dsar/workflow/transitions";
 import { transitionPayload } from "@dsar/audit/payload-builders";
 import { ENGINE_VERSION } from "@dsar/engine";
 
@@ -38,6 +39,12 @@ export interface CreateMatterInput {
   isKnownDisputeOrLitigation: boolean;
 }
 
+// A newly created matter has no transition INTO it — evaluateTransition
+// has nothing to say about a matter's birth status, only about moving an
+// existing one. INITIAL_MATTER_STATUS is the single named constant the
+// package that owns every status value exports for exactly this case, so
+// this is the one honest expression of "no guard applies here," not an
+// exception carved into the lint rule below.
 export async function createMatter(actor: DemoActor, input: CreateMatterInput): Promise<Matter> {
   requireRole(actor, "HR_PREPARER");
 
@@ -55,7 +62,7 @@ export async function createMatter(actor: DemoActor, input: CreateMatterInput): 
     scopeClarified: input.scopeClarified,
     isRepeatRequestWithin12Months: input.isRepeatRequestWithin12Months,
     isKnownDisputeOrLitigation: input.isKnownDisputeOrLitigation,
-    status: "DRAFT",
+    status: INITIAL_MATTER_STATUS,
     createdBy: actor.user,
     createdAt: new Date().toISOString(),
   });
