@@ -17,7 +17,7 @@
 // what the lawyer reads here is never a second, drifting computation.
 
 import type { ReactNode } from "react";
-import { deriveEffectiveStatus } from "@dsar/rulepacks/stale";
+import { deriveEffectiveStatus, daysUntilReviewDue } from "@dsar/rulepacks/stale";
 import { getCurrentActor } from "../../../../src/server/current-actor.ts";
 import { getAssessmentForLegalReview, listBulkAcceptableLineIds } from "../../../../src/server/data/assessments.ts";
 import { loadDemoPack } from "../../../../src/server/engine-invocation.ts";
@@ -58,13 +58,13 @@ export default async function LegalAssessmentPage({
   const reviewView = buildReviewView(assessment, matter, expenseLines);
   const eligibleLineIds = listBulkAcceptableLineIds(assessment);
 
+  const now = new Date().toISOString();
   const pendingCount = assessment.lines.filter((line) => line.disposition === "PENDING").length;
   let signOffPanel: ReactNode = null;
   if (pendingCount === 0) {
     const tallies = computeReviewTallies(assessment.lines);
     const finalAmount = computeFinalAmount(assessment.lines);
     const flagsRequiringAck = assessment.matterLevelFlags.filter((flag) => flag.requiresAcknowledgement);
-    const now = new Date().toISOString();
     const packIsStale = deriveEffectiveStatus(pack, now) === "STALE";
     const attestationText = renderAttestation({
       jurisdiction: pack.jurisdiction.name,
@@ -98,6 +98,8 @@ export default async function LegalAssessmentPage({
         packStatus={pack.status}
         authoredByDisplayName={pack.authoredBy?.displayName ?? null}
         reviewedByDisplayName={pack.reviewedBy?.displayName ?? null}
+        reviewedOn={pack.reviewedOn}
+        daysUntilReviewDue={daysUntilReviewDue(pack, now)}
       />
       <AssessmentView
         assessment={assessment}
