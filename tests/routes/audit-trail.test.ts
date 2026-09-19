@@ -130,7 +130,22 @@ describe("AUDIT-TRAIL", () => {
     // the SUBMIT guard does not check controllerType (only the engine's own
     // precondition does), so this passes the guard and fails inside
     // assessMatter() itself, exercising the real rollback path.
-    const matter = await createMatterWithOneLine({ controllerType: "PUBLIC_AGENCY" });
+    //
+    // The matter is created and its one line added as PRIVATE_ORGANISATION,
+    // then mutated to PUBLIC_AGENCY directly on the repository (the same
+    // post-creation-mutation technique this file's own info-request/
+    // recompute rollback tests below already use) — not via
+    // createMatterWithOneLine's controllerType override — because
+    // 05-REVIEW-ADDENDUM.md's security-finding fix now rejects adding a
+    // cost line to a PUBLIC_AGENCY matter in SG at the API layer
+    // (NO_EXPRESS_AUTHORITY is a blocking posture). Reaching the engine's
+    // own appliesTo precondition failure this test exercises therefore
+    // requires the controller type to change AFTER the line already
+    // exists, exactly as the parallel resubmit/recompute rollback tests do.
+    const matter = await createMatterWithOneLine();
+    const draftMatter = await memoryMatterRepository.getMatter(matter.id);
+    if (!draftMatter) throw new Error("expected matter to exist");
+    await memoryMatterRepository.updateMatter({ ...draftMatter, controllerType: "PUBLIC_AGENCY" });
 
     const submitResponse = await submitRoute(jsonRequest(`${MATTERS_URL}/${matter.id}/submit`, "POST", {}), {
       params: Promise.resolve({ id: matter.id }),

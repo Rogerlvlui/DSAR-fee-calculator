@@ -9,9 +9,11 @@ import "../server-only.ts";
 import { MatterSchema, type Matter } from "@dsar/schemas/matter";
 import { ExpenseLineSchema, type ExpenseLine } from "@dsar/schemas/expense-line";
 import type { Assessment } from "@dsar/schemas/assessment";
+import type { FeePosture } from "@dsar/schemas/rule-pack";
 import { newUlid } from "../ids.ts";
 import { assessMatter, coercePackForDemoEngine, loadDemoPack } from "../engine-invocation.ts";
 import { recomputeAssessment } from "../recompute.ts";
+import { buildJurisdictionPackViews } from "../jurisdiction-packs.ts";
 import { ConflictError, NotFoundError, ValidationError } from "../errors.ts";
 import { requireRole, type DemoActor } from "./auth.ts";
 import { memoryMatterRepository } from "../repositories/memory/matter-repository.ts";
@@ -30,6 +32,44 @@ import {
 } from "@dsar/audit/payload-builders";
 import type { Json } from "@dsar/schemas/primitives";
 import { ENGINE_VERSION } from "@dsar/engine";
+
+// Added post-plan (05-REVIEW-ADDENDUM.md security finding, low severity):
+// mirrors apps/web/src/ui/intake/matter-details-fields.tsx's
+// canOfferExpenseEntry predicate — the client-side gate deciding whether HR
+// is even offered the expense-line repeater — as a server-side
+// precondition. That predicate was previously enforced client-side only:
+// a direct POST to /api/matters/[id]/lines bypassing the UI could still add
+// a cost line to a matter whose jurisdiction has no usable rule pack, a
+// STALE pack, or a heads-up posture (NO_EXPRESS_AUTHORITY/PROHIBITED),
+// regardless of how the UI would have gated it. Duplicated rather than
+// imported: this module is server-only data-layer code and must not depend
+// on a "use client" UI module (apps/web/src/ui is a one-way dependency onto
+// apps/web/src/server, never the reverse — the no-server-imports-in-ui
+// dependency-cruiser rule is the build-time half of that boundary).
+//
+// Severity was assessed as low even before this fix: Phase 2's engine
+// posture gate (ENGINE-03) already forces any such line to DISALLOW/FLAG
+// with zero draft baseline regardless of how it arrived, so no money-
+// integrity violation could result — but it was still real unregistered
+// attack surface (a line could exist on the matter at all, be visible to
+// Legal pre-assessment, and generate an audit LINE_ADDED event for a claim
+// the pack already says cannot be charged).
+const BLOCKING_FEE_POSTURES = new Set<FeePosture>(["NO_EXPRESS_AUTHORITY", "PROHIBITED"]);
+
+function assertJurisdictionAllowsExpenseEntry(matter: Matter): void {
+  const jurisdictionPack = buildJurisdictionPackViews(new Date().toISOString())[matter.jurisdictionCode];
+  if (jurisdictionPack.displayStatus === "NO_USABLE_PACK" || jurisdictionPack.displayStatus === "STALE") {
+    throw new ConflictError(
+      `Matter '${matter.id}' — jurisdiction '${matter.jurisdictionCode}' has no usable rule pack; cost lines cannot be added`
+    );
+  }
+  const posture = jurisdictionPack.feePosture?.[matter.controllerType];
+  if (posture && BLOCKING_FEE_POSTURES.has(posture)) {
+    throw new ConflictError(
+      `Matter '${matter.id}' — jurisdiction '${matter.jurisdictionCode}' does not currently permit charging a fee for controller type '${matter.controllerType}'; cost lines cannot be added`
+    );
+  }
+}
 
 // A snapshot of the fields that actually build a claim, shared by the
 // LINE_ADDED/LINE_EDITED/LINE_DELETED audit records below — see
@@ -135,6 +175,7 @@ export async function addExpenseLine(
 
   const matter = await memoryMatterRepository.getMatter(matterId);
   if (!matter) throw new NotFoundError(`No matter with id '${matterId}'`);
+  assertJurisdictionAllowsExpenseEntry(matter);
 
   const existingLines = await memoryMatterRepository.listExpenseLines(matterId);
 
