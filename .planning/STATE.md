@@ -1,19 +1,19 @@
 ---
 gsd_state_version: "1.0"
-current_phase: "03.2"
-current_phase_name: Database Boundary and Audit Immutability
-status: planning
-stopped_at: Phase 3.1 complete, ready to plan Phase 03.2
-last_updated: "2026-09-19T00:21:19.369Z"
+current_phase: "04"
+current_phase_name: Workflow and Audit Backbone
+status: executing
+stopped_at: Completed 04-01-PLAN.md (tracer) — ready for 04-02
+last_updated: "2026-09-19T01:50:00.000Z"
 last_activity: 2026-09-19
-last_activity_desc: Phase 3.1 complete, transitioned to Phase 03.2
-state_head: 181fd8c022fe6751ad4acee76f740eee2b67e505
+last_activity_desc: Phase 04 Plan 01 (tracer) complete — packages/workflow and packages/audit stood up, one submission transition guarded and audited end to end
+state_head: d774acb
 progress:
   total_phases: 10
   completed_phases: 1
-  total_plans: 26
-  completed_plans: 23
-  percent: 10
+  total_plans: 31
+  completed_plans: 24
+  percent: 77
 ---
 
 # Project State
@@ -23,22 +23,22 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-13)
 
 **Core value:** A lawyer can defend the output by saying "the engine applied rule HK-PDPO.STAFF_TIME_REDACT_EXEMPT, version 2026.09.1, authored by X on date Y, and struck the line" — never "the model assessed the claim."
-**Current focus:** Phase 03.1 — Demo Slice — In-Memory Determination Pipeline (complete; next: phase verification, then Phase 03.2)
+**Current focus:** Phase 04 — Workflow and Audit Backbone (Plan 01/5 complete — tracer proven; 03.2 Database Boundary remains separately planned, runs concurrently per ROADMAP.md)
 
 ## Current Position
 
-Phase: 03.2 — Database Boundary and Audit Immutability
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-09-19 — Phase 3.1 complete, transitioned to Phase 03.2
+Phase: 04 — Workflow and Audit Backbone
+Plan: 01/5 complete
+Status: In progress — ready to plan/execute 04-02
+Last activity: 2026-09-19 — 04-01 (tracer) complete: `packages/workflow` and `packages/audit` stood up, `submitForAssessment` converted, full suite green (635/635)
 
-Progress: [█░░░░░░░░░] 10%
+Progress: [████████░░] 77%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 23
+- Total plans completed: 24
 - Average duration: —
 - Total execution time: —
 
@@ -51,6 +51,7 @@ Progress: [█░░░░░░░░░] 10%
 | 3 | 5 | - | - |
 | 03.1 | 5/5 | - | - |
 | 3.1 | 5 | - | - |
+| 04 | 1/5 | - | - |
 
 **Recent Trend:**
 
@@ -85,6 +86,7 @@ Progress: [█░░░░░░░░░] 10%
 | Phase 03.1 P03 | 55min | 3 tasks | 26 files |
 | Phase 03.1 P04 | 75min | 3 tasks | 26 files |
 | Phase 03.1 P05 | 90min | 3 tasks | 15 files |
+| Phase 04 P01 | 40min | 3 tasks | 23 files |
 
 ## Accumulated Context
 
@@ -163,6 +165,10 @@ Recent decisions affecting current work:
 - [Phase 03.1]: [Phase 03.1 P05]: the totals-rail headline does not track the lawyer's live dispositions before sign-off — it shows draftBaseline as a placeholder until signOff() writes finalAmount; documented explicitly in docs/DEMO-WALKTHROUGH.md rather than asserting the wrong figure
 - [Phase 03.1]: [Phase 03.1 P05]: @dsar/rulepacks added to the ROOT package.json (previously only an apps/web dependency) — a repo-root-level test file importing @dsar/rulepacks/validate directly cannot resolve it through apps/web's own node_modules symlink
 - [Phase 03.1]: [Phase 03.1 P05]: the layout-marker-position honesty assertion runs under the node "routes" Vitest project, not the jsdom "web" one — rendering the real root layout under jsdom trips apps/web/src/server/server-only.ts's window-guard exactly as designed
+- [Phase 04]: [Phase 04 P01]: GuardInput's "past its review date" condition reads pack.status === "STALE" (already downgraded upstream by the rulepacks loader's deriveEffectiveStatus) rather than the guard computing staleness from a clock — GuardInput's frozen 11-member shape has no `now` field, and packages/workflow must stay pure
+- [Phase 04]: [Phase 04 P01]: submitForAssessment's two pre-existing 03.1 ValidationError checks (DRAFT-only, at-least-one-line) were left untouched; only the literal assertTransition(matter.status, "COMPUTING") stand-in call was replaced by the guarded executor — removing the pre-existing checks would flip the zero-line case's response from 400 to 409, breaking the already-passing, must-survive-unchanged PIPELINE-tagged demo-pipeline.test.ts
+- [Phase 04]: [Phase 04 P01]: @dsar/engine added to the ROOT package.json (previously only apps/web and packages/rulepacks depended on it) — a repo-root-level test file importing @dsar/engine's ENGINE_VERSION directly cannot resolve it through apps/web's own node_modules symlink, same fix as 03.1-05's @dsar/rulepacks addition
+- [Phase 04]: [Phase 04 P01]: packages/audit's PackLifecycleEventWriter interface declared but not implemented (04-03's job); the real pack-activation write path stays Phase 3.2's (PACK-07) — this plan does not discharge either half
 
 ### Pending Todos
 
@@ -182,6 +188,8 @@ None yet.
 - **`pnpm dev`/`next build` currently fail** — discovered via a voluntary smoke test during 03.1-01, recorded as WINDOWS.md ledger entries 2 and 3 (open_count is 2, not 0): (1) `packages/rulepacks/src/loader.ts`'s `RULEPACKS_ROOT` throws under Turbopack's page-data collection (`import.meta.dirname` undefined there) — a frozen Phase 3 file, out of 03.1-01's scope, needs a product-owner decision; (2) no `@tailwindcss/postcss` plugin is registered anywhere, so `apps/web/app/globals.css`'s `@theme` block is inert in a real build — fixing this needs a new package install, which requires its own package-legitimacy checkpoint (like Task 0's ulid one) before any later plan runs `pnpm add @tailwindcss/postcss`. **Resolve both before Plan 03.1-02 starts** — otherwise every subsequent plan's UI work accumulates on a stylesheet Tailwind isn't processing, and the actual stakeholder demo cannot run.
 - ~~SignOffPanel (03.1-04) is not yet rendered on the legal review page, and disposition-controls.tsx's Ask HR button stays hardcoded disabled~~ — **resolved in Plan 03.1-05** (WINDOWS.md entries 5-6 marked fixed): both are now wired into the actual legal review page.
 - Phase 03.1 is now complete (5/5 plans) but its manual click-through row (03.1-VALIDATION.md's 05-manual) has never actually been run — `pnpm dev`/`next build` still cannot start on this build machine (WINDOWS.md entries 2-4, still open). A product-owner decision on the frozen Phase 3 `RULEPACKS_ROOT`/Turbopack issue and the Tailwind/Lightning-CSS native-binary crash is the prerequisite before that one manual row can move from "not run" to genuinely verified.
+- Phase 04's 04-01 (tracer) is complete, but STATE-02/AUDIT-01/AUDIT-03/BOUND-05 remain only partly discharged (one of nine transition rows converted; matter-scoped writer only, pack-lifecycle writer declared not implemented; elapsed-review clock built but not yet wired to a real disposition/sign-off call site) — REQUIREMENTS.md correctly still shows all four Pending, per this plan's own explicit assumption that no requirement is marked complete by 04-01.
+- gsd-tools.cjs remains unavailable in this worktree during 04-01 execution (same recurring gap as 03-03/03-04/03.1) — STATE.md/ROADMAP.md updated manually again this plan.
 
 ### Roadmap Evolution
 
@@ -197,6 +205,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-09-18T18:00:00.000Z
-Stopped at: Phase 3.1 complete, ready to plan Phase 03.2
+Last session: 2026-09-19T01:50:00.000Z
+Stopped at: Completed 04-01-PLAN.md (tracer) — packages/workflow and packages/audit stood up, submitForAssessment converted, full suite green (635/635)
 Resume file: None
