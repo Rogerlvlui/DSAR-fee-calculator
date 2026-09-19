@@ -12,7 +12,9 @@ import { memoryMatterRepository } from "../repositories/memory/matter-repository
 import { loadDemoPack } from "../engine-invocation.ts";
 import { assertTransition } from "../state.ts";
 import { newUlid } from "../ids.ts";
-import { recordAssessmentOpened } from "@dsar/audit/review-session";
+import { elapsedReviewMs, recordAssessmentOpened } from "@dsar/audit/review-session";
+import { dispositionPayload } from "@dsar/audit/payload-builders";
+import { recordAuditEvent } from "../audit-trail.ts";
 import {
   hasSufficientReason,
   isActionPermitted,
@@ -166,6 +168,7 @@ export async function dispositionLine(
     }
   }
 
+  const priorDisposition = line.disposition;
   const updatedLine: AssessmentLine = {
     ...line,
     disposition,
@@ -181,6 +184,25 @@ export async function dispositionLine(
   };
 
   await memoryAssessmentRepository.updateAssessment(updatedAssessment);
+
+  // Only after the write succeeds — a refusal writes no state, so it must
+  // write no record either, or the log would read as a decision that did
+  // not happen.
+  const now = new Date().toISOString();
+  await recordAuditEvent({
+    matterId: assessment.matterId,
+    actor,
+    type: "LINE_DISPOSITIONED",
+    payload: dispositionPayload({
+      lineId: updatedLine.id,
+      before: priorDisposition,
+      after: updatedLine.disposition,
+      elapsedReviewMs: elapsedReviewMs(assessment.id, now),
+    }),
+    rulePackVersion: assessment.rulePackVersion,
+    engineVersion: assessment.engineVersion,
+  });
+
   return updatedLine;
 }
 

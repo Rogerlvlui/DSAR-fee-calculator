@@ -16,6 +16,7 @@ import { POST as addLineRoute } from "../../apps/web/app/api/matters/[id]/lines/
 import { POST as submitRoute } from "../../apps/web/app/api/matters/[id]/submit/route.ts";
 import { POST as infoRequestRoute } from "../../apps/web/app/api/matters/[id]/info-request/route.ts";
 import { POST as resubmitRoute } from "../../apps/web/app/api/matters/[id]/resubmit/route.ts";
+import { POST as dispositionRoute } from "../../apps/web/app/api/assessment-lines/[id]/disposition/route.ts";
 import { DEMO_ROLE_COOKIE, DEMO_USERS } from "../../apps/web/src/server/data/auth.ts";
 import { getAssessmentForLegalReview } from "../../apps/web/src/server/data/assessments.ts";
 import { memoryMatterRepository } from "../../apps/web/src/server/repositories/memory/matter-repository.ts";
@@ -197,5 +198,60 @@ describe("AUDIT-TRAIL", () => {
     await getAssessmentForLegalReview(DEMO_USERS.LEGAL_REVIEWER, assessment.id);
     const elapsed = elapsedReviewMs(assessment.id, new Date().toISOString());
     expect(elapsed).toBeGreaterThanOrEqual(15);
+  });
+
+  it("AUDIT-TRAIL: dispositioning a line writes exactly one LINE_DISPOSITIONED record carrying the line id, the prior and new disposition, and a non-negative integer elapsed figure", async () => {
+    const matter = await createMatterWithOneLine();
+    const submitResponse = await submitRoute(jsonRequest(`${MATTERS_URL}/${matter.id}/submit`, "POST", {}), {
+      params: Promise.resolve({ id: matter.id }),
+    });
+    const assessment = (await submitResponse.json()) as FixtureAssessment;
+    const line = assessment.lines[0]!;
+
+    // The single-line fixture's one line always FLAGs on cross-line
+    // materiality (it is 100% of the claim) — STRIKE, not ACCEPT, is the
+    // permitted action for a FLAG-verdict line (VERDICT_ACTIONS).
+    const dispositionResponse = await dispositionRoute(
+      jsonRequest(
+        `http://localhost/api/assessment-lines/${line.id}/disposition`,
+        "POST",
+        { action: "STRIKE", reason: "Sighted the underlying records and it checks out." },
+        LEGAL_COOKIE
+      ),
+      { params: Promise.resolve({ id: line.id }) }
+    );
+    expect(dispositionResponse.status).toBe(200);
+
+    const events = await memoryAuditEventWriter.listByMatter(matter.id);
+    const dispositioned = eventsOfType(events, "LINE_DISPOSITIONED");
+    expect(dispositioned).toHaveLength(1);
+    expect(dispositioned[0]!.payload.entityId).toBe(line.id);
+    expect(dispositioned[0]!.payload.before).toBe("PENDING");
+    expect(dispositioned[0]!.payload.after).toBe("STRUCK");
+    expect(Number.isInteger(dispositioned[0]!.payload.elapsedReviewMs)).toBe(true);
+    expect(dispositioned[0]!.payload.elapsedReviewMs).toBeGreaterThanOrEqual(0);
+  });
+
+  it("AUDIT-TRAIL: a refused disposition writes no record at all", async () => {
+    const matter = await createMatterWithOneLine();
+    const submitResponse = await submitRoute(jsonRequest(`${MATTERS_URL}/${matter.id}/submit`, "POST", {}), {
+      params: Promise.resolve({ id: matter.id }),
+    });
+    const assessment = (await submitResponse.json()) as FixtureAssessment;
+    const line = assessment.lines[0]!;
+
+    const dispositionResponse = await dispositionRoute(
+      jsonRequest(
+        `http://localhost/api/assessment-lines/${line.id}/disposition`,
+        "POST",
+        { action: "STRIKE", reason: "too short" },
+        LEGAL_COOKIE
+      ),
+      { params: Promise.resolve({ id: line.id }) }
+    );
+    expect(dispositionResponse.status).toBe(400);
+
+    const events = await memoryAuditEventWriter.listByMatter(matter.id);
+    expect(eventsOfType(events, "LINE_DISPOSITIONED")).toHaveLength(0);
   });
 });
