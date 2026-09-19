@@ -682,6 +682,22 @@ export function getNoticeSentAt(matterId: string): string | null {
   return noticeSentAtByMatterId.get(matterId) ?? null;
 }
 
+// Added post-plan (04-REVIEW.md WR-02, the same UNREG-1 pattern
+// 03.1-REVIEW.md's security audit already required a fix for on the legal
+// worklist page): the HR result page originally called
+// memoryMatterRepository.listExpenseLines() directly, with no role check
+// anywhere on that specific line. It was not currently exploitable — the
+// two preceding calls on that page's request path already gate every other
+// role first — but that safety depended entirely on statement order in a
+// page component, not on this read being gated itself, and a future
+// reorder or an added early-return branch could silently reopen it. Every
+// other read and write in this codebase goes through a requireRole()-gated
+// function in src/server/data/*; this closes the one remaining exception.
+export async function getExpenseLinesForHr(actor: DemoActor, matterId: string): Promise<ExpenseLine[]> {
+  requireRole(actor, "HR_PREPARER");
+  return memoryMatterRepository.listExpenseLines(matterId);
+}
+
 export interface ReviewableMatterView {
   matter: Matter;
   assessmentId: string;

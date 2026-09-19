@@ -19,7 +19,7 @@ import { POST as dispositionRoute } from "../../apps/web/app/api/assessment-line
 import { POST as signoffRoute } from "../../apps/web/app/api/assessments/[id]/signoff/route.ts";
 import { POST as noticeSentRoute } from "../../apps/web/app/api/matters/[id]/notice-sent/route.ts";
 import { DEMO_ROLE_COOKIE, DEMO_USERS } from "../../apps/web/src/server/data/auth.ts";
-import { getHrMatterStatus } from "../../apps/web/src/server/data/matters.ts";
+import { getExpenseLinesForHr, getHrMatterStatus } from "../../apps/web/src/server/data/matters.ts";
 import { getSignedOffAssessmentForHr } from "../../apps/web/src/server/data/assessments.ts";
 
 const MATTERS_URL = "http://localhost/api/matters";
@@ -187,6 +187,20 @@ describe("HR-RESULT", () => {
     const assessment = await buildFixtureMatterAndAssessment();
 
     await expect(getSignedOffAssessmentForHr(DEMO_USERS.HR_PREPARER, assessment.matterId)).rejects.toThrow();
+  });
+
+  // 04-REVIEW.md WR-02: the page previously read expense lines straight off
+  // the repository, with no role check anywhere on that specific call — the
+  // same class of gap 03.1-REVIEW.md's UNREG-1 already required a fix for on
+  // the legal worklist page. getExpenseLinesForHr() closes it the same way
+  // every other HR-facing read in this file does.
+  it("HR-RESULT: getExpenseLinesForHr requires the HR-preparer role, same as every other HR-facing read", async () => {
+    const assessment = await buildFixtureMatterAndAssessment();
+
+    await expect(getExpenseLinesForHr(DEMO_USERS.LEGAL_REVIEWER, assessment.matterId)).rejects.toThrow();
+
+    const lines = await getExpenseLinesForHr(DEMO_USERS.HR_PREPARER, assessment.matterId);
+    expect(lines.length).toBeGreaterThan(0);
   });
 
   it("HR-RESULT: marking the notice sent is refused for a matter that is not signed off", async () => {

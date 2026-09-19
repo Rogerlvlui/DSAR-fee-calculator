@@ -13,9 +13,8 @@
 // view + notice draft).
 
 import { getCurrentActor } from "../../../../src/server/current-actor.ts";
-import { getHrMatterStatus, getNoticeSentAt } from "../../../../src/server/data/matters.ts";
+import { getExpenseLinesForHr, getHrMatterStatus, getNoticeSentAt } from "../../../../src/server/data/matters.ts";
 import { getSignedOffAssessmentForHr } from "../../../../src/server/data/assessments.ts";
-import { memoryMatterRepository } from "../../../../src/server/repositories/memory/matter-repository.ts";
 import { loadDemoPack } from "../../../../src/server/engine-invocation.ts";
 import { EXPENSE_CATEGORY_LABELS } from "@dsar/schemas/taxonomy";
 import type { Minor } from "@dsar/schemas/primitives";
@@ -62,7 +61,7 @@ export default async function HrMatterPage({ params }: { params: Promise<{ id: s
   }
 
   const assessment = await getSignedOffAssessmentForHr(actor, id);
-  const expenseLines = await memoryMatterRepository.listExpenseLines(id);
+  const expenseLines = await getExpenseLinesForHr(actor, id);
   const expenseLineById = new Map(expenseLines.map((line) => [line.id, line]));
 
   const resultLines: ResultViewLine[] = assessment.lines.map((line) => {
