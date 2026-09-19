@@ -111,4 +111,14 @@ describe("MATTER-DETAILS: canOfferExpenseEntry", () => {
   it("MATTER-DETAILS: true for a usable pack with a permitted posture", () => {
     expect(canOfferExpenseEntry(pack(), "PRIVATE_ORGANISATION")).toBe(true);
   });
+
+  // 05-REVIEW-ADDENDUM.md WR-01: canOfferExpenseEntry previously fell
+  // through to `true` for a STALE pack even though
+  // jurisdictionStatusLabel() renders "New matters in this jurisdiction
+  // cannot be submitted" for that exact state — currently latent (no
+  // committed pack is ever STALE yet), proven directly here with a
+  // hand-built STALE fixture rather than waiting on a real stale pack.
+  it("MATTER-DETAILS: false when displayStatus is STALE, even with an otherwise permitted posture (WR-01)", () => {
+    expect(canOfferExpenseEntry(pack({ displayStatus: "STALE" }), "PRIVATE_ORGANISATION")).toBe(false);
+  });
 });

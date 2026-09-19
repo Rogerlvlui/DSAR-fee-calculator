@@ -70,6 +70,14 @@ const HEADS_UP_POSTURES = new Set<FeePosture>(["NO_EXPRESS_AUTHORITY", "PROHIBIT
 
 interface DisabledReasonInput {
   matterDetailsValid: boolean;
+  // Optional, defaulting to true (usable) — WR-01 (05-REVIEW-ADDENDUM.md):
+  // the caller passes canOfferExpenseEntry(jurisdictionPack, controllerType)
+  // here so a STALE (or otherwise unusable) pack disables Submit the same
+  // way it already hides the expense-line repeater, rather than only
+  // surfacing as the unhelpful generic "Add at least one cost line." once
+  // the repeater silently disappears. Optional so existing call sites that
+  // never resolved a jurisdiction pack are unaffected.
+  canOfferExpenseEntry?: boolean;
   identityVerified: boolean;
   scopeClarified: boolean;
   lines: readonly { categoryCode: ExpenseCategoryCode; description: string; quantity: number; rateMajor: string }[];
@@ -78,12 +86,15 @@ interface DisabledReasonInput {
 /**
  * Names the specific unmet condition rather than a generic sentence — a
  * disabled button with no visible reason is a dead end (PRD §10.2). Checked
- * in order: matter details, then attestations, then at-least-one-line,
- * then per-line validity.
+ * in order: matter details, then the jurisdiction's usability for cost
+ * entry, then attestations, then at-least-one-line, then per-line validity.
  */
 export function computeIntakeDisabledReason(input: DisabledReasonInput): string | null {
   if (!input.matterDetailsValid) {
     return "Complete the required matter details above.";
+  }
+  if (input.canOfferExpenseEntry === false) {
+    return "This jurisdiction's rule pack does not currently permit new cost entries for this claim.";
   }
   if (!input.identityVerified) {
     return "Confirm the requestor's identity has been verified.";
@@ -147,6 +158,7 @@ export function IntakeForm({ packsByJurisdiction, defaultReference }: IntakeForm
 
   const disabledReason = computeIntakeDisabledReason({
     matterDetailsValid,
+    canOfferExpenseEntry: canOfferExpenseEntry(currentJurisdictionPack, matterDetails.controllerType),
     identityVerified: attestations.identityVerified,
     scopeClarified: attestations.scopeClarified,
     lines,

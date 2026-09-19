@@ -99,13 +99,18 @@ function jurisdictionStatusLabel(jurisdictionPack: MatterDetailsJurisdictionPack
 }
 
 /** The gating predicate `intake-form.tsx` uses to decide whether to render
- * the expense-line repeater — false when there is no usable pack at all, or
- * when the resolved posture is one of the two heads-up postures. */
+ * the expense-line repeater — false when there is no usable pack at all,
+ * when the pack is STALE (past its review date — `jurisdictionStatusLabel()`
+ * above renders "New matters in this jurisdiction cannot be submitted" for
+ * exactly this state, so the repeater must not be offered either; WR-01,
+ * currently latent since no committed pack is ever STALE yet, but a real
+ * gap), or when the resolved posture is one of the two heads-up postures. */
 export function canOfferExpenseEntry(
   jurisdictionPack: MatterDetailsJurisdictionPack,
   controllerType: ControllerType
 ): boolean {
   if (jurisdictionPack.displayStatus === "NO_USABLE_PACK") return false;
+  if (jurisdictionPack.displayStatus === "STALE") return false;
   const posture = jurisdictionPack.feePosture?.[controllerType];
   if (posture && HEADS_UP_POSTURES.has(posture)) return false;
   return true;

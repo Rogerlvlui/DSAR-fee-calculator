@@ -138,6 +138,18 @@ describe("INTAKE-FORM: expense-entry gating (real per-jurisdiction posture)", ()
     expect(html).not.toContain('data-testid="expense-line-repeater"');
   });
 
+  // 05-REVIEW-ADDENDUM.md WR-01: STALE was not gated even though its own
+  // copy says new matters cannot be submitted in that jurisdiction.
+  it("INTAKE-FORM: does NOT render ExpenseLineRepeater when the current jurisdiction's displayStatus is STALE (WR-01)", () => {
+    const packsByJurisdiction = packsByJurisdictionFixture({
+      SG: { displayStatus: "STALE" },
+    });
+    const html = renderToStaticMarkup(
+      React.createElement(IntakeForm, { packsByJurisdiction, defaultReference: "DSAR-2026-0001" })
+    );
+    expect(html).not.toContain('data-testid="expense-line-repeater"');
+  });
+
   it("INTAKE-FORM: DOES render ExpenseLineRepeater once matter details are valid and the resolved posture is usable", () => {
     const packsByJurisdiction = packsByJurisdictionFixture();
     const html = renderToStaticMarkup(
@@ -257,6 +269,33 @@ describe("INTAKE-FORM: computeIntakeDisabledReason", () => {
   });
 
   it("INTAKE-FORM: returns null once every condition is met", () => {
+    expect(
+      computeIntakeDisabledReason({
+        matterDetailsValid: true,
+        identityVerified: true,
+        scopeClarified: true,
+        lines: [{ categoryCode: "STAFF_TIME_SEARCH", description: "Search", quantity: 4, rateMajor: "40.00" }],
+      })
+    ).toBeNull();
+  });
+
+  // 05-REVIEW-ADDENDUM.md WR-01: a STALE (or otherwise unusable) pack must
+  // disable Submit, not just hide the repeater — otherwise a caller who
+  // added lines before the pack went stale (or via a code path that
+  // otherwise bypassed the repeater gate) could still submit.
+  it("INTAKE-FORM: names the jurisdiction's own unusable-pack state as the specific unmet condition when canOfferExpenseEntry is false, even with everything else satisfied (WR-01)", () => {
+    expect(
+      computeIntakeDisabledReason({
+        matterDetailsValid: true,
+        canOfferExpenseEntry: false,
+        identityVerified: true,
+        scopeClarified: true,
+        lines: [{ categoryCode: "STAFF_TIME_SEARCH", description: "Search", quantity: 4, rateMajor: "40.00" }],
+      })
+    ).toBe("This jurisdiction's rule pack does not currently permit new cost entries for this claim.");
+  });
+
+  it("INTAKE-FORM: omitting canOfferExpenseEntry (existing call sites) behaves exactly as before — defaults to usable", () => {
     expect(
       computeIntakeDisabledReason({
         matterDetailsValid: true,
