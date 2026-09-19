@@ -3,17 +3,17 @@ gsd_state_version: "1.0"
 current_phase: "04"
 current_phase_name: Workflow and Audit Backbone
 status: executing
-stopped_at: Completed 04-02-PLAN.md (full guard table + purity/determinism gates) — ready for 04-03
-last_updated: "2026-09-19T10:10:00.000Z"
+stopped_at: Completed 04-03-PLAN.md (pack-lifecycle audit stream + DPO_ADMIN identity + gated whole-log export) — ready for 04-04
+last_updated: "2026-09-19T10:30:00.000Z"
 last_activity: 2026-09-19
-last_activity_desc: Phase 04 Plan 02 complete — all ten PRD §5 guard-table rows declared and tested, packages/workflow purity and determinism enforced by dependency-cruiser and ESLint gates, each proven by a violating fixture
-state_head: 68d7ec7
+last_activity_desc: Phase 04 Plan 03 complete — PackLifecycleEventWriter implemented in-memory (D-21's separate stream, proven by 9 direct unit tests with no admin UI to drive it from), DPO_ADMIN demo identity added, and the role-gated exportAuditLog function returns both streams together
+state_head: b899396
 progress:
   total_phases: 10
   completed_phases: 1
   total_plans: 31
-  completed_plans: 25
-  percent: 81
+  completed_plans: 26
+  percent: 84
 ---
 
 # Project State
@@ -23,22 +23,22 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-13)
 
 **Core value:** A lawyer can defend the output by saying "the engine applied rule HK-PDPO.STAFF_TIME_REDACT_EXEMPT, version 2026.09.1, authored by X on date Y, and struck the line" — never "the model assessed the claim."
-**Current focus:** Phase 04 — Workflow and Audit Backbone (Plan 02/5 complete — full guard table + purity/determinism gates; 03.2 Database Boundary remains separately planned, runs concurrently per ROADMAP.md)
+**Current focus:** Phase 04 — Workflow and Audit Backbone (Plan 03/5 complete — pack-lifecycle audit stream + DPO export; 03.2 Database Boundary remains separately planned, runs concurrently per ROADMAP.md)
 
 ## Current Position
 
 Phase: 04 — Workflow and Audit Backbone
-Plan: 02/5 complete
-Status: In progress — ready to plan/execute 04-03
-Last activity: 2026-09-19 — 04-02 complete: all ten PRD §5 guard-table rows declared and tested, packages/workflow purity/determinism CI-enforced, full suite green (666/666)
+Plan: 03/5 complete
+Status: In progress — ready to plan/execute 04-04
+Last activity: 2026-09-19 — 04-03 complete: PackLifecycleEventWriter implemented and proven (9 PACK-LIFECYCLE tests), DPO_ADMIN demo identity added, exportAuditLog gates the whole-log export on that role (8 AUDIT-EXPORT tests), full suite green (683/683)
 
-Progress: [████████░░] 81%
+Progress: [████████░░] 84%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 25
+- Total plans completed: 26
 - Average duration: —
 - Total execution time: —
 
@@ -51,7 +51,7 @@ Progress: [████████░░] 81%
 | 3 | 5 | - | - |
 | 03.1 | 5/5 | - | - |
 | 3.1 | 5 | - | - |
-| 04 | 2/5 | - | - |
+| 04 | 3/5 | - | - |
 
 **Recent Trend:**
 
@@ -88,6 +88,7 @@ Progress: [████████░░] 81%
 | Phase 03.1 P05 | 90min | 3 tasks | 15 files |
 | Phase 04 P01 | 40min | 3 tasks | 23 files |
 | Phase 04 P02 | 35min | 2 tasks | 11 files |
+| Phase 04 P03 | 30min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -175,6 +176,10 @@ Recent decisions affecting current work:
 - [Phase 04]: [Phase 04 P02]: checkPackAvailable (existence only) kept distinct from checkPackUsable (existence+ACTIVE+non-stale) — the recompute row and sign-off's fourth condition both require only a pinned/available pack, narrower than submit/resubmit's full usability requirement, per the plan's own action text
 - [Phase 04]: [Phase 04 P02]: Both new dependency-cruiser rules (no-io-in-workflow, no-infra-in-workflow) match the dependency's raw @dsar/<pkg> specifier text in addition to the resolved packages/<pkg>/src path — dependency-cruiser cannot resolve a workspace package's subpath-export map ("./*": "./src/*.ts") inside its own module graph, and falls back to matching the unresolved specifier, the same double-coverage the pre-existing no-money-formatting-in-engine rule already relies on
 - [Phase 04]: [Phase 04 P02]: STATE-02 still left Pending in REQUIREMENTS.md — the guard table is complete (all ten rows), but six call sites in apps/web/src/server/data/{matters,assessments}.ts still write MatterStatus literals directly; that retrofit is plan 04-04's job
+- [Phase 04]: [Phase 04 P03]: PackLifecycleEventWriter validates only against the already-frozen AuditPayloadSchema, never a second stream-private schema — the full PackLifecycleEvent shape (packId/packVersion/actor/actorRole/at/type) is plain-TypeScript-typed only, since interface.ts never declared a zod schema for the whole event, only for its payload
+- [Phase 04]: [Phase 04 P03]: BOUND-05 marked Complete in REQUIREMENTS.md — the closed five-key payload set is now enforced end to end on both streams (matter-scoped since 04-01, pack-lifecycle since 04-03); AUDIT-01 stays Pending since the transition/disposition/sign-off call sites 04-04 must still retrofit are the majority of that requirement's text, and the pack-activation clause is discharged only structurally (no admin screen exists to write from — PACK-07, Phase 3.2)
+- [Phase 04]: [Phase 04 P03]: AUDIT-04 marked Complete — exportAuditLog is a plain data-layer function, gated by requireRole(actor, "DPO_ADMIN") as its first statement, with no route or screen; the plan's own assumptions record that a route/screen is a later phase's job, not a gap in this one
+- [Phase 04]: [Phase 04 P03]: DPO_ADMIN's demo identity is deliberately absent from apps/web/app/layout.tsx's role switcher (ACTOR_OPTIONS is a hardcoded two-entry list, not derived from DEMO_USERS' keys, so widening the record's key union did not implicitly add a switcher entry) — no officer-facing screen exists this phase
 
 ### Pending Todos
 
@@ -194,8 +199,8 @@ None yet.
 - **`pnpm dev`/`next build` currently fail** — discovered via a voluntary smoke test during 03.1-01, recorded as WINDOWS.md ledger entries 2 and 3 (open_count is 2, not 0): (1) `packages/rulepacks/src/loader.ts`'s `RULEPACKS_ROOT` throws under Turbopack's page-data collection (`import.meta.dirname` undefined there) — a frozen Phase 3 file, out of 03.1-01's scope, needs a product-owner decision; (2) no `@tailwindcss/postcss` plugin is registered anywhere, so `apps/web/app/globals.css`'s `@theme` block is inert in a real build — fixing this needs a new package install, which requires its own package-legitimacy checkpoint (like Task 0's ulid one) before any later plan runs `pnpm add @tailwindcss/postcss`. **Resolve both before Plan 03.1-02 starts** — otherwise every subsequent plan's UI work accumulates on a stylesheet Tailwind isn't processing, and the actual stakeholder demo cannot run.
 - ~~SignOffPanel (03.1-04) is not yet rendered on the legal review page, and disposition-controls.tsx's Ask HR button stays hardcoded disabled~~ — **resolved in Plan 03.1-05** (WINDOWS.md entries 5-6 marked fixed): both are now wired into the actual legal review page.
 - Phase 03.1 is now complete (5/5 plans) but its manual click-through row (03.1-VALIDATION.md's 05-manual) has never actually been run — `pnpm dev`/`next build` still cannot start on this build machine (WINDOWS.md entries 2-4, still open). A product-owner decision on the frozen Phase 3 `RULEPACKS_ROOT`/Turbopack issue and the Tailwind/Lightning-CSS native-binary crash is the prerequisite before that one manual row can move from "not run" to genuinely verified.
-- Phase 04's 04-01 (tracer) and 04-02 (full guard table + purity/determinism gates) are both complete, but STATE-02/AUDIT-01/AUDIT-03/BOUND-05 remain only partly discharged — the guard table itself is now complete (all ten PRD §5 rows), but six status-literal call sites in apps/web/src/server/data/{matters,assessments}.ts still bypass it; the pack-lifecycle writer is still declared not implemented; the elapsed-review clock is still not wired to a real disposition/sign-off call site. REQUIREMENTS.md correctly still shows all four Pending.
-- gsd-tools.cjs remains unavailable in this worktree during 04-01/04-02 execution (same recurring gap as 03-03/03-04/03.1) — STATE.md/ROADMAP.md updated manually again this plan.
+- Phase 04's 04-01 (tracer), 04-02 (full guard table + purity/determinism gates) and 04-03 (pack-lifecycle stream + DPO export) are all complete. STATE-02 and AUDIT-01 remain Pending — six status-literal call sites in apps/web/src/server/data/{matters,assessments}.ts still bypass the guarded executor (04-04's job), and AUDIT-01's transition/disposition/sign-off clauses depend on that same retrofit; its pack-activation clause is discharged only structurally (writer proven, no admin screen exists to call it from — PACK-07, Phase 3.2). AUDIT-03 remains Pending — the elapsed-review clock is still not wired to a real disposition/sign-off call site. BOUND-05 and AUDIT-04 are now Complete.
+- gsd-tools.cjs remains unavailable in this worktree during 04-01/04-02/04-03 execution (same recurring gap as 03-03/03-04/03.1) — STATE.md/ROADMAP.md/REQUIREMENTS.md updated manually again this plan.
 
 ### Roadmap Evolution
 
@@ -211,6 +216,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-09-19T10:10:00.000Z
-Stopped at: Completed 04-02-PLAN.md — full PRD §5 guard table (all ten rows) plus dependency-cruiser/ESLint purity and determinism gates for packages/workflow, full suite green (666/666)
+Last session: 2026-09-19T10:30:00.000Z
+Stopped at: Completed 04-03-PLAN.md — PackLifecycleEventWriter (D-21's separate stream) implemented and proven, DPO_ADMIN demo identity added, exportAuditLog gates the whole-log export on that role, full suite green (683/683)
 Resume file: None

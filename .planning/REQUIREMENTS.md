@@ -79,7 +79,7 @@
 - [x] **BOUND-02**: No Prisma field and no form input name matches the personal-data deny-list, asserted over the generated client's field names and over the rendered DOM of every form route (AC-06)
 - [ ] **BOUND-03**: Free-text fields enforce their length limits — 300, 500, 200, 1000 characters — and carry explicit warnings against entering personal data (§12.1)
 - [ ] **BOUND-04**: A pattern check warns, and never blocks, on likely personal data in intake notes and in `lawyerReason` on the review screen (§12.1)
-- [ ] **BOUND-05**: `AuditEvent.payload` stores only changed fields from the closed declared set, and an undeclared key is a validation error (§12.1)
+- [x] **BOUND-05**: `AuditEvent.payload` stores only changed fields from the closed declared set, and an undeclared key is a validation error (§12.1)
 
 ### HR intake
 
@@ -136,7 +136,7 @@
 - [ ] **AUDIT-01**: Every state transition, line disposition, pack activation and sign-off emits an audit event with actor, role, server timestamp, before and after, pack version and engine version (AC-35)
 - [ ] **AUDIT-02**: The application database role has no UPDATE, DELETE or TRUNCATE on the audit table, and an attempted update fails at the database (AC-34, extended per research)
 - [ ] **AUDIT-03**: Elapsed review time is recorded on every `LINE_DISPOSITIONED` and `SIGNED_OFF` event, measured from when the reviewer first opened the assessment (§6.5)
-- [ ] **AUDIT-04**: The DPO can export the audit log (§3)
+- [x] **AUDIT-04**: The DPO can export the audit log (§3)
 
 ### Risk disclosure
 
@@ -293,7 +293,7 @@ Every v1 requirement maps to exactly one phase in `.planning/ROADMAP.md`.
 | BOUND-02 | Phase 1 | Complete |
 | BOUND-03 | Phase 5 | Pending |
 | BOUND-04 | Phase 5 | Pending |
-| BOUND-05 | Phase 4 | Pending |
+| BOUND-05 | Phase 4 | Complete |
 | INTAKE-01 | Phase 5 | Pending |
 | INTAKE-02 | Phase 5 | Pending |
 | INTAKE-03 | Phase 5 | Pending |
@@ -332,7 +332,7 @@ Every v1 requirement maps to exactly one phase in `.planning/ROADMAP.md`.
 | AUDIT-01 | Phase 4 | Pending |
 | AUDIT-02 | Phase 3.2 | Pending |
 | AUDIT-03 | Phase 4 | Pending |
-| AUDIT-04 | Phase 4 | Pending |
+| AUDIT-04 | Phase 4 | Complete |
 | DISC-01 | Phase 5 | Pending |
 | DISC-02 | Phase 5 | Pending |
 | DISC-03 | Phase 5 | Pending |
