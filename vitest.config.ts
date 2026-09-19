@@ -125,7 +125,14 @@ export default defineConfig({
         test: {
           name: "web",
           environment: "jsdom",
-          include: ["apps/web/**/*.test.tsx"],
+          // 05-03 added apps/web/src/server/jurisdiction-packs.test.ts — a
+          // plain .ts test (no JSX) for a server-side module with no other
+          // project home. Widened additively to admit .test.ts alongside
+          // the existing .test.tsx glob; that one file overrides its own
+          // environment back to "node" via a `@vitest-environment` docblock
+          // (jsdom always provides `window`, which trips server-only.ts's
+          // browser guard).
+          include: ["apps/web/**/*.test.tsx", "apps/web/**/*.test.ts"],
         },
       },
     ],
