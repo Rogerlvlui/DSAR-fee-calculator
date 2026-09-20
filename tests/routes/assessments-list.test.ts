@@ -19,6 +19,7 @@ import { POST as addLineRoute } from "../../apps/web/app/api/matters/[id]/lines/
 import { POST as submitRoute } from "../../apps/web/app/api/matters/[id]/submit/route.ts";
 import { listReviewableMatters } from "../../apps/web/src/server/data/matters.ts";
 import { DEMO_USERS } from "../../apps/web/src/server/data/auth.ts";
+import { memoryMatterRepository } from "../../apps/web/src/server/repositories/memory/matter-repository.ts";
 import {
   REFERENCE_MATTER_INPUT,
   REFERENCE_FIXTURE_LINE_INPUTS,
@@ -89,5 +90,24 @@ describe("ASSESSMENTS-LIST", () => {
 
     const entries = await listReviewableMatters(DEMO_USERS.LEGAL_REVIEWER);
     expect(entries).toEqual([]);
+  });
+
+  it("listReviewableMatters: 06-06 widening — also includes a matter in INFO_REQUEST and a matter in CLOSED, still excludes DRAFT/COMPUTING", async () => {
+    resetStore();
+    const { matterId: legalReviewMatterId } = await createSubmittedMatter("DSAR-LIST-0003");
+    const infoRequestMatter = await memoryMatterRepository.getMatter(legalReviewMatterId);
+    if (!infoRequestMatter) throw new Error("fixture matter not found");
+    await memoryMatterRepository.updateMatter({ ...infoRequestMatter, status: "INFO_REQUEST" });
+
+    const { matterId: closedMatterId } = await createSubmittedMatter("DSAR-LIST-0004");
+    const closedMatter = await memoryMatterRepository.getMatter(closedMatterId);
+    if (!closedMatter) throw new Error("fixture matter not found");
+    await memoryMatterRepository.updateMatter({ ...closedMatter, status: "CLOSED" });
+
+    await createMatterRoute(jsonRequest(MATTERS_URL, "POST", { ...REFERENCE_MATTER_INPUT, reference: "DSAR-LIST-0005" }));
+
+    const entries = await listReviewableMatters(DEMO_USERS.LEGAL_REVIEWER);
+    const statuses = entries.map((entry) => entry.matter.status).sort();
+    expect(statuses).toEqual(["CLOSED", "INFO_REQUEST"]);
   });
 });

@@ -750,13 +750,25 @@ export interface ReviewableMatterView {
 // otherwise-universal "requireRole() as the first statement of every
 // data-layer function" pattern. This function closes that gap the same way
 // every other legal-side read does.
+//
+// Widened (06-06, NAV-01): the old /assessments list only ever queried
+// LEGAL_REVIEW and SIGNED_OFF — /legal/queue's own UI-SPEC names all four
+// reachable row states ("Awaiting review" / "Awaiting HR reply" / "Signed
+// off" covering both SIGNED_OFF and CLOSED), so INFO_REQUEST and CLOSED are
+// now included too. DRAFT and COMPUTING remain excluded — a matter not yet
+// submitted, or mid-computation, has nothing for a lawyer to review yet.
+const REVIEWABLE_MATTER_STATUSES: ReadonlySet<string> = new Set([
+  "LEGAL_REVIEW",
+  "INFO_REQUEST",
+  "SIGNED_OFF",
+  "CLOSED",
+]);
+
 export async function listReviewableMatters(actor: DemoActor): Promise<ReviewableMatterView[]> {
   requireRole(actor, "LEGAL_REVIEWER");
 
   const matters = await memoryMatterRepository.listMatters();
-  const reviewable = matters.filter(
-    (matter) => matter.status === "LEGAL_REVIEW" || matter.status === "SIGNED_OFF"
-  );
+  const reviewable = matters.filter((matter) => REVIEWABLE_MATTER_STATUSES.has(matter.status));
 
   const views: ReviewableMatterView[] = [];
   for (const matter of reviewable) {
