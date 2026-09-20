@@ -51,6 +51,32 @@ export const LEGAL_CONCLUSION_BANNED_WORDS = [
   "safe",
 ] as const;
 
+// AC-23's canonical reason stop-list, transcribed verbatim (PRD line 910):
+// a disposition reason that is, after trimming and case-folding, ENTIRELY
+// one of these 11 stock phrases is not a real reason, however long enough
+// it clears the ≥10-non-whitespace-character length check on its own
+// ("noted" is only 5 characters and would already fail length, but
+// "as above" is 7 and "agreed" is 6 — the point is these phrases carry no
+// accountability trail regardless of length). Exported once here — matching
+// this module's own PERSONAL_DATA_DENY_LIST/LEGAL_CONCLUSION_BANNED_WORDS
+// precedent — so apps/web/src/domain/disposition-actions.ts's shared check
+// (imported by both the server's authoritative assertSufficientReason and
+// the two client reason fields' UX-only counter text) is the only place
+// either side ever checks a stock phrase.
+export const REASON_STOP_LIST = [
+  "ok",
+  "okay",
+  "fine",
+  "agreed",
+  "yes",
+  "no",
+  "n/a",
+  "na",
+  "noted",
+  "as above",
+  "same",
+] as const;
+
 // D-15 (03-CONTEXT.md) — the fixed marker a rule pack carries in
 // `verificationNote` while no named counsel has written it yet. A rule is
 // "unauthored" in a way that must be indistinguishable from nothing, not

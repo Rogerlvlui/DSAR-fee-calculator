@@ -15,6 +15,7 @@
 // client and server each invent their own copy.
 
 import type { Verdict } from "@dsar/schemas/assessment";
+import { REASON_STOP_LIST } from "@dsar/schemas/constants";
 
 export type DispositionAction = "ACCEPT" | "REDUCE" | "STRIKE" | "ALLOW_WITH_AMOUNT" | "ALLOW_ANYWAY";
 
@@ -46,4 +47,22 @@ export function countNonWhitespaceChars(text: string): number {
 
 export function hasSufficientReason(text: string): boolean {
   return countNonWhitespaceChars(text) >= MIN_REASON_NON_WHITESPACE_CHARS;
+}
+
+// AC-23's stop-list half. A WHOLE-REASON comparison (trim + case-fold),
+// never a substring scan — "Noted the vendor's invoice number and it
+// matches the claim" must NOT match on "noted", or a lawyer who genuinely
+// writes a real sentence containing a stop-list word would be wrongly
+// blocked. Returns the matched stop-list entry (its own canonical,
+// lower-cased form) or null.
+export function matchesReasonStopList(text: string): string | null {
+  const normalized = text.trim().toLowerCase();
+  return REASON_STOP_LIST.find((entry) => entry === normalized) ?? null;
+}
+
+// The combined check every call site (server-authoritative and both
+// client, UX-only, reason fields) should use so length and stop-list are
+// always checked together, never independently forgotten at one call site.
+export function hasSufficientAndGenuineReason(text: string): boolean {
+  return hasSufficientReason(text) && matchesReasonStopList(text) === null;
 }
