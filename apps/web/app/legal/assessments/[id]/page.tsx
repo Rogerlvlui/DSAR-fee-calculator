@@ -22,10 +22,9 @@ import type { ReactNode } from "react";
 import { deriveEffectiveStatus, daysUntilReviewDue } from "@dsar/rulepacks/stale";
 import { getCurrentActor } from "../../../../src/server/current-actor.ts";
 import { getAssessmentForLegalReview, listBulkAcceptableLineIds } from "../../../../src/server/data/assessments.ts";
+import { getExpenseLinesForLegalReview, getMatterForLegalReview } from "../../../../src/server/data/matters.ts";
 import { resolveCurrentPackForJurisdiction, resolvePinnedRulePack } from "../../../../src/server/engine-invocation.ts";
 import { buildReviewView } from "../../../../src/server/review-view.ts";
-import { memoryMatterRepository } from "../../../../src/server/repositories/memory/matter-repository.ts";
-import { NotFoundError } from "../../../../src/server/errors.ts";
 import { computeFinalAmount, computeReviewTallies } from "../../../../src/domain/review-tallies.ts";
 import { renderAttestation } from "../../../../src/domain/attestation.ts";
 import { StatusStrip } from "../../../../src/ui/chrome/status-strip.tsx";
@@ -54,11 +53,12 @@ export default async function LegalAssessmentPage({
   const id = decodeURIComponent(rawId);
   const actor = await getCurrentActor();
   const assessment = await getAssessmentForLegalReview(actor, id);
-  const matter = await memoryMatterRepository.getMatter(assessment.matterId);
-  if (!matter) {
-    throw new NotFoundError(`No matter found for assessment '${id}'`);
-  }
-  const expenseLines = await memoryMatterRepository.listExpenseLines(assessment.matterId);
+  // WR-02: both reads now go through role-gated wrappers
+  // (src/server/data/matters.ts) rather than the repository directly —
+  // getMatterForLegalReview throws its own NotFoundError, so no separate
+  // null-check is needed here.
+  const matter = await getMatterForLegalReview(actor, assessment.matterId);
+  const expenseLines = await getExpenseLinesForLegalReview(actor, assessment.matterId);
   const pack = resolvePinnedRulePack(assessment.rulePackId, assessment.rulePackVersion);
   const reviewView = buildReviewView(assessment, matter, expenseLines);
   const eligibleLineIds = listBulkAcceptableLineIds(assessment);

@@ -739,6 +739,28 @@ export async function getExpenseLinesForHr(actor: DemoActor, matterId: string): 
   return memoryMatterRepository.listExpenseLines(matterId);
 }
 
+// WR-02 (06-REVIEW-ADDENDUM.md): the same UNREG-1 pattern as
+// getExpenseLinesForHr above, on the legal-review side. The legal
+// assessment page (apps/web/app/legal/assessments/[id]/page.tsx) already
+// calls the role-gated getAssessmentForLegalReview() for the assessment
+// itself, but then imported memoryMatterRepository directly for these two
+// reads, with no role check on them specifically. Not currently
+// exploitable — matterId is only reachable after the assessment's own
+// role gate has already passed — but that safety depends entirely on
+// statement order in a page component, exactly the shape that has caused
+// real bugs before. These two thin wrappers close it the same way.
+export async function getMatterForLegalReview(actor: DemoActor, matterId: string): Promise<Matter> {
+  requireRole(actor, "LEGAL_REVIEWER");
+  const matter = await memoryMatterRepository.getMatter(matterId);
+  if (!matter) throw new NotFoundError(`No matter with id '${matterId}'`);
+  return matter;
+}
+
+export async function getExpenseLinesForLegalReview(actor: DemoActor, matterId: string): Promise<ExpenseLine[]> {
+  requireRole(actor, "LEGAL_REVIEWER");
+  return memoryMatterRepository.listExpenseLines(matterId);
+}
+
 export interface ReviewableMatterView {
   matter: Matter;
   assessmentId: string;

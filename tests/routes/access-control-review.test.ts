@@ -16,7 +16,8 @@ import { POST as addLineRoute } from "../../apps/web/app/api/matters/[id]/lines/
 import { POST as submitRoute } from "../../apps/web/app/api/matters/[id]/submit/route.ts";
 import { POST as dispositionRoute } from "../../apps/web/app/api/assessment-lines/[id]/disposition/route.ts";
 import { POST as signoffRoute } from "../../apps/web/app/api/assessments/[id]/signoff/route.ts";
-import { DEMO_ROLE_COOKIE } from "../../apps/web/src/server/data/auth.ts";
+import { DEMO_ROLE_COOKIE, DEMO_USERS } from "../../apps/web/src/server/data/auth.ts";
+import { getExpenseLinesForLegalReview, getMatterForLegalReview } from "../../apps/web/src/server/data/matters.ts";
 import {
   REFERENCE_MATTER_INPUT,
   REFERENCE_FIXTURE_LINE_INPUTS,
@@ -175,5 +176,29 @@ describe("ACCESS-CONTROL-REVIEW: GET /api/assessments/{id}", () => {
     for (const field of PRIVILEGED_FIELD_NAMES) {
       expect(bodyText).not.toContain(field);
     }
+  });
+});
+
+// WR-02 (06-REVIEW-ADDENDUM.md): the legal assessment page previously read
+// the matter and its expense lines straight off memoryMatterRepository, with
+// no role check on those two specific calls — the same UNREG-1 shape
+// 03.1-REVIEW.md and 04-REVIEW.md's WR-02 already required fixes for
+// elsewhere. getMatterForLegalReview()/getExpenseLinesForLegalReview() close
+// it the same way every other role-scoped read in this codebase does.
+describe("ACCESS-CONTROL-REVIEW: getMatterForLegalReview / getExpenseLinesForLegalReview (WR-02)", () => {
+  it("ACCESS-CONTROL-REVIEW: both reads require the LEGAL_REVIEWER role, same as every other legal-facing read", async () => {
+    const { matterId } = await buildMatterInLegalReview();
+
+    await expect(getMatterForLegalReview(DEMO_USERS.HR_PREPARER, matterId)).rejects.toThrow();
+    await expect(getExpenseLinesForLegalReview(DEMO_USERS.HR_PREPARER, matterId)).rejects.toThrow();
+
+    const matter = await getMatterForLegalReview(DEMO_USERS.LEGAL_REVIEWER, matterId);
+    expect(matter.id).toBe(matterId);
+    const lines = await getExpenseLinesForLegalReview(DEMO_USERS.LEGAL_REVIEWER, matterId);
+    expect(lines.length).toBeGreaterThan(0);
+  });
+
+  it("ACCESS-CONTROL-REVIEW: getMatterForLegalReview refuses (not a hidden null) when the matter does not exist", async () => {
+    await expect(getMatterForLegalReview(DEMO_USERS.LEGAL_REVIEWER, "no-such-matter")).rejects.toThrow();
   });
 });
