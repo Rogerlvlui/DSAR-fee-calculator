@@ -60,7 +60,7 @@ export function TotalsRail({ assessment, currency }: TotalsRailProps) {
           <dt>Supported by rules</dt>
           <dd data-testid="total-supported">{formatMinor(assessment.totals.draftBaseline, currency)}</dd>
         </div>
-        <div data-testid="total-row-resting-unverified" data-indent="true">
+        <div data-testid="total-row-resting-unverified" data-indent="true" className="text-ink-3">
           <dt>↳ resting on unverified rules</dt>
           <dd data-testid="total-resting-unverified">
             {formatMinor(assessment.totals.restingOnUnverifiedRules, currency)}
@@ -78,7 +78,7 @@ export function TotalsRail({ assessment, currency }: TotalsRailProps) {
           <dt>Needs your decision</dt>
           <dd data-testid="total-needs-decision">{formatMinor(assessment.totals.flaggedTotal, currency)}</dd>
         </div>
-        <div data-testid="total-row-excluded" data-indent="true">
+        <div data-testid="total-row-excluded" data-indent="true" className="text-ink-3">
           <dt>↳ excluded from every total</dt>
           <dd data-testid="total-excluded-count">{excludedCountLabel(flaggedCount)}</dd>
         </div>

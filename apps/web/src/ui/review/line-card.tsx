@@ -126,7 +126,10 @@ export function LineCard({
         <div data-testid="applied-rule-id">
           {line.appliedRuleId}
           {verificationStatus === "NEEDS_VERIFICATION" ? (
-            <span data-testid="unverified-marker"> {UNVERIFIED_RULE_MARKER}</span>
+            <span data-testid="unverified-marker" className="border border-dashed border-warn text-warn">
+              {" "}
+              {UNVERIFIED_RULE_MARKER}
+            </span>
           ) : null}
         </div>
         <div data-testid="basis">{line.basis}</div>

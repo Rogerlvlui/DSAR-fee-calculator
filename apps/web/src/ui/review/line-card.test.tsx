@@ -95,6 +95,13 @@ describe("LINE-CARD", () => {
     expect(html).toContain("unverified rule");
   });
 
+  it("LINE-CARD: the unverified-rule marker carries a warn-toned className, not merely text", () => {
+    const html = renderCard({ verificationStatus: "NEEDS_VERIFICATION" });
+    const marker = /<span data-testid="unverified-marker"[^>]*class="([^"]*)"/.exec(html);
+    expect(marker).not.toBeNull();
+    expect(marker?.[1]).toMatch(/warn/);
+  });
+
   it("LINE-CARD: does not render the unverified-rule marker when the applied rule is verified", () => {
     const html = renderCard({ verificationStatus: "VERIFIED" });
     expect(html).not.toContain("unverified rule");

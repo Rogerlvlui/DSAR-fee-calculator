@@ -110,6 +110,32 @@ describe("TOTALS-RAIL", () => {
     expect(html).not.toContain('data-testid="total-row-claimed" data-indent="true"');
   });
 
+  it("TOTALS-RAIL: both indented sub-rows carry an ink-3-toned className on their dt/dd pair, the five top-level rows do not", () => {
+    const html = render(PENDING_ASSESSMENT);
+
+    for (const testId of ["total-row-resting-unverified", "total-row-excluded"]) {
+      const rowStart = html.indexOf(`data-testid="${testId}"`);
+      expect(rowStart).toBeGreaterThan(-1);
+      const rowEnd = html.indexOf("</div>", rowStart);
+      const rowHtml = html.slice(rowStart, rowEnd);
+      expect(rowHtml).toMatch(/class="[^"]*ink-3[^"]*"/);
+    }
+
+    for (const testId of [
+      "total-row-claimed",
+      "total-row-supported",
+      "total-row-allowed-by-lawyer",
+      "total-row-not-supported",
+      "total-row-needs-decision",
+    ]) {
+      const rowStart = html.indexOf(`data-testid="${testId}"`);
+      expect(rowStart).toBeGreaterThan(-1);
+      const rowEnd = html.indexOf("</div>", rowStart);
+      const rowHtml = html.slice(rowStart, rowEnd);
+      expect(rowHtml).not.toMatch(/ink-3/);
+    }
+  });
+
   it("TOTALS-RAIL: the reconciliation identity holds over the rendered figures — supported + not-supported + needs-your-decision = claimed", () => {
     const html = render(PENDING_ASSESSMENT);
 
