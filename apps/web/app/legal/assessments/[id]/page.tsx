@@ -78,7 +78,14 @@ export default async function LegalAssessmentPage({
   let signOffPanel: ReactNode = null;
   if (pendingCount === 0) {
     const tallies = computeReviewTallies(assessment.lines);
-    const finalAmount = computeFinalAmount(assessment.lines);
+    // Same feeChoice-aware logic signOff() itself calls (CR-01) — the
+    // preview shown here must never drift from what sign-off would
+    // actually record.
+    const finalAmount = computeFinalAmount(
+      assessment.lines,
+      assessment.feeChoice ?? null,
+      assessment.totals.flatFeeComparison ?? null
+    );
     const flagsRequiringAck = assessment.matterLevelFlags.filter((flag) => flag.requiresAcknowledgement);
     const packIsStale = deriveEffectiveStatus(pack, now) === "STALE";
     const attestationText = renderAttestation({

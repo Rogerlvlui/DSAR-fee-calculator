@@ -11,6 +11,8 @@ import { POST as createMatterRoute } from "../../apps/web/app/api/matters/route.
 import { POST as addLineRoute } from "../../apps/web/app/api/matters/[id]/lines/route.ts";
 import { POST as submitRoute } from "../../apps/web/app/api/matters/[id]/submit/route.ts";
 import { POST as feeChoiceRoute } from "../../apps/web/app/api/assessments/[id]/fee-choice/route.ts";
+import { POST as dispositionRoute } from "../../apps/web/app/api/assessment-lines/[id]/disposition/route.ts";
+import { POST as signoffRoute } from "../../apps/web/app/api/assessments/[id]/signoff/route.ts";
 import { DEMO_ROLE_COOKIE } from "../../apps/web/src/server/data/auth.ts";
 import { memoryAssessmentRepository } from "../../apps/web/src/server/repositories/memory/assessment-repository.ts";
 import { memoryMatterRepository } from "../../apps/web/src/server/repositories/memory/matter-repository.ts";
@@ -287,5 +289,122 @@ describe("FEE-CHOICE: POST /api/assessments/{id}/fee-choice", () => {
 
     const stored = await memoryAssessmentRepository.getAssessment(assessmentId);
     expect(stored?.feeChoice).toBeUndefined();
+  });
+
+  // CR-01 regression: a FLAT choice must actually change finalAmount, not
+  // just be recorded and ignored. Before the fix, signOff() summed the
+  // itemised lines unconditionally and the lawyer's FLAT choice had zero
+  // effect on the figure that reaches HR.
+  it("FEE-CHOICE (CR-01): finalAmount reflects a signed-off FLAT choice, not the itemised sum", async () => {
+    // Same padded-fixture shape as the "does not exceed itemised direct
+    // cost" test above: draftBaseline 20000, HK's real flatFee.amount
+    // 10000 — the two figures must differ for this regression to be
+    // meaningful (a bug that returns either total unconditionally would
+    // otherwise pass by coincidence).
+    const matterResponse = await createMatterRoute(
+      jsonRequest(MATTERS_URL, "POST", { ...HK_MATTER_INPUT, reference: nextReference() }, HR_COOKIE)
+    );
+    const matter = (await matterResponse.json()) as { id: string };
+    const allowLineResponse = await addLineRoute(
+      jsonRequest(
+        `${MATTERS_URL}/${matter.id}/lines`,
+        "POST",
+        {
+          categoryCode: "STAFF_TIME_SEARCH",
+          description: "Staff time locating and retrieving the requested data",
+          quantity: 10,
+          unit: "HOUR",
+          unitRate: 2000,
+          incurredByGrade: null,
+          isThirdPartyInvoiced: false,
+          vendorName: null,
+          evidenceRef: null,
+          hrNote: null,
+        },
+        HR_COOKIE
+      ),
+      { params: Promise.resolve({ id: matter.id }) }
+    );
+    expect(allowLineResponse.status).toBe(201);
+    await addLineRoute(
+      jsonRequest(
+        `${MATTERS_URL}/${matter.id}/lines`,
+        "POST",
+        {
+          categoryCode: "STAFF_TIME_REDACT_EXEMPT",
+          description: "Staff time severing exempt data",
+          quantity: 1,
+          unit: "HOUR",
+          unitRate: 40000,
+          incurredByGrade: null,
+          isThirdPartyInvoiced: false,
+          vendorName: null,
+          evidenceRef: null,
+          hrNote: null,
+        },
+        HR_COOKIE
+      ),
+      { params: Promise.resolve({ id: matter.id }) }
+    );
+    const submitResponse = await submitRoute(jsonRequest(`${MATTERS_URL}/${matter.id}/submit`, "POST", {}, HR_COOKIE), {
+      params: Promise.resolve({ id: matter.id }),
+    });
+    expect(submitResponse.status).toBe(200);
+    const submitted = (await submitResponse.json()) as {
+      id: string;
+      lines: { id: string; verdict: string }[];
+      totals: { draftBaseline: number; flatFeeComparison?: { flatFeeAmount: number; flatFeeExceedsItemisedCost: boolean } };
+    };
+    expect(submitted.totals.draftBaseline).toBe(20000);
+    expect(submitted.totals.flatFeeComparison?.flatFeeAmount).toBe(10000);
+    expect(submitted.totals.flatFeeComparison?.flatFeeExceedsItemisedCost).toBe(false);
+    const assessmentId = submitted.id;
+
+    const goodReason = "Sighted the supporting evidence separately and it checks out.";
+    for (const line of submitted.lines) {
+      const dispositionResponse = await dispositionRoute(
+        jsonRequest(
+          `http://localhost/api/assessment-lines/${line.id}/disposition`,
+          "POST",
+          { action: "ACCEPT", reason: goodReason },
+          LEGAL_COOKIE
+        ),
+        { params: Promise.resolve({ id: line.id }) }
+      );
+      expect(dispositionResponse.status).toBe(200);
+    }
+
+    const feeChoiceResponse = await feeChoiceRoute(
+      jsonRequest(`${ASSESSMENTS_URL}/${assessmentId}/fee-choice`, "POST", { choice: "FLAT" }, LEGAL_COOKIE),
+      { params: Promise.resolve({ id: assessmentId }) }
+    );
+    expect(feeChoiceResponse.status).toBe(200);
+
+    const signOffResponse = await signoffRoute(
+      jsonRequest(
+        `${ASSESSMENTS_URL}/${assessmentId}/signoff`,
+        "POST",
+        {
+          qualification: "Solicitor, Hong Kong",
+          acknowledgedFlags: [],
+          attestation: true,
+        },
+        LEGAL_COOKIE
+      ),
+      { params: Promise.resolve({ id: assessmentId }) }
+    );
+    expect(signOffResponse.status).toBe(200);
+    const signedOff = (await signOffResponse.json()) as {
+      assessment: { totals: { finalAmount: number }; signOff: { finalAmount: number } };
+    };
+
+    // The bug: finalAmount would be 20000 (the itemised sum) here, silently
+    // ignoring the FLAT choice. The fix: it must be the flat fee, 10000.
+    expect(signedOff.assessment.totals.finalAmount).toBe(10000);
+    expect(signedOff.assessment.signOff.finalAmount).toBe(10000);
+
+    const stored = await memoryAssessmentRepository.getAssessment(assessmentId);
+    expect(stored?.totals.finalAmount).toBe(10000);
+    expect(stored?.signOff?.finalAmount).toBe(10000);
   });
 });

@@ -39,6 +39,20 @@ function sumLawyerAllowedAmount(assessment: Assessment): Minor {
   ) as Minor;
 }
 
+// Pre-sign-off preview only — once totals.finalAmount is written (at
+// sign-off), it is the immutable source of truth and this function is
+// never consulted. Before that, the headline must reflect a FLAT choice
+// (REVIEW-11) the same way computeFinalAmount does (CR-01): falling back
+// to draftBaseline regardless of feeChoice would show a figure the lawyer
+// never actually chose.
+function previewHeadlineAmount(assessment: Assessment): Minor {
+  if (assessment.totals.finalAmount != null) return assessment.totals.finalAmount;
+  if (assessment.feeChoice === "FLAT" && assessment.totals.flatFeeComparison) {
+    return assessment.totals.flatFeeComparison.flatFeeAmount;
+  }
+  return assessment.totals.draftBaseline;
+}
+
 export interface TotalsRailProps {
   assessment: Assessment;
   currency: CurrencyCode;
@@ -93,9 +107,7 @@ export function TotalsRail({ assessment, currency }: TotalsRailProps) {
           </>
         ) : (
           <>
-            <div data-testid="headline-value">
-              {formatMinor(assessment.totals.finalAmount ?? assessment.totals.draftBaseline, currency)}
-            </div>
+            <div data-testid="headline-value">{formatMinor(previewHeadlineAmount(assessment), currency)}</div>
             <div data-testid="headline-sub">{NOT_YET_SIGNED_OFF_TEXT}</div>
           </>
         )}

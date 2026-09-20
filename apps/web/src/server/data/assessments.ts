@@ -434,8 +434,15 @@ export async function signOff(
 
   // Only now — every condition met — do we compute anything or write
   // anything. This is the only module in the codebase that writes
-  // finalAmount, and it is never derived from the draft baseline.
-  const finalAmount = computeFinalAmount(assessment.lines);
+  // finalAmount, and it is never derived from the draft baseline. The
+  // lawyer's feeChoice (REVIEW-11) is passed through so a FLAT choice
+  // actually produces the flat fee as finalAmount, not the itemised sum
+  // (CR-01) — never derive this a second, independent way here.
+  const finalAmount = computeFinalAmount(
+    assessment.lines,
+    assessment.feeChoice ?? null,
+    assessment.totals.flatFeeComparison ?? null
+  );
 
   const pack = resolvePinnedRulePack(assessment.rulePackId, assessment.rulePackVersion); // real, uncoerced — never the ACTIVE-coerced copy
   const now = new Date().toISOString();

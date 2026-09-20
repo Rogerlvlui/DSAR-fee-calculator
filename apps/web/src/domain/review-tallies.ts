@@ -12,7 +12,7 @@
 // intermediate anywhere: this is the money path, and the branded Minor
 // type is the only representation it has.
 
-import type { AssessmentLine } from "@dsar/schemas/assessment";
+import type { AssessmentLine, FeeChoice, FlatFeeComparison } from "@dsar/schemas/assessment";
 import type { Minor } from "@dsar/schemas/primitives";
 
 export interface ReviewTallies {
@@ -60,12 +60,25 @@ export function computeReviewTallies(lines: readonly AssessmentLine[]): ReviewTa
 }
 
 // Throws while any line is PENDING — there is no final amount to report
-// until every line has a decision (PRD §0 non-negotiable #2/#4). The sum:
-// the engine's own amount for an accepted line, the lawyer's amount for a
+// until every line has a decision (PRD §0 non-negotiable #2/#4). When the
+// lawyer has chosen FLAT (REVIEW-11) and a flatFeeComparison exists on this
+// assessment's totals, the final amount IS the flat fee figure — that is
+// the entire point of the choice, and summing the per-line total instead
+// would silently discard a decision the lawyer actually made (CR-01).
+// Otherwise (no choice made, or ITEMISED) the sum is unchanged: the
+// engine's own amount for an accepted line, the lawyer's amount for a
 // reduced or lawyer-allowed line, and zero for a struck line.
-export function computeFinalAmount(lines: readonly AssessmentLine[]): Minor {
+export function computeFinalAmount(
+  lines: readonly AssessmentLine[],
+  feeChoice: FeeChoice | null = null,
+  flatFeeComparison: FlatFeeComparison | null = null
+): Minor {
   if (lines.some((line) => line.disposition === "PENDING")) {
     throw new Error("computeFinalAmount: cannot compute a final amount while any line is still PENDING");
+  }
+
+  if (feeChoice === "FLAT" && flatFeeComparison) {
+    return flatFeeComparison.flatFeeAmount;
   }
 
   let total = 0;
