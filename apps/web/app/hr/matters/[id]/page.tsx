@@ -17,7 +17,7 @@ import { getExpenseLinesForHr, getHrMatterStatus, getNoticeSentAt } from "../../
 import { getSignedOffAssessmentForHr } from "../../../../src/server/data/assessments.ts";
 import { resolvePinnedRulePack } from "../../../../src/server/engine-invocation.ts";
 import { buildJurisdictionPackViews } from "../../../../src/server/jurisdiction-packs.ts";
-import { humanizePackDisplayStatus } from "../../../../src/ui/intake/matter-details-fields.tsx";
+import { humanizePackDisplayStatus } from "../../../../src/domain/pack-display-status.ts";
 import { EXPENSE_CATEGORY_LABELS } from "@dsar/schemas/taxonomy";
 import type { Minor } from "@dsar/schemas/primitives";
 import { buildNoticeDraft } from "../../../../src/domain/notice-draft.ts";

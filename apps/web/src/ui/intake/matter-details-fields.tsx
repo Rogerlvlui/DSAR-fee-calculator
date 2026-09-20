@@ -20,13 +20,7 @@
 import { JURISDICTION_CURRENCY, type ControllerType, type CurrencyCode, type JurisdictionCode } from "@dsar/schemas/primitives";
 import type { RequestorClass } from "@dsar/schemas/matter";
 import type { FeePosture, FeePostureMap } from "@dsar/schemas/rule-pack";
-
-export type MatterDetailsJurisdictionPackDisplayStatus =
-  | "ACTIVE"
-  | "ACTIVE_REVIEW_DUE_SOON"
-  | "STALE"
-  | "DRAFT"
-  | "NO_USABLE_PACK";
+import type { MatterDetailsJurisdictionPackDisplayStatus } from "../../domain/pack-display-status.ts";
 
 export interface MatterDetailsJurisdictionPack {
   jurisdictionCode: JurisdictionCode;
@@ -80,34 +74,6 @@ export const HEADS_UP_POSTURES = new Set<FeePosture>(["NO_EXPRESS_AUTHORITY", "P
 /** PRD §10.2's heads-up paragraph, verbatim with {Jurisdiction} filled in. */
 export function headsUpMessage(jurisdictionName: string): string {
   return `Heads up — ${jurisdictionName}. Our rule pack records no clear legal basis for charging a fee for a data access request in this jurisdiction. You can still record the costs, but the likely outcome is that Legal advises charging nothing. Talk to Legal before spending time on this.`;
-}
-
-// Added post-plan (05-REVIEW-ADDENDUM.md WR-02, independent code review
-// finding): three HR-facing call sites (IntakeForm, the HR result page, and
-// the submitted-confirmation page) were passing the raw displayStatus enum
-// value straight into StatusStrip's packStatus prop, which renders it as
-// plain text — so HR would eventually see a literal underscored string like
-// "ACTIVE_REVIEW_DUE_SOON" once any pack left DRAFT. The parallel
-// legal-review page passes the real RulePackStatus ("ACTIVE"/"DRAFT"/
-// "WITHDRAWN") instead, which is already a short, human word — this gives
-// the HR-facing callers an equivalent short label rather than the longer,
-// day-count-aware sentence jurisdictionStatusLabel() below renders for the
-// intake screen's own dedicated readout. NO_USABLE_PACK resolves directly
-// to the same "—" placeholder every call site already used, so callers no
-// longer need their own ternary for it.
-export function humanizePackDisplayStatus(displayStatus: MatterDetailsJurisdictionPackDisplayStatus): string {
-  switch (displayStatus) {
-    case "ACTIVE":
-      return "Active";
-    case "ACTIVE_REVIEW_DUE_SOON":
-      return "Active — review due soon";
-    case "STALE":
-      return "Stale";
-    case "DRAFT":
-      return "Draft";
-    case "NO_USABLE_PACK":
-      return "—";
-  }
 }
 
 // UI-SPEC's five jurisdiction-pack-status copy strings, verbatim.

@@ -9,8 +9,6 @@ import { renderToStaticMarkup } from "react-dom/server";
 import {
   MatterDetailsFields,
   canOfferExpenseEntry,
-  humanizePackDisplayStatus,
-  type MatterDetailsJurisdictionPackDisplayStatus,
   type MatterDetailsJurisdictionPack,
   type MatterDetailsValue,
 } from "./matter-details-fields.tsx";
@@ -122,36 +120,5 @@ describe("MATTER-DETAILS: canOfferExpenseEntry", () => {
   // hand-built STALE fixture rather than waiting on a real stale pack.
   it("MATTER-DETAILS: false when displayStatus is STALE, even with an otherwise permitted posture (WR-01)", () => {
     expect(canOfferExpenseEntry(pack({ displayStatus: "STALE" }), "PRIVATE_ORGANISATION")).toBe(false);
-  });
-});
-
-// 05-REVIEW-ADDENDUM.md WR-02: intake-form.tsx, matters/[id]/page.tsx and
-// matters/[id]/submitted/page.tsx all passed the raw displayStatus enum
-// straight into StatusStrip's packStatus prop, which renders it as plain
-// text — so HR would eventually see a literal underscored string like
-// "ACTIVE_REVIEW_DUE_SOON" once any pack left DRAFT. humanizePackDisplayStatus
-// is the shared fix all three call sites now route through.
-describe("MATTER-DETAILS: humanizePackDisplayStatus — no raw underscored enum value ever reaches StatusStrip", () => {
-  const ALL_DISPLAY_STATUSES: MatterDetailsJurisdictionPackDisplayStatus[] = [
-    "ACTIVE",
-    "ACTIVE_REVIEW_DUE_SOON",
-    "STALE",
-    "DRAFT",
-    "NO_USABLE_PACK",
-  ];
-
-  it.each(ALL_DISPLAY_STATUSES)(
-    "MATTER-DETAILS: humanizePackDisplayStatus(%s) contains no underscore",
-    (displayStatus) => {
-      expect(humanizePackDisplayStatus(displayStatus)).not.toMatch(/_/);
-    }
-  );
-
-  it("MATTER-DETAILS: humanizePackDisplayStatus resolves NO_USABLE_PACK to the same placeholder every call site already used", () => {
-    expect(humanizePackDisplayStatus("NO_USABLE_PACK")).toBe("—");
-  });
-
-  it("MATTER-DETAILS: humanizePackDisplayStatus gives ACTIVE_REVIEW_DUE_SOON a short, human label", () => {
-    expect(humanizePackDisplayStatus("ACTIVE_REVIEW_DUE_SOON")).toBe("Active — review due soon");
   });
 });

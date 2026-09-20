@@ -21,9 +21,9 @@ import type { FeePosture, FeePostureMap, VerificationStatus } from "@dsar/schema
 import {
   MatterDetailsFields,
   canOfferExpenseEntry,
-  humanizePackDisplayStatus,
   type MatterDetailsValue,
 } from "./matter-details-fields.tsx";
+import { humanizePackDisplayStatus } from "../../domain/pack-display-status.ts";
 import { AttestationsPanel, type AttestationsValue } from "./attestations-panel.tsx";
 import {
   ExpenseLineRepeater,
