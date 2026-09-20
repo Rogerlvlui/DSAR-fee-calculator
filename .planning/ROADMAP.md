@@ -269,8 +269,36 @@ The free-text limit constants and the pattern detector are exported once from `p
   4. No headline total renders while any line is PENDING, enforced by the server and not only the UI (AC-25); an `HR_PREPARER` requesting an assessment in LEGAL_REVIEW gets 403 with no assessment data in the body (AC-01), and no `verdict`, `engineAmount`, `basis`, `draftBaseline` or `lawyerReason` reaches an HR user through an API response, a server-component payload, or a cached response — each tested as its own leak channel (AC-02)
   5. A 20-line review can be completed from `/legal/queue` with the keyboard alone; the lawyer can raise a query into INFO_REQUEST, recompute against a newer pack after explicitly confirming that all dispositions will be discarded, and — where the pack carries a flat fee — see both figures and choose, with the flat fee blocked where it exceeds itemised direct cost
 
-**Plans**: TBD
+**Plans**: 9 plans across 5 waves
+
+Plans:
+**Wave 1**
+
+- [ ] 06-01-PLAN.md — Pack-coercion generalization (tracer, the central unlock) + ENGINE-14 golden files against real HK/SG content
+- [ ] 06-02-PLAN.md — Verdict badge accessible name (DISC-04) + unverified/indented visual treatment (REVIEW-03)
+- [ ] 06-03-PLAN.md — GET /api/assessments/{id} + ACCESS-02/03/07 leak-channel proofs + REVIEW-06 server-enforced no-total-while-pending
+
+**Wave 2** *(blocked on 06-01)*
+
+- [ ] 06-04-PLAN.md — Route restructuring to real /hr/*, /legal/* segments, including the /legal/queue path
+- [ ] 06-05-PLAN.md — Mandatory reason stop-list, shared client/server (REVIEW-05)
+
+**Wave 3** *(blocked on 06-01, 06-04, 06-05)*
+
+- [ ] 06-06-PLAN.md — /legal/queue's full NAV-01 behavior: INFO_REQUEST inclusion, sort by advisory deadline/age
+- [ ] 06-07-PLAN.md — Flat-fee-vs-itemised choice (REVIEW-11) + recompute-against-current-pack confirmation banner (REVIEW-10)
+
+**Wave 4** *(blocked on 06-02, 06-06, 06-07)*
+
+- [ ] 06-08-PLAN.md — Keyboard-first review + queue navigation + shared shortcut-help overlay (REVIEW-08, NAV-03)
+
+**Wave 5** *(blocked on all of the above)*
+
+- [ ] 06-09-PLAN.md — Regression sweep: already-built REVIEW-01/02/04/07/09/12 proven against real, non-SG jurisdiction data; full-suite confirmation
+
 **UI hint**: yes
+
+Scope note: 03-05's `03-05-SUMMARY.md`/D-16 deferral is honoured here — success criterion 1 is discharged against the 15 categories (9 HK, 6 SG) actually authored today, per the product owner's 2026-09-20 decision recorded in STATE.md, not the full 21/21.
 
 ### Phase 7: Sign-off, Outputs and Edge States
 
@@ -325,6 +353,6 @@ Where capacity allows, Phases 2, 3, 4 and 5 may run concurrently — they have z
 | 3.2 Database Boundary and Audit Immutability | 0/3 | Planned (inherited from Phase 1) | - |
 | 4. Workflow and Audit Backbone | 5/5 | Complete    | 2026-09-19 |
 | 5. HR Intake and Disclosure Shell | 6/6 | Complete    | 2026-09-20 |
-| 6. Convergence and Legal Review | 0/TBD | Not started | - |
+| 6. Convergence and Legal Review | 0/9 | Planned | - |
 | 7. Sign-off, Outputs and Edge States | 0/TBD | Not started | - |
 | 8. LLM Job 1 — Category Suggestion | 0/TBD | Not started | - |
