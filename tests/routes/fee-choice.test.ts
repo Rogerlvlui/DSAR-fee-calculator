@@ -278,6 +278,22 @@ describe("FEE-CHOICE: POST /api/assessments/{id}/fee-choice", () => {
     expect(response.status).toBe(409);
   });
 
+  // WR-01 regression: a bogus choice value must be rejected at the route
+  // boundary by FeeChoiceSchema, before setFeeChoice's own `=== "FLAT"`
+  // check gets a chance to unconditionally treat it as ITEMISED.
+  it("FEE-CHOICE (WR-01): a bogus choice value is rejected with 400 and never reaches the repository", async () => {
+    const { assessmentId } = await buildHkAssessment(4, 2000);
+
+    const response = await feeChoiceRoute(
+      jsonRequest(`${ASSESSMENTS_URL}/${assessmentId}/fee-choice`, "POST", { choice: "FREE" }, LEGAL_COOKIE),
+      { params: Promise.resolve({ id: assessmentId }) }
+    );
+    expect(response.status).toBe(400);
+
+    const stored = await memoryAssessmentRepository.getAssessment(assessmentId);
+    expect(stored?.feeChoice).toBeUndefined();
+  });
+
   it("FEE-CHOICE: an HR_PREPARER is refused with 403 and writes nothing", async () => {
     const { assessmentId } = await buildHkAssessment(4, 2000);
 
