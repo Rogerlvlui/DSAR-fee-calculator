@@ -2,10 +2,12 @@
 //
 // REVIEW-10's recompute-against-current-pack affordance. Renders only when
 // the jurisdiction's current pack version differs from the assessment's own
-// pinned version (shouldRenderRecomputeBanner, called by the caller —
-// apps/web/app/legal/assessments/[id]/page.tsx — never inside this
-// component itself, so the gating logic is directly, separately testable
-// against both directions).
+// pinned version (shouldRenderRecomputeBanner, now in
+// apps/web/src/domain/recompute-banner.ts — this module carries "use
+// client", so a function called from a Server Component cannot live here;
+// called by the caller — apps/web/app/legal/assessments/[id]/page.tsx —
+// never inside this component itself, so the gating logic is directly,
+// separately testable against both directions).
 //
 // Split the same way disposition-controls.tsx/flat-fee-choice.tsx are: a
 // pure RecomputeConfirmView (what this module's own tests render) and the
@@ -32,14 +34,6 @@ async function readErrorMessage(response: Response): Promise<string> {
   } catch {
     return `Request failed with status ${response.status}`;
   }
-}
-
-/** The gate this component's caller uses to decide whether to render
- * anything at all — a genuine version mismatch shows the banner; identical
- * versions (today's real case for every committed pack, since each has
- * exactly one version file — 06-RESEARCH.md Pitfall 5) show nothing. */
-export function shouldRenderRecomputeBanner(pinnedVersion: string, newVersion: string): boolean {
-  return pinnedVersion !== newVersion;
 }
 
 export interface RecomputeConfirmViewProps {

@@ -34,7 +34,8 @@ import { DispositionControls } from "../../../../src/ui/review/disposition-contr
 import { BulkAcceptBar } from "../../../../src/ui/review/bulk-accept-bar.tsx";
 import { SignOffPanel } from "../../../../src/ui/review/signoff-panel.tsx";
 import { FlatFeeChoice } from "../../../../src/ui/review/flat-fee-choice.tsx";
-import { RecomputeConfirm, shouldRenderRecomputeBanner } from "../../../../src/ui/review/recompute-confirm.tsx";
+import { RecomputeConfirm } from "../../../../src/ui/review/recompute-confirm.tsx";
+import { shouldRenderRecomputeBanner } from "../../../../src/domain/recompute-banner.ts";
 
 export default async function LegalAssessmentPage({
   params,

@@ -7,7 +7,7 @@
 import { describe, expect, it } from "vitest";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { RecomputeConfirmView, shouldRenderRecomputeBanner } from "./recompute-confirm.tsx";
+import { RecomputeConfirmView } from "./recompute-confirm.tsx";
 
 function renderBanner(props: {
   expanded?: boolean;
@@ -64,15 +64,5 @@ describe("RECOMPUTE-CONFIRM", () => {
   it("RECOMPUTE-CONFIRM: both action buttons render disabled while pending", () => {
     const html = renderBanner({ expanded: true, pending: true });
     expect(html).toMatch(/data-testid="recompute-confirm-button"[^>]*disabled/);
-  });
-});
-
-describe("RECOMPUTE-CONFIRM: shouldRenderRecomputeBanner (gating, both directions)", () => {
-  it("RECOMPUTE-CONFIRM: a genuine version mismatch shows the banner", () => {
-    expect(shouldRenderRecomputeBanner("2026.09.1", "2026.10.1")).toBe(true);
-  });
-
-  it("RECOMPUTE-CONFIRM: identical versions (today's real case for every committed pack) show nothing", () => {
-    expect(shouldRenderRecomputeBanner("2026.09.1", "2026.09.1")).toBe(false);
   });
 });
