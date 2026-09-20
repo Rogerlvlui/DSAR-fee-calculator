@@ -1,7 +1,7 @@
 ---
 phase: "07"
 slug: "sign-off-outputs-and-edge-states"
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: "2026-09-20"
@@ -227,25 +227,44 @@ non-destructive (records a date only, reversible by nothing but also undoes noth
 
 ## UI Considerations
 
-Applicable state considerations resolved for this phase's new/changed surfaces: 10 covered, 4 backstop, 0
-unresolved. (Considerations for the sign-off panel's acknowledgement flow, the notice block, and the result view
-were already resolved in `03.1-UI-SPEC.md` and are not re-litigated here.)
+Run via the compiled `ui-consideration-probe` engine (not hand-derived) against six element/surface records built
+from this document's own prose — `E1` stale-pack review notice, `E2` PACK-08 sign-off block, `E3` SIGNOFF-01
+pending-lines refusal, `E4` internal record PDF line-items table, `E5` internal record PDF matter-flags section,
+`E6` the "Download internal record (PDF)" trigger. Element kinds were engine-proposed then reviewed; `E3`'s
+heuristic-proposed `list-collection` kind was corrected to `static-content` only — it is a single sentence of prose
+that happens to enumerate line numbers, not a structural list widget, and the uncorrected classification would have
+pulled in `populated`/`partial`/`zero-one-many` categories that describe a real list component, not inline text.
+
+24 categories applicable, 16 resolved (explicit), 2 resolved (backstop), 6 dismissed, 0 unresolved. (Considerations
+for the sign-off panel's acknowledgement flow, the notice block, and the result view were already resolved in
+`03.1-UI-SPEC.md` and are not re-litigated here.)
 
 | Category | Element(s) | Status | Resolution / Reason |
 |----------|------------|--------|---------------------|
-| zero-one-many | Stale-pack review notice | ✅ covered | Renders only when `deriveEffectiveStatus(pack, now) === "STALE"` — never a "not stale" placeholder, never rendered alongside the unrelated 30-day amber warning at the same time as a second, redundant notice (the amber warning is the pre-STALE state; STALE supersedes it) |
-| zero-one-many | PACK-08 sign-off block | ✅ covered | Renders only when the current actor is the pack version's recorded last activator — the common case (a different lawyer signs off) shows the ordinary, unchanged sign-off panel with no trace of this block |
-| error | PACK-08 block vs. the existing "acknowledge every flag" blocking reason, both true at once | ✅ covered | The PACK-08 block is a structural, non-self-resolvable refusal (no checkbox can fix it) and takes precedence in the same slot — the acknowledgement checkboxes still render and remain checkable, but the CTA stays disabled with the PACK-08 message shown, never both messages stacked ambiguously |
-| error | SIGNOFF-01 pending-lines refusal reached in practice | 🧪 backstop | Since the panel only renders client-side once `pendingCount === 0`, this is a race-condition path (a second tab/session dispositions a line between page load and submit) — verify with a test that submits sign-off against a server-side assessment holding a PENDING line despite a stale client view |
-| long-text | Internal record PDF — Basis / Citation / Lawyer's reason cells | ✅ covered | Wrap within their column, never truncate or ellipsis — same rule PRD §10.3 already applies to the on-screen review card, carried into the PDF for the same evidentiary reason |
-| overflow | Internal record PDF — 50-line assessment | 🧪 backstop | Multi-page pagination with the table header row and page footer repeating on every page; verify with a UI-state test asserting the header/footer text is present and correct on page 2+, not only page 1 |
-| empty | Internal record PDF — matter flags section, zero flags at all | ✅ covered | Renders the "No matter-level flags were raised on this matter." line (Copywriting Contract), never a bare heading with nothing under it |
-| partial | Internal record PDF — a line missing its lawyer's reason (only the non-`FLAG` `ACCEPTED` case, per AC-23) | ✅ covered | Renders "—" in that cell, never a blank that could be misread as data loss |
-| populated | Internal record PDF — realistic mixed review (some ALLOW/DISALLOW/ALLOW_CAPPED, many FLAG, per `06-UI-SPEC.md`'s own "populated" ruling) | ✅ covered | The table's row density and column widths are sized against this normal case (more FLAG rows with a "Why this needs you" style basis than short ALLOW rows), not the six-line reference fixture alone |
-| loading | "Download internal record (PDF)" | ✅ covered | Button disabled for the duration of generation — same pattern as `signoff-submit`/`notice-mark-sent` |
-| error | "Download internal record (PDF)" generation failure | ✅ covered | Inline error beside the trigger, nothing downloaded, no partial/corrupt file offered — matches this app's existing inline-error-never-silent-failure convention |
-| zero-one-many | Zero-allowable outcome (finalAmount = 0) appearing in the internal record PDF | ✅ covered (dismissed as N/A) | The line-item table and sign-off block render identically to any other outcome — a zero final amount is a normal value in the "Final fee" field, never a special empty/error rendering (same DISC-06 rule `03.1-UI-SPEC.md` already applies to the on-screen result) |
-| overflow | PDF generated for a matter with zero matter-level flags AND zero lines requiring acknowledgement, on a single-page-fitting assessment | ✅ covered (dismissed as N/A) | Ordinary single-page render; no special-case layout needed since the "no flags" copy rows above already handle the content, and the page simply ends shorter |
+| overflow | Stale-pack review notice (E1) | ✅ resolved (explicit) | Body sentence wraps within the full-width notice container at any width — no fixed height, no clip, no scroll; identical treatment to `06-UI-SPEC.md`'s recompute banner |
+| long-text | Stale-pack review notice (E1) | ✅ resolved (explicit) | `packId`/`version`/`reviewDueOn` are bounded, machine-generated identifiers, never free text — no realistic long-text case; the sentence simply wraps if it ever ran long |
+| overflow | PACK-08 sign-off block (E2) | ✅ resolved (explicit) | Inline text in the existing blocking-reason slot wraps exactly as `SIGN_OFF_BLOCKING_REASON` already does — no fixed-height container |
+| long-text | PACK-08 sign-off block (E2) | ✅ resolved (explicit) | `packId`/`version` are bounded identifiers; "ask another reviewer..." is fixed text — no realistic long-text case |
+| overflow | SIGNOFF-01 pending-lines refusal (E3) | ✅ resolved (explicit) | Full comma-separated line list renders in the existing `signoff-error` slot and wraps — never truncated with an ellipsis, since hiding which lines are pending would defeat AC-16's own purpose of naming them (a 30-pending-line matter reads as one long wrapped sentence, not a shortened list) |
+| long-text | SIGNOFF-01 pending-lines refusal (E3) | ✅ resolved (explicit) | Same resolution as overflow above — the line-number list is the only variable-length content here and is never shortened |
+| empty | Internal record PDF — line-items table (E4) | 🧪 resolved (backstop) | If a matter ever reaches `SIGNED_OFF` with zero lines, the table renders its header row only, no body rows, no special empty-state copy — needs a held-out test confirming whether this path is reachable given upstream intake validation, since that boundary isn't proven here |
+| loading | Internal record PDF — line-items table (E4) | ⛔ dismissed | The PDF is generated server-side as one atomic document — there is no client-side progressive/partial render of the table itself; the only loading state on this surface is the download trigger's own disabled state (E6, resolved below) |
+| error | Internal record PDF — line-items table (E4) | ⛔ dismissed | Generation is atomic — a failure aborts the whole PDF, never a partially-rendered table; covered by E6's generation-failure resolution, not a table-specific state |
+| populated | Internal record PDF — line-items table (E4) | ✅ resolved (explicit) | Row density and column widths sized against a realistic mixed-verdict case (multiple FLAG rows with longer basis text alongside shorter ALLOW/DISALLOW/ALLOW_CAPPED rows per `06-UI-SPEC.md`'s own "populated" ruling), not the six-line reference fixture alone |
+| partial | Internal record PDF — line-items table (E4) | ✅ resolved (explicit) | A line missing its lawyer's reason (only the non-`FLAG` `ACCEPTED` case, per AC-23) renders "—" in that cell, never a blank that could be misread as dropped data |
+| overflow | Internal record PDF — line-items table (E4) | 🧪 resolved (backstop) | Multi-page pagination with the table header row and page footer repeating on every page (up to 50 lines); needs a UI-state test asserting header/footer text is present and correct on page 2+, not only page 1 |
+| zero-one-many | Internal record PDF — line-items table (E4) | ✅ resolved (explicit) | A 1-line table renders with the same column widths/header as any other count — no special single-row layout; the 0-line case is covered under `empty` above and the many-line case under `overflow` above; this is a data table, not prose, so no singular/plural copy concern |
+| long-text | Internal record PDF — line-items table (E4) | ✅ resolved (explicit) | Basis / Citation / Lawyer's reason cells wrap within their column, never truncate or ellipsis — same rule PRD §10.3 already applies to the on-screen review card, carried into the PDF for the same evidentiary reason |
+| empty | Internal record PDF — matter-flags section (E5) | ✅ resolved (explicit) | Two distinct empty variants already specified: "No matter-level flags were raised on this matter." (zero flags at all) vs. "No matter-level flags on this assessment required acknowledgement." (flags exist but none require ack) — never a bare heading with nothing beneath it |
+| loading | Internal record PDF — matter-flags section (E5) | ⛔ dismissed | Same atomic-generation reasoning as E4 — no client-side progressive load of this section |
+| error | Internal record PDF — matter-flags section (E5) | ⛔ dismissed | Same atomic-generation reasoning as E4 — covered by E6's generation-failure resolution |
+| populated | Internal record PDF — matter-flags section (E5) | ✅ resolved (explicit) | Each flag renders as one row (type, plus acknowledging lawyer's name/timestamp if acknowledged, or a blank ack-column entry for informational flags that never required it); row layout sized against a realistic 2-4 flag matter with a mix of ack-required and informational flags per PRD §9.3's flag catalogue, not just zero or one |
+| partial | Internal record PDF — matter-flags section (E5) | ⛔ dismissed | Acknowledgement is recorded atomically — actor and timestamp are written together in a single audit event — there is no partially-filled acknowledgement record to render (never a blank actor with a timestamp, or vice versa) |
+| overflow | Internal record PDF — matter-flags section (E5) | ✅ resolved (explicit) | The flags section is part of the same paginated document flow as the line-items table (DOC-01's own page-break behavior) — not a separately-scrolled sub-region; a long flags list simply pushes the Sign-off section onto a later page |
+| zero-one-many | Internal record PDF — matter-flags section (E5) | ✅ resolved (explicit) | No singular/plural copy applies once there is at least one flag — rows render identically at 1 flag or many; only the zero-flags case carries dedicated copy (covered under `empty` above) |
+| loading | "Download internal record (PDF)" (E6) | ✅ resolved (explicit) | Button disabled for the duration of generation — same pattern as `signoff-submit`/`notice-mark-sent` |
+| error | "Download internal record (PDF)" (E6) | ✅ resolved (explicit) | Inline error beside the trigger, nothing downloaded, no partial/corrupt file offered — matches this app's existing inline-error-never-silent-failure convention |
+| long-text | "Download internal record (PDF)" (E6) | ⛔ dismissed | The button label is a fixed, hardcoded string ("Download internal record (PDF)"), never populated from user or matter data — no long-text case is reachable |
 
 **Explicitly dismissed (reason given, not silently dropped):** a landscape-vs-portrait toggle or a user-facing page-
 size choice for the PDF — D-04 delegates the exact page geometry to this document's own discretion (landscape A4,
@@ -266,12 +285,14 @@ registry (no shadcn, no third-party block source of any kind is used this phase)
 
 ## Checker Sign-Off
 
-- [ ] Dimension 1 Copywriting: PASS
-- [ ] Dimension 2 Visuals: PASS
-- [ ] Dimension 3 Color: PASS
-- [ ] Dimension 4 Typography: PASS
-- [ ] Dimension 5 Spacing: PASS
-- [ ] Dimension 6 Registry Safety: PASS
-- [ ] Dimension 7 Inventory Provenance: PASS
+- [x] Dimension 1 Copywriting: PASS
+- [x] Dimension 2 Visuals: PASS
+- [x] Dimension 3 Color: PASS
+- [x] Dimension 4 Typography: PASS (non-blocking recommendation: PDF declares 5 point sizes vs. the 4-size screen
+      constraint — justified by the spec as a deliberate, separate print scale; planner may proceed without
+      consolidating)
+- [x] Dimension 5 Spacing: PASS
+- [x] Dimension 6 Registry Safety: PASS
+- [x] Dimension 7 Inventory Provenance: PASS
 
-**Approval:** pending
+**Approval:** APPROVED
