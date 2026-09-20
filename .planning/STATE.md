@@ -1,19 +1,19 @@
 ---
 gsd_state_version: "1.0"
-current_phase: "06"
-current_phase_name: Convergence and Legal Review
+current_phase: 07
+current_phase_name: Sign-off, Outputs and Edge States
 status: complete
-stopped_at: Phase 7 context gathered
-last_updated: "2026-09-20T08:04:55.075Z"
+stopped_at: Phase 07 UI-SPEC approved
+last_updated: "2026-09-20T12:31:09.269Z"
 last_activity: 2026-09-20
 last_activity_desc: "Executed all 9 Phase 6 plans across 5 waves. Wave 1 (06-01 pack-coercion generalization + ENGINE-14 golden files against real HK/SG content; 06-02 verdict-badge accessible name + visual distinctness; 06-03 GET /api/assessments/{id} + ACCESS-02/03/07 leak-channel proofs + REVIEW-06). Wave 2 (06-04 route restructuring to real /hr/*, /legal/* segments incl. /legal/queue, with before/after getCurrentActor/requireRole grep-count proof on all six moved page.tsx files; 06-05 REASON_STOP_LIST wired into both server and client, stop-list checked BEFORE length — a documented deviation from the plan's literal ordering, since every stop-list entry is under the 10-char minimum and length-first would make the stop-list branch unreachable). Wave 3 (06-06 /legal/queue widened to INFO_REQUEST/CLOSED + pure queue-sort comparator + sort toggle; 06-07 Assessment.feeChoice + FEE_CHOICE_SET audit event + FlatFeeChoice UI + RecomputeConfirm banner). Wave 4 (06-08 pure keyboard-shortcuts map + shared ShortcutHelpOverlay + ReviewKeyboardScope (j/k/a/r/s/?) + QueueKeyboardScope (j/k/Enter/?), zero changes to disposition-controls.tsx's own internals). Wave 5 (06-09 regression sweep: REVIEW-01/02/04/12 proven against real HK data for the first time in this codebase's history; REVIEW-07's bulk-accept eligible set confirmed empty against both real packs for two distinct, separately-verified reasons). Discovered during Wave 5 that a concurrent process was actively fixing a real \"use client\"-boundary defect class in this shared worktree in real time (own Plan 06-07's RecomputeConfirm.tsx exported shouldRenderRecomputeBanner from a client module, called directly by a Server Component — the identical defect class Phase 05's humanizePackDisplayStatus had) — did not touch, stage, or interfere with that in-progress work; it completed and landed cleanly as commits a4f4df7/f903666 before this agent's own Wave 5 commits, verified via git show --stat that none of this agent's own commits were contaminated. gsd-tools.cjs remains unavailable in this worktree (same recurring gap as every prior phase) — STATE.md/ROADMAP.md/REQUIREMENTS.md all updated manually. THEN, a follow-up session ran an independent code-reviewer + security-auditor pass (06-REVIEW-ADDENDUM.md): the recurring authorization-gap bug class from Phases 3.1/4/5 did NOT recur this time (security audit SECURED, 20/20, 0 open) — genuine improvement — but the code-reviewer found CR-01 (Critical: the REVIEW-11 flat-fee-vs-itemised choice had zero effect on finalAmount — computeFinalAmount() never read assessment.feeChoice) plus WR-01 (fee-choice route accepted an unvalidated choice string) and WR-02 (legal assessment page bypassed the role-gated data layer for two reads — a smaller, not-currently-exploitable instance of the same recurring pattern) plus two minor items (dead code with a misleading comment; four stale doc-comment paths) and one docs cleanup (a leftover \"DEMO-ONLY TRANSFORM\" comment string the 06-01 plan's own acceptance criterion required removed). All 6 fixed directly across 6 atomic commits with 4 new regression tests; full suite 949 -> 953."
-state_head: 20f2bf0c6057bf64fa915fb15459dce58ee76ef3
+state_head: 8a365d72b86b6b5235d45dbe682a4e91539e6a07
 progress:
   total_phases: 10
-  completed_phases: 7
-  total_plans: 46
+  completed_phases: 1
+  total_plans: 52
   completed_plans: 43
-  percent: 93
+  percent: 0
 ---
 
 # Project State
@@ -27,12 +27,12 @@ See: .planning/PROJECT.md (updated 2026-09-13)
 
 ## Current Position
 
-Phase: 06 — Convergence and Legal Review
+Phase: 07 (Sign-off, Outputs and Edge States) — READY TO EXECUTE
 Plan: 9/9 complete — fully executed, independent review addendum resolved
 Status: Complete — ready for Phase 7
 Last activity: 2026-09-20 — Executed all 9 plans across 5 waves (see state_head commit and last_activity_desc above for the full per-wave account), THEN resolved 06-REVIEW-ADDENDUM.md's independent-followup findings (CR-01 flat-fee-choice-ignored, WR-01 unvalidated fee-choice body, WR-02 legal page bypassing role-gated reads, plus IN-01/IN-02/doc-cleanup). Full suite 838 -> 949 (execution) -> 953 (addendum) passing; typecheck/lint/depcruise clean after every commit. All 19 phase requirements (ENGINE-14, REVIEW-01..12, NAV-01, NAV-03, ACCESS-02/03/07, DISC-04) marked Complete in REQUIREMENTS.md; ROADMAP.md's Phase 6 entry and all 9 plan checkboxes marked complete.
 
-Progress: [█████████░] 93%
+Progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
@@ -278,7 +278,7 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-09-20T08:04:54.917Z
-Stopped at: Phase 7 context gathered
-Resume file: .planning/phases/07-sign-off-outputs-and-edge-states/07-CONTEXT.md
+Last session: 2026-09-20T08:27:40.586Z
+Stopped at: Phase 07 UI-SPEC approved
+Resume file: .planning/phases/07-sign-off-outputs-and-edge-states/07-UI-SPEC.md
 Last activity: 2026-09-20 - Executed Phase 6 in full (9 plans, 5 waves); quick task 260920-kmd (server/client boundary fix) landed concurrently in the same worktree during Wave 5, verified not to have contaminated this agent's own commits. Then resolved the independent code-reviewer/security-auditor follow-up findings recorded in 06-REVIEW-ADDENDUM.md.
