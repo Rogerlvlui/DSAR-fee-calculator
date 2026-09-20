@@ -60,7 +60,10 @@ export function resolvePinnedRulePack(rulePackId: string, rulePackVersion: strin
   return resolveRulePack(rulePackId, rulePackVersion, resolveRulepacksRoot());
 }
 
-// DEMO-ONLY TRANSFORM — spreads the loaded pack and overrides only `status`;
+// Coerces a loaded pack into the shape the engine's frozen RulePack type
+// requires — real, ongoing machinery used by every real workflow (06-01;
+// 06-RESEARCH.md's own Pattern 1), not a demo-only stand-in Phase 6
+// replaces. Spreads the loaded pack and overrides only `status`;
 // `constraints` is re-cast (not changed in value — every committed pack's
 // constraints are already all non-null) because LoadableRulePack's
 // StubConstraints type is structurally wider (every key nullable) than

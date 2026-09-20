@@ -19,7 +19,7 @@ export async function POST(
     // (`${assessmentId}:line:${expenseLineId}`, packages/engine's
     // deriveAssessmentLineId) and arrive percent-encoded from Next's
     // dynamic segment here — see the review page's own note
-    // (apps/web/app/(legal)/assessments/[id]/page.tsx).
+    // (apps/web/app/legal/assessments/[id]/page.tsx).
     const { id: rawId } = await context.params;
     const id = decodeURIComponent(rawId);
     const body = (await request.json()) as DispositionLineInput;

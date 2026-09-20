@@ -23,7 +23,7 @@ export async function GET(
   try {
     // decodeURIComponent: assessment ids are colon-joined and arrive
     // percent-encoded from Next's dynamic segment — see the review page's
-    // own note (apps/web/app/(legal)/assessments/[id]/page.tsx).
+    // own note (apps/web/app/legal/assessments/[id]/page.tsx).
     const { id: rawId } = await context.params;
     const id = decodeURIComponent(rawId);
     const actor = resolveActorFromCookieHeader(request.headers.get("cookie"));

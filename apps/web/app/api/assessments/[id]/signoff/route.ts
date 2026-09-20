@@ -16,7 +16,7 @@ export async function POST(
   try {
     // decodeURIComponent: assessment ids are colon-joined and arrive
     // percent-encoded from Next's dynamic segment here — see the review
-    // page's own note (apps/web/app/(legal)/assessments/[id]/page.tsx).
+    // page's own note (apps/web/app/legal/assessments/[id]/page.tsx).
     const { id: rawId } = await context.params;
     const id = decodeURIComponent(rawId);
     const body = (await request.json()) as SignOffInput;
