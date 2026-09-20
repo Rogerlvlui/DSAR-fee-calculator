@@ -78,6 +78,13 @@ export interface AssessmentViewProps {
    * the caller itself has decided every line is decided (this component
    * does not re-derive that condition). */
   signOffPanel?: ReactNode;
+  /** REVIEW-11's flat-fee-vs-itemised choice, composed by the caller
+   * (Plan 06-07) exactly the way renderLineControls/bulkAcceptBar/
+   * signOffPanel already are — this module still never imports
+   * apps/web/src/server, and flat-fee-choice.tsx never imports this module
+   * either. Rendered directly above the headline block, per 06-UI-SPEC.md's
+   * own stated visual-focal-point rule. */
+  flatFeeChoice?: ReactNode;
 }
 
 export function AssessmentView({
@@ -91,6 +98,7 @@ export function AssessmentView({
   renderLineControls,
   bulkAcceptBar,
   signOffPanel,
+  flatFeeChoice,
 }: AssessmentViewProps) {
   const detailByLineId = new Map(lineDetails.map((detail) => [detail.assessmentLineId, detail]));
   const sortedLines = [...assessment.lines].sort(compareByVerdict);
@@ -150,6 +158,7 @@ export function AssessmentView({
         </div>
       </div>
 
+      {flatFeeChoice}
       <TotalsRail assessment={assessment} currency={currency} />
       {signOffPanel}
     </div>

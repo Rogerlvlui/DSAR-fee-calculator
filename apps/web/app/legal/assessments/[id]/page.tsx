@@ -33,6 +33,7 @@ import { AssessmentView } from "../../../../src/ui/review/assessment-view.tsx";
 import { DispositionControls } from "../../../../src/ui/review/disposition-controls.tsx";
 import { BulkAcceptBar } from "../../../../src/ui/review/bulk-accept-bar.tsx";
 import { SignOffPanel } from "../../../../src/ui/review/signoff-panel.tsx";
+import { FlatFeeChoice } from "../../../../src/ui/review/flat-fee-choice.tsx";
 
 export default async function LegalAssessmentPage({
   params,
@@ -148,6 +149,15 @@ export default async function LegalAssessmentPage({
         }}
         bulkAcceptBar={<BulkAcceptBar assessmentId={assessment.id} eligibleLineIds={eligibleLineIds} />}
         signOffPanel={signOffPanel}
+        flatFeeChoice={
+          <FlatFeeChoice
+            assessmentId={assessment.id}
+            flatFeeComparison={assessment.totals.flatFeeComparison ?? null}
+            flatFeeVerificationStatus={pack.flatFee?.verificationStatus ?? null}
+            currency={matter.currency}
+            currentChoice={assessment.feeChoice ?? null}
+          />
+        }
       />
     </main>
   );
