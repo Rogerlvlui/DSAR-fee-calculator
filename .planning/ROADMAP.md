@@ -314,7 +314,24 @@ Scope note: 03-05's `03-05-SUMMARY.md`/D-16 deferral is honoured here — succes
   4. HR sees the signed-off figure, the reviewing lawyer, and both allowed and struck items with their plain-language basis, plus the notice as a copy-to-clipboard block watermarked DRAFT until marked sent — while `lawyerReason` and the internal rationale appear in no `/hr/*` response and no HR-facing document, including after sign-off (AC-04); marking sent records a date only, under a visible note that the tool emails nobody
   5. A zero-allowable outcome produces a valid notice stating that no fee is charged, treated as a normal result (AC-14); regex over the generated notice finds no rule ID, citation, basis string, or mention of AI or of this tool (AC-17); and every row of §10.7's table behaves exactly as specified rather than being improvised
 
-**Plans**: TBD
+**Plans**: 6 plans across 3 waves — a tracer proving the PDF architecture end to end first, then the independent sign-off-gate and HR-output work in parallel beside it, then the record's full content and the review-screen surfaces, then the §10.7 sweep
+
+Plans:
+**Wave 1**
+
+- [ ] 07-01-PLAN.md — Tracer: `packages/documents`, the pure record view, the `@react-pdf/renderer` document, the role-gated binary Route Handler, and an HTTP smoke test proving the upstream monorepo crash does not bite
+- [ ] 07-02-PLAN.md — The sign-off gate: SIGNOFF-01's 409 naming the pending lines, SIGNOFF-02's matching 409, PACK-08's activation block, and SIGNOFF-04/ACCESS-04 proven
+- [ ] 07-03-PLAN.md — HR outputs: the DRAFT watermark gated on not-yet-sent, a date-only sent record, DOC-03's AC-17 scan, and DOC-04's zero-allowable outcome end to end
+
+**Wave 2** *(blocked on 07-01)*
+
+- [ ] 07-04-PLAN.md — The full internal record: the dense one-row-per-line data model, the paginating greyscale document, and the footer's provenance read from the assessment
+- [ ] 07-05-PLAN.md — Legal review screen: the stale-pack red notice (AC-39's in-flight half), the download trigger, and ACCESS-05 proven as an observed absence from every HR channel
+
+**Wave 3** *(blocked on all of the above)*
+
+- [ ] 07-06-PLAN.md — DISC-06: PRD §10.7 row by row in one file, plus the phase regression sweep and honest record closure
+
 **UI hint**: yes
 
 DISC-06 sweeps §10.7 end to end here. Individual rows are implemented in their home phases — no usable pack and currency mismatch in Phase 5, pack-activated-mid-review in Phase 6, zero allowable with DOC-04 — and the LLM-unavailable row is delivered with LLM-08 in Phase 8.
@@ -354,5 +371,5 @@ Where capacity allows, Phases 2, 3, 4 and 5 may run concurrently — they have z
 | 4. Workflow and Audit Backbone | 5/5 | Complete    | 2026-09-19 |
 | 5. HR Intake and Disclosure Shell | 6/6 | Complete    | 2026-09-20 |
 | 6. Convergence and Legal Review | 0/9 | Planned | - |
-| 7. Sign-off, Outputs and Edge States | 0/TBD | Not started | - |
+| 7. Sign-off, Outputs and Edge States | 0/6 | Planned | - |
 | 8. LLM Job 1 — Category Suggestion | 0/TBD | Not started | - |
