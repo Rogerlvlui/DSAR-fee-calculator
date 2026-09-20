@@ -22,7 +22,7 @@ import type { ReactNode } from "react";
 import { deriveEffectiveStatus, daysUntilReviewDue } from "@dsar/rulepacks/stale";
 import { getCurrentActor } from "../../../../src/server/current-actor.ts";
 import { getAssessmentForLegalReview, listBulkAcceptableLineIds } from "../../../../src/server/data/assessments.ts";
-import { resolvePinnedRulePack } from "../../../../src/server/engine-invocation.ts";
+import { resolveCurrentPackForJurisdiction, resolvePinnedRulePack } from "../../../../src/server/engine-invocation.ts";
 import { buildReviewView } from "../../../../src/server/review-view.ts";
 import { memoryMatterRepository } from "../../../../src/server/repositories/memory/matter-repository.ts";
 import { NotFoundError } from "../../../../src/server/errors.ts";
@@ -34,6 +34,7 @@ import { DispositionControls } from "../../../../src/ui/review/disposition-contr
 import { BulkAcceptBar } from "../../../../src/ui/review/bulk-accept-bar.tsx";
 import { SignOffPanel } from "../../../../src/ui/review/signoff-panel.tsx";
 import { FlatFeeChoice } from "../../../../src/ui/review/flat-fee-choice.tsx";
+import { RecomputeConfirm, shouldRenderRecomputeBanner } from "../../../../src/ui/review/recompute-confirm.tsx";
 
 export default async function LegalAssessmentPage({
   params,
@@ -60,6 +61,16 @@ export default async function LegalAssessmentPage({
   const pack = resolvePinnedRulePack(assessment.rulePackId, assessment.rulePackVersion);
   const reviewView = buildReviewView(assessment, matter, expenseLines);
   const eligibleLineIds = listBulkAcceptableLineIds(assessment);
+
+  // REVIEW-10: resolveCurrentPackForJurisdiction (Plan 06-01) reused
+  // verbatim — never a second, parallel "get the current pack" mechanism.
+  // This condition is honestly always false against every real committed
+  // pack today: each has exactly one version file (06-RESEARCH.md
+  // Pitfall 5), so the banner never renders yet — correctly, not a bug to
+  // work around. It is already correct and waiting for the day a second
+  // real pack version file exists.
+  const currentPack = resolveCurrentPackForJurisdiction(matter.jurisdictionCode);
+  const showRecomputeBanner = shouldRenderRecomputeBanner(assessment.rulePackVersion, currentPack.version);
 
   const now = new Date().toISOString();
   const pendingCount = assessment.lines.filter((line) => line.disposition === "PENDING").length;
@@ -157,6 +168,15 @@ export default async function LegalAssessmentPage({
             currency={matter.currency}
             currentChoice={assessment.feeChoice ?? null}
           />
+        }
+        recomputeBanner={
+          showRecomputeBanner ? (
+            <RecomputeConfirm
+              assessmentId={assessment.id}
+              pinnedVersion={assessment.rulePackVersion}
+              newVersion={currentPack.version}
+            />
+          ) : null
         }
       />
     </main>

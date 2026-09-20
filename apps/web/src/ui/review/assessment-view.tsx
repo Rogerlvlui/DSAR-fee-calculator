@@ -85,6 +85,12 @@ export interface AssessmentViewProps {
    * either. Rendered directly above the headline block, per 06-UI-SPEC.md's
    * own stated visual-focal-point rule. */
   flatFeeChoice?: ReactNode;
+  /** REVIEW-10's recompute-against-current-pack confirmation banner,
+   * composed by the caller (Plan 06-07) exactly the way every other
+   * composition slot already is. Rendered above the cards region, per
+   * 06-UI-SPEC.md's spacing note (md top margin — same rhythm as the
+   * existing matter-flag treatment). */
+  recomputeBanner?: ReactNode;
 }
 
 export function AssessmentView({
@@ -99,6 +105,7 @@ export function AssessmentView({
   bulkAcceptBar,
   signOffPanel,
   flatFeeChoice,
+  recomputeBanner,
 }: AssessmentViewProps) {
   const detailByLineId = new Map(lineDetails.map((detail) => [detail.assessmentLineId, detail]));
   const sortedLines = [...assessment.lines].sort(compareByVerdict);
@@ -131,6 +138,7 @@ export function AssessmentView({
         openQuestions={pack.openQuestions}
       />
 
+      {recomputeBanner}
       <div data-testid="cards-region">
         {bulkAcceptBar}
         <div data-testid="assessment-lines">
