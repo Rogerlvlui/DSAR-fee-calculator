@@ -252,6 +252,12 @@ None yet.
 
 - **PRODUCT-OWNER DECISION 2026-09-20: PACK-09's full category authoring is deferred; Phase 6 proceeds against the partial packs.** Before starting Phase 6 planning, research confirmed `.planning/REQUIREMENTS.md`'s PACK-09 row was mis-marked "Complete" — only 9/21 HK-PDPO and 6/15 SG-PDPA categories are actually authored with real content; the remaining 27 (12 HK + 15 SG) are `FLAG`/`NEEDS_VERIFICATION` stubs. Crucially, the PRD itself (§7.5, §7.6) explicitly instructs "do not invent them" for every one of the 27 — there is no PRD content to transcribe this time, unlike the first 15, so each is a genuine, original legal-content decision (treatment/cap/conditions/citation/basis) with nothing to fall back on. Presented three options to the product owner (author first, author as a Phase 6 Wave 0, or defer and plan against partial packs); **the product owner chose to defer** — Phase 6 planning and execution proceeds now against the 15 already-authored categories, with Phase 6's own success criterion 1 ("AC-09 golden files pass for both the HK and SG packs") **re-scoped for this pass to the categories that are actually authored**, not the full 21/15. The remaining category rules stay `FLAG` (a normal, already-correctly-handled engine state that a lawyer must disposition line by line per Phase 6's own review mechanics — REVIEW-01..12 do not depend on every category having non-FLAG content). Full PACK-09 completion is tracked below as a follow-up, not abandoned.
 
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260920-kmd | Fix server/client boundary violation: humanizePackDisplayStatus called from Server Component crashes /hr/matters/[id]/submitted | 2026-09-20 | fbe7ce3 | [260920-kmd-fix-server-client-boundary-violation-hum](./quick/260920-kmd-fix-server-client-boundary-violation-hum/) |
+
 ### Roadmap Evolution
 
 - Phase 3.1 inserted after Phase 3: Demo Slice - In-Memory Determination Pipeline: live determination with no database, for a stakeholder presentation ~2 weeks out. Docker unavailable on the build machine; DB needed only for persistence and AC-34, neither exercised by a demo. (URGENT)
@@ -269,3 +275,4 @@ Items acknowledged and deferred at milestone close, most recent first:
 Last session: 2026-09-20T03:30:00.000Z
 Stopped at: Phase 06 (Convergence and Legal Review) planned — 9 plans across 5 waves (`06-01`..`06-09-PLAN.md`), `06-VALIDATION.md` written, all 19 phase requirements mapped across at least one plan. Wave 1 (06-01/06-02/06-03) is fully independent and parallel-safe. Ready for `/gsd-execute-phase 6`.
 Resume file: None
+Last activity: 2026-09-20 - Completed quick task 260920-kmd: Fix server/client boundary violation blocking the HR submitted page (and an identical live bug on the legal review screen, found during planning)
