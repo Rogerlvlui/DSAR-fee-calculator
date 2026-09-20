@@ -42,7 +42,7 @@
 - [x] **ENGINE-11**: Matter-level flags are evaluated from `matterFlagRules`, plus `LITIGATION_POSTURE`, `REPEAT_REQUEST` and `STALE_PACK_WARNING` (§8.1)
 - [x] **ENGINE-12**: An `OTHER_UNCLASSIFIED` line always returns `FLAG`, regardless of pack, description or LLM suggestion, except where the posture gate has already forced every line to `DISALLOW` (AC-19)
 - [x] **ENGINE-13**: A stored `claimedAmount` that does not equal `quantity × unitRate` on load raises a hard error and blocks submission (AC-08)
-- [ ] **ENGINE-14**: Golden-file fixtures for the SG and HK packs reproduce exactly the expected verdicts, amounts, flags and totals, and changing a pack breaks its golden files (AC-09, §14)
+- [x] **ENGINE-14**: Golden-file fixtures for the SG and HK packs reproduce exactly the expected verdicts, amounts, flags and totals, and changing a pack breaks its golden files (AC-09, §14)
 - [x] **ENGINE-15**: Engine tests pass identically under at least two timezone and locale combinations, proving no hidden locale or clock dependence *(research)*
 - [x] **ENGINE-16**: For a pack carrying a flat fee, the engine computes both the itemised baseline and the flat figure, and reports whether the flat figure exceeds itemised direct cost *(decision: PROJECT.md, PRD §17 q.2)*
 - [x] **ENGINE-17**: An assessment of 50 lines completes in under 100ms (§11)
@@ -65,12 +65,12 @@
 ### Access control
 
 - [ ] **ACCESS-01**: Routes are role-scoped `/hr/*`, `/legal/*`, `/admin/*`, with authorisation evaluated server-side on every request rather than by hiding UI (§10.1)
-- [ ] **ACCESS-02**: An `HR_PREPARER` requesting an assessment for a matter in `LEGAL_REVIEW` receives 403, and the response body contains no assessment data (AC-01)
-- [ ] **ACCESS-03**: No API response to an `HR_PREPARER` contains `verdict`, `engineAmount`, `basis`, `draftBaseline` or `lawyerReason` for a matter not in `SIGNED_OFF` (AC-02)
+- [x] **ACCESS-02**: An `HR_PREPARER` requesting an assessment for a matter in `LEGAL_REVIEW` receives 403, and the response body contains no assessment data (AC-01)
+- [x] **ACCESS-03**: No API response to an `HR_PREPARER` contains `verdict`, `engineAmount`, `basis`, `draftBaseline` or `lawyerReason` for a matter not in `SIGNED_OFF` (AC-02)
 - [ ] **ACCESS-04**: Sign-off by a user without `LEGAL_REVIEWER` for the matter's jurisdiction is rejected (AC-03)
 - [ ] **ACCESS-05**: `lawyerReason` and the internal rationale never appear in any `/hr/*` response or HR-facing document, including after sign-off (AC-04)
 - [ ] **ACCESS-06**: Identity comes from a swappable provider seeded with test users, and no guard depends on which provider is in use *(decision: PROJECT.md — prototype framing)*
-- [ ] **ACCESS-07**: No unreviewed assessment data reaches an HR user through a server-component payload or a cached response, tested as its own leak channel distinct from the API tests *(research)*
+- [x] **ACCESS-07**: No unreviewed assessment data reaches an HR user through a server-component payload or a cached response, tested as its own leak channel distinct from the API tests *(research)*
 - [ ] **ACCESS-08**: Every endpoint is tested against every role, asserting on response bodies and not only status codes (§14)
 
 ### Personal-data boundary
@@ -95,24 +95,24 @@
 
 ### Navigation
 
-- [ ] **NAV-01**: `/legal/queue` lists matters in `LEGAL_REVIEW` and `INFO_REQUEST` for the lawyer's jurisdiction, sortable by advisory deadline and age, with no SLA colouring or escalation that would make it case management *(research; bounded by NS-5)*
+- [x] **NAV-01**: `/legal/queue` lists matters in `LEGAL_REVIEW` and `INFO_REQUEST` for the lawyer's jurisdiction, sortable by advisory deadline and age, with no SLA colouring or escalation that would make it case management *(research; bounded by NS-5)*
 - [x] **NAV-02**: `/hr/matters` lists the preparer's own matters and their status, serving as the in-app substitute for the notification NS-3 forbids sending *(research)*
-- [ ] **NAV-03**: Queue and list are keyboard navigable, extending the existing shortcut help overlay *(research)*
+- [x] **NAV-03**: Queue and list are keyboard navigable, extending the existing shortcut help overlay *(research)*
 
 ### Legal review
 
-- [ ] **REVIEW-01**: Every rendered assessment line displays its rule ID, pack-authored basis and citation without further interaction (AC-21)
-- [ ] **REVIEW-02**: Every `FLAG` line shows its flag reasons in words (§9.2)
-- [ ] **REVIEW-03**: `NEEDS_VERIFICATION` lines render with a distinct treatment, and `restingOnUnverifiedRules` is displayed indented under `draftBaseline` (AC-22)
-- [ ] **REVIEW-04**: The lawyer can accept, reduce, strike, or allow each line, and may reduce but never edit HR's claimed figure (§3, §10.3)
-- [ ] **REVIEW-05**: A mandatory reason of at least 10 non-whitespace characters, rejected against a shared stop-list used by both client and server, is required on `REDUCED`, `STRUCK`, `ALLOWED_BY_LAWYER`, and on `ACCEPTED` where the verdict was `FLAG` (AC-23)
-- [ ] **REVIEW-06**: No headline total is rendered while any line is `PENDING`, enforced server-side and not only in the UI (AC-25)
-- [ ] **REVIEW-07**: A bulk-accept control is offered only for `ALLOW` lines with `VERIFIED` rules, and the API rejects a batch disposition containing a `FLAG`, `ALLOW_CAPPED` or `NEEDS_VERIFICATION` line (AC-26)
-- [ ] **REVIEW-08**: Review is keyboard-first — `j`/`k` to move, `a` accept, `r` reduce, `s` strike, `?` for help — so a 20-line review needs no mouse (§10.1)
-- [ ] **REVIEW-09**: The lawyer can raise a query on one or more lines, moving the matter to `INFO_REQUEST` (§5)
-- [ ] **REVIEW-10**: The lawyer can recompute against a newer pack version after an explicit confirmation that all dispositions will be discarded (§10.7)
-- [ ] **REVIEW-11**: Where the pack carries a flat fee, the lawyer sees both figures and chooses, with the flat fee blocked where it exceeds itemised direct cost *(decision: PROJECT.md)*
-- [ ] **REVIEW-12**: The expense category is shown alongside HR's own description on every review card, including supported lines (§9.1 R3)
+- [x] **REVIEW-01**: Every rendered assessment line displays its rule ID, pack-authored basis and citation without further interaction (AC-21)
+- [x] **REVIEW-02**: Every `FLAG` line shows its flag reasons in words (§9.2)
+- [x] **REVIEW-03**: `NEEDS_VERIFICATION` lines render with a distinct treatment, and `restingOnUnverifiedRules` is displayed indented under `draftBaseline` (AC-22)
+- [x] **REVIEW-04**: The lawyer can accept, reduce, strike, or allow each line, and may reduce but never edit HR's claimed figure (§3, §10.3)
+- [x] **REVIEW-05**: A mandatory reason of at least 10 non-whitespace characters, rejected against a shared stop-list used by both client and server, is required on `REDUCED`, `STRUCK`, `ALLOWED_BY_LAWYER`, and on `ACCEPTED` where the verdict was `FLAG` (AC-23)
+- [x] **REVIEW-06**: No headline total is rendered while any line is `PENDING`, enforced server-side and not only in the UI (AC-25)
+- [x] **REVIEW-07**: A bulk-accept control is offered only for `ALLOW` lines with `VERIFIED` rules, and the API rejects a batch disposition containing a `FLAG`, `ALLOW_CAPPED` or `NEEDS_VERIFICATION` line (AC-26)
+- [x] **REVIEW-08**: Review is keyboard-first — `j`/`k` to move, `a` accept, `r` reduce, `s` strike, `?` for help — so a 20-line review needs no mouse (§10.1)
+- [x] **REVIEW-09**: The lawyer can raise a query on one or more lines, moving the matter to `INFO_REQUEST` (§5)
+- [x] **REVIEW-10**: The lawyer can recompute against a newer pack version after an explicit confirmation that all dispositions will be discarded (§10.7)
+- [x] **REVIEW-11**: Where the pack carries a flat fee, the lawyer sees both figures and chooses, with the flat fee blocked where it exceeds itemised direct cost *(decision: PROJECT.md)*
+- [x] **REVIEW-12**: The expense category is shown alongside HR's own description on every review card, including supported lines (§9.1 R3)
 
 ### Sign-off
 
@@ -143,7 +143,7 @@
 - [x] **DISC-01**: The capability statement is a full page that cannot be skipped, requires typing an acknowledgement, and is re-shown whenever `statementVersion` increments (AC-30)
 - [x] **DISC-02**: A non-dismissible status strip renders on every authenticated screen with jurisdiction, pack id and version, reviewing lawyer, reviewed date and review-due state (AC-31)
 - [x] **DISC-03**: No engine-derived UI string contains any canonical banned word, asserted by a lint rule over the strings file (AC-32a)
-- [ ] **DISC-04**: Every verdict badge's accessible name includes its verdict in words, and no badge conveys verdict by colour alone (AC-32b)
+- [x] **DISC-04**: Every verdict badge's accessible name includes its verdict in words, and no badge conveys verdict by colour alone (AC-32b)
 - [x] **DISC-05**: Every rendered deadline figure carries the word "Advisory" within its own container (AC-15a)
 - [ ] **DISC-06**: Empty, error and edge states behave exactly as specified in §10.7 rather than being improvised (§10.7)
 
@@ -265,7 +265,7 @@ Every v1 requirement maps to exactly one phase in `.planning/ROADMAP.md`.
 | ENGINE-11 | Phase 2 | Complete |
 | ENGINE-12 | Phase 2 | Complete |
 | ENGINE-13 | Phase 2 | Complete |
-| ENGINE-14 | Phase 6 | Pending |
+| ENGINE-14 | Phase 6 | Complete |
 | ENGINE-15 | Phase 2 | Complete |
 | ENGINE-16 | Phase 2 | Complete |
 | ENGINE-17 | Phase 2 | Complete |
@@ -282,12 +282,12 @@ Every v1 requirement maps to exactly one phase in `.planning/ROADMAP.md`.
 | PACK-11 | Phase 3 | Complete |
 | PACK-12 | Phase 3 | Complete |
 | ACCESS-01 | Phase 3.2 | Pending |
-| ACCESS-02 | Phase 6 | Pending |
-| ACCESS-03 | Phase 6 | Pending |
+| ACCESS-02 | Phase 6 | Complete |
+| ACCESS-03 | Phase 6 | Complete |
 | ACCESS-04 | Phase 7 | Pending |
 | ACCESS-05 | Phase 7 | Pending |
 | ACCESS-06 | Phase 3.2 | Pending |
-| ACCESS-07 | Phase 6 | Pending |
+| ACCESS-07 | Phase 6 | Complete |
 | ACCESS-08 | Phase 3.2 | Pending |
 | BOUND-01 | Phase 3.2 | Pending |
 | BOUND-02 | Phase 1 | Complete |
@@ -303,21 +303,21 @@ Every v1 requirement maps to exactly one phase in `.planning/ROADMAP.md`.
 | INTAKE-07 | Phase 5 | Complete |
 | INTAKE-08 | Phase 5 | Complete |
 | INTAKE-09 | Phase 5 | Complete |
-| NAV-01 | Phase 6 | Pending |
+| NAV-01 | Phase 6 | Complete |
 | NAV-02 | Phase 5 | Complete |
-| NAV-03 | Phase 6 | Pending |
-| REVIEW-01 | Phase 6 | Pending |
-| REVIEW-02 | Phase 6 | Pending |
-| REVIEW-03 | Phase 6 | Pending |
-| REVIEW-04 | Phase 6 | Pending |
-| REVIEW-05 | Phase 6 | Pending |
-| REVIEW-06 | Phase 6 | Pending |
-| REVIEW-07 | Phase 6 | Pending |
-| REVIEW-08 | Phase 6 | Pending |
-| REVIEW-09 | Phase 6 | Pending |
-| REVIEW-10 | Phase 6 | Pending |
-| REVIEW-11 | Phase 6 | Pending |
-| REVIEW-12 | Phase 6 | Pending |
+| NAV-03 | Phase 6 | Complete |
+| REVIEW-01 | Phase 6 | Complete |
+| REVIEW-02 | Phase 6 | Complete |
+| REVIEW-03 | Phase 6 | Complete |
+| REVIEW-04 | Phase 6 | Complete |
+| REVIEW-05 | Phase 6 | Complete |
+| REVIEW-06 | Phase 6 | Complete |
+| REVIEW-07 | Phase 6 | Complete |
+| REVIEW-08 | Phase 6 | Complete |
+| REVIEW-09 | Phase 6 | Complete |
+| REVIEW-10 | Phase 6 | Complete |
+| REVIEW-11 | Phase 6 | Complete |
+| REVIEW-12 | Phase 6 | Complete |
 | SIGNOFF-01 | Phase 7 | Pending |
 | SIGNOFF-02 | Phase 7 | Pending |
 | SIGNOFF-03 | Phase 7 | Pending |
@@ -336,7 +336,7 @@ Every v1 requirement maps to exactly one phase in `.planning/ROADMAP.md`.
 | DISC-01 | Phase 5 | Complete |
 | DISC-02 | Phase 5 | Complete |
 | DISC-03 | Phase 5 | Complete |
-| DISC-04 | Phase 6 | Pending |
+| DISC-04 | Phase 6 | Complete |
 | DISC-05 | Phase 5 | Complete |
 | DISC-06 | Phase 7 | Pending |
 | LLM-01 | Phase 8 | Pending |
