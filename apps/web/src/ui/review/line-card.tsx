@@ -93,7 +93,9 @@ export function LineCard({
   return (
     <article data-testid="line-card" data-verdict={line.verdict} data-disposition={line.disposition}>
       <div data-testid="card-head">
-        <span data-testid="verdict-badge">{VERDICT_LABELS[line.verdict]}</span>
+        <span data-testid="verdict-badge" aria-label={VERDICT_LABELS[line.verdict]}>
+          {VERDICT_LABELS[line.verdict]}
+        </span>
         <span data-testid="line-seq"> Line {seq}</span>
         <span data-testid="card-title"> {categoryLabel}</span>
       </div>

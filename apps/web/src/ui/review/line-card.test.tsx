@@ -11,6 +11,30 @@ import { AssessmentLineSchema, type AssessmentLine } from "@dsar/schemas/assessm
 import type { Minor } from "@dsar/schemas/primitives";
 import { LineCard, VERDICT_LABELS } from "./line-card.tsx";
 
+// This project has no @testing-library/react / @testing-library/jest-dom
+// dependency (a new package install needs its own legitimacy checkpoint,
+// per this project's deviation rules) — real-DOM rendering below follows
+// apps/web/src/ui/intake/intake-form.test.tsx's own established precedent
+// (react-dom/client's createRoot into a jsdom container) rather than
+// pulling in a new test-only dependency for one assertion.
+//
+// computeAriaLabelAccessibleName implements exactly ONE step of the W3C
+// Accessible Name and Description Computation algorithm
+// (https://www.w3.org/TR/accname-1.2/#step2B): step 2C, "aria-label",
+// returns the element's trimmed aria-label value if present and non-empty.
+// That step is checked BEFORE name-from-content and applies regardless of
+// the element's role — so for a plain <span> (whose default `generic` role
+// does not support name-from-content at all), a non-empty aria-label IS
+// the accessible name, full stop. This is not an approximation of the
+// broader algorithm; it is a narrow, spec-accurate implementation of the
+// one step this test exercises.
+function computeAriaLabelAccessibleName(element: Element): string | null {
+  const label = element.getAttribute("aria-label");
+  if (label === null) return null;
+  const trimmed = label.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
 const CURRENCY = "SGD" as const;
 
 // Loosely typed on purpose: these values are only ever handed to
@@ -114,6 +138,53 @@ describe("LINE-CARD", () => {
 
     const disallowHtml = renderCard({}, line({ verdict: "DISALLOW", engineAmount: 0 }));
     expect(disallowHtml).not.toContain("category chosen by HR");
+  });
+
+  it("LINE-CARD: every verdict's badge has a real accessible name (aria-label) equal to its visible label, not merely visible text content", async () => {
+    const { act } = await import("react");
+    const { createRoot } = await import("react-dom/client");
+
+    for (const verdict of ["FLAG", "ALLOW", "ALLOW_CAPPED", "DISALLOW"] as const) {
+      const container = document.createElement("div");
+      document.body.appendChild(container);
+      const root = createRoot(container);
+      act(() => {
+        root.render(
+          React.createElement(LineCard, {
+            line: line({
+              verdict,
+              engineAmount: verdict === "FLAG" || verdict === "DISALLOW" ? 0 : 16000,
+              flagReasons: verdict === "FLAG" ? [{ code: "UNCATEGORISED", message: "Test reason." }] : [],
+            }),
+            seq: 1,
+            categoryLabel: "Staff time — locating and retrieving the data",
+            description: "Searching HRIS, shared drives and archived mail",
+            quantity: 4,
+            unit: "HOUR",
+            unitRate: 4000 as Minor,
+            claimedAmount: 16000 as Minor,
+            currency: CURRENCY,
+            verificationStatus: "NEEDS_VERIFICATION",
+          })
+        );
+      });
+
+      const badge = container.querySelector('[data-testid="verdict-badge"]');
+      expect(badge).not.toBeNull();
+      // The accessible name (via aria-label) must equal the label exactly —
+      // a bare generic <span> with only text content computes an EMPTY
+      // accessible name under the real algorithm, which is exactly the gap
+      // this assertion (not a toHaveTextContent-style check) catches.
+      expect(computeAriaLabelAccessibleName(badge as Element)).toBe(VERDICT_LABELS[verdict]);
+      // The visible text content is unchanged — this adds an accessible
+      // name, it does not replace or hide the visible label.
+      expect(badge?.textContent).toBe(VERDICT_LABELS[verdict]);
+
+      act(() => {
+        root.unmount();
+      });
+      container.remove();
+    }
   });
 
   // No test here for absence of a language-model-provenance badge or a
