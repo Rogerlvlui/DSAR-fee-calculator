@@ -177,6 +177,47 @@ describe("DISPOSITION", () => {
     expect(stored?.disposition).toBe("PENDING");
   });
 
+  it("DISPOSITION: a reason that is exactly a stop-list phrase (AC-23) is refused with 400, distinctly from a too-short reason, and the stored line is unchanged", async () => {
+    const assessment = await buildFixtureAssessment();
+    const line = findLine(assessment, "ALLOW");
+
+    const shortResponse = await dispositionRoute(
+      jsonRequest(`${DISPOSITION_URL}/${line.id}/disposition`, "POST", { action: "ACCEPT", reason: "too short" }),
+      { params: Promise.resolve({ id: line.id }) }
+    );
+    const shortBody = (await shortResponse.json()) as { error: string };
+
+    const stopListResponse = await dispositionRoute(
+      jsonRequest(`${DISPOSITION_URL}/${line.id}/disposition`, "POST", { action: "ACCEPT", reason: "as above" }),
+      { params: Promise.resolve({ id: line.id }) }
+    );
+    expect(stopListResponse.status).toBe(400);
+    const stopListBody = (await stopListResponse.json()) as { error: string };
+
+    // Distinct, grep-distinguishable messages — a caller can tell which
+    // check refused the request.
+    expect(stopListBody.error).not.toBe(shortBody.error);
+    expect(stopListBody.error).toContain("as above");
+
+    const stored = await storedLine(line.id);
+    expect(stored?.disposition).toBe("PENDING");
+    expect(stored?.lawyerReason).toBeNull();
+  });
+
+  it("DISPOSITION: a genuine reason that merely contains a stop-list word as a substring is accepted", async () => {
+    const assessment = await buildFixtureAssessment();
+    const line = findLine(assessment, "ALLOW");
+
+    const response = await dispositionRoute(
+      jsonRequest(`${DISPOSITION_URL}/${line.id}/disposition`, "POST", {
+        action: "ACCEPT",
+        reason: "Noted the vendor's invoice number and it matches the claim",
+      }),
+      { params: Promise.resolve({ id: line.id }) }
+    );
+    expect(response.status).toBe(200);
+  });
+
   it("DISPOSITION: a reason longer than the frozen lawyer-reason cap is refused with 400", async () => {
     const assessment = await buildFixtureAssessment();
     const line = findLine(assessment, "ALLOW");

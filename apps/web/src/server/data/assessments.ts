@@ -25,6 +25,7 @@ import { evaluateTransition } from "@dsar/workflow/evaluate-transition";
 import {
   hasSufficientReason,
   isActionPermitted,
+  matchesReasonStopList,
   MIN_REASON_NON_WHITESPACE_CHARS,
   type DispositionAction,
 } from "../../domain/disposition-actions.ts";
@@ -97,7 +98,24 @@ export async function getSignedOffAssessmentForHr(
 // renders those labels verbatim, but the rule this function enforces is the
 // same for every action on every verdict, because this phase's success
 // criterion 3 states it plainly: every disposition demands its reason.
+// AC-23's stop-list check runs FIRST, before the length check — a deliberate
+// deviation from a length-then-stop-list ordering (06-05-PLAN.md's own
+// literal action text): every one of REASON_STOP_LIST's 11 entries is under
+// the 10-non-whitespace-character length minimum on its own (the longest,
+// "agreed", is 6), so a length-first ordering would make the stop-list
+// branch below permanently unreachable dead code — any bare stop-list
+// phrase would always be caught by the length check first, and the two
+// error messages could never actually differ for any real request. Stop-
+// list first mirrors this same function's client-side counterpart
+// (disposition-controls.tsx/bulk-accept-bar.tsx also check stop-list before
+// length, per their own module comment) and is what makes this file's own
+// acceptance criterion — a route test can tell which check refused a given
+// request, by a genuinely distinct message — actually achievable.
 function assertSufficientReason(reason: string): void {
+  const stopListMatch = matchesReasonStopList(reason);
+  if (stopListMatch !== null) {
+    throw new ValidationError(`Reason '${stopListMatch}' is a stock phrase, not a reason`);
+  }
   if (!hasSufficientReason(reason)) {
     throw new ValidationError(
       `Reason must have at least ${MIN_REASON_NON_WHITESPACE_CHARS} non-whitespace characters`

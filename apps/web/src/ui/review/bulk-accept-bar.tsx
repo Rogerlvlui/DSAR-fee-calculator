@@ -23,6 +23,7 @@ import { useRouter } from "next/navigation";
 import {
   countNonWhitespaceChars,
   hasSufficientReason,
+  matchesReasonStopList,
   MIN_REASON_NON_WHITESPACE_CHARS,
 } from "../../domain/disposition-actions.ts";
 
@@ -34,8 +35,27 @@ export function bulkAcceptLabel(count: number): string {
   return `Accept verified supported lines (${count})`;
 }
 
+// UI-SPEC Copywriting Contract, verbatim (AC-23's stop-list half) — replaces
+// BULK_ACCEPT_REASON_FAILURE_TEXT in the same counter slot whenever the
+// stop-list check specifically (not just the length check) is what failed.
+// Mirrors disposition-controls.tsx's own reasonStopListRejectionText.
+export function reasonStopListRejectionText(matchedPhrase: string): string {
+  return `That's a stock phrase, not a reason — say what you found or decided instead of '${matchedPhrase}'.`;
+}
+
 function reasonCounterText(reason: string): string {
   return `${countNonWhitespaceChars(reason)} / ${MIN_REASON_NON_WHITESPACE_CHARS} characters minimum`;
+}
+
+// Checked BEFORE the length failure — same reasoning as
+// disposition-controls.tsx's own reasonCounterFailureText: every stop-list
+// entry is under the 10-character minimum on its own, so a length-first
+// check would always mask the more specific "stock phrase" message.
+function reasonCounterFailureText(reason: string): string | null {
+  const stopListMatch = matchesReasonStopList(reason);
+  if (stopListMatch !== null) return reasonStopListRejectionText(stopListMatch);
+  if (!hasSufficientReason(reason)) return BULK_ACCEPT_REASON_FAILURE_TEXT;
+  return null;
 }
 
 async function readErrorMessage(response: Response): Promise<string> {
@@ -89,7 +109,7 @@ export function BulkAcceptBarView({
           />
         </label>
         <div data-testid="bulk-accept-reason-counter">
-          {attemptedSubmit && !hasSufficientReason(reason) ? BULK_ACCEPT_REASON_FAILURE_TEXT : reasonCounterText(reason)}
+          {attemptedSubmit ? (reasonCounterFailureText(reason) ?? reasonCounterText(reason)) : reasonCounterText(reason)}
         </div>
       </div>
 

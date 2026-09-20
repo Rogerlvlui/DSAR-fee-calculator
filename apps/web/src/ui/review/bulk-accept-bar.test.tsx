@@ -8,14 +8,17 @@
 import { describe, expect, it } from "vitest";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { BulkAcceptBarView, BULK_ACCEPT_NOTE, bulkAcceptLabel } from "./bulk-accept-bar.tsx";
+import { BulkAcceptBarView, BULK_ACCEPT_NOTE, BULK_ACCEPT_REASON_FAILURE_TEXT, bulkAcceptLabel } from "./bulk-accept-bar.tsx";
 
-function renderBar(eligibleLineIds: string[]): string {
+function renderBar(
+  eligibleLineIds: string[],
+  overrides: { reason?: string; attemptedSubmit?: boolean } = {}
+): string {
   return renderToStaticMarkup(
     React.createElement(BulkAcceptBarView, {
       eligibleLineIds,
-      reason: "",
-      attemptedSubmit: false,
+      reason: overrides.reason ?? "",
+      attemptedSubmit: overrides.attemptedSubmit ?? false,
       error: null,
       pending: false,
       onReasonChange: () => {},
@@ -54,5 +57,17 @@ describe("BULK-ACCEPT", () => {
     const html = renderBar([]);
     expect(html).toContain('data-testid="bulk-accept-bar"');
     expect(html).toContain('data-testid="bulk-accept-button"');
+  });
+
+  it("BULK-ACCEPT: an attempted submit with a reason that exactly matches a stop-list entry renders the stock-phrase copy, not the generic length-failure text", () => {
+    const html = renderBar(["line-1"], { reason: "as above", attemptedSubmit: true });
+    expect(html).toContain("stock phrase, not a reason");
+    expect(html).toContain("as above");
+    expect(html).not.toContain(BULK_ACCEPT_REASON_FAILURE_TEXT.replace(/'/g, "&#x27;"));
+  });
+
+  it("BULK-ACCEPT: an attempted submit with a too-short, non-stock-phrase reason still renders the generic length-failure text", () => {
+    const html = renderBar(["line-1"], { reason: "too short", attemptedSubmit: true });
+    expect(html).toContain(BULK_ACCEPT_REASON_FAILURE_TEXT.replace(/'/g, "&#x27;"));
   });
 });

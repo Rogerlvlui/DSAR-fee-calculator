@@ -36,6 +36,7 @@ import { MINOR_UNIT_DECIMALS } from "@dsar/schemas/money";
 import {
   countNonWhitespaceChars,
   hasSufficientReason,
+  matchesReasonStopList,
   MIN_REASON_NON_WHITESPACE_CHARS,
   VERDICT_ACTIONS,
   type DispositionAction,
@@ -60,8 +61,27 @@ const ACTIONS_TAKING_AMOUNT = new Set<DispositionAction>(["REDUCE", "ALLOW_WITH_
 
 export const REASON_COUNTER_FAILURE_TEXT = "A reason of at least 10 characters is required — 'ok' will not do.";
 
+// UI-SPEC Copywriting Contract, verbatim (AC-23's stop-list half) — replaces
+// REASON_COUNTER_FAILURE_TEXT in the same counter slot whenever the
+// stop-list check specifically (not just the length check) is what failed.
+export function reasonStopListRejectionText(matchedPhrase: string): string {
+  return `That's a stock phrase, not a reason — say what you found or decided instead of '${matchedPhrase}'.`;
+}
+
 function reasonCounterText(reason: string): string {
   return `${countNonWhitespaceChars(reason)} / ${MIN_REASON_NON_WHITESPACE_CHARS} characters minimum`;
+}
+
+// Checked BEFORE the length failure (see apps/web/src/server/data/
+// assessments.ts's assertSufficientReason for why: every stop-list entry is
+// under the 10-character minimum on its own, so a length-first check would
+// never let a lawyer see the more specific "stock phrase" message at all —
+// it would always be masked by the generic "too short" one first).
+function reasonCounterFailureText(reason: string): string | null {
+  const stopListMatch = matchesReasonStopList(reason);
+  if (stopListMatch !== null) return reasonStopListRejectionText(stopListMatch);
+  if (!hasSufficientReason(reason)) return REASON_COUNTER_FAILURE_TEXT;
+  return null;
 }
 
 export function majorToMinor(major: string, currency: CurrencyCode): number {
@@ -189,7 +209,7 @@ export function DispositionControlsView({
           />
         </label>
         <div data-testid="disposition-reason-counter">
-          {attemptedSubmit && !hasSufficientReason(reason) ? REASON_COUNTER_FAILURE_TEXT : reasonCounterText(reason)}
+          {attemptedSubmit ? (reasonCounterFailureText(reason) ?? reasonCounterText(reason)) : reasonCounterText(reason)}
         </div>
       </div>
 

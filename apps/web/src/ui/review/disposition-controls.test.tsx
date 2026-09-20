@@ -10,16 +10,20 @@ import { describe, expect, it } from "vitest";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import type { Verdict } from "@dsar/schemas/assessment";
-import { DispositionControlsView } from "./disposition-controls.tsx";
+import { DispositionControlsView, REASON_COUNTER_FAILURE_TEXT } from "./disposition-controls.tsx";
 
-function renderControls(verdict: Verdict, pending = false): string {
+function renderControls(
+  verdict: Verdict,
+  pending = false,
+  overrides: { reason?: string; attemptedSubmit?: boolean } = {}
+): string {
   return renderToStaticMarkup(
     React.createElement(DispositionControlsView, {
       verdict,
       currency: "SGD",
-      reason: "",
+      reason: overrides.reason ?? "",
       amountMajor: "",
-      attemptedSubmit: false,
+      attemptedSubmit: overrides.attemptedSubmit ?? false,
       error: null,
       pending,
       onReasonChange: () => {},
@@ -67,5 +71,20 @@ describe("DISPOSITION-CONTROLS", () => {
     for (const block of buttonBlocks) {
       expect(block).toContain("disabled");
     }
+  });
+
+  it("DISPOSITION-CONTROLS: an attempted submit with a reason that exactly matches a stop-list entry renders the stock-phrase copy, not the generic length-failure text", () => {
+    const html = renderControls("ALLOW", false, { reason: "as above", attemptedSubmit: true });
+    // React HTML-escapes apostrophes (&#x27;) in rendered text — assert on
+    // apostrophe-free substrings of the UI-SPEC copy rather than the exact
+    // literal string.
+    expect(html).toContain("stock phrase, not a reason");
+    expect(html).toContain("as above");
+    expect(html).not.toContain(REASON_COUNTER_FAILURE_TEXT.replace(/'/g, "&#x27;"));
+  });
+
+  it("DISPOSITION-CONTROLS: an attempted submit with a too-short, non-stock-phrase reason still renders the generic length-failure text", () => {
+    const html = renderControls("ALLOW", false, { reason: "too short", attemptedSubmit: true });
+    expect(html).toContain(REASON_COUNTER_FAILURE_TEXT.replace(/'/g, "&#x27;"));
   });
 });
