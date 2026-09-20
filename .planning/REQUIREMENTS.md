@@ -277,7 +277,7 @@ Every v1 requirement maps to exactly one phase in `.planning/ROADMAP.md`.
 | PACK-06 | Phase 3.2 | Complete |
 | PACK-07 | Phase 3.2 | Complete |
 | PACK-08 | Phase 7 | Pending |
-| PACK-09 | Phase 3 | Complete |
+| PACK-09 | Phase 3 | Partial — 15/36 categories authored (9 HK, 6 SG); remaining 27 deferred 2026-09-20, tracked in STATE.md |
 | PACK-10 | Phase 3 | Complete |
 | PACK-11 | Phase 3 | Complete |
 | PACK-12 | Phase 3 | Complete |
