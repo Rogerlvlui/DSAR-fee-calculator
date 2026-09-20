@@ -35,6 +35,7 @@ import type { CurrencyCode } from "@dsar/schemas/primitives";
 import { MINOR_UNIT_DECIMALS } from "@dsar/schemas/money";
 import {
   countNonWhitespaceChars,
+  hasSufficientAndGenuineReason,
   hasSufficientReason,
   matchesReasonStopList,
   MIN_REASON_NON_WHITESPACE_CHARS,
@@ -251,7 +252,11 @@ export function DispositionControls({
 
   async function handleSubmit(action: DispositionAction) {
     setAttemptedSubmit(true);
-    if (!hasSufficientReason(reason)) return;
+    // IN-01: the shared combined check (length AND not-a-stock-phrase), not
+    // a length-only reimplementation — every stop-list entry is already
+    // under the length minimum on its own, so this was never a behavior
+    // change, only closing the drift-risk of two independent copies.
+    if (!hasSufficientAndGenuineReason(reason)) return;
 
     setSubmitting(true);
     setError(null);
@@ -275,7 +280,8 @@ export function DispositionControls({
 
   async function handleAskHr() {
     setAttemptedSubmit(true);
-    if (!hasSufficientReason(reason)) return;
+    // IN-01: see handleSubmit's own note above.
+    if (!hasSufficientAndGenuineReason(reason)) return;
 
     setSubmitting(true);
     setError(null);

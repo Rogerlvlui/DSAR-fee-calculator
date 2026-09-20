@@ -22,6 +22,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   countNonWhitespaceChars,
+  hasSufficientAndGenuineReason,
   hasSufficientReason,
   matchesReasonStopList,
   MIN_REASON_NON_WHITESPACE_CHARS,
@@ -136,7 +137,11 @@ export function BulkAcceptBar({ assessmentId, eligibleLineIds }: BulkAcceptBarPr
 
   async function handleSubmit() {
     setAttemptedSubmit(true);
-    if (!hasSufficientReason(reason) || eligibleLineIds.length === 0) return;
+    // IN-01: the shared combined check, same note as disposition-controls
+    // .tsx's own handleSubmit — every stop-list entry already fails the
+    // length check alone, so this closes the drift risk without changing
+    // behavior today.
+    if (!hasSufficientAndGenuineReason(reason) || eligibleLineIds.length === 0) return;
 
     setSubmitting(true);
     setError(null);

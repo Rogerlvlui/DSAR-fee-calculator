@@ -60,9 +60,12 @@ export function matchesReasonStopList(text: string): string | null {
   return REASON_STOP_LIST.find((entry) => entry === normalized) ?? null;
 }
 
-// The combined check every call site (server-authoritative and both
-// client, UX-only, reason fields) should use so length and stop-list are
-// always checked together, never independently forgotten at one call site.
+// The combined check every call site (server-authoritative
+// assertSufficientReason in src/server/data/assessments.ts, and both
+// client, UX-only, reason-gating call sites in disposition-controls.tsx and
+// bulk-accept-bar.tsx — IN-01, 06-REVIEW-ADDENDUM.md) uses so length and
+// stop-list are checked together, never independently reimplemented and
+// left to drift at one call site.
 export function hasSufficientAndGenuineReason(text: string): boolean {
   return hasSufficientReason(text) && matchesReasonStopList(text) === null;
 }

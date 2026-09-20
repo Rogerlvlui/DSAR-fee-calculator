@@ -24,7 +24,7 @@ import { recordAuditEvent } from "../audit-trail.ts";
 import { buildGuardInput } from "../guard-input.ts";
 import { evaluateTransition } from "@dsar/workflow/evaluate-transition";
 import {
-  hasSufficientReason,
+  hasSufficientAndGenuineReason,
   isActionPermitted,
   matchesReasonStopList,
   MIN_REASON_NON_WHITESPACE_CHARS,
@@ -112,12 +112,17 @@ export async function getSignedOffAssessmentForHr(
 // length, per their own module comment) and is what makes this file's own
 // acceptance criterion — a route test can tell which check refused a given
 // request, by a genuinely distinct message — actually achievable.
+//
+// IN-01: gated on the shared hasSufficientAndGenuineReason() first, rather
+// than reimplementing "stop-list OR too short" a second, independent way —
+// the two sub-checks below run only to pick which specific message to
+// throw once the combined check has already failed.
 function assertSufficientReason(reason: string): void {
-  const stopListMatch = matchesReasonStopList(reason);
-  if (stopListMatch !== null) {
-    throw new ValidationError(`Reason '${stopListMatch}' is a stock phrase, not a reason`);
-  }
-  if (!hasSufficientReason(reason)) {
+  if (!hasSufficientAndGenuineReason(reason)) {
+    const stopListMatch = matchesReasonStopList(reason);
+    if (stopListMatch !== null) {
+      throw new ValidationError(`Reason '${stopListMatch}' is a stock phrase, not a reason`);
+    }
     throw new ValidationError(
       `Reason must have at least ${MIN_REASON_NON_WHITESPACE_CHARS} non-whitespace characters`
     );
