@@ -32,6 +32,7 @@ import { listReviewableMatters } from "../../../src/server/data/matters.ts";
 import { buildJurisdictionPackViews } from "../../../src/server/jurisdiction-packs.ts";
 import { computeAdvisoryDeadline, ADVISORY_QUALIFIER, type AdvisoryDeadlineView } from "../../../src/domain/advisory-deadline.ts";
 import { sortQueueRows, type QueueSortMode } from "../../../src/domain/queue-sort.ts";
+import { QueueKeyboardScope } from "../../../src/ui/queue/queue-keyboard-scope.tsx";
 
 // UI-SPEC's exact three-way row status mapping — LEGAL_REVIEW and
 // INFO_REQUEST each get their own label; SIGNED_OFF and CLOSED share one
@@ -110,21 +111,23 @@ export default async function LegalQueuePage({
           No claims are waiting on Legal right now. HR submits a claim, and it appears here.
         </p>
       ) : (
-        <ul data-testid="assessments-list">
-          {sortedRows.map(({ matter, assessmentId, advisoryDeadline }) => (
-            <li key={assessmentId}>
-              <a href={`/legal/assessments/${assessmentId}`}>
-                {matter.reference} — {rowStatusLabel(matter.status)}
-              </a>
-              {advisoryDeadline ? (
-                <div data-testid="advisory-deadline">
-                  {advisoryDeadline.basis === "FEE_NOTIFICATION" ? "Fee notification due " : "Response due "}
-                  {advisoryDeadline.dueDateIso} — {advisoryDeadline.daysRemaining} days. <b>{ADVISORY_QUALIFIER}</b>
-                </div>
-              ) : null}
-            </li>
-          ))}
-        </ul>
+        <QueueKeyboardScope rowIds={sortedRows.map((row) => row.assessmentId)}>
+          <ul data-testid="assessments-list">
+            {sortedRows.map(({ matter, assessmentId, advisoryDeadline }) => (
+              <li key={assessmentId}>
+                <a href={`/legal/assessments/${assessmentId}`} data-row-id={assessmentId} className="focus:outline-2 focus:outline-seal">
+                  {matter.reference} — {rowStatusLabel(matter.status)}
+                </a>
+                {advisoryDeadline ? (
+                  <div data-testid="advisory-deadline">
+                    {advisoryDeadline.basis === "FEE_NOTIFICATION" ? "Fee notification due " : "Response due "}
+                    {advisoryDeadline.dueDateIso} — {advisoryDeadline.daysRemaining} days. <b>{ADVISORY_QUALIFIER}</b>
+                  </div>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </QueueKeyboardScope>
       )}
     </main>
   );
