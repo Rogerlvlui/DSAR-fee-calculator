@@ -486,6 +486,13 @@
           "type": "null"
         }
       ]
+    },
+    "feeChoice": {
+      "type": "string",
+      "enum": [
+        "ITEMISED",
+        "FLAT"
+      ]
     }
   },
   "required": [

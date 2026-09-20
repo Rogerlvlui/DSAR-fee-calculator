@@ -171,6 +171,16 @@ export type SignOff = z.infer<typeof SignOffSchema>;
 // Assessment
 // ---------------------------------------------------------------------------
 
+// D-12-style additive extension (06-07, REVIEW-11): the lawyer's choice
+// between the itemised and flat figure, where the pack's Totals carries a
+// flatFeeComparison. `.optional()`, not `.nullable()`-required, so every
+// existing Assessment JSON without this key still parses unchanged —
+// mirrors FlatFeeComparisonSchema's own additive-field precedent exactly.
+// Persisted the moment it is chosen, the same pattern per-line dispositions
+// already use, not held back for sign-off.
+export const FeeChoiceSchema = z.enum(["ITEMISED", "FLAT"]);
+export type FeeChoice = z.infer<typeof FeeChoiceSchema>;
+
 export const AssessmentSchema = z.object({
   id: z.string(),
   matterId: z.string(),
@@ -182,5 +192,6 @@ export const AssessmentSchema = z.object({
   matterLevelFlags: z.array(MatterFlagSchema),
   totals: TotalsSchema,
   signOff: SignOffSchema.nullable(),
+  feeChoice: FeeChoiceSchema.optional(),
 });
 export type Assessment = z.infer<typeof AssessmentSchema>;

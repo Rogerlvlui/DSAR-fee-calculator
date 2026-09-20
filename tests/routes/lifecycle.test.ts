@@ -450,6 +450,9 @@ describe("LIFECYCLE", () => {
       "SUPERSEDED",
       "PACK_ACTIVATED",
       "PACK_EDITED",
+      // 06-07 (REVIEW-11) — setFeeChoice (data/assessments.ts) writes this
+      // on every lawyer flat-fee-vs-itemised choice.
+      "FEE_CHOICE_SET",
     ].sort();
 
     // Deferred: deliberately not written by any call site this phase adds,

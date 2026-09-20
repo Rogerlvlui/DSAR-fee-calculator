@@ -239,6 +239,13 @@ export const AuditEventTypeSchema = z.enum([
   "PACK_ACTIVATED",
   "PACK_EDITED",
   "CAPABILITY_STATEMENT_ACKNOWLEDGED",
+  // 06-07 (REVIEW-11) — NOT a PRD §6.0 transcription. An additive
+  // eighteenth value beyond the PRD's original seventeen, mirroring
+  // MatterFlagCodeSchema's own AGGREGATE_CAP_APPLIED precedent (D-11): the
+  // lawyer's flat-fee-vs-itemised choice is a real, auditable decision
+  // affecting which figure the matter's fee ultimately resolves to, and
+  // AUDIT-01 requires every consequential act to leave a trace.
+  "FEE_CHOICE_SET",
 ]);
 export type AuditEventType = z.infer<typeof AuditEventTypeSchema>;
 

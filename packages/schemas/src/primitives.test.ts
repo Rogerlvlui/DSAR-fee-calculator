@@ -107,8 +107,9 @@ describe("IsoDateTimeSchema", () => {
 });
 
 describe("AuditEventTypeSchema", () => {
-  it("has exactly 17 members", () => {
-    expect(AuditEventTypeSchema.options).toHaveLength(17);
+  it("has exactly 18 members — 17 PRD §6.0 values plus 06-07's additive FEE_CHOICE_SET (D-11-style extension)", () => {
+    expect(AuditEventTypeSchema.options).toHaveLength(18);
+    expect(AuditEventTypeSchema.options).toContain("FEE_CHOICE_SET");
   });
 });
 

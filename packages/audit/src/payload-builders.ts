@@ -128,3 +128,18 @@ export function expenseLineEditedPayload(
 export function expenseLineDeletedPayload(lineId: string, snapshot: Record<string, Json>): AuditPayload {
   return { entityId: lineId, field: "expenseLine", before: snapshot };
 }
+
+// ---------------------------------------------------------------------------
+// 06-07 (REVIEW-11) — the lawyer's flat-fee-vs-itemised choice.
+// ---------------------------------------------------------------------------
+
+// `before` is the string sentinel "NONE" when no prior choice existed —
+// AuditPayloadSchema's before/after are both typed Json, so a string
+// sentinel for "no prior choice" is valid and readable, mirroring
+// matterCreatedPayload's own "no before for a birth event" precedent for a
+// first-ever value (that builder omits `before` entirely; this one instead
+// carries an explicit, readable sentinel since FEE_CHOICE_SET is not itself
+// a birth event and a reader should not need to infer the absence).
+export function feeChoicePayload(before: string | null, after: "ITEMISED" | "FLAT"): AuditPayload {
+  return { field: "feeChoice", before: before ?? "NONE", after };
+}

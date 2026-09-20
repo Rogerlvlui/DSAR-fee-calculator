@@ -44,7 +44,8 @@ function resetStore(): void {
 }
 
 async function renderQueue(sort?: string): Promise<string> {
-  return renderToStaticMarkup(await LegalQueuePage({ searchParams: Promise.resolve({ sort }) }));
+  const searchParams = sort === undefined ? {} : { sort };
+  return renderToStaticMarkup(await LegalQueuePage({ searchParams: Promise.resolve(searchParams) }));
 }
 
 let matterCounter = 0;

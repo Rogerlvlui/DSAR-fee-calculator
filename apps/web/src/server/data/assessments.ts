@@ -15,6 +15,7 @@ import { newUlid } from "../ids.ts";
 import { elapsedReviewMs, recordAssessmentOpened } from "@dsar/audit/review-session";
 import {
   dispositionPayload,
+  feeChoicePayload,
   informationRequestPayload,
   signOffPayload,
   supersededPayload,
@@ -497,6 +498,56 @@ export async function signOff(
   });
 
   return { assessment: updatedAssessment, attestationText };
+}
+
+// ---------------------------------------------------------------------------
+// setFeeChoice — REVIEW-11's flat-fee-vs-itemised choice (06-07)
+// ---------------------------------------------------------------------------
+
+// requireRole first, then the same requireAssessmentInLegalReview
+// precondition every other mutating function in this file shares, then
+// refuse at the FIRST failure: no flatFeeComparison exists for this pack
+// (nothing to choose between), or the choice is FLAT and it exceeds
+// itemised direct cost (the server-side mirror of the disabled-radio UI
+// rule — 06-RESEARCH.md's own Known Threat Pattern: never trust the
+// client-side gate as the enforcement point). ITEMISED is always the safe
+// default choice and succeeds unconditionally once a flatFeeComparison
+// exists. A refusal writes nothing at all, matching every other mutating
+// function's own discipline.
+export async function setFeeChoice(
+  actor: DemoActor,
+  assessmentId: string,
+  choice: "ITEMISED" | "FLAT"
+): Promise<Assessment> {
+  requireRole(actor, "LEGAL_REVIEWER");
+
+  const assessment = await memoryAssessmentRepository.getAssessment(assessmentId);
+  if (!assessment) throw new NotFoundError(`No assessment with id '${assessmentId}'`);
+
+  await requireAssessmentInLegalReview(assessment);
+
+  const flatFeeComparison = assessment.totals.flatFeeComparison;
+  if (!flatFeeComparison) {
+    throw new ValidationError(`Assessment '${assessmentId}' has no flat fee to choose between`);
+  }
+  if (choice === "FLAT" && flatFeeComparison.flatFeeExceedsItemisedCost) {
+    throw new ValidationError("The flat fee exceeds itemised direct cost and cannot be chosen");
+  }
+
+  const priorChoice = assessment.feeChoice ?? null;
+  const updatedAssessment: Assessment = { ...assessment, feeChoice: choice };
+  await memoryAssessmentRepository.updateAssessment(updatedAssessment);
+
+  await recordAuditEvent({
+    matterId: assessment.matterId,
+    actor,
+    type: "FEE_CHOICE_SET",
+    payload: feeChoicePayload(priorChoice, choice),
+    rulePackVersion: assessment.rulePackVersion,
+    engineVersion: assessment.engineVersion,
+  });
+
+  return updatedAssessment;
 }
 
 // ---------------------------------------------------------------------------

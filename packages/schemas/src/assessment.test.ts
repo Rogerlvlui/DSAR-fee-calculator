@@ -84,6 +84,25 @@ describe("AssessmentSchema — full parse", () => {
   });
 });
 
+describe("AssessmentSchema — feeChoice (06-07, additive)", () => {
+  it("parses an Assessment with no feeChoice key at all — backward compatibility with every existing committed/fixture Assessment", () => {
+    const result = AssessmentSchema.safeParse(validAssessment());
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.feeChoice).toBeUndefined();
+    }
+  });
+
+  it("accepts feeChoice: 'ITEMISED' and feeChoice: 'FLAT'", () => {
+    expect(AssessmentSchema.safeParse(validAssessment({ feeChoice: "ITEMISED" })).success).toBe(true);
+    expect(AssessmentSchema.safeParse(validAssessment({ feeChoice: "FLAT" })).success).toBe(true);
+  });
+
+  it("rejects any other feeChoice string", () => {
+    expect(AssessmentSchema.safeParse(validAssessment({ feeChoice: "BOTH" })).success).toBe(false);
+  });
+});
+
 describe("TotalsSchema — the six §8.1 step 6 fields", () => {
   // D-12 adds a seventh, OPTIONAL declared field (flatFeeComparison) to the
   // schema's shape. This exact-equality assertion is updated to include it —
