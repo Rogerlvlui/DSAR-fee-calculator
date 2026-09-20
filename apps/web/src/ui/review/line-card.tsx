@@ -91,7 +91,14 @@ export function LineCard({
   const categoryChosenByHr = line.verdict === "ALLOW" || line.verdict === "ALLOW_CAPPED";
 
   return (
-    <article data-testid="line-card" data-verdict={line.verdict} data-disposition={line.disposition}>
+    <article
+      data-testid="line-card"
+      data-verdict={line.verdict}
+      data-disposition={line.disposition}
+      data-line-id={line.id}
+      tabIndex={-1}
+      className="focus:outline-2 focus:outline-seal"
+    >
       <div data-testid="card-head">
         <span data-testid="verdict-badge" aria-label={VERDICT_LABELS[line.verdict]}>
           {VERDICT_LABELS[line.verdict]}

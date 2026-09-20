@@ -17,6 +17,7 @@ import type { CurrencyCode } from "@dsar/schemas/primitives";
 import type { FeePosture, VerificationStatus } from "@dsar/schemas/rule-pack";
 import { compareByVerdict } from "../../domain/verdict-order.ts";
 import { LineCard } from "./line-card.tsx";
+import { ReviewKeyboardScope } from "./review-keyboard-scope.tsx";
 import { MatterRail, type MatterRailAdvisoryDeadline } from "./matter-rail.tsx";
 import { PackRail } from "./pack-rail.tsx";
 import { TotalsRail } from "./totals-rail.tsx";
@@ -141,29 +142,31 @@ export function AssessmentView({
       {recomputeBanner}
       <div data-testid="cards-region">
         {bulkAcceptBar}
-        <div data-testid="assessment-lines">
-          {sortedLines.map((line) => {
-            const detail = detailByLineId.get(line.id);
-            if (!detail) return null;
-            return (
-              <LineCard
-                key={line.id}
-                line={line}
-                seq={detail.seq}
-                categoryLabel={detail.categoryLabel}
-                description={detail.description}
-                quantity={detail.quantity}
-                unit={detail.unit}
-                unitRate={detail.unitRate}
-                claimedAmount={detail.claimedAmount}
-                currency={currency}
-                verificationStatus={detail.verificationStatus}
-              >
-                {renderLineControls ? renderLineControls(line.id) : null}
-              </LineCard>
-            );
-          })}
-        </div>
+        <ReviewKeyboardScope lineIds={sortedLines.map((line) => line.id)}>
+          <div data-testid="assessment-lines">
+            {sortedLines.map((line) => {
+              const detail = detailByLineId.get(line.id);
+              if (!detail) return null;
+              return (
+                <LineCard
+                  key={line.id}
+                  line={line}
+                  seq={detail.seq}
+                  categoryLabel={detail.categoryLabel}
+                  description={detail.description}
+                  quantity={detail.quantity}
+                  unit={detail.unit}
+                  unitRate={detail.unitRate}
+                  claimedAmount={detail.claimedAmount}
+                  currency={currency}
+                  verificationStatus={detail.verificationStatus}
+                >
+                  {renderLineControls ? renderLineControls(line.id) : null}
+                </LineCard>
+              );
+            })}
+          </div>
+        </ReviewKeyboardScope>
       </div>
 
       {flatFeeChoice}
