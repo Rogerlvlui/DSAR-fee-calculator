@@ -1,8 +1,10 @@
 // apps/web/app/(legal)/assessments/[id]/page.tsx
 //
 // An async server component: await the route params, resolve the actor,
-// call getAssessmentForLegalReview, load the untransformed pack with
-// loadDemoPack(), build the review view (apps/web/src/server/review-view.ts)
+// call getAssessmentForLegalReview, load the untransformed pack this
+// assessment was actually PINNED to with resolvePinnedRulePack() (by the
+// assessment's own rulePackId/rulePackVersion, never "whichever pack is
+// current"), build the review view (apps/web/src/server/review-view.ts)
 // and pass plain props down to the status strip and the assessment view.
 // The page fetches and authorises; it renders nothing itself beyond
 // composition. The pack status it hands both the strip and the pack rail
@@ -20,7 +22,7 @@ import type { ReactNode } from "react";
 import { deriveEffectiveStatus, daysUntilReviewDue } from "@dsar/rulepacks/stale";
 import { getCurrentActor } from "../../../../src/server/current-actor.ts";
 import { getAssessmentForLegalReview, listBulkAcceptableLineIds } from "../../../../src/server/data/assessments.ts";
-import { loadDemoPack } from "../../../../src/server/engine-invocation.ts";
+import { resolvePinnedRulePack } from "../../../../src/server/engine-invocation.ts";
 import { buildReviewView } from "../../../../src/server/review-view.ts";
 import { memoryMatterRepository } from "../../../../src/server/repositories/memory/matter-repository.ts";
 import { NotFoundError } from "../../../../src/server/errors.ts";
@@ -54,7 +56,7 @@ export default async function LegalAssessmentPage({
     throw new NotFoundError(`No matter found for assessment '${id}'`);
   }
   const expenseLines = await memoryMatterRepository.listExpenseLines(assessment.matterId);
-  const pack = loadDemoPack();
+  const pack = resolvePinnedRulePack(assessment.rulePackId, assessment.rulePackVersion);
   const reviewView = buildReviewView(assessment, matter, expenseLines);
   const eligibleLineIds = listBulkAcceptableLineIds(assessment);
 

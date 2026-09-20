@@ -31,7 +31,7 @@ import {
   REFERENCE_MATTER_INPUT,
   REFERENCE_FIXTURE_LINE_INPUTS,
 } from "../../apps/web/src/server/__fixtures__/reference-fixture.ts";
-import { coercePackForDemoEngine, loadDemoPack } from "../../apps/web/src/server/engine-invocation.ts";
+import { coercePackForDemoEngine, resolvePinnedRulePack } from "../../apps/web/src/server/engine-invocation.ts";
 import RootLayout from "../../apps/web/app/layout.tsx";
 
 const BASE_URL = "http://localhost/api/matters";
@@ -79,7 +79,7 @@ async function submitReferenceFixture() {
 
 describe("HONESTY: the demo coercion is isolated", () => {
   it("HONESTY: coercePackForDemoEngine returns a copy differing from the loaded pack in exactly one field, and the loaded pack's own status is unchanged after the call", () => {
-    const loaded = loadDemoPack();
+    const loaded = resolvePinnedRulePack("SG-PDPA", "2026.09.1");
     const loadedStatusBefore = loaded.status;
 
     const coerced = coercePackForDemoEngine(loaded);

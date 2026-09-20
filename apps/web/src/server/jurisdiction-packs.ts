@@ -82,6 +82,18 @@ function deriveDisplayStatus(pack: LoadableRulePack, now: string): { displayStat
   return { displayStatus: "DRAFT", daysUntilReviewDue: days };
 }
 
+// The one place in the codebase that answers "which loaded pack belongs to
+// jurisdiction X" — resolveJurisdictionPackViews below and
+// engine-invocation.ts's resolveCurrentPackForJurisdiction both call this
+// rather than hand-rolling their own lookup (06-RESEARCH.md's Don't-Hand-Roll
+// guidance).
+export function findLoadedPackForJurisdiction(
+  loadedPacks: readonly LoadableRulePack[],
+  jurisdictionCode: JurisdictionCode
+): LoadableRulePack | null {
+  return loadedPacks.find((pack) => pack.jurisdiction.code === jurisdictionCode) ?? null;
+}
+
 /** Pure: every test above drives this function directly, never the IO
  * wrapper below, so the defensive "no usable pack" branch is provable with
  * a hand-built pack list. */
@@ -89,10 +101,8 @@ export function resolveJurisdictionPackViews(
   loadedPacks: readonly LoadableRulePack[],
   now: string
 ): Record<JurisdictionCode, JurisdictionPackView> {
-  const packByJurisdiction = new Map(loadedPacks.map((pack) => [pack.jurisdiction.code, pack]));
-
   const entries = PACK_JURISDICTIONS.map((row) => {
-    const pack = packByJurisdiction.get(row.jurisdictionCode);
+    const pack = findLoadedPackForJurisdiction(loadedPacks, row.jurisdictionCode);
     if (!pack) {
       const view: JurisdictionPackView = {
         jurisdictionCode: row.jurisdictionCode,

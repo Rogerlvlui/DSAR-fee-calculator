@@ -9,7 +9,8 @@ import { ConflictError, ForbiddenError, NotFoundError, ValidationError } from ".
 import { requireRole, type DemoActor } from "./auth.ts";
 import { memoryAssessmentRepository } from "../repositories/memory/assessment-repository.ts";
 import { memoryMatterRepository } from "../repositories/memory/matter-repository.ts";
-import { assessMatter, coercePackForDemoEngine, loadDemoPack } from "../engine-invocation.ts";
+import { assessMatter, coercePackForDemoEngine, resolvePinnedRulePack } from "../engine-invocation.ts";
+import type { LoadableRulePack } from "@dsar/schemas/rule-pack";
 import { newUlid } from "../ids.ts";
 import { elapsedReviewMs, recordAssessmentOpened } from "@dsar/audit/review-session";
 import {
@@ -246,19 +247,20 @@ export function applyBulkAcceptDisposition(
 
 // Eligible only when the line's verdict is the plain supported one (never
 // ALLOW_CAPPED), its applied rule's verification status is VERIFIED — read
-// from loadDemoPack()'s real, uncoerced result by default, never a literal
-// — and its disposition is still PENDING. For this demo's committed pack
-// every relevant rule is NEEDS_VERIFICATION, so this set is correctly
-// empty; that is the demo telling the truth, not a bug (03.1-UI-SPEC.md's
-// Known Deviation note). `pack` is an optional override purely so a unit
-// test can exercise every exclusion case (capped, not-supported, flagged,
-// unverified, already-decided) against a fixture with at least one
-// VERIFIED rule — the real committed pack has none, and every production
-// call site (this file's bulkAcceptLines, the legal review page) omits
-// this argument and gets the real one.
+// from the assessment's own PINNED pack (resolvePinnedRulePack) by default,
+// never a literal, and never "whichever pack is current" — and its
+// disposition is still PENDING. For both real committed packs (HK, SG),
+// this set is correctly empty for two distinct, documented reasons
+// (06-09's regression test) — that is the demo telling the truth, not a
+// bug (03.1-UI-SPEC.md's Known Deviation note). `pack` is an optional
+// override purely so a unit test can exercise every exclusion case
+// (capped, not-supported, flagged, unverified, already-decided) against a
+// fixture with at least one VERIFIED rule — neither real committed pack
+// has one, and every production call site (this file's bulkAcceptLines,
+// the legal review page) omits this argument and gets the real pinned one.
 export function listBulkAcceptableLineIds(
   assessment: Assessment,
-  pack: ReturnType<typeof loadDemoPack> = loadDemoPack()
+  pack: LoadableRulePack = resolvePinnedRulePack(assessment.rulePackId, assessment.rulePackVersion)
 ): string[] {
   const ruleById = new Map(pack.categoryRules.map((rule) => [rule.ruleId, rule]));
 
@@ -279,22 +281,27 @@ export interface BulkAcceptInput {
 // (T-03.1-16).
 //
 // `pack` is an optional override for the same reason
-// listBulkAcceptableLineIds's own `pack` parameter is: the real committed
-// SG-PDPA pack has no VERIFIED rule at all, so the real pipeline can never
-// exercise a successful bulk-accept, and a unit test needs a fixture pack
-// with at least one VERIFIED rule to prove the audit-writing behavior
-// below. Every production call site (the bulk-accept route) omits this
-// argument and gets the real one.
+// listBulkAcceptableLineIds's own `pack` parameter is: neither real
+// committed pack (HK, SG) has a VERIFIED rule at all, so the real pipeline
+// can never exercise a successful bulk-accept, and a unit test needs a
+// fixture pack with at least one VERIFIED rule to prove the audit-writing
+// behavior below. Every production call site (the bulk-accept route) omits
+// this argument and gets the assessment's own real pinned pack, resolved
+// below once `assessment` is in scope (a default parameter cannot resolve
+// it — the fetched `assessment` object does not exist yet at the point
+// default parameters are evaluated).
 export async function bulkAcceptLines(
   actor: DemoActor,
   assessmentId: string,
   input: BulkAcceptInput,
-  pack: ReturnType<typeof loadDemoPack> = loadDemoPack()
+  pack?: LoadableRulePack
 ): Promise<AssessmentLine[]> {
   requireRole(actor, "LEGAL_REVIEWER");
 
   const assessment = await memoryAssessmentRepository.getAssessment(assessmentId);
   if (!assessment) throw new NotFoundError(`No assessment with id '${assessmentId}'`);
+
+  const resolvedPack = pack ?? resolvePinnedRulePack(assessment.rulePackId, assessment.rulePackVersion);
 
   await requireAssessmentInLegalReview(assessment);
 
@@ -304,7 +311,7 @@ export async function bulkAcceptLines(
     throw new ValidationError("At least one line id is required for bulk accept");
   }
 
-  const eligibleIds = new Set(listBulkAcceptableLineIds(assessment, pack));
+  const eligibleIds = new Set(listBulkAcceptableLineIds(assessment, resolvedPack));
   for (const lineId of input.lineIds) {
     if (!eligibleIds.has(lineId)) {
       throw new ValidationError(`Line '${lineId}' is not eligible for bulk accept`);
@@ -411,7 +418,7 @@ export async function signOff(
   // finalAmount, and it is never derived from the draft baseline.
   const finalAmount = computeFinalAmount(assessment.lines);
 
-  const pack = loadDemoPack(); // real, uncoerced — never the ACTIVE-coerced copy
+  const pack = resolvePinnedRulePack(assessment.rulePackId, assessment.rulePackVersion); // real, uncoerced — never the ACTIVE-coerced copy
   const now = new Date().toISOString();
   const packIsStale = deriveEffectiveStatus(pack, now) === "STALE";
   const attestationText = renderAttestation({

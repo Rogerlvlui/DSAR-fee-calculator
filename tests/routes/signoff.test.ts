@@ -18,7 +18,7 @@ import { POST as signoffRoute } from "../../apps/web/app/api/assessments/[id]/si
 import { DEMO_ROLE_COOKIE } from "../../apps/web/src/server/data/auth.ts";
 import { memoryAssessmentRepository } from "../../apps/web/src/server/repositories/memory/assessment-repository.ts";
 import { memoryMatterRepository } from "../../apps/web/src/server/repositories/memory/matter-repository.ts";
-import { loadDemoPack } from "../../apps/web/src/server/engine-invocation.ts";
+import { resolvePinnedRulePack } from "../../apps/web/src/server/engine-invocation.ts";
 import { renderAttestation, ATTESTATION_TEMPLATE_VERSION } from "../../apps/web/src/domain/attestation.ts";
 
 const MATTERS_URL = "http://localhost/api/matters";
@@ -95,6 +95,8 @@ const LINE_INPUTS = [
 interface FixtureAssessment {
   id: string;
   matterId: string;
+  rulePackId: string;
+  rulePackVersion: string;
   lines: { id: string; verdict: string; engineAmount: number; disposition: string }[];
   matterLevelFlags: { id: string; requiresAcknowledgement: boolean }[];
 }
@@ -310,7 +312,7 @@ describe("SIGNOFF", () => {
     expect(response.status).toBe(200);
     const body = (await response.json()) as { attestationText: string; assessment: FixtureAssessment };
 
-    const pack = loadDemoPack();
+    const pack = resolvePinnedRulePack(assessment.rulePackId, assessment.rulePackVersion);
     const expected = renderAttestation({
       jurisdiction: pack.jurisdiction.name,
       packId: pack.packId,

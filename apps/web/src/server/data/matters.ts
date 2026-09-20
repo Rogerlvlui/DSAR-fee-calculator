@@ -11,7 +11,7 @@ import { ExpenseLineSchema, type ExpenseLine } from "@dsar/schemas/expense-line"
 import type { Assessment } from "@dsar/schemas/assessment";
 import type { FeePosture } from "@dsar/schemas/rule-pack";
 import { newUlid } from "../ids.ts";
-import { assessMatter, coercePackForDemoEngine, loadDemoPack } from "../engine-invocation.ts";
+import { assessMatter, coercePackForDemoEngine, resolveCurrentPackForJurisdiction } from "../engine-invocation.ts";
 import { recomputeAssessment } from "../recompute.ts";
 import { buildJurisdictionPackViews } from "../jurisdiction-packs.ts";
 import { ConflictError, NotFoundError, ValidationError } from "../errors.ts";
@@ -338,7 +338,7 @@ export async function submitForAssessment(actor: DemoActor, matterId: string): P
     throw new ValidationError("At least one expense line is required before submitting");
   }
 
-  const loadedPack = loadDemoPack();
+  const loadedPack = resolveCurrentPackForJurisdiction(matter.jurisdictionCode);
   const pack = coercePackForDemoEngine(loadedPack);
   const guardInput = buildGuardInput({ matter, lines, assessment: null, pack, actor });
   const submitOutcome = evaluateTransition(matter.status, "SUBMIT", guardInput);
@@ -519,7 +519,7 @@ export async function resubmitAfterInfoRequest(actor: DemoActor, matterId: strin
   if (!existing) throw new NotFoundError(`No assessment found for matter '${matterId}'`);
 
   const lines = await memoryMatterRepository.listExpenseLines(matterId);
-  const loadedPack = loadDemoPack();
+  const loadedPack = resolveCurrentPackForJurisdiction(matter.jurisdictionCode);
   const pack = coercePackForDemoEngine(loadedPack);
   const guardInput = buildGuardInput({ matter, lines, assessment: existing, pack, actor });
 
@@ -590,7 +590,7 @@ export async function recomputeAgainstCurrentPack(actor: DemoActor, assessmentId
   if (!matter) throw new NotFoundError(`No matter found for assessment '${assessmentId}'`);
 
   const lines = await memoryMatterRepository.listExpenseLines(matter.id);
-  const loadedPack = loadDemoPack();
+  const loadedPack = resolveCurrentPackForJurisdiction(matter.jurisdictionCode);
   const pack = coercePackForDemoEngine(loadedPack);
   const guardInput = buildGuardInput({ matter, lines, assessment: existing, pack, actor });
 

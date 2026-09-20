@@ -19,7 +19,11 @@ import { EXPENSE_CATEGORY_CODES } from "@dsar/schemas/taxonomy";
 import type { LoadableRulePack } from "@dsar/schemas/rule-pack";
 
 import { resolveRulepacksRoot } from "./rulepacks-root.ts";
-import { resolveJurisdictionPackViews, buildJurisdictionPackViews } from "./jurisdiction-packs.ts";
+import {
+  resolveJurisdictionPackViews,
+  buildJurisdictionPackViews,
+  findLoadedPackForJurisdiction,
+} from "./jurisdiction-packs.ts";
 
 const ROOT = resolveRulepacksRoot();
 const basePack: LoadableRulePack = loadRulePackFile(`${ROOT}/VN-PDPL/2026.09.1.json`);
@@ -93,6 +97,21 @@ describe("JURISDICTION-PACKS: resolveJurisdictionPackViews", () => {
   it("JURISDICTION-PACKS: buildJurisdictionPackViews resolves against the real committed nine packs with no arguments", () => {
     const views = buildJurisdictionPackViews();
     expect(Object.keys(views).length).toBe(PACK_JURISDICTIONS.length);
+  });
+});
+
+describe("JURISDICTION-PACKS: findLoadedPackForJurisdiction", () => {
+  it("JURISDICTION-PACKS: finds the matching pack for a jurisdiction that has one", () => {
+    const loadedPacks = loadRulePackFileEachJurisdiction();
+    const found = findLoadedPackForJurisdiction(loadedPacks, "VN");
+    expect(found?.packId).toBe("VN-PDPL");
+    expect(found?.jurisdiction.code).toBe("VN");
+  });
+
+  it("JURISDICTION-PACKS: returns null for a jurisdiction whose loaded-packs list carries none", () => {
+    const loadedPacks = loadRulePackFileEachJurisdiction().filter((pack) => pack.jurisdiction.code !== "SG");
+    const found = findLoadedPackForJurisdiction(loadedPacks, "SG");
+    expect(found).toBeNull();
   });
 });
 

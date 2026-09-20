@@ -4,11 +4,13 @@
 // screen needs beyond what Assessment already carries: for each assessment
 // line, the originating expense line's description/category/quantity/unit/
 // rate, and the applied rule's verification status read from the real,
-// uncoerced loadDemoPack() result — never a literal, and never the
-// engine-invocation boundary's ACTIVE-coerced copy. In this fixture every
-// category rule in the committed pack is NEEDS_VERIFICATION, so every line's
-// verificationStatus below reads that value honestly (03.1-UI-SPEC.md's
-// Known Deviation note) — it is not hard-coded here.
+// uncoerced pack this assessment was actually PINNED to
+// (resolvePinnedRulePack, by the assessment's own rulePackId/rulePackVersion)
+// — never a literal, and never the engine-invocation boundary's
+// ACTIVE-coerced copy. Most authored category rules in the committed HK/SG
+// packs are NEEDS_VERIFICATION, so most lines' verificationStatus below
+// reads that value honestly (03.1-UI-SPEC.md's Known Deviation note) — it is
+// not hard-coded here.
 //
 // Also computes the one deadline the matter rail displays: the real pack
 // sets `feeNotificationDeadlineDays: null` and `responseDeadlineDays: 30`,
@@ -23,7 +25,7 @@ import type { ExpenseLine, ExpenseUnit } from "@dsar/schemas/expense-line";
 import type { MatterFlag, Minor } from "@dsar/schemas/primitives";
 import type { VerificationStatus } from "@dsar/schemas/rule-pack";
 import { EXPENSE_CATEGORY_LABELS } from "@dsar/schemas/taxonomy";
-import { loadDemoPack } from "./engine-invocation.ts";
+import { resolvePinnedRulePack } from "./engine-invocation.ts";
 import { computeAdvisoryDeadline, type AdvisoryDeadlineView } from "../domain/advisory-deadline.ts";
 
 export interface ReviewLineView {
@@ -51,7 +53,7 @@ export function buildReviewView(
   lines: readonly ExpenseLine[],
   now: string = new Date().toISOString()
 ): ReviewView {
-  const pack = loadDemoPack();
+  const pack = resolvePinnedRulePack(assessment.rulePackId, assessment.rulePackVersion);
   const ruleById = new Map(pack.categoryRules.map((rule) => [rule.ruleId, rule]));
   const expenseLineById = new Map(lines.map((line) => [line.id, line]));
 

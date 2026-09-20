@@ -15,7 +15,7 @@
 import { getCurrentActor } from "../../../../src/server/current-actor.ts";
 import { getExpenseLinesForHr, getHrMatterStatus, getNoticeSentAt } from "../../../../src/server/data/matters.ts";
 import { getSignedOffAssessmentForHr } from "../../../../src/server/data/assessments.ts";
-import { loadDemoPack } from "../../../../src/server/engine-invocation.ts";
+import { resolvePinnedRulePack } from "../../../../src/server/engine-invocation.ts";
 import { buildJurisdictionPackViews } from "../../../../src/server/jurisdiction-packs.ts";
 import { humanizePackDisplayStatus } from "../../../../src/ui/intake/matter-details-fields.tsx";
 import { EXPENSE_CATEGORY_LABELS } from "@dsar/schemas/taxonomy";
@@ -110,7 +110,7 @@ export default async function HrMatterPage({ params }: { params: Promise<{ id: s
     .filter((line) => !line.struck)
     .map((line) => ({ description: line.description, amount: line.amount }));
 
-  const pack = loadDemoPack();
+  const pack = resolvePinnedRulePack(assessment.rulePackId, assessment.rulePackVersion);
   const noticeDraft = buildNoticeDraft({
     template: pack.requestorNoticeTemplate,
     amount: finalAmount,
