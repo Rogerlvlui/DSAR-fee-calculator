@@ -1,6 +1,6 @@
-// apps/web/app/(legal)/layout.test.tsx
+// apps/web/app/legal/layout.test.tsx
 //
-// Mirrors apps/web/app/(hr)/layout.test.tsx's own proof, for the legal
+// Mirrors apps/web/app/hr/layout.test.tsx's own proof, for the legal
 // route-group layout. Tagged CAPABILITY.
 
 import { describe, expect, it } from "vitest";

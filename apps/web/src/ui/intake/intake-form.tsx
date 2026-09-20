@@ -237,7 +237,7 @@ export function IntakeForm({ packsByJurisdiction, defaultReference }: IntakeForm
       // network or the audit log" write-only autosave boundary.
       window.localStorage.removeItem(INTAKE_DRAFT_STORAGE_KEY);
 
-      router.push(`/matters/${matter.id}/submitted`);
+      router.push(`/hr/matters/${matter.id}/submitted`);
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : "Something went wrong.");
       setSubmitting(false);

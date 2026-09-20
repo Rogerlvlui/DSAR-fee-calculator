@@ -1,4 +1,4 @@
-// apps/web/app/(hr)/matters/[id]/page.tsx
+// apps/web/app/hr/matters/[id]/page.tsx
 //
 // The HR result screen (PRD §10.4), plus the information-requested branch.
 // An async server component: it reads the matter's status through the

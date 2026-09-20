@@ -1,4 +1,4 @@
-// apps/web/app/(legal)/assessments/[id]/page.tsx
+// apps/web/app/legal/assessments/[id]/page.tsx
 //
 // An async server component: await the route params, resolve the actor,
 // call getAssessmentForLegalReview, load the untransformed pack this

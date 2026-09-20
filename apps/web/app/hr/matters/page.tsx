@@ -1,8 +1,8 @@
-// apps/web/app/(hr)/matters/page.tsx
+// apps/web/app/hr/matters/page.tsx
 //
 // NAV-02 — the in-app substitute NS-3's ban on outbound email requires: a
-// preparer's own worklist. Mirrors AssessmentsListPage's exact shape
-// (apps/web/app/(legal)/assessments/page.tsx): resolve the actor, call the
+// preparer's own worklist. Mirrors the legal queue page's own exact shape
+// (apps/web/app/legal/queue/page.tsx): resolve the actor, call the
 // role-checked read, render an empty state or a <ul><li> per matter. Reads
 // no Assessment anywhere — this page's leak boundary (AC-02/AC-04) is that
 // HR sees only a collapsed status label, never which of
@@ -25,7 +25,7 @@ export default async function HrMattersListPage() {
       <h1 className="screen">Your matters</h1>
       {matters.length === 0 ? (
         <p data-testid="matters-empty">
-          No matters yet. <a href="/matters/new">Create a fee claim</a> to get started.
+          No matters yet. <a href="/hr/matters/new">Create a fee claim</a> to get started.
         </p>
       ) : (
         <ul data-testid="matters-list">
@@ -36,7 +36,7 @@ export default async function HrMattersListPage() {
               : null;
             return (
               <li key={matter.id}>
-                <a href={`/matters/${matter.id}`}>
+                <a href={`/hr/matters/${matter.id}`}>
                   {matter.reference} — {matterStatusLabelForHr(matter.status)}
                 </a>
                 {advisoryDeadline ? (

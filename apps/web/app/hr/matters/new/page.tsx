@@ -1,4 +1,4 @@
-// apps/web/app/(hr)/matters/new/page.tsx
+// apps/web/app/hr/matters/new/page.tsx
 //
 // An async server component: resolves all nine jurisdictions' pack views
 // (server-side) and hands the whole map to IntakeForm as props. Marked

@@ -1,4 +1,4 @@
-// apps/web/app/(hr)/matters/[id]/submitted/page.tsx
+// apps/web/app/hr/matters/[id]/submitted/page.tsx
 //
 // The HR confirmation screen shown immediately after submit: the matter
 // reference and PRD §10.2's closing sentence, verbatim. That sentence is

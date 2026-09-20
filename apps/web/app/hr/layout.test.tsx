@@ -1,4 +1,4 @@
-// apps/web/app/(hr)/layout.test.tsx
+// apps/web/app/hr/layout.test.tsx
 //
 // Proves the capability-statement gate is real at the HR route-group
 // layout, not merely present. `CapabilityStatement` only renders its
