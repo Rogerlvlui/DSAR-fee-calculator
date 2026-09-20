@@ -61,6 +61,11 @@
     "../apps/web/src/ui/intake/autosave-indicator.tsx",
     "../apps/web/src/ui/intake/use-draft-autosave.ts",
     "../apps/web/src/ui/hr/result-view.tsx",
+    // 06-03 Task 2: tests/boundary/rsc-payload-leak.test.ts renders
+    // TotalsRail directly for the REVIEW-06 no-total-while-pending proof —
+    // safe under this project's "nodenext" resolution (no next/navigation
+    // or next/headers import).
+    "../apps/web/src/ui/review/totals-rail.tsx",
     // 03.1-05 Task 2: tests/routes/honesty.test.ts renders the real root
     // layout to prove the permanent marker's position relative to the
     // children slot — it cannot do this under the jsdom "web" project
