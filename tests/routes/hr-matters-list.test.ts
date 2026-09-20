@@ -1,6 +1,6 @@
 // tests/routes/hr-matters-list.test.ts
 //
-// Page-level integration test for apps/web/app/(hr)/matters/page.tsx.
+// Page-level integration test for apps/web/app/hr/matters/page.tsx.
 // Creates matters via the existing createMatter/addExpenseLine data-layer
 // functions with two distinct jurisdictions — one whose pack yields an
 // advisory deadline (SG, responseDeadlineDays: 30) and one that does not
@@ -41,7 +41,7 @@ vi.mock("next/headers", () => ({
 }));
 
 const ROOT = path.resolve(fileURLToPath(import.meta.url), "../../..");
-const PAGE_PATH = path.join(ROOT, "apps", "web", "app", "(hr)", "matters", "page.tsx");
+const PAGE_PATH = path.join(ROOT, "apps", "web", "app", "hr", "matters", "page.tsx");
 const { default: HrMattersListPage } = (await import(pathToFileURL(PAGE_PATH).href)) as {
   default: () => Promise<ReactElement>;
 };
@@ -53,12 +53,12 @@ function resetStore(): void {
 }
 
 describe("hr-matters-list: /hr/matters", () => {
-  it("hr-matters-list: with zero matters, renders the verbatim empty-state sentence and a link back to /matters/new", async () => {
+  it("hr-matters-list: with zero matters, renders the verbatim empty-state sentence and a link back to /hr/matters/new", async () => {
     resetStore();
     const html = renderToStaticMarkup(await HrMattersListPage());
     expect(html).toContain('data-testid="matters-empty"');
     expect(html).toContain("No matters yet.");
-    expect(html).toContain('href="/matters/new"');
+    expect(html).toContain('href="/hr/matters/new"');
   });
 
   it("hr-matters-list: with one matter whose jurisdiction yields an advisory deadline, renders its reference, collapsed status label, and an Advisory-labelled container", async () => {
@@ -91,7 +91,7 @@ describe("hr-matters-list: /hr/matters", () => {
     expect(html).not.toContain('data-testid="advisory-deadline"');
   });
 
-  it("hr-matters-list: each row links to /matters/{id}, the existing HR result/status page", async () => {
+  it("hr-matters-list: each row links to /hr/matters/{id}, the existing HR result/status page", async () => {
     resetStore();
     const matter = await createMatter(DEMO_USERS.HR_PREPARER, {
       ...REFERENCE_MATTER_INPUT,
@@ -101,6 +101,6 @@ describe("hr-matters-list: /hr/matters", () => {
     expect(own?.id).toBe(matter.id);
 
     const html = renderToStaticMarkup(await HrMattersListPage());
-    expect(html).toContain(`href="/matters/${matter.id}"`);
+    expect(html).toContain(`href="/hr/matters/${matter.id}"`);
   });
 });

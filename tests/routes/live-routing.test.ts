@@ -10,7 +10,12 @@
 //      as URL prefixes (/hr/matters/new, /legal/assessments). Next.js
 //      route groups never contribute a URL segment, so every one of those
 //      links was dead — nothing beyond the static landing page was
-//      reachable in a real browser.
+//      reachable in a real browser. FIXED in 06-04: (hr)/(legal) are now
+//      real hr/legal path segments, so those links are genuinely reachable
+//      — see the "hr/legal are real, reachable path segments" describe
+//      block below, which replaces this file's former "no dead route-group
+//      links" block (that block's entire premise — that a /hr/.../legal/...
+//      link is necessarily dead — is now false).
 //   2. Assessment and assessment-line ids are colon-joined
 //      (packages/engine's deriveAssessmentId/deriveAssessmentLineId).
 //      Next's [id] dynamic segment arrives percent-encoded rather than
@@ -18,19 +23,22 @@
 //      keyed by one of these ids 404s (surfaced as a 500) on a real
 //      request.
 //
-// Half one (LIVE-ROUTING: no dead route-group links) is a source scan, the
-// same technique tests/boundary/dom-denylist.test.ts's canary half uses:
-// it cannot silently pass by finding nothing, because it also asserts a
-// minimum number of `<a href=`/`router.push` occurrences were scanned.
+// Half one (LIVE-ROUTING: hr/legal are real, reachable path segments) is a
+// source scan plus a direct filesystem check — the same technique
+// tests/boundary/dom-denylist.test.ts's canary half uses: it cannot
+// silently pass by finding nothing, because it also asserts a minimum
+// number of source files were scanned AND that the old route-group
+// directories are genuinely gone from disk, not merely unreferenced.
 //
 // Half two (LIVE-ROUTING: colon-bearing ids decode correctly) proves the
 // fix by doing exactly what every other route test in this phase
 // deliberately does NOT do: passing a real, colon-bearing id through
 // `encodeURIComponent` before handing it to the route as `params`,
 // simulating what Next's actual dynamic-segment matching delivers.
+// Untouched by 06-04 — an unrelated, still-valid concern.
 
 import { describe, expect, it } from "vitest";
-import { readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { POST as createMatterRoute } from "../../apps/web/app/api/matters/route.ts";
@@ -71,22 +79,27 @@ function findSourceFiles(dir: string, extensions: string[]): string[] {
   return found;
 }
 
-describe("LIVE-ROUTING: no dead route-group links", () => {
-  it("LIVE-ROUTING: no source file links to /hr/... or /legal/... — Next route groups never appear in a real URL", () => {
+describe("LIVE-ROUTING: hr/legal are real, reachable path segments", () => {
+  it("LIVE-ROUTING: the old (hr)/(legal) route-group directories no longer exist on disk", () => {
+    expect(existsSync(path.join(APP_ROOT, "(hr)"))).toBe(false);
+    expect(existsSync(path.join(APP_ROOT, "(legal)"))).toBe(false);
+  });
+
+  it("LIVE-ROUTING: at least one source file links to a /hr/ or /legal/ prefixed path — the new prefix is actually used, not merely available", () => {
     const files = [...findSourceFiles(APP_ROOT, [".tsx", ".ts"]), ...findSourceFiles(SRC_ROOT, [".tsx", ".ts"])];
     expect(files.length).toBeGreaterThan(10);
 
-    const offenders: string[] = [];
+    const usages: string[] = [];
     let scanned = 0;
     for (const file of files) {
       const content = readFileSync(file, "utf-8");
       scanned += 1;
       if (/(?:href|router\.push)\s*[({][^)]*["'`]\/(?:hr|legal)\//.test(content)) {
-        offenders.push(path.relative(ROOT, file));
+        usages.push(path.relative(ROOT, file));
       }
     }
     expect(scanned).toBeGreaterThan(10);
-    expect(offenders, `route-group-prefixed links found in: ${offenders.join(", ")}`).toEqual([]);
+    expect(usages.length).toBeGreaterThan(0);
   });
 });
 
