@@ -86,6 +86,27 @@ export default defineConfig({
         },
       },
       {
+        // packages/documents' internal-record-document.tsx is plain React
+        // JSX authored against @react-pdf/renderer's own custom
+        // reconciler — its tsconfig.json sets "jsx": "react-jsx" (never
+        // "preserve", which is Next-specific and this package is never
+        // bundled by Next itself), but Vite/Oxc still needs the same
+        // transform override the "web"/"routes"/"boundary" projects
+        // already carry to import a .tsx file at all (07-RESEARCH.md
+        // Common Pitfall 6).
+        oxc: {
+          jsx: {
+            runtime: "automatic",
+            importSource: "react",
+          },
+        },
+        test: {
+          name: "documents",
+          environment: "node",
+          include: ["packages/documents/src/**/*.test.ts", "packages/documents/src/**/*.test.tsx"],
+        },
+      },
+      {
         test: {
           name: "db",
           environment: "node",

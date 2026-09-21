@@ -6,6 +6,7 @@
     { "path": "./packages/rulepacks" },
     { "path": "./packages/workflow" },
     { "path": "./packages/audit" },
+    { "path": "./packages/documents" },
     { "path": "./tests" }
   ]
 }
