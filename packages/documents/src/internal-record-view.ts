@@ -5,17 +5,33 @@
 // no import from apps/web, no clock read. Every value is read from the
 // already-persisted Assessment/Matter record — never recomputed, never
 // re-derived from a currently-active pack, and never stamped from a fresh
-// Date.now() read (07-RESEARCH.md's Anti-Pattern: "Calling
+// wall-clock read (07-RESEARCH.md's Anti-Pattern: "Calling
 // @react-pdf/renderer's render functions with a fresh clock read inside the
 // JSX tree").
 //
 // This is the only module packages/documents/src/internal-record-document.tsx
 // depends on for data shape — the JSX layer never reaches into
 // @dsar/schemas or the Assessment/Matter/RulePack types directly.
+//
+// 07-04 widens the tracer's one-page skeleton (title + footer only) into the
+// full DOC-01 data model: matter details, rule pack details, the dense
+// ten-column line-item table, matter flags and acknowledgements, and the
+// sign-off block carrying the attestation as it was actually recorded (never
+// re-derived from whatever the current build's template wording happens to
+// be — see buildSignOffBlock below and T-07-04-01 in 07-04-PLAN.md's threat
+// model).
 
-import type { Assessment } from "@dsar/schemas/assessment";
+import type { Assessment, Disposition, Verdict } from "@dsar/schemas/assessment";
+import type { ExpenseLine } from "@dsar/schemas/expense-line";
 import type { Matter } from "@dsar/schemas/matter";
-import type { LoadableRulePack } from "@dsar/schemas/rule-pack";
+import { formatMinor } from "@dsar/schemas/money";
+import type { Citation, MatterFlagCode, Minor } from "@dsar/schemas/primitives";
+import type { FeePosture, LoadableRulePack, RulePackStatus } from "@dsar/schemas/rule-pack";
+import { EXPENSE_CATEGORY_LABELS } from "@dsar/schemas/taxonomy";
+
+// ---------------------------------------------------------------------------
+// Footer (unchanged since 07-01)
+// ---------------------------------------------------------------------------
 
 // PRD §10.5(a)'s footer field list, transcribed by name (packId, packVersion,
 // engineVersion, lawyerName, qualification, date) per this plan's own field
@@ -27,12 +43,6 @@ export interface InternalRecordFooter {
   lawyerName: string;
   qualification: string;
   date: string;
-}
-
-export interface InternalRecordView {
-  title: string;
-  matterReference: string;
-  footer: InternalRecordFooter;
 }
 
 // PRD §10.5(a)'s footer text, quoted verbatim (including the emphasis
@@ -58,27 +68,346 @@ export function renderInternalRecordFooter(footer: InternalRecordFooter): string
     .replace("{date}", footer.date);
 }
 
-// `pack` is accepted (not yet read) so this signature does not need to
-// change again once 07-04 widens InternalRecordView with the dense
-// line-item table, matter details and rule-pack section — every one of
-// those fields comes from `pack`/`matter`, not from `assessment` alone.
+// ---------------------------------------------------------------------------
+// Verdict / Disposition display labels
+// ---------------------------------------------------------------------------
+//
+// Complete Record<...> over every enum member, not a switch with a default
+// arm — a later verdict/disposition addition to the frozen schemas is then a
+// compile error here, not a silent fallthrough to an unlabelled cell. The
+// Verdict cell renders the raw enum word (07-UI-SPEC.md Color section: "a
+// Verdict column cell literally reads 'FLAG' / 'ALLOW'"); the Disposition
+// cell renders the same section's own Title Case treatment ("'Accepted' /
+// 'Struck'"). ALLOW_CAPPED is spelled out for readability on an evidentiary
+// document rather than left as the bare enum token.
+export const VERDICT_LABELS: Record<Verdict, string> = {
+  ALLOW: "ALLOW",
+  ALLOW_CAPPED: "ALLOW (CAPPED)",
+  DISALLOW: "DISALLOW",
+  FLAG: "FLAG",
+};
+
+export const DISPOSITION_LABELS: Record<Disposition, string> = {
+  PENDING: "Pending",
+  ACCEPTED: "Accepted",
+  REDUCED: "Reduced",
+  STRUCK: "Struck",
+  ALLOWED_BY_LAWYER: "Allowed by lawyer",
+};
+
+// ---------------------------------------------------------------------------
+// Shared placeholders / empty-state statements — 07-UI-SPEC.md's
+// Copywriting Contract, transcribed verbatim
+// ---------------------------------------------------------------------------
+
+// Never an empty string, which a reader could mistake for a dropped value —
+// used for a null lawyer's reason (only reachable for a plain ACCEPTED
+// non-FLAG line) and for a null lawyer amount.
+export const NO_LAWYER_REASON_PLACEHOLDER = "—";
+
+export const NO_MATTER_FLAGS_STATEMENT = "No matter-level flags were raised on this matter.";
+
+export const NO_ACKNOWLEDGEMENT_REQUIRED_STATEMENT =
+  "No matter-level flags on this assessment required acknowledgement.";
+
+// A counsel display name or a reviewed-on date that has not been recorded
+// renders this explicit phrase rather than an empty string — the same
+// discipline apps/web/src/domain/attestation.ts already applies for
+// reviewedOn (REVIEWED_ON_NOT_RECORDED). Not imported from there: this
+// package must not depend on apps/web, so the identical wording is kept as
+// its own, separately-owned literal.
+const NOT_RECORDED = "not yet recorded";
+
+// T-07-04-01 — the record must never restate a historical lawyer's
+// attestation in a later build's words. Rendered instead of the caller's
+// supplied attestation text whenever the caller's attestation version does
+// not match the version actually recorded on the sign-off. Names the
+// recorded version so a reader can go find the wording that was actually
+// attested to, rather than being handed a substitute that looks the same.
+export function ATTESTATION_VERSION_MISMATCH_STATEMENT(recordedAttestationVersion: string): string {
+  return (
+    `This assessment's sign-off recorded attestation wording version '${recordedAttestationVersion}', ` +
+    "but this build cannot reproduce that exact wording. The attestation text is not restated in a later " +
+    "version's words — refer to the sign-off record's own attestationVersion for the wording actually attested to."
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Citation formatting
+// ---------------------------------------------------------------------------
+
+// instrument, a space, then the provision; guidance/note (if present)
+// appended after an em dash so no authored citation field is silently
+// dropped.
+export function formatCitation(citation: Citation): string {
+  const base = `${citation.instrument} ${citation.provision}`;
+  const extras = [citation.guidance, citation.note].filter(
+    (value): value is string => typeof value === "string" && value.length > 0
+  );
+  if (extras.length === 0) return base;
+  return `${base} — ${extras.join(" — ")}`;
+}
+
+// ---------------------------------------------------------------------------
+// Matter details / Rule pack details
+// ---------------------------------------------------------------------------
+
+export interface InternalRecordMatterDetails {
+  reference: string;
+  jurisdictionName: string;
+  legalEntity: string;
+  controllerType: Matter["controllerType"];
+  requestReceivedOn: string;
+  requestorClass: Matter["requestorClass"];
+  identityVerified: boolean;
+  scopeClarified: boolean;
+}
+
+export interface InternalRecordPackDetails {
+  packId: string;
+  packVersion: string;
+  status: RulePackStatus;
+  feePosture: FeePosture;
+  authoredByDisplayName: string;
+  reviewedByDisplayName: string;
+  reviewedOn: string;
+  reviewDueOn: string;
+  engineVersion: string;
+}
+
+function buildMatterDetails(matter: Matter, jurisdictionName: string): InternalRecordMatterDetails {
+  return {
+    reference: matter.reference,
+    jurisdictionName,
+    legalEntity: matter.legalEntity,
+    controllerType: matter.controllerType,
+    requestReceivedOn: matter.requestReceivedOn,
+    requestorClass: matter.requestorClass,
+    identityVerified: matter.identityVerified,
+    scopeClarified: matter.scopeClarified,
+  };
+}
+
+function buildPackDetails(
+  pack: LoadableRulePack,
+  matter: Matter,
+  engineVersion: string
+): InternalRecordPackDetails {
+  return {
+    packId: pack.packId,
+    packVersion: pack.version,
+    status: pack.status,
+    feePosture: pack.feePosture[matter.controllerType],
+    authoredByDisplayName: pack.authoredBy?.displayName ?? NOT_RECORDED,
+    reviewedByDisplayName: pack.reviewedBy?.displayName ?? NOT_RECORDED,
+    reviewedOn: pack.reviewedOn ?? NOT_RECORDED,
+    reviewDueOn: pack.reviewDueOn,
+    engineVersion,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Line items — the dense ten-column table
+// ---------------------------------------------------------------------------
+
+export interface InternalRecordLineRow {
+  seq: number;
+  categoryLabel: string;
+  verdict: Verdict;
+  appliedRuleId: string;
+  basis: string;
+  citation: string;
+  disposition: Disposition;
+  claimedAmount: string;
+  lawyerAmount: string;
+  lawyerReason: string;
+}
+
+function buildLineRows(
+  assessment: Assessment,
+  matter: Matter,
+  expenseLineById: Map<string, ExpenseLine>
+): InternalRecordLineRow[] {
+  // Order by the joined ExpenseLine.seq ascending. `seqA - seqB` returns
+  // zero for equal seq values, and Array.prototype.sort has been a
+  // guaranteed-stable sort since ES2019 — so two lines with equal seq keep
+  // assessment.lines' own input order among themselves, identically across
+  // repeated builds, with no separate tie-break index needed.
+  const sortedLines = [...assessment.lines].sort((a, b) => {
+    const seqA = expenseLineById.get(a.expenseLineId)?.seq ?? 0;
+    const seqB = expenseLineById.get(b.expenseLineId)?.seq ?? 0;
+    return seqA - seqB;
+  });
+
+  // Never de-duplicated: one row per AssessmentLine, even where two lines
+  // share an appliedRuleId and a basis.
+  return sortedLines.map((line) => {
+    const expenseLine = expenseLineById.get(line.expenseLineId);
+    const claimedAmount = expenseLine?.claimedAmount ?? (0 as Minor);
+    return {
+      seq: expenseLine?.seq ?? 0,
+      categoryLabel: expenseLine ? EXPENSE_CATEGORY_LABELS[expenseLine.categoryCode] : "Unknown category",
+      verdict: line.verdict,
+      appliedRuleId: line.appliedRuleId,
+      basis: line.basis,
+      citation: formatCitation(line.citation),
+      disposition: line.disposition,
+      claimedAmount: formatMinor(claimedAmount, matter.currency),
+      lawyerAmount:
+        line.lawyerAmount !== null ? formatMinor(line.lawyerAmount, matter.currency) : NO_LAWYER_REASON_PLACEHOLDER,
+      lawyerReason:
+        line.lawyerReason !== null && line.lawyerReason.length > 0
+          ? line.lawyerReason
+          : NO_LAWYER_REASON_PLACEHOLDER,
+    };
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Matter flags and acknowledgements
+// ---------------------------------------------------------------------------
+
+export interface InternalRecordFlagAcknowledgement {
+  lawyerName: string;
+  acknowledgedAt: string;
+}
+
+export interface InternalRecordFlagRow {
+  code: MatterFlagCode;
+  message: string;
+  requiresAcknowledgement: boolean;
+  acknowledgement: InternalRecordFlagAcknowledgement | null;
+}
+
+// The view exposes which of the two Copywriting Contract empty-state
+// sentences applies (or neither, when rows exist and at least one requires
+// acknowledgement) rather than leaving the JSX layer to infer it — both
+// fields are null unless their own specific condition holds, and both are
+// never non-null at once (zero flags implies zero rows, which trivially
+// satisfies "every row" for the second check, but the two are still
+// mutually exclusive here by construction: the second only ever fires when
+// rows.length > 0).
+export interface InternalRecordFlagsSection {
+  rows: InternalRecordFlagRow[];
+  noFlagsStatement: string | null;
+  noAcknowledgementRequiredStatement: string | null;
+}
+
+function buildFlagsSection(assessment: Assessment): InternalRecordFlagsSection {
+  const signOff = assessment.signOff;
+  if (!signOff) {
+    throw new Error(`Assessment '${assessment.id}' has no sign-off record — cannot build the flags section`);
+  }
+
+  // Acknowledgement is recorded atomically at sign-off (one lawyer, one
+  // instant, for every flag named in acknowledgedFlags) — there is no
+  // partially-filled acknowledgement to represent, so every acknowledged
+  // flag's entry is the same signing lawyer's name and the same sign-off
+  // instant.
+  const acknowledgedIds = new Set(signOff.acknowledgedFlags);
+  const rows: InternalRecordFlagRow[] = assessment.matterLevelFlags.map((flag) => ({
+    code: flag.code,
+    message: flag.message,
+    requiresAcknowledgement: flag.requiresAcknowledgement,
+    acknowledgement: acknowledgedIds.has(flag.id)
+      ? { lawyerName: signOff.lawyerName, acknowledgedAt: signOff.signedAt }
+      : null,
+  }));
+
+  return {
+    rows,
+    noFlagsStatement: rows.length === 0 ? NO_MATTER_FLAGS_STATEMENT : null,
+    noAcknowledgementRequiredStatement:
+      rows.length > 0 && rows.every((row) => !row.requiresAcknowledgement)
+        ? NO_ACKNOWLEDGEMENT_REQUIRED_STATEMENT
+        : null,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Sign-off block
+// ---------------------------------------------------------------------------
+
+export interface InternalRecordSignOffBlock {
+  lawyerName: string;
+  qualification: string;
+  signedAt: string;
+  finalAmount: string;
+  attestationText: string;
+}
+
+export interface BuildInternalRecordViewAttestationInput {
+  text: string;
+  version: string;
+}
+
+function buildSignOffBlock(
+  assessment: Assessment,
+  matter: Matter,
+  attestation: BuildInternalRecordViewAttestationInput
+): InternalRecordSignOffBlock {
+  const signOff = assessment.signOff;
+  if (!signOff) {
+    throw new Error(`Assessment '${assessment.id}' has no sign-off record — cannot build the sign-off block`);
+  }
+
+  // T-07-04-01 / the guard: the caller's supplied attestation text is used
+  // ONLY when it was rendered from the exact version recorded on the
+  // sign-off — never a re-derivation, never a "close enough" version match.
+  const attestationText =
+    attestation.version === signOff.attestationVersion
+      ? attestation.text
+      : ATTESTATION_VERSION_MISMATCH_STATEMENT(signOff.attestationVersion);
+
+  return {
+    lawyerName: signOff.lawyerName,
+    qualification: signOff.qualification,
+    signedAt: signOff.signedAt,
+    // Read from assessment.signOff.finalAmount only — never totals.draftBaseline,
+    // never recomputed.
+    finalAmount: formatMinor(signOff.finalAmount, matter.currency),
+    attestationText,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// The full view
+// ---------------------------------------------------------------------------
+
+export interface InternalRecordView {
+  title: string;
+  matterReference: string;
+  matter: InternalRecordMatterDetails;
+  pack: InternalRecordPackDetails;
+  lines: InternalRecordLineRow[];
+  flags: InternalRecordFlagsSection;
+  signOff: InternalRecordSignOffBlock;
+  footer: InternalRecordFooter;
+}
+
+export interface BuildInternalRecordViewOptions {
+  assessment: Assessment;
+  matter: Matter;
+  pack: LoadableRulePack;
+  expenseLines: readonly ExpenseLine[];
+  attestation: BuildInternalRecordViewAttestationInput;
+}
+
 // Throws a plain Error (never a server-only error class — this module must
 // stay importable with no apps/web dependency) if the assessment carries no
 // sign-off record; the caller (the Route Handler) is responsible for
 // refusing with a 409 before ever reaching this function, per PRD §0
 // non-negotiable #3.
-export function buildInternalRecordView(
-  assessment: Assessment,
-  matter: Matter,
-  pack: LoadableRulePack // eslint-disable-line @typescript-eslint/no-unused-vars -- reserved for 07-04's dense table
-): InternalRecordView {
-  void pack;
+export function buildInternalRecordView(options: BuildInternalRecordViewOptions): InternalRecordView {
+  const { assessment, matter, pack, expenseLines, attestation } = options;
   const signOff = assessment.signOff;
   if (!signOff) {
     throw new Error(
       `Assessment '${assessment.id}' has no sign-off record — the internal record view cannot be built before sign-off`
     );
   }
+
+  const expenseLineById = new Map(expenseLines.map((line) => [line.id, line]));
 
   const footer: InternalRecordFooter = {
     packId: assessment.rulePackId,
@@ -92,6 +421,11 @@ export function buildInternalRecordView(
   return {
     title: `Internal fee assessment record — ${matter.reference}`,
     matterReference: matter.reference,
+    matter: buildMatterDetails(matter, pack.jurisdiction.name),
+    pack: buildPackDetails(pack, matter, assessment.engineVersion),
+    lines: buildLineRows(assessment, matter, expenseLineById),
+    flags: buildFlagsSection(assessment),
+    signOff: buildSignOffBlock(assessment, matter, attestation),
     footer,
   };
 }
