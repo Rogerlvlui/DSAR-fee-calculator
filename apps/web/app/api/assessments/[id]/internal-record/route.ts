@@ -11,11 +11,24 @@
 // block delegates to the same errorToResponse every other route uses;
 // nothing else.
 //
+// 07-04 widens the tracer's minimal view construction into the full one:
+// also fetches the matter's expense lines (through the role-gated
+// getExpenseLinesForLegalReview wrapper, never the repository directly, per
+// this project's standing data-layer discipline) and computes the
+// attestation text with the SAME renderAttestation() the legal review page
+// and signOff() itself already call — mirrored here, not re-derived. The
+// staleness flag is computed against the assessment's own recorded sign-off
+// instant (never the current wall clock), so the same signed-off record
+// renders byte-identically today and next year, regardless of when the PDF
+// happens to be downloaded.
+//
 // The FIRST Route Handler in this codebase to return a non-JSON body — see
 // 07-RESEARCH.md Code Example 3.
 
+import { deriveEffectiveStatus } from "@dsar/rulepacks/stale";
+import { ATTESTATION_TEMPLATE_VERSION, renderAttestation } from "../../../../../src/domain/attestation.ts";
 import { getAssessmentForLegalReview } from "../../../../../src/server/data/assessments.ts";
-import { getMatterForLegalReview } from "../../../../../src/server/data/matters.ts";
+import { getExpenseLinesForLegalReview, getMatterForLegalReview } from "../../../../../src/server/data/matters.ts";
 import { resolveActorFromCookieHeader } from "../../../../../src/server/data/auth.ts";
 import { resolvePinnedRulePack } from "../../../../../src/server/engine-invocation.ts";
 import { ConflictError, errorToResponse } from "../../../../../src/server/errors.ts";
@@ -39,9 +52,28 @@ export async function GET(
     }
 
     const matter = await getMatterForLegalReview(actor, assessment.matterId);
+    const expenseLines = await getExpenseLinesForLegalReview(actor, assessment.matterId);
     const pack = resolvePinnedRulePack(assessment.rulePackId, assessment.rulePackVersion);
 
-    const view = buildInternalRecordView(assessment, matter, pack);
+    // Staleness evaluated against the sign-off's own recorded instant, not
+    // `new Date()` — the record must be reproducible byte-for-byte on every
+    // future download, not merely at the moment sign-off happened.
+    const packIsStale = deriveEffectiveStatus(pack, assessment.signOff.signedAt) === "STALE";
+    const attestationText = renderAttestation({
+      jurisdiction: pack.jurisdiction.name,
+      packId: assessment.rulePackId,
+      packVersion: assessment.rulePackVersion,
+      reviewedOn: pack.reviewedOn,
+      packIsStale,
+    });
+
+    const view = buildInternalRecordView({
+      assessment,
+      matter,
+      pack,
+      expenseLines,
+      attestation: { text: attestationText, version: ATTESTATION_TEMPLATE_VERSION },
+    });
     const buffer = await renderInternalRecordPdf(view);
     // Node's Buffer is a Uint8Array<ArrayBufferLike> subclass at runtime,
     // but TS 6's generic-Uint8Array lib types BodyInit's BufferSource arm as

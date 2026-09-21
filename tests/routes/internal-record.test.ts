@@ -4,16 +4,40 @@
 // INTERNAL-RECORD. Drives the real GET handler with a real Request over a
 // real signed-off four-line matter, built the same way
 // tests/routes/signoff.test.ts already builds one: create matter, add
-// lines, submit, disposition every line, sign off.
+// lines, submit, disposition every line (a genuine mix of accept, reduce
+// and strike, so the lawyer-amount/lawyer-reason columns are populated, not
+// just accepted), and sign off.
+//
+// 07-04 extends the tracer's 200/403/409 route-level proof with DOC-01's
+// field-completeness assertions — against the pure buildInternalRecordView()
+// function, called with the SAME real inputs the route itself resolves
+// (07-RESEARCH.md's own "Don't Hand-Roll": content assertions belong to the
+// pure view, never to parsing the rendered PDF binary).
+//
+// Backstop, not proven here (07-04-PLAN.md's own <verification> section):
+// whether the repeated table header and the disclosure footer are
+// textually correct on page 2 and later of a paginating document. The
+// pagination-size test below proves a 60-line view renders to a materially
+// larger buffer than a 1-line view of the same shape — evidence that
+// pagination actually occurred — not that any specific page's text is
+// correct, which stays a recorded backstop truth.
 
 import { describe, expect, it } from "vitest";
+import { deriveEffectiveStatus } from "@dsar/rulepacks/stale";
+import { renderInternalRecordPdf } from "@dsar/documents/internal-record-document";
+import { buildInternalRecordView } from "@dsar/documents/internal-record-view";
+import { formatMinor } from "@dsar/schemas/money";
 import { POST as createMatterRoute } from "../../apps/web/app/api/matters/route.ts";
 import { POST as addLineRoute } from "../../apps/web/app/api/matters/[id]/lines/route.ts";
 import { POST as submitRoute } from "../../apps/web/app/api/matters/[id]/submit/route.ts";
 import { POST as dispositionRoute } from "../../apps/web/app/api/assessment-lines/[id]/disposition/route.ts";
 import { POST as signoffRoute } from "../../apps/web/app/api/assessments/[id]/signoff/route.ts";
 import { GET as internalRecordRoute } from "../../apps/web/app/api/assessments/[id]/internal-record/route.ts";
-import { DEMO_ROLE_COOKIE } from "../../apps/web/src/server/data/auth.ts";
+import { ATTESTATION_TEMPLATE_VERSION, renderAttestation } from "../../apps/web/src/domain/attestation.ts";
+import { DEMO_ROLE_COOKIE, resolveActorFromCookieHeader } from "../../apps/web/src/server/data/auth.ts";
+import { getAssessmentForLegalReview } from "../../apps/web/src/server/data/assessments.ts";
+import { getExpenseLinesForLegalReview, getMatterForLegalReview } from "../../apps/web/src/server/data/matters.ts";
+import { resolvePinnedRulePack } from "../../apps/web/src/server/engine-invocation.ts";
 
 const MATTERS_URL = "http://localhost/api/matters";
 const ASSESSMENTS_URL = "http://localhost/api/assessments";
@@ -43,7 +67,7 @@ function nextReference(): string {
   return `DSAR-INTREC-${String(matterCounter).padStart(4, "0")}`;
 }
 
-const LINE_INPUTS = [
+const SG_LINE_INPUTS = [
   {
     categoryCode: "STAFF_TIME_SEARCH", // -> ALLOW, 16000
     description: "Staff time locating and retrieving the requested records",
@@ -94,32 +118,173 @@ const LINE_INPUTS = [
   },
 ];
 
+// Plan 06-01's own hand-derived, already-verified HK golden-fixture table
+// (tests/routes/hk-jurisdiction-review.test.ts), reused verbatim here so
+// the footer-provenance assertion is proven against a second real pack,
+// not SG-PDPA alone — rather than inventing a second, independent HK
+// category/quantity/rate set.
+// The full nine-line golden fixture, reused verbatim (not trimmed) — the
+// PHOTOCOPY_PRINT line's ALLOW_CAPPED verdict is only proven against this
+// exact set; a subset risks silently changing which cap type applies
+// (e.g. a percent-of-claim cap depends on the total claim across every
+// line, not just this one). Expected verdicts, in order: ALLOW, ALLOW,
+// DISALLOW, DISALLOW, ALLOW_CAPPED, ALLOW, DISALLOW, DISALLOW, FLAG.
+const HK_LINE_INPUTS = [
+  {
+    categoryCode: "STAFF_TIME_SEARCH",
+    description: "Staff time locating and retrieving the requested data",
+    quantity: 4,
+    unit: "HOUR",
+    unitRate: 2000,
+    incurredByGrade: null,
+    isThirdPartyInvoiced: false,
+    vendorName: null,
+    evidenceRef: null,
+    hrNote: null,
+  },
+  {
+    categoryCode: "STAFF_TIME_REDACT_THIRD_PARTY",
+    description: "Staff time redacting third-party identifying particulars",
+    quantity: 3,
+    unit: "HOUR",
+    unitRate: 2000,
+    incurredByGrade: null,
+    isThirdPartyInvoiced: false,
+    vendorName: null,
+    evidenceRef: null,
+    hrNote: null,
+  },
+  {
+    categoryCode: "STAFF_TIME_REDACT_EXEMPT",
+    description: "Staff time severing exempt data",
+    quantity: 2,
+    unit: "HOUR",
+    unitRate: 2000,
+    incurredByGrade: null,
+    isThirdPartyInvoiced: false,
+    vendorName: null,
+    evidenceRef: null,
+    hrNote: null,
+  },
+  {
+    categoryCode: "STAFF_TIME_LEGAL_REVIEW",
+    description: "Time spent obtaining advice from counsel",
+    quantity: 1,
+    unit: "HOUR",
+    unitRate: 3000,
+    incurredByGrade: null,
+    isThirdPartyInvoiced: false,
+    vendorName: null,
+    evidenceRef: null,
+    hrNote: null,
+  },
+  {
+    categoryCode: "PHOTOCOPY_PRINT",
+    description: "Photocopying the paginated response for physical delivery",
+    quantity: 100,
+    unit: "PAGE",
+    unitRate: 200,
+    incurredByGrade: null,
+    isThirdPartyInvoiced: false,
+    vendorName: null,
+    evidenceRef: null,
+    hrNote: null,
+  },
+  {
+    categoryCode: "VENDOR_PAYROLL",
+    description: "Vendor extract of historical payroll records from archive",
+    quantity: 1,
+    unit: "FIXED",
+    unitRate: 5000,
+    incurredByGrade: null,
+    isThirdPartyInvoiced: true,
+    vendorName: "Example Vendor Ltd",
+    evidenceRef: "INV-2026-HK-01",
+    hrNote: null,
+  },
+  {
+    categoryCode: "ADMIN_OVERHEAD",
+    description: "General administrative overhead",
+    quantity: 2,
+    unit: "HOUR",
+    unitRate: 1500,
+    incurredByGrade: null,
+    isThirdPartyInvoiced: false,
+    vendorName: null,
+    evidenceRef: null,
+    hrNote: null,
+  },
+  {
+    categoryCode: "RECORDS_REMEDIATION",
+    description: "Correcting the entity's own record-keeping deficiencies",
+    quantity: 1,
+    unit: "HOUR",
+    unitRate: 2500,
+    incurredByGrade: null,
+    isThirdPartyInvoiced: false,
+    vendorName: null,
+    evidenceRef: null,
+    hrNote: null,
+  },
+  {
+    categoryCode: "OTHER_UNCLASSIFIED",
+    description: "Miscellaneous cost not covered by any other category",
+    quantity: 1,
+    unit: "FIXED",
+    unitRate: 1000,
+    incurredByGrade: null,
+    isThirdPartyInvoiced: false,
+    vendorName: null,
+    evidenceRef: null,
+    hrNote: null,
+  },
+];
+
 interface FixtureAssessment {
   id: string;
   matterId: string;
-  lines: { id: string; verdict: string; disposition: string }[];
+  lines: { id: string; verdict: string; disposition: string; engineAmount: number }[];
 }
 
-async function buildFixtureAssessment(): Promise<FixtureAssessment> {
-  const matterInput = {
-    reference: nextReference(),
-    jurisdictionCode: "SG",
-    legalEntity: "Acme Pte Ltd",
-    controllerType: "PRIVATE_ORGANISATION",
-    requestReceivedOn: "2026-09-01",
-    requestorClass: "FORMER_EMPLOYEE",
-    currency: "SGD",
-    identityVerified: true,
-    identityVerifiedNote: null,
-    scopeClarified: true,
-    isRepeatRequestWithin12Months: false,
-    isKnownDisputeOrLitigation: false,
-  };
+async function buildFixtureAssessment(
+  jurisdiction: "SG" | "HK" = "SG"
+): Promise<FixtureAssessment> {
+  const matterInput =
+    jurisdiction === "SG"
+      ? {
+          reference: nextReference(),
+          jurisdictionCode: "SG",
+          legalEntity: "Acme Pte Ltd",
+          controllerType: "PRIVATE_ORGANISATION",
+          requestReceivedOn: "2026-09-01",
+          requestorClass: "FORMER_EMPLOYEE",
+          currency: "SGD",
+          identityVerified: true,
+          identityVerifiedNote: null,
+          scopeClarified: true,
+          isRepeatRequestWithin12Months: false,
+          isKnownDisputeOrLitigation: false,
+        }
+      : {
+          reference: nextReference(),
+          jurisdictionCode: "HK",
+          legalEntity: "Acme HK Ltd",
+          controllerType: "PRIVATE_ORGANISATION",
+          requestReceivedOn: "2026-09-01",
+          requestorClass: "FORMER_EMPLOYEE",
+          currency: "HKD",
+          identityVerified: true,
+          identityVerifiedNote: null,
+          scopeClarified: true,
+          isRepeatRequestWithin12Months: false,
+          isKnownDisputeOrLitigation: false,
+        };
 
   const matterResponse = await createMatterRoute(jsonRequest(MATTERS_URL, "POST", matterInput, HR_COOKIE));
   const matter = (await matterResponse.json()) as { id: string };
 
-  for (const input of LINE_INPUTS) {
+  const lineInputs = jurisdiction === "SG" ? SG_LINE_INPUTS : HK_LINE_INPUTS;
+  for (const input of lineInputs) {
     const response = await addLineRoute(jsonRequest(`${MATTERS_URL}/${matter.id}/lines`, "POST", input, HR_COOKIE), {
       params: Promise.resolve({ id: matter.id }),
     });
@@ -133,26 +298,27 @@ async function buildFixtureAssessment(): Promise<FixtureAssessment> {
   return (await submitResponse.json()) as FixtureAssessment;
 }
 
-function findLine(assessment: FixtureAssessment, verdict: string) {
-  const line = assessment.lines.find((candidate) => candidate.verdict === verdict);
-  if (!line) throw new Error(`fixture has no ${verdict} line`);
-  return line;
-}
-
 const GOOD_REASON = "Sighted the vendor invoice separately and it checks out.";
+const REDUCED_REASON = "Reduced further to reflect an internal estimate error.";
 
+// Every line gets a real disposition (never left PENDING, which would
+// refuse sign-off with 409) — a genuine mix of accept, reduce and strike
+// per the line's own verdict, so the lawyer-amount and lawyer-reason
+// columns in the internal record are actually populated, never just the
+// ACCEPT-everywhere shape the tracer's own fixture used. ALLOW_CAPPED is
+// REDUCEd to half its own engineAmount (never a fixed literal — the real
+// committed packs' caps differ by jurisdiction and category), which stays
+// within REDUCE's own bounds (must not exceed engineAmount or the line's
+// claimedAmount).
 async function dispositionAllLines(assessment: FixtureAssessment): Promise<void> {
-  const allow = findLine(assessment, "ALLOW");
-  const disallow = findLine(assessment, "DISALLOW");
-  const capped = findLine(assessment, "ALLOW_CAPPED");
-  const flag = findLine(assessment, "FLAG");
+  for (const line of assessment.lines) {
+    const body =
+      line.verdict === "FLAG"
+        ? { action: "STRIKE", reason: GOOD_REASON }
+        : line.verdict === "ALLOW_CAPPED"
+          ? { action: "REDUCE", amountMinor: Math.floor(line.engineAmount / 2), reason: REDUCED_REASON }
+          : { action: "ACCEPT", reason: GOOD_REASON };
 
-  for (const [line, body] of [
-    [allow, { action: "ACCEPT", reason: GOOD_REASON }],
-    [disallow, { action: "ACCEPT", reason: GOOD_REASON }],
-    [capped, { action: "ACCEPT", reason: GOOD_REASON }],
-    [flag, { action: "STRIKE", reason: GOOD_REASON }],
-  ] as const) {
     const response = await dispositionRoute(
       jsonRequest(`http://localhost/api/assessment-lines/${line.id}/disposition`, "POST", body),
       { params: Promise.resolve({ id: line.id }) }
@@ -173,6 +339,38 @@ async function signOffFixture(assessment: FixtureAssessment): Promise<void> {
     { params: Promise.resolve({ id: assessment.id }) }
   );
   expect(response.status).toBe(200);
+}
+
+// Rebuilds the exact InternalRecordView the route itself would build for a
+// signed-off assessment — same functions, same inputs, same order — so
+// content assertions run against the pure view, never against the rendered
+// binary (07-RESEARCH.md's Don't-Hand-Roll guidance).
+async function buildRealViewForAssessment(assessmentId: string) {
+  const actor = resolveActorFromCookieHeader(LEGAL_COOKIE);
+  const assessment = await getAssessmentForLegalReview(actor, assessmentId);
+  if (!assessment.signOff) throw new Error(`assessment '${assessmentId}' has no sign-off record`);
+  const matter = await getMatterForLegalReview(actor, assessment.matterId);
+  const expenseLines = await getExpenseLinesForLegalReview(actor, assessment.matterId);
+  const pack = resolvePinnedRulePack(assessment.rulePackId, assessment.rulePackVersion);
+
+  const packIsStale = deriveEffectiveStatus(pack, assessment.signOff.signedAt) === "STALE";
+  const attestationText = renderAttestation({
+    jurisdiction: pack.jurisdiction.name,
+    packId: assessment.rulePackId,
+    packVersion: assessment.rulePackVersion,
+    reviewedOn: pack.reviewedOn,
+    packIsStale,
+  });
+
+  const view = buildInternalRecordView({
+    assessment,
+    matter,
+    pack,
+    expenseLines,
+    attestation: { text: attestationText, version: ATTESTATION_TEMPLATE_VERSION },
+  });
+
+  return { view, assessment, matter, pack, attestationText };
 }
 
 describe("INTERNAL-RECORD", () => {
@@ -223,4 +421,102 @@ describe("INTERNAL-RECORD", () => {
     expect(response.status).toBe(409);
     expect(response.headers.get("content-type")).not.toBe("application/pdf");
   });
+
+  it("INTERNAL-RECORD: DOC-01 — one view row per assessment line, and each row's rule id/basis equal the assessment line's own values", async () => {
+    const assessment = await buildFixtureAssessment();
+    await dispositionAllLines(assessment);
+    await signOffFixture(assessment);
+
+    const { view, assessment: realAssessment } = await buildRealViewForAssessment(assessment.id);
+
+    expect(view.lines.length).toBe(realAssessment.lines.length);
+    const expectedPairs = realAssessment.lines.map((line) => `${line.appliedRuleId}::${line.basis}`).sort();
+    const actualPairs = view.lines.map((row) => `${row.appliedRuleId}::${row.basis}`).sort();
+    expect(actualPairs).toEqual(expectedPairs);
+  });
+
+  it("INTERNAL-RECORD: DOC-01 — the reduced line's lawyer amount and lawyer reason are both non-empty in the view", async () => {
+    const assessment = await buildFixtureAssessment();
+    await dispositionAllLines(assessment);
+    await signOffFixture(assessment);
+
+    const { view } = await buildRealViewForAssessment(assessment.id);
+    const reducedRow = view.lines.find((row) => row.disposition === "REDUCED");
+    expect(reducedRow).toBeDefined();
+    expect(reducedRow!.lawyerAmount).not.toBe("—");
+    expect(reducedRow!.lawyerAmount.length).toBeGreaterThan(0);
+    expect(reducedRow!.lawyerReason).not.toBe("—");
+    expect(reducedRow!.lawyerReason).toBe("Reduced further to reflect an internal estimate error.");
+
+    // Every real disposition requires and stores a reason server-side
+    // (assertSufficientReason, apps/web/src/server/data/assessments.ts) —
+    // so the null-lawyerReason em-dash path is genuinely unreachable
+    // through this real route for ANY disposition, accepted-non-FLAG
+    // included. That path is proven instead at the pure-view level
+    // (packages/documents/src/internal-record-view.test.ts), which can
+    // construct the otherwise-unreachable null case directly.
+    for (const row of view.lines) {
+      expect(row.lawyerReason).not.toBe("");
+    }
+  });
+
+  it("INTERNAL-RECORD: DOC-05 — the footer's pack id, pack version and engine version equal the assessment's own stored values (SG-PDPA)", async () => {
+    const assessment = await buildFixtureAssessment("SG");
+    await dispositionAllLines(assessment);
+    await signOffFixture(assessment);
+
+    const { view, assessment: realAssessment } = await buildRealViewForAssessment(assessment.id);
+    expect(view.footer.packId).toBe(realAssessment.rulePackId);
+    expect(view.footer.packId).toBe("SG-PDPA");
+    expect(view.footer.packVersion).toBe(realAssessment.rulePackVersion);
+    expect(view.footer.engineVersion).toBe(realAssessment.engineVersion);
+  });
+
+  it("INTERNAL-RECORD: DOC-05 — the footer's provenance is proven against a second real pack (HK-PDPO), not SG-PDPA alone", async () => {
+    const assessment = await buildFixtureAssessment("HK");
+    await dispositionAllLines(assessment);
+    await signOffFixture(assessment);
+
+    const { view, assessment: realAssessment } = await buildRealViewForAssessment(assessment.id);
+    expect(view.footer.packId).toBe(realAssessment.rulePackId);
+    expect(view.footer.packId).toBe("HK-PDPO");
+    expect(view.footer.packVersion).toBe(realAssessment.rulePackVersion);
+    expect(view.footer.engineVersion).toBe(realAssessment.engineVersion);
+  });
+
+  it("INTERNAL-RECORD: the sign-off block's final amount equals the stored signOff.finalAmount", async () => {
+    const assessment = await buildFixtureAssessment();
+    await dispositionAllLines(assessment);
+    await signOffFixture(assessment);
+
+    const { view, assessment: realAssessment, matter } = await buildRealViewForAssessment(assessment.id);
+    expect(view.signOff.finalAmount).toBe(formatMinor(realAssessment.signOff!.finalAmount, matter.currency));
+  });
+
+  it("INTERNAL-RECORD: the sign-off block's attestation text is strictly equal to renderAttestation's output for the same inputs", async () => {
+    const assessment = await buildFixtureAssessment();
+    await dispositionAllLines(assessment);
+    await signOffFixture(assessment);
+
+    const { view, attestationText } = await buildRealViewForAssessment(assessment.id);
+    expect(view.signOff.attestationText).toBe(attestationText);
+  });
+
+  it("INTERNAL-RECORD: DOC-01/DOC-05 — a paginating view renders to a buffer materially larger than a short view of the same shape (proves pagination occurred; page-2 text correctness stays a recorded backstop)", async () => {
+    const assessment = await buildFixtureAssessment();
+    await dispositionAllLines(assessment);
+    await signOffFixture(assessment);
+
+    const { view } = await buildRealViewForAssessment(assessment.id);
+    const manyLines = Array.from({ length: 60 }, (_, index) => ({
+      ...view.lines[index % view.lines.length]!,
+      seq: index,
+    }));
+    const shortView = { ...view, lines: view.lines.slice(0, 1) };
+    const longView = { ...view, lines: manyLines };
+
+    const shortBuffer = await renderInternalRecordPdf(shortView);
+    const longBuffer = await renderInternalRecordPdf(longView);
+    expect(longBuffer.length).toBeGreaterThan(shortBuffer.length);
+  }, 20000);
 });

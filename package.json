@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@dsar/audit": "workspace:*",
+    "@dsar/documents": "workspace:*",
     "@dsar/engine": "workspace:*",
     "@dsar/rulepacks": "workspace:*",
     "@dsar/schemas": "workspace:*",

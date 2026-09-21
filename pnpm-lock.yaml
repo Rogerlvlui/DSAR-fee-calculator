@@ -11,6 +11,9 @@ importers:
       '@dsar/audit':
         specifier: workspace:*
         version: link:packages/audit
+      '@dsar/documents':
+        specifier: workspace:*
+        version: link:packages/documents
       '@dsar/engine':
         specifier: workspace:*
         version: link:packages/engine
