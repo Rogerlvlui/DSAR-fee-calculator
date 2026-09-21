@@ -321,7 +321,7 @@ Plans:
 
 - [x] 07-01-PLAN.md — Tracer: `packages/documents`, the pure record view, the `@react-pdf/renderer` document, the role-gated binary Route Handler, and an HTTP smoke test proving the upstream monorepo crash does not bite (completed 2026-09-21 — no crash reproduced)
 - [x] 07-02-PLAN.md — The sign-off gate: SIGNOFF-01's 409 naming the pending lines, SIGNOFF-02's matching 409, PACK-08's activation block, and SIGNOFF-04/ACCESS-04 proven (completed 2026-09-21)
-- [ ] 07-03-PLAN.md — HR outputs: the DRAFT watermark gated on not-yet-sent, a date-only sent record, DOC-03's AC-17 scan, and DOC-04's zero-allowable outcome end to end
+- [x] 07-03-PLAN.md — HR outputs: the DRAFT watermark gated on not-yet-sent, a date-only sent record, DOC-03's AC-17 scan, and DOC-04's zero-allowable outcome end to end (completed 2026-09-21 — DOC-04's fixture jurisdiction substituted, JP-APPI for the plan's named SG-PDPA; see 07-03-SUMMARY.md)
 
 **Wave 2** *(blocked on 07-01)*
 

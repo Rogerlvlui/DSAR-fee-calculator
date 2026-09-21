@@ -3,16 +3,16 @@ gsd_state_version: "1.0"
 current_phase: 07
 current_phase_name: Sign-off, Outputs and Edge States
 status: in_progress
-stopped_at: Completed 07-02-PLAN.md (Wave 1, sign-off gate)
-last_updated: "2026-09-21T23:30:00.000Z"
+stopped_at: Completed 07-03-PLAN.md (Wave 1, HR outputs)
+last_updated: "2026-09-21T23:55:00.000Z"
 last_activity: 2026-09-21
-last_activity_desc: "Executed Phase 7 Plan 07-02 (Wave 1, sign-off gate): Task 1 corrected signOff()'s still-PENDING and unacknowledged-required-flag refusals from ValidationError (400) to ConflictError (409) — AC-16 explicitly requires 409, and both are preconditions on the identical SIGN_OFF guard-table row, so a caller should not have to remember which is which. The pending-lines refusal now names every outstanding line by its ExpenseLine.seq, ascending, via a single listExpenseLines() call moved earlier and reused by the later structural guard rather than fetched twice; the three genuinely malformed-input refusals (unknown flag id, unaffirmed attestation, empty qualification) stay 400, locked by an unchanged test. Task 2 added the one genuinely new precondition this phase owns (PACK-08/AC-41b): a 403 ForbiddenError when the latest PACK_ACTIVATED event for the assessment's pinned pack id/version names the signing actor as its own activator, queried directly from packages/audit's canonical memoryPackLifecycleEventWriter and compared by exact UserRef.id string equality — required moving resolvePinnedRulePack's call site earlier (before computeFinalAmount) so the guard has the pinned pack id/version available. tests/routes/pack-lifecycle-signoff.test.ts (new, D-02's synthetic-fixture technique) proves the positive/negative/zero-event/superseded-activation/PACK_EDITED cases, all through the same real LEGAL_REVIEWER cookie. Task 3 added route-level proof (no new production code) that SIGNOFF-04's full eight-field SignOff record is correctly populated and typed, money-integrity (finalAmount is an integer equal to totals.finalAmount), pinned-provenance survives sign-off unchanged, three qualification boundary cases, and ACCESS-04 proven against both non-reviewer demo roles (HR_PREPARER, DPO_ADMIN) including a body-shape assertion. Two Rule-1 bugs fixed inline: two pre-existing tests elsewhere (tests/routes/audit-trail.test.ts, tests/routes/live-routing.test.ts) asserted the now-stale 400 on the same pending-lines refusal path Task 1 changed, and pack-lifecycle-signoff.test.ts's initial single-line fixture always produced a FLAG verdict via the engine's own MATERIALITY cross-line check, fixed by reusing signoff.test.ts's proven four-line composition. Full suite 962 -> 976 passing; typecheck/lint/depcruise clean throughout; packages/schemas/ and packages/workflow/ confirmed untouched. SIGNOFF-01, SIGNOFF-02, SIGNOFF-04, ACCESS-04 and PACK-08 all marked Complete in REQUIREMENTS.md. gsd-tools.cjs remains unavailable in this worktree (same recurring gap as every prior phase) — STATE.md/ROADMAP.md updated manually."
-state_head: 7c3f6cdd14514d278f7e5046a95c0d0dc7cb2a22
+last_activity_desc: "Executed Phase 7 Plan 07-03 (Wave 1, HR outputs): Task 1 gated NoticeBlockView's DRAFT watermark on noticeSentAt === null (DOC-02) and added a new pure noticeSentDate() helper so the sent confirmation reads a calendar date, never a wall-clock instant (SIGNOFF-06) — markNoticeSent's own stored ISO instant is unchanged. Task 2 added AC17_FORBIDDEN_PATTERNS/findAc17Violations (apps/web/src/domain/notice-draft.ts) — three named regex patterns (rule-identifier, statutory-citation, tool-or-model-mention) derived directly from the real HK-PDPO/SG-PDPA packs' own ruleId/citations shapes, proven against three notice variants plus a positive control, and against the real SG/HK-derived notices end to end through the route stack, with a separate basis-string substring check against each pinned pack's own categoryRules[].basis. Task 3 proved DOC-04/AC-14 end to end: a public-agency matter under a NO_EXPRESS_AUTHORITY posture (every line FLAG with NO_FEE_AUTHORITY, draftBaseline zero, signed-off finalAmount zero not null, a complete zero-chargeable-items notice) plus SIGNOFF-05 (struck/allowed zero-amount lines distinguishable by outcome marker not amount, stable assessment.lines ordering, identical zero/non-zero result headline element). One deviation: DOC-04's fixture jurisdiction changed from the plan's named SG-PDPA to JP-APPI — SG-PDPA's own appliesTo is [\"PRIVATE_ORGANISATION\"] only, so a SG matter mutated to PUBLIC_AGENCY trips the engine's CONTROLLER_TYPE_NOT_IN_SCOPE precondition (a 500, never reaching the posture gate) exactly as tests/routes/audit-trail.test.ts's own pre-existing test already proves for that combination; JP-APPI's appliesTo includes PUBLIC_AGENCY with feePosture NO_EXPRESS_AUTHORITY, so it is the jurisdiction that actually reaches AC-14's branch — no production code changed, a test-fixture correction only. Full suite 976 -> 993 passing; typecheck/lint/depcruise clean throughout. SIGNOFF-05, SIGNOFF-06, DOC-02, DOC-03 and DOC-04 all marked Complete in REQUIREMENTS.md. gsd-tools.cjs remains unavailable in this worktree (same recurring gap as every prior phase) — STATE.md/ROADMAP.md updated manually."
+state_head: 89a4a9ced79c5bd15e56d6f4c9b5def3810b63ae
 progress:
   total_phases: 10
   completed_phases: 1
   total_plans: 52
-  completed_plans: 45
+  completed_plans: 46
   percent: 0
 ---
 
@@ -23,14 +23,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-13)
 
 **Core value:** A lawyer can defend the output by saying "the engine applied rule HK-PDPO.STAFF_TIME_REDACT_EXEMPT, version 2026.09.1, authored by X on date Y, and struck the line" — never "the model assessed the claim."
-**Current focus:** Phase 07 — Sign-off, Outputs and Edge States — IN PROGRESS. Plan 07-01 (Wave 1 tracer) executed: `packages/documents`, the internal-record PDF architecture, and the role-gated binary Route Handler all proven end to end, including a real-HTTP proof that the open upstream `@react-pdf/renderer` monorepo-import crash does not reproduce here. Plan 07-02 (Wave 1, sign-off gate) executed: `signOff()`'s two mis-coded 400 refusals corrected to 409 with full pending-line naming, the new PACK-08/AC-41b 403 activator-guard added, and SIGNOFF-04/ACCESS-04 proven by route-level assertion. 4 of 6 Phase 7 plans remain (07-03 in Wave 1; 07-04, 07-05 in Wave 2; 07-06 in Wave 3). Phase 06 (Convergence and Legal Review) remains fully closed out including its independent review addendum; 03.2 Database Boundary remains separately planned, runs concurrently per ROADMAP.md.
+**Current focus:** Phase 07 — Sign-off, Outputs and Edge States — IN PROGRESS. Plan 07-01 (Wave 1 tracer) executed: `packages/documents`, the internal-record PDF architecture, and the role-gated binary Route Handler all proven end to end, including a real-HTTP proof that the open upstream `@react-pdf/renderer` monorepo-import crash does not reproduce here. Plan 07-02 (Wave 1, sign-off gate) executed: `signOff()`'s two mis-coded 400 refusals corrected to 409 with full pending-line naming, the new PACK-08/AC-41b 403 activator-guard added, and SIGNOFF-04/ACCESS-04 proven by route-level assertion. Plan 07-03 (Wave 1, HR outputs) executed: the DRAFT watermark now stops at the moment the notice is marked sent, the sent confirmation records a date not a timestamp, a real AC-17 regex scan exists and is proven against both real packs plus a positive control, and a no-express-authority zero-fee outcome (DOC-04/SIGNOFF-05) is proven end to end via JP-APPI (substituted for the plan's SG-PDPA — see 07-03-SUMMARY.md Deviations). 3 of 6 Phase 7 plans remain (07-04, 07-05 in Wave 2; 07-06 in Wave 3). Phase 06 (Convergence and Legal Review) remains fully closed out including its independent review addendum; 03.2 Database Boundary remains separately planned, runs concurrently per ROADMAP.md.
 
 ## Current Position
 
 Phase: 07 (Sign-off, Outputs and Edge States) — IN PROGRESS
-Plan: 2/6 complete (07-01, 07-02 done; 07-03 through 07-06 remaining)
+Plan: 3/6 complete (07-01, 07-02, 07-03 done; 07-04 through 07-06 remaining)
 Status: In progress
-Last activity: 2026-09-21 — Executed Plan 07-02 (see state_head commit and last_activity_desc above for the full account). Full suite 962 -> 976 passing; typecheck/lint/depcruise clean after every commit. SIGNOFF-01, SIGNOFF-02, SIGNOFF-04, ACCESS-04 and PACK-08 marked Complete in REQUIREMENTS.md; ROADMAP.md's 07-02-PLAN.md checkbox marked complete.
+Last activity: 2026-09-21 — Executed Plan 07-03 (see state_head commit and last_activity_desc above for the full account). Full suite 976 -> 993 passing; typecheck/lint/depcruise clean after every commit. SIGNOFF-05, SIGNOFF-06, DOC-02, DOC-03 and DOC-04 marked Complete in REQUIREMENTS.md; ROADMAP.md's 07-03-PLAN.md checkbox marked complete.
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -93,6 +93,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 04 P05 | 55min | 3 tasks | 9 files |
 | Phase 07 P01 | ~50min | 3 tasks (2 commits) | 17 files |
 | Phase 07 P02 | ~35min | 3 tasks (3 commits) | 6 files |
+| Phase 07 P03 | ~45min | 3 tasks (3 commits) | 7 files |
 
 ## Accumulated Context
 
@@ -268,6 +269,10 @@ None yet.
 - **[Phase 07 P02]: PACK-08/AC-41b's new guard is `ForbiddenError` (403), not `ConflictError` (409)** — settles 07-RESEARCH.md Open Question 2 in favour of 403 per the plan's own instruction: the refusal is about who the actor is (matching ACCESS-04's `requireRole` refusal class), not the matter's state. `resolvePinnedRulePack`'s call site moved earlier in `signOff()` (before `computeFinalAmount`) so the guard has the pinned pack id/version before anything is computed.
 - **[Phase 07 P02]: Two pre-existing tests elsewhere in the suite (`tests/routes/audit-trail.test.ts`, `tests/routes/live-routing.test.ts`) asserted the now-stale 400 on the exact pending-lines refusal path this plan changed to 409** — both corrected as a Rule 1 deviation, same intentional change as Task 1's own scope.
 - **[Phase 07 P02]: SIGNOFF-01, SIGNOFF-02, SIGNOFF-04, ACCESS-04 and PACK-08 all marked Complete in REQUIREMENTS.md** — `packages/schemas/` and `packages/workflow/` confirmed untouched by this plan (`guard-input.ts` unmodified, the frozen 11-member `GuardInput` shape not widened).
+- **[Phase 07 P03]: `NoticeBlockView`'s DRAFT watermark gated on `noticeSentAt === null`, with a new pure `noticeSentDate()` helper rendering only the calendar-date prefix of `markNoticeSent`'s stored ISO instant** — `NOTICE_BOUNDARY_NOTE` continues rendering in both states; the stored instant itself is unchanged.
+- **[Phase 07 P03]: `AC17_FORBIDDEN_PATTERNS`/`findAc17Violations` added to `apps/web/src/domain/notice-draft.ts`** — three named regex patterns (rule-identifier, statutory-citation, tool-or-model-mention) derived from the real HK-PDPO/SG-PDPA packs' own content, proven against three notice variants, a positive control naming all three kinds, and the real SG/HK-derived notices driven through the route stack. The basis-string leak check is a separate direct substring assertion at the route-test call site (pack-content-dependent, not a static pattern).
+- **[Phase 07 P03]: DOC-04/AC-14's zero-fee fixture uses JP-APPI, not the plan's named SG-PDPA** — SG-PDPA's `appliesTo` is `["PRIVATE_ORGANISATION"]` only, so a SG matter mutated to `PUBLIC_AGENCY` trips `CONTROLLER_TYPE_NOT_IN_SCOPE` (an engine precondition failure, a 500) before ever reaching the posture gate — the same failure mode `tests/routes/audit-trail.test.ts`'s own pre-existing test already proves for that combination. JP-APPI's `appliesTo` includes `PUBLIC_AGENCY` with `feePosture.PUBLIC_AGENCY: NO_EXPRESS_AUTHORITY`, reaching the branch AC-14 actually describes. No production code changed — a test-fixture correction, documented inline in the test file and in 07-03-SUMMARY.md.
+- **[Phase 07 P03]: SIGNOFF-05, SIGNOFF-06, DOC-02, DOC-03 and DOC-04 all marked Complete in REQUIREMENTS.md** — `packages/engine/`, `packages/schemas/`, `packages/workflow/` and every committed rule-pack JSON file confirmed untouched by this plan.
 
 ### Quick Tasks Completed
 
@@ -289,7 +294,7 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-09-21T23:30:00.000Z
-Stopped at: Completed 07-02-PLAN.md (Wave 1, sign-off gate)
-Resume file: .planning/phases/07-sign-off-outputs-and-edge-states/07-03-PLAN.md
-Last activity: 2026-09-21 - Executed Phase 7 Plan 07-02: signOff()'s two mis-coded 400 refusals corrected to 409 with full pending-line naming, the new PACK-08/AC-41b 403 activator-guard, and route-level proof of SIGNOFF-04's field set and ACCESS-04's role refusal. See STATE.md frontmatter last_activity_desc and .planning/phases/07-sign-off-outputs-and-edge-states/07-02-SUMMARY.md for the full account. Next: 07-03-PLAN.md (HR outputs), Wave 1, was parallelisable with 07-02.
+Last session: 2026-09-21T23:55:00.000Z
+Stopped at: Completed 07-03-PLAN.md (Wave 1, HR outputs)
+Resume file: .planning/phases/07-sign-off-outputs-and-edge-states/07-04-PLAN.md
+Last activity: 2026-09-21 - Executed Phase 7 Plan 07-03: the DRAFT watermark now stops at the moment the notice is marked sent, the sent confirmation records a date not a timestamp, the DOC-03/AC-17 regex scan (AC17_FORBIDDEN_PATTERNS/findAc17Violations) exists and is proven against both real packs plus a positive control, and DOC-04/SIGNOFF-05's zero-fee outcome is proven end to end via JP-APPI (substituted for the plan's named SG-PDPA — see 07-03-SUMMARY.md Deviations for why). See STATE.md frontmatter last_activity_desc and .planning/phases/07-sign-off-outputs-and-edge-states/07-03-SUMMARY.md for the full account. Next: 07-04-PLAN.md, Wave 2.
