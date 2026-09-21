@@ -409,15 +409,40 @@ export async function signOff(
 
   const matter = await requireAssessmentInLegalReview(assessment);
 
-  if (assessment.lines.some((line) => line.disposition === "PENDING")) {
-    throw new ValidationError("Every line must be dispositioned before sign-off");
+  // Fetched here (not at its previous, later call site) so the still-
+  // PENDING refusal below can name every outstanding line by its
+  // ExpenseLine.seq — the only source of that number. Reused as-is by the
+  // guard-table build further down; never fetched a second time.
+  const lines = await memoryMatterRepository.listExpenseLines(matter.id);
+  const expenseLineById = new Map(lines.map((line) => [line.id, line]));
+
+  const pendingLines = assessment.lines.filter((line) => line.disposition === "PENDING");
+  if (pendingLines.length > 0) {
+    const seqList = pendingLines
+      .map((line) => expenseLineById.get(line.expenseLineId)?.seq)
+      .filter((seq): seq is number => seq !== undefined)
+      .sort((a, b) => a - b)
+      .join(", ");
+    // 409, not 400: this is a state precondition on the SIGN_OFF transition
+    // (the identical guard-table row checkNoLinesPending would refuse with
+    // a ConflictError below, were it reached first), not malformed input.
+    throw new ConflictError(
+      `Sign-off refused — ${pendingLines.length} line(s) still need a decision: lines ${seqList}.`
+    );
   }
 
   const flagsRequiringAck = assessment.matterLevelFlags.filter((flag) => flag.requiresAcknowledgement);
   const acknowledgedSet = new Set(input.acknowledgedFlags);
   for (const flag of flagsRequiringAck) {
     if (!acknowledgedSet.has(flag.id)) {
-      throw new ValidationError(`Matter flag '${flag.id}' requires acknowledgement before sign-off`);
+      // 409, not 400: this is the same SIGN_OFF-transition state
+      // precondition as the pending-lines check above, not malformed
+      // input — a caller must not have to remember that one is 409 and
+      // the other 400. The three refusals below (unknown acknowledged
+      // flag, unaffirmed attestation, empty qualification) stay
+      // ValidationError/400 on purpose: they are malformed-input errors,
+      // not state preconditions.
+      throw new ConflictError(`Matter flag '${flag.id}' requires acknowledgement before sign-off`);
     }
   }
 
@@ -474,8 +499,9 @@ export async function signOff(
   // The guard is a second, STRUCTURAL check — every refusal above stays
   // exactly where it is and in the same order, because those are the
   // specific, human-readable refusals the panel renders. This does not
-  // replace them.
-  const lines = await memoryMatterRepository.listExpenseLines(matter.id);
+  // replace them. Reuses the single `lines` binding fetched earlier for
+  // the pending-lines refusal, rather than issuing a second repository
+  // read.
   const coercedPack = coercePackForDemoEngine(pack);
   const guardInput = buildGuardInput({
     matter,

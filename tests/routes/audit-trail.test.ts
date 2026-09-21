@@ -417,7 +417,9 @@ describe("AUDIT-TRAIL", () => {
       ),
       { params: Promise.resolve({ id: assessment.id }) }
     );
-    expect(signoffResponse.status).toBe(400);
+    // 409, not 400 (07-02): still-PENDING lines are a state precondition on
+    // the SIGN_OFF transition, not malformed input.
+    expect(signoffResponse.status).toBe(409);
 
     const matterAfter = await memoryMatterRepository.getMatter(matter.id);
     expect(matterAfter?.status).toBe("LEGAL_REVIEW");

@@ -173,14 +173,19 @@ const VALID_SIGNOFF_INPUT = {
 };
 
 describe("SIGNOFF", () => {
-  it("SIGNOFF: sign-off with any line still pending is refused, the matter stays in legal review, and the record and final amount are absent", async () => {
+  it("SIGNOFF: sign-off with any line still pending is refused at 409, naming every outstanding line by seq, the matter stays in legal review, and the record and final amount are absent", async () => {
     const assessment = await buildFixtureAssessment();
 
     const response = await signoffRoute(
       jsonRequest(`${SIGNOFF_URL}/${assessment.id}/signoff`, "POST", VALID_SIGNOFF_INPUT),
       { params: Promise.resolve({ id: assessment.id }) }
     );
-    expect(response.status).toBe(400);
+    expect(response.status).toBe(409);
+    const body = (await response.json()) as { error: string };
+    // LINE_INPUTS is added in order, and ExpenseLine.seq is 0-indexed
+    // (apps/web/src/server/data/matters.ts's addExpenseLine: `seq:
+    // existingLines.length`) — the fixture's four lines carry seq 0..3.
+    expect(body.error).toBe("Sign-off refused — 4 line(s) still need a decision: lines 0, 1, 2, 3.");
 
     const stored = await storedAssessment(assessment.id);
     expect(stored?.signOff).toBeNull();
@@ -189,7 +194,34 @@ describe("SIGNOFF", () => {
     expect(matter?.status).toBe("LEGAL_REVIEW");
   });
 
-  it("SIGNOFF: an unacknowledged matter flag that requires acknowledgement is refused, naming the flag", async () => {
+  it("SIGNOFF: sign-off with exactly one line still pending names that single line and no other", async () => {
+    const assessment = await buildFixtureAssessment();
+    const allow = findLine(assessment, "ALLOW");
+    const disallow = findLine(assessment, "DISALLOW");
+    const capped = findLine(assessment, "ALLOW_CAPPED");
+    // Leave the FLAG line (seq 3, the fourth line added) PENDING — dispose
+    // the other three.
+    for (const line of [allow, disallow, capped]) {
+      const response = await dispositionRoute(
+        jsonRequest(`http://localhost/api/assessment-lines/${line.id}/disposition`, "POST", {
+          action: "ACCEPT",
+          reason: GOOD_REASON,
+        }),
+        { params: Promise.resolve({ id: line.id }) }
+      );
+      expect(response.status).toBe(200);
+    }
+
+    const response = await signoffRoute(
+      jsonRequest(`${SIGNOFF_URL}/${assessment.id}/signoff`, "POST", VALID_SIGNOFF_INPUT),
+      { params: Promise.resolve({ id: assessment.id }) }
+    );
+    expect(response.status).toBe(409);
+    const body = (await response.json()) as { error: string };
+    expect(body.error).toBe("Sign-off refused — 1 line(s) still need a decision: lines 3.");
+  });
+
+  it("SIGNOFF: an unacknowledged matter flag that requires acknowledgement is refused at 409, naming the flag", async () => {
     const assessment = await buildFixtureAssessment();
     await dispositionAllLines(assessment);
 
@@ -200,12 +232,67 @@ describe("SIGNOFF", () => {
       }),
       { params: Promise.resolve({ id: assessment.id }) }
     );
-    expect(response.status).toBe(400);
+    expect(response.status).toBe(409);
     const body = (await response.json()) as { error: string };
     expect(body.error).toContain("LITIGATION_POSTURE");
 
     const stored = await storedAssessment(assessment.id);
     expect(stored?.signOff).toBeNull();
+  });
+
+  it("SIGNOFF: zero acknowledgement-requiring flags plus an empty acknowledgedFlags array signs off at 200", async () => {
+    const matterInput = {
+      reference: nextReference(),
+      jurisdictionCode: "SG",
+      legalEntity: "Acme Pte Ltd",
+      controllerType: "PRIVATE_ORGANISATION",
+      requestReceivedOn: "2026-09-01",
+      requestorClass: "FORMER_EMPLOYEE",
+      currency: "SGD",
+      identityVerified: true,
+      identityVerifiedNote: null,
+      scopeClarified: true,
+      isRepeatRequestWithin12Months: false,
+      isKnownDisputeOrLitigation: false, // -> no LITIGATION_POSTURE flag
+    };
+    const matterResponse = await createMatterRoute(jsonRequest(MATTERS_URL, "POST", matterInput, HR_COOKIE));
+    const matter = (await matterResponse.json()) as { id: string };
+    for (const input of LINE_INPUTS) {
+      const response = await addLineRoute(jsonRequest(`${MATTERS_URL}/${matter.id}/lines`, "POST", input, HR_COOKIE), {
+        params: Promise.resolve({ id: matter.id }),
+      });
+      expect(response.status).toBe(201);
+    }
+    const submitResponse = await submitRoute(jsonRequest(`${MATTERS_URL}/${matter.id}/submit`, "POST", {}, HR_COOKIE), {
+      params: Promise.resolve({ id: matter.id }),
+    });
+    expect(submitResponse.status).toBe(200);
+    const assessment = (await submitResponse.json()) as FixtureAssessment;
+    expect(assessment.matterLevelFlags.filter((flag) => flag.requiresAcknowledgement)).toHaveLength(0);
+    await dispositionAllLines(assessment);
+
+    const response = await signoffRoute(
+      jsonRequest(`${SIGNOFF_URL}/${assessment.id}/signoff`, "POST", {
+        ...VALID_SIGNOFF_INPUT,
+        acknowledgedFlags: [],
+      }),
+      { params: Promise.resolve({ id: assessment.id }) }
+    );
+    expect(response.status).toBe(200);
+  });
+
+  it("SIGNOFF: the same real flag id listed twice in acknowledgedFlags still signs off at 200", async () => {
+    const assessment = await buildFixtureAssessment();
+    await dispositionAllLines(assessment);
+
+    const response = await signoffRoute(
+      jsonRequest(`${SIGNOFF_URL}/${assessment.id}/signoff`, "POST", {
+        ...VALID_SIGNOFF_INPUT,
+        acknowledgedFlags: ["LITIGATION_POSTURE", "LITIGATION_POSTURE"],
+      }),
+      { params: Promise.resolve({ id: assessment.id }) }
+    );
+    expect(response.status).toBe(200);
   });
 
   it("SIGNOFF: an acknowledgement list naming a flag the assessment does not carry is refused", async () => {

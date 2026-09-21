@@ -181,9 +181,10 @@ describe("LIVE-ROUTING: colon-bearing ids decode correctly", () => {
       ),
       { params: Promise.resolve({ id: encodedId }) }
     );
-    // Refused (400, the fixture's LITIGATION_POSTURE flag was never
-    // acknowledged) rather than 404 — proves the lookup found the real
-    // assessment by its decoded id, not that sign-off itself succeeds.
-    expect(response.status).toBe(400);
+    // Refused (409 — the fixture's lines were never dispositioned, so the
+    // still-PENDING precondition fires) rather than 404 — proves the lookup
+    // found the real assessment by its decoded id, not that sign-off itself
+    // succeeds.
+    expect(response.status).toBe(409);
   });
 });
