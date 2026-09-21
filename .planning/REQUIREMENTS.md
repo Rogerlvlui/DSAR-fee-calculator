@@ -56,7 +56,7 @@
 - [x] **PACK-05**: Activating a new pack version does not alter any existing assessment's pinned version, verdicts or amounts (AC-40)
 - [x] **PACK-06**: A pack version's content is frozen once `ACTIVE`; any change requires a new version, enforced at the database rather than by service-layer discipline *(decision: PROJECT.md — gap AC-40 does not cover)*
 - [x] **PACK-07**: Activation is blocked where the activating user was the last editor, unless they hold `RULEPACK_AUTHOR` and confirm sole authorship, and the confirmation is audited (AC-41a)
-- [ ] **PACK-08**: A user who activated a pack version cannot sign off an assessment pinned to that version within the same session, and the block names the reason and points to another reviewer (AC-41b)
+- [x] **PACK-08**: A user who activated a pack version cannot sign off an assessment pinned to that version within the same session, and the block names the reason and points to another reviewer (AC-41b)
 - [x] **PACK-09**: `HK-PDPO` and `SG-PDPA` are authored in full across all 21 categories and can reach `ACTIVE` (§7.5, §7.6) *(partial: plan 03-05 authored the 9/21 (HK) and 6/15 (SG) categories the PRD supplies content for by transcription; full authoring across all 21 for both packs is an explicit obligation deferred to before Phase 6's convergence gate, D-16 — not marked complete here)*
 - [x] **PACK-10**: Seven stub packs ship as `DRAFT` with correct posture and constraints, every category rule `FLAG`, and every rule `NEEDS_VERIFICATION` (§7.4)
 - [x] **PACK-11**: No pack-authored `basis` string contains any canonical banned word, asserted by pack validation (AC-32a)
@@ -67,7 +67,7 @@
 - [ ] **ACCESS-01**: Routes are role-scoped `/hr/*`, `/legal/*`, `/admin/*`, with authorisation evaluated server-side on every request rather than by hiding UI (§10.1)
 - [x] **ACCESS-02**: An `HR_PREPARER` requesting an assessment for a matter in `LEGAL_REVIEW` receives 403, and the response body contains no assessment data (AC-01)
 - [x] **ACCESS-03**: No API response to an `HR_PREPARER` contains `verdict`, `engineAmount`, `basis`, `draftBaseline` or `lawyerReason` for a matter not in `SIGNED_OFF` (AC-02)
-- [ ] **ACCESS-04**: Sign-off by a user without `LEGAL_REVIEWER` for the matter's jurisdiction is rejected (AC-03)
+- [x] **ACCESS-04**: Sign-off by a user without `LEGAL_REVIEWER` for the matter's jurisdiction is rejected (AC-03) *(decision: D-01, 07-CONTEXT.md — the flat `LEGAL_REVIEWER` role check discharges this as scoped; jurisdiction-scoped entitlement is an explicit deferred refinement, not built)*
 - [ ] **ACCESS-05**: `lawyerReason` and the internal rationale never appear in any `/hr/*` response or HR-facing document, including after sign-off (AC-04)
 - [ ] **ACCESS-06**: Identity comes from a swappable provider seeded with test users, and no guard depends on which provider is in use *(decision: PROJECT.md — prototype framing)*
 - [x] **ACCESS-07**: No unreviewed assessment data reaches an HR user through a server-component payload or a cached response, tested as its own leak channel distinct from the API tests *(research)*
@@ -116,10 +116,10 @@
 
 ### Sign-off
 
-- [ ] **SIGNOFF-01**: Sign-off with any line in `PENDING` returns 409 and names the pending lines (AC-16)
-- [ ] **SIGNOFF-02**: Sign-off is blocked until every matter-level flag requiring acknowledgement appears in `acknowledgedFlags` (AC-24)
+- [x] **SIGNOFF-01**: Sign-off with any line in `PENDING` returns 409 and names the pending lines (AC-16)
+- [x] **SIGNOFF-02**: Sign-off is blocked until every matter-level flag requiring acknowledgement appears in `acknowledgedFlags` (AC-24)
 - [ ] **SIGNOFF-03**: The attestation is recorded verbatim by version, with the extended wording appended where the pack is `STALE` (§9.5)
-- [ ] **SIGNOFF-04**: Sign-off records the lawyer, name, qualification, timestamp, final amount and pinned pack version (§6.4)
+- [x] **SIGNOFF-04**: Sign-off records the lawyer, name, qualification, timestamp, final amount and pinned pack version (§6.4)
 - [ ] **SIGNOFF-05**: HR sees the signed-off figure, the reviewing lawyer, and both allowed and struck items with their plain-language basis (§10.4)
 - [ ] **SIGNOFF-06**: HR can mark the notice sent, recording the date only, with a visible note that the tool emails nobody (§10.4, NS-3)
 
@@ -276,7 +276,7 @@ Every v1 requirement maps to exactly one phase in `.planning/ROADMAP.md`.
 | PACK-05 | Phase 3 | Complete |
 | PACK-06 | Phase 3.2 | Complete |
 | PACK-07 | Phase 3.2 | Complete |
-| PACK-08 | Phase 7 | Pending |
+| PACK-08 | Phase 7 | Complete |
 | PACK-09 | Phase 3 | Partial — 15/36 categories authored (9 HK, 6 SG); remaining 27 deferred 2026-09-20, tracked in STATE.md |
 | PACK-10 | Phase 3 | Complete |
 | PACK-11 | Phase 3 | Complete |
@@ -284,7 +284,7 @@ Every v1 requirement maps to exactly one phase in `.planning/ROADMAP.md`.
 | ACCESS-01 | Phase 3.2 | Pending |
 | ACCESS-02 | Phase 6 | Complete |
 | ACCESS-03 | Phase 6 | Complete |
-| ACCESS-04 | Phase 7 | Pending |
+| ACCESS-04 | Phase 7 | Complete |
 | ACCESS-05 | Phase 7 | Pending |
 | ACCESS-06 | Phase 3.2 | Pending |
 | ACCESS-07 | Phase 6 | Complete |
@@ -318,10 +318,10 @@ Every v1 requirement maps to exactly one phase in `.planning/ROADMAP.md`.
 | REVIEW-10 | Phase 6 | Complete |
 | REVIEW-11 | Phase 6 | Complete |
 | REVIEW-12 | Phase 6 | Complete |
-| SIGNOFF-01 | Phase 7 | Pending |
-| SIGNOFF-02 | Phase 7 | Pending |
+| SIGNOFF-01 | Phase 7 | Complete |
+| SIGNOFF-02 | Phase 7 | Complete |
 | SIGNOFF-03 | Phase 7 | Pending |
-| SIGNOFF-04 | Phase 7 | Pending |
+| SIGNOFF-04 | Phase 7 | Complete |
 | SIGNOFF-05 | Phase 7 | Pending |
 | SIGNOFF-06 | Phase 7 | Pending |
 | DOC-01 | Phase 7 | Pending |

@@ -15,7 +15,7 @@ import { POST as addLineRoute } from "../../apps/web/app/api/matters/[id]/lines/
 import { POST as submitRoute } from "../../apps/web/app/api/matters/[id]/submit/route.ts";
 import { POST as dispositionRoute } from "../../apps/web/app/api/assessment-lines/[id]/disposition/route.ts";
 import { POST as signoffRoute } from "../../apps/web/app/api/assessments/[id]/signoff/route.ts";
-import { DEMO_ROLE_COOKIE } from "../../apps/web/src/server/data/auth.ts";
+import { DEMO_ROLE_COOKIE, DEMO_USERS } from "../../apps/web/src/server/data/auth.ts";
 import { memoryAssessmentRepository } from "../../apps/web/src/server/repositories/memory/assessment-repository.ts";
 import { memoryMatterRepository } from "../../apps/web/src/server/repositories/memory/matter-repository.ts";
 import { resolvePinnedRulePack } from "../../apps/web/src/server/engine-invocation.ts";
@@ -25,6 +25,7 @@ const MATTERS_URL = "http://localhost/api/matters";
 const SIGNOFF_URL = "http://localhost/api/assessments";
 const LEGAL_COOKIE = `${DEMO_ROLE_COOKIE}=LEGAL_REVIEWER`;
 const HR_COOKIE = `${DEMO_ROLE_COOKIE}=HR_PREPARER`;
+const DPO_COOKIE = `${DEMO_ROLE_COOKIE}=DPO_ADMIN`;
 
 function jsonRequest(url: string, method: string, body: unknown, cookie: string = LEGAL_COOKIE): Request {
   return new Request(url, {
@@ -346,12 +347,29 @@ describe("SIGNOFF", () => {
     expect(stored?.signOff).toBeNull();
   });
 
-  it("SIGNOFF: sign-off carrying the HR role cookie is refused with 403 and changes nothing", async () => {
+  it("SIGNOFF: sign-off carrying the HR role cookie is refused with 403, changes nothing, and the body carries no assessment content (ACCESS-04)", async () => {
     const assessment = await buildFixtureAssessment();
     await dispositionAllLines(assessment);
 
     const response = await signoffRoute(
       jsonRequest(`${SIGNOFF_URL}/${assessment.id}/signoff`, "POST", VALID_SIGNOFF_INPUT, HR_COOKIE),
+      { params: Promise.resolve({ id: assessment.id }) }
+    );
+    expect(response.status).toBe(403);
+    const body = (await response.json()) as Record<string, unknown>;
+    expect(body).not.toHaveProperty("assessment");
+    expect(body).not.toHaveProperty("attestationText");
+
+    const stored = await storedAssessment(assessment.id);
+    expect(stored?.signOff).toBeNull();
+  });
+
+  it("SIGNOFF: sign-off carrying the DPO_ADMIN role cookie is refused with 403 on the same endpoint (ACCESS-04)", async () => {
+    const assessment = await buildFixtureAssessment();
+    await dispositionAllLines(assessment);
+
+    const response = await signoffRoute(
+      jsonRequest(`${SIGNOFF_URL}/${assessment.id}/signoff`, "POST", VALID_SIGNOFF_INPUT, DPO_COOKIE),
       { params: Promise.resolve({ id: assessment.id }) }
     );
     expect(response.status).toBe(403);
@@ -386,6 +404,105 @@ describe("SIGNOFF", () => {
     expect(stored?.signOff?.attestationVersion.length).toBeGreaterThan(0);
     expect(stored?.signOff?.lawyer).toBeTruthy();
     expect(stored?.signOff?.signedAt).toBeTruthy();
+  });
+
+  it("SIGNOFF-04: every one of SignOff's eight fields is populated and correctly typed on the stored record, and pinned provenance survives sign-off unchanged", async () => {
+    const assessment = await buildFixtureAssessment();
+    await dispositionAllLines(assessment);
+
+    const beforeStored = await storedAssessment(assessment.id);
+    const rulePackIdBefore = beforeStored?.rulePackId;
+    const rulePackVersionBefore = beforeStored?.rulePackVersion;
+    const engineVersionBefore = beforeStored?.engineVersion;
+
+    const response = await signoffRoute(
+      jsonRequest(`${SIGNOFF_URL}/${assessment.id}/signoff`, "POST", VALID_SIGNOFF_INPUT),
+      { params: Promise.resolve({ id: assessment.id }) }
+    );
+    expect(response.status).toBe(200);
+
+    const stored = await storedAssessment(assessment.id);
+    const signOff = stored?.signOff;
+    expect(signOff).toBeTruthy();
+    expect(signOff?.lawyer).toEqual(DEMO_USERS.LEGAL_REVIEWER.user);
+    expect(signOff?.lawyerName).toBe(DEMO_USERS.LEGAL_REVIEWER.user.displayName);
+    expect(signOff?.qualification).toBe(VALID_SIGNOFF_INPUT.qualification);
+    expect(Number.isNaN(Date.parse(signOff?.signedAt ?? ""))).toBe(false);
+    expect(Number.isInteger(signOff?.finalAmount)).toBe(true);
+    expect(signOff?.acknowledgedFlags).toEqual(VALID_SIGNOFF_INPUT.acknowledgedFlags);
+    expect(signOff?.attestation).toBe(true);
+    expect(signOff?.attestationVersion).toBe(ATTESTATION_TEMPLATE_VERSION);
+
+    // Sign-off never re-pins an assessment to a newer pack.
+    expect(stored?.rulePackId).toBe(rulePackIdBefore);
+    expect(stored?.rulePackVersion).toBe(rulePackVersionBefore);
+    expect(stored?.engineVersion).toBe(engineVersionBefore);
+  });
+
+  it("SIGNOFF-04: the stored finalAmount is an integer and equals totals.finalAmount, so the two places it lives can never disagree", async () => {
+    const assessment = await buildFixtureAssessment();
+    await dispositionAllLines(assessment);
+
+    const response = await signoffRoute(
+      jsonRequest(`${SIGNOFF_URL}/${assessment.id}/signoff`, "POST", VALID_SIGNOFF_INPUT),
+      { params: Promise.resolve({ id: assessment.id }) }
+    );
+    expect(response.status).toBe(200);
+
+    const stored = await storedAssessment(assessment.id);
+    expect(Number.isInteger(stored?.signOff?.finalAmount)).toBe(true);
+    expect(stored?.totals.finalAmount).toBe(stored?.signOff?.finalAmount);
+  });
+
+  it("SIGNOFF-04: a one-character qualification is accepted and stored verbatim", async () => {
+    const assessment = await buildFixtureAssessment();
+    await dispositionAllLines(assessment);
+
+    const response = await signoffRoute(
+      jsonRequest(`${SIGNOFF_URL}/${assessment.id}/signoff`, "POST", {
+        ...VALID_SIGNOFF_INPUT,
+        qualification: "Q",
+      }),
+      { params: Promise.resolve({ id: assessment.id }) }
+    );
+    expect(response.status).toBe(200);
+
+    const stored = await storedAssessment(assessment.id);
+    expect(stored?.signOff?.qualification).toBe("Q");
+  });
+
+  it("SIGNOFF-04: a whitespace-only qualification is refused at 400 and stores nothing", async () => {
+    const assessment = await buildFixtureAssessment();
+    await dispositionAllLines(assessment);
+
+    const response = await signoffRoute(
+      jsonRequest(`${SIGNOFF_URL}/${assessment.id}/signoff`, "POST", {
+        ...VALID_SIGNOFF_INPUT,
+        qualification: "   \t  ",
+      }),
+      { params: Promise.resolve({ id: assessment.id }) }
+    );
+    expect(response.status).toBe(400);
+
+    const stored = await storedAssessment(assessment.id);
+    expect(stored?.signOff).toBeNull();
+  });
+
+  it("SIGNOFF-04: a whitespace-padded qualification is stored trimmed, never the raw padded submission", async () => {
+    const assessment = await buildFixtureAssessment();
+    await dispositionAllLines(assessment);
+
+    const response = await signoffRoute(
+      jsonRequest(`${SIGNOFF_URL}/${assessment.id}/signoff`, "POST", {
+        ...VALID_SIGNOFF_INPUT,
+        qualification: "  Advocate & Solicitor, Singapore  ",
+      }),
+      { params: Promise.resolve({ id: assessment.id }) }
+    );
+    expect(response.status).toBe(200);
+
+    const stored = await storedAssessment(assessment.id);
+    expect(stored?.signOff?.qualification).toBe("Advocate & Solicitor, Singapore");
   });
 
   it("SIGNOFF: the returned attestation text is built from the shared renderer, names the jurisdiction and pack, and carries no stale-pack sentence for this pack", async () => {
