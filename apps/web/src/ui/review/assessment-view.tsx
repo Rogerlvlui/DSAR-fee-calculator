@@ -79,6 +79,12 @@ export interface AssessmentViewProps {
    * the caller itself has decided every line is decided (this component
    * does not re-derive that condition). */
   signOffPanel?: ReactNode;
+  /** The "Download internal record (PDF)" trigger (07-05), composed by
+   * the caller in the SAME position signOffPanel occupies — the caller
+   * (apps/web/app/legal/assessments/[id]/page.tsx) decides which of the
+   * two is non-null based on matter.status, never both at once; this
+   * component does not re-derive that condition either. */
+  internalRecordDownload?: ReactNode;
   /** REVIEW-11's flat-fee-vs-itemised choice, composed by the caller
    * (Plan 06-07) exactly the way renderLineControls/bulkAcceptBar/
    * signOffPanel already are — this module still never imports
@@ -86,6 +92,11 @@ export interface AssessmentViewProps {
    * either. Rendered directly above the headline block, per 06-UI-SPEC.md's
    * own stated visual-focal-point rule. */
   flatFeeChoice?: ReactNode;
+  /** AC-39's in-flight-review stale-pack notice (07-05), composed by the
+   * caller exactly the way every other composition slot already is.
+   * Rendered directly above recomputeBanner, above the cards region, so a
+   * lawyer reads the pack's review state before any other banner. */
+  stalePackNotice?: ReactNode;
   /** REVIEW-10's recompute-against-current-pack confirmation banner,
    * composed by the caller (Plan 06-07) exactly the way every other
    * composition slot already is. Rendered above the cards region, per
@@ -105,7 +116,9 @@ export function AssessmentView({
   renderLineControls,
   bulkAcceptBar,
   signOffPanel,
+  internalRecordDownload,
   flatFeeChoice,
+  stalePackNotice,
   recomputeBanner,
 }: AssessmentViewProps) {
   const detailByLineId = new Map(lineDetails.map((detail) => [detail.assessmentLineId, detail]));
@@ -139,6 +152,7 @@ export function AssessmentView({
         openQuestions={pack.openQuestions}
       />
 
+      {stalePackNotice}
       {recomputeBanner}
       <div data-testid="cards-region">
         {bulkAcceptBar}
@@ -172,6 +186,7 @@ export function AssessmentView({
       {flatFeeChoice}
       <TotalsRail assessment={assessment} currency={currency} />
       {signOffPanel}
+      {internalRecordDownload}
     </div>
   );
 }

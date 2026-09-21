@@ -35,6 +35,8 @@ import { SignOffPanel } from "../../../../src/ui/review/signoff-panel.tsx";
 import { FlatFeeChoice } from "../../../../src/ui/review/flat-fee-choice.tsx";
 import { RecomputeConfirm } from "../../../../src/ui/review/recompute-confirm.tsx";
 import { shouldRenderRecomputeBanner } from "../../../../src/domain/recompute-banner.ts";
+import { StalePackNotice } from "../../../../src/ui/review/stale-pack-notice.tsx";
+import { shouldRenderStalePackNotice } from "../../../../src/domain/stale-pack-notice.ts";
 
 export default async function LegalAssessmentPage({
   params,
@@ -74,6 +76,7 @@ export default async function LegalAssessmentPage({
   const showRecomputeBanner = shouldRenderRecomputeBanner(assessment.rulePackVersion, currentPack.version);
 
   const now = new Date().toISOString();
+  const showStalePackNotice = shouldRenderStalePackNotice(pack, now);
   const pendingCount = assessment.lines.filter((line) => line.disposition === "PENDING").length;
   let signOffPanel: ReactNode = null;
   if (pendingCount === 0) {
@@ -184,6 +187,11 @@ export default async function LegalAssessmentPage({
               pinnedVersion={assessment.rulePackVersion}
               newVersion={currentPack.version}
             />
+          ) : null
+        }
+        stalePackNotice={
+          showStalePackNotice ? (
+            <StalePackNotice packId={pack.packId} version={pack.version} reviewDueOn={pack.reviewDueOn} />
           ) : null
         }
       />
