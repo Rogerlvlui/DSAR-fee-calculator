@@ -326,7 +326,7 @@ Plans:
 **Wave 2** *(blocked on 07-01)*
 
 - [x] 07-04-PLAN.md — The full internal record: the dense one-row-per-line data model, the paginating greyscale document, and the footer's provenance read from the assessment (completed 2026-09-22 — DOC-01/DOC-05 both proven end to end against real SG-PDPA and HK-PDPO data)
-- [ ] 07-05-PLAN.md — Legal review screen: the stale-pack red notice (AC-39's in-flight half), the download trigger, and ACCESS-05 proven as an observed absence from every HR channel
+- [x] 07-05-PLAN.md — Legal review screen: the stale-pack red notice (AC-39's in-flight half), the download trigger, and ACCESS-05 proven as an observed absence from every HR channel (completed 2026-09-22 — SIGNOFF-03/ACCESS-05 both proven; three-half boundary scan closes ACCESS-05)
 
 **Wave 3** *(blocked on all of the above)*
 
