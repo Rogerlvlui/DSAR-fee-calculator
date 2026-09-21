@@ -3,16 +3,16 @@ gsd_state_version: "1.0"
 current_phase: 07
 current_phase_name: Sign-off, Outputs and Edge States
 status: in_progress
-stopped_at: Completed 07-01-PLAN.md (Wave 1 tracer)
-last_updated: "2026-09-21T15:10:00.000Z"
+stopped_at: Completed 07-02-PLAN.md (Wave 1, sign-off gate)
+last_updated: "2026-09-21T23:30:00.000Z"
 last_activity: 2026-09-21
-last_activity_desc: "Executed Phase 7 Plan 07-01 (Wave 1 tracer): Task 1's blocking-human checkpoint (approve @react-pdf/renderer 4.9.0 into packages/documents only) was pre-resolved by the product owner before this run and not re-asked. Task 2 built the new @dsar/documents workspace package end to end — a pure internal-record-view.ts (no React/renderer/apps-web import, proven by its own source-scan test), the only-@react-pdf/renderer-importing internal-record-document.tsx (landscape A4, Helvetica, fixed footer band), and the first binary-body Route Handler in this codebase (GET /api/assessments/{id}/internal-record, LEGAL_REVIEWER-only, 409 before sign-off) — plus every scaffold surface a new package needs (vitest.config.ts documents project, root tsconfig.json reference, depcruise script, apps/web transpilePackages + workspace dependency). Two Rule-1 bugs fixed inline (getMatterForLegalReview imported from the wrong module; a Buffer/BodyInit TS6 type mismatch needing a Uint8Array copy) and one Rule-2 addition (internal-record-view.test.ts, not in the plan's own files list but required by its acceptance criteria). Task 3 wrote scripts/smoke-internal-record.mjs, which spawns the app's own dev server as a real child process and drives the full create-matter-to-signed-off-PDF path over real HTTP — the open upstream diegomura/react-pdf#3285 monorepo-import crash (07-RESEARCH.md Pitfall 4, the phase's single highest-risk technical unknown) did NOT reproduce, confirmed by two consecutive clean runs and a clean pnpm --filter @dsar/web build. Full suite 953 -> 962 passing; typecheck/depcruise/lint clean throughout. DOC-01/DOC-05/ACCESS-05 (this plan's own frontmatter requirements) deliberately left Pending in REQUIREMENTS.md — 07-04-PLAN.md and 07-05-PLAN.md's own frontmatter re-claim the same IDs for the dense line-item table and the download-trigger placement respectively; this plan discharges only the architecture and the role gate. gsd-tools.cjs remains unavailable in this worktree (same recurring gap as every prior phase) — STATE.md/ROADMAP.md updated manually."
-state_head: dc5d51343fba9e1523124de6cce76685e0c7f6a
+last_activity_desc: "Executed Phase 7 Plan 07-02 (Wave 1, sign-off gate): Task 1 corrected signOff()'s still-PENDING and unacknowledged-required-flag refusals from ValidationError (400) to ConflictError (409) — AC-16 explicitly requires 409, and both are preconditions on the identical SIGN_OFF guard-table row, so a caller should not have to remember which is which. The pending-lines refusal now names every outstanding line by its ExpenseLine.seq, ascending, via a single listExpenseLines() call moved earlier and reused by the later structural guard rather than fetched twice; the three genuinely malformed-input refusals (unknown flag id, unaffirmed attestation, empty qualification) stay 400, locked by an unchanged test. Task 2 added the one genuinely new precondition this phase owns (PACK-08/AC-41b): a 403 ForbiddenError when the latest PACK_ACTIVATED event for the assessment's pinned pack id/version names the signing actor as its own activator, queried directly from packages/audit's canonical memoryPackLifecycleEventWriter and compared by exact UserRef.id string equality — required moving resolvePinnedRulePack's call site earlier (before computeFinalAmount) so the guard has the pinned pack id/version available. tests/routes/pack-lifecycle-signoff.test.ts (new, D-02's synthetic-fixture technique) proves the positive/negative/zero-event/superseded-activation/PACK_EDITED cases, all through the same real LEGAL_REVIEWER cookie. Task 3 added route-level proof (no new production code) that SIGNOFF-04's full eight-field SignOff record is correctly populated and typed, money-integrity (finalAmount is an integer equal to totals.finalAmount), pinned-provenance survives sign-off unchanged, three qualification boundary cases, and ACCESS-04 proven against both non-reviewer demo roles (HR_PREPARER, DPO_ADMIN) including a body-shape assertion. Two Rule-1 bugs fixed inline: two pre-existing tests elsewhere (tests/routes/audit-trail.test.ts, tests/routes/live-routing.test.ts) asserted the now-stale 400 on the same pending-lines refusal path Task 1 changed, and pack-lifecycle-signoff.test.ts's initial single-line fixture always produced a FLAG verdict via the engine's own MATERIALITY cross-line check, fixed by reusing signoff.test.ts's proven four-line composition. Full suite 962 -> 976 passing; typecheck/lint/depcruise clean throughout; packages/schemas/ and packages/workflow/ confirmed untouched. SIGNOFF-01, SIGNOFF-02, SIGNOFF-04, ACCESS-04 and PACK-08 all marked Complete in REQUIREMENTS.md. gsd-tools.cjs remains unavailable in this worktree (same recurring gap as every prior phase) — STATE.md/ROADMAP.md updated manually."
+state_head: 7c3f6cdd14514d278f7e5046a95c0d0dc7cb2a22
 progress:
   total_phases: 10
   completed_phases: 1
   total_plans: 52
-  completed_plans: 44
+  completed_plans: 45
   percent: 0
 ---
 
@@ -23,14 +23,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-13)
 
 **Core value:** A lawyer can defend the output by saying "the engine applied rule HK-PDPO.STAFF_TIME_REDACT_EXEMPT, version 2026.09.1, authored by X on date Y, and struck the line" — never "the model assessed the claim."
-**Current focus:** Phase 07 — Sign-off, Outputs and Edge States — IN PROGRESS. Plan 07-01 (Wave 1 tracer) executed: `packages/documents`, the internal-record PDF architecture, and the role-gated binary Route Handler all proven end to end, including a real-HTTP proof that the open upstream `@react-pdf/renderer` monorepo-import crash does not reproduce here. 5 of 6 Phase 7 plans remain (07-02, 07-03 in Wave 1; 07-04, 07-05 in Wave 2; 07-06 in Wave 3). Phase 06 (Convergence and Legal Review) remains fully closed out including its independent review addendum; 03.2 Database Boundary remains separately planned, runs concurrently per ROADMAP.md.
+**Current focus:** Phase 07 — Sign-off, Outputs and Edge States — IN PROGRESS. Plan 07-01 (Wave 1 tracer) executed: `packages/documents`, the internal-record PDF architecture, and the role-gated binary Route Handler all proven end to end, including a real-HTTP proof that the open upstream `@react-pdf/renderer` monorepo-import crash does not reproduce here. Plan 07-02 (Wave 1, sign-off gate) executed: `signOff()`'s two mis-coded 400 refusals corrected to 409 with full pending-line naming, the new PACK-08/AC-41b 403 activator-guard added, and SIGNOFF-04/ACCESS-04 proven by route-level assertion. 4 of 6 Phase 7 plans remain (07-03 in Wave 1; 07-04, 07-05 in Wave 2; 07-06 in Wave 3). Phase 06 (Convergence and Legal Review) remains fully closed out including its independent review addendum; 03.2 Database Boundary remains separately planned, runs concurrently per ROADMAP.md.
 
 ## Current Position
 
 Phase: 07 (Sign-off, Outputs and Edge States) — IN PROGRESS
-Plan: 1/6 complete (07-01 done; 07-02 through 07-06 remaining)
+Plan: 2/6 complete (07-01, 07-02 done; 07-03 through 07-06 remaining)
 Status: In progress
-Last activity: 2026-09-21 — Executed Plan 07-01 (see state_head commit and last_activity_desc above for the full account). Full suite 953 -> 962 passing; typecheck/lint/depcruise clean after every commit. DOC-01/DOC-05/ACCESS-05 deliberately left Pending in REQUIREMENTS.md (split across 07-01/07-04/07-05 — see last_activity_desc); ROADMAP.md's 07-01-PLAN.md checkbox marked complete.
+Last activity: 2026-09-21 — Executed Plan 07-02 (see state_head commit and last_activity_desc above for the full account). Full suite 962 -> 976 passing; typecheck/lint/depcruise clean after every commit. SIGNOFF-01, SIGNOFF-02, SIGNOFF-04, ACCESS-04 and PACK-08 marked Complete in REQUIREMENTS.md; ROADMAP.md's 07-02-PLAN.md checkbox marked complete.
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -38,7 +38,7 @@ Progress: [░░░░░░░░░░] 0%
 
 **Velocity:**
 
-- Total plans completed: 27
+- Total plans completed: 28
 - Average duration: —
 - Total execution time: —
 
@@ -92,6 +92,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 04 P04 | 130min | 3 tasks (10 commits) | 15 files |
 | Phase 04 P05 | 55min | 3 tasks | 9 files |
 | Phase 07 P01 | ~50min | 3 tasks (2 commits) | 17 files |
+| Phase 07 P02 | ~35min | 3 tasks (3 commits) | 6 files |
 
 ## Accumulated Context
 
@@ -263,6 +264,10 @@ None yet.
 - **[Phase 07 P01]: `@react-pdf/renderer`'s open upstream monorepo-import crash (diegomura/react-pdf#3285, 07-RESEARCH.md Pitfall 4) does NOT reproduce in this repo's Next.js 16.3.5 + Turbopack + pnpm-workspace shape** — proven by `scripts/smoke-internal-record.mjs` driving the full create-matter-to-signed-off-PDF path over real HTTP against the app's own dev server (not merely a Vitest-level route test, which bypasses Next's bundler entirely), run twice consecutively with clean teardown both times, plus a clean `pnpm --filter @dsar/web build`. The documented fallback (move the renderer call into `apps/web` as its own direct dependency) was NOT needed.
 - **[Phase 07 P01]: `packages/documents`'s exports map carries two explicit subpath keys (`./internal-record-view`, `./internal-record-document`) instead of the single `"./*"` wildcard every other workspace package in this monorepo uses** — a package with both a `.ts` and a `.tsx` source file cannot resolve both through one wildcard entry.
 - **[Phase 07 P01]: DOC-01, DOC-05 and ACCESS-05 deliberately left Pending in REQUIREMENTS.md after this plan**, even though they are this plan's own frontmatter `requirements` — `07-04-PLAN.md`'s frontmatter also claims DOC-01/DOC-05 (the dense line-item table, matter details and sign-off block this tracer's PDF deliberately omits) and `07-05-PLAN.md`'s frontmatter also claims ACCESS-05 (the download-trigger UI placement half). This plan discharges the architecture and the role gate only.
+- **[Phase 07 P02]: `signOff()`'s still-PENDING and unacknowledged-required-flag refusals corrected from `ValidationError` (400) to `ConflictError` (409)** — AC-16 explicitly requires 409 for the pending-lines case, and both are preconditions on the identical `SIGN_OFF` guard-table row; the pending-lines refusal now names every outstanding line by its `ExpenseLine.seq`. The three genuinely malformed-input refusals (unknown acknowledged-flag id, unaffirmed attestation, empty qualification) deliberately stay 400, locked by an unchanged test — the 409/400 split is intentional, not an oversight.
+- **[Phase 07 P02]: PACK-08/AC-41b's new guard is `ForbiddenError` (403), not `ConflictError` (409)** — settles 07-RESEARCH.md Open Question 2 in favour of 403 per the plan's own instruction: the refusal is about who the actor is (matching ACCESS-04's `requireRole` refusal class), not the matter's state. `resolvePinnedRulePack`'s call site moved earlier in `signOff()` (before `computeFinalAmount`) so the guard has the pinned pack id/version before anything is computed.
+- **[Phase 07 P02]: Two pre-existing tests elsewhere in the suite (`tests/routes/audit-trail.test.ts`, `tests/routes/live-routing.test.ts`) asserted the now-stale 400 on the exact pending-lines refusal path this plan changed to 409** — both corrected as a Rule 1 deviation, same intentional change as Task 1's own scope.
+- **[Phase 07 P02]: SIGNOFF-01, SIGNOFF-02, SIGNOFF-04, ACCESS-04 and PACK-08 all marked Complete in REQUIREMENTS.md** — `packages/schemas/` and `packages/workflow/` confirmed untouched by this plan (`guard-input.ts` unmodified, the frozen 11-member `GuardInput` shape not widened).
 
 ### Quick Tasks Completed
 
@@ -284,7 +289,7 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-09-21T15:10:00.000Z
-Stopped at: Completed 07-01-PLAN.md (Wave 1 tracer)
-Resume file: .planning/phases/07-sign-off-outputs-and-edge-states/07-02-PLAN.md
-Last activity: 2026-09-21 - Executed Phase 7 Plan 07-01: packages/documents workspace package, the internal-record PDF architecture, the role-gated binary Route Handler, and the real-HTTP smoke proof that @react-pdf/renderer's open monorepo-import crash does not reproduce here. See STATE.md frontmatter last_activity_desc and .planning/phases/07-sign-off-outputs-and-edge-states/07-01-SUMMARY.md for the full account. Next: 07-02-PLAN.md (the sign-off gate) and 07-03-PLAN.md (HR outputs), both Wave 1, parallelisable with each other.
+Last session: 2026-09-21T23:30:00.000Z
+Stopped at: Completed 07-02-PLAN.md (Wave 1, sign-off gate)
+Resume file: .planning/phases/07-sign-off-outputs-and-edge-states/07-03-PLAN.md
+Last activity: 2026-09-21 - Executed Phase 7 Plan 07-02: signOff()'s two mis-coded 400 refusals corrected to 409 with full pending-line naming, the new PACK-08/AC-41b 403 activator-guard, and route-level proof of SIGNOFF-04's field set and ACCESS-04's role refusal. See STATE.md frontmatter last_activity_desc and .planning/phases/07-sign-off-outputs-and-edge-states/07-02-SUMMARY.md for the full account. Next: 07-03-PLAN.md (HR outputs), Wave 1, was parallelisable with 07-02.
