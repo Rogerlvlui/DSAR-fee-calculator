@@ -61,6 +61,12 @@
     "../apps/web/src/ui/intake/autosave-indicator.tsx",
     "../apps/web/src/ui/intake/use-draft-autosave.ts",
     "../apps/web/src/ui/hr/result-view.tsx",
+    // 07-05 Task 3: tests/boundary/hr-internal-record-absent.test.ts
+    // imports INTERNAL_RECORD_DOWNLOAD_LABEL directly, so the ACCESS-05
+    // scan checks against the real constant rather than a duplicated
+    // literal that could silently drift. Safe under this project's
+    // "nodenext" resolution — this component imports only "react".
+    "../apps/web/src/ui/review/internal-record-download.tsx",
     // 06-03 Task 2: tests/boundary/rsc-payload-leak.test.ts renders
     // TotalsRail directly for the REVIEW-06 no-total-while-pending proof —
     // safe under this project's "nodenext" resolution (no next/navigation

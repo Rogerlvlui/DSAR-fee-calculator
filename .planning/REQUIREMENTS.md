@@ -68,7 +68,7 @@
 - [x] **ACCESS-02**: An `HR_PREPARER` requesting an assessment for a matter in `LEGAL_REVIEW` receives 403, and the response body contains no assessment data (AC-01)
 - [x] **ACCESS-03**: No API response to an `HR_PREPARER` contains `verdict`, `engineAmount`, `basis`, `draftBaseline` or `lawyerReason` for a matter not in `SIGNED_OFF` (AC-02)
 - [x] **ACCESS-04**: Sign-off by a user without `LEGAL_REVIEWER` for the matter's jurisdiction is rejected (AC-03) *(decision: D-01, 07-CONTEXT.md — the flat `LEGAL_REVIEWER` role check discharges this as scoped; jurisdiction-scoped entitlement is an explicit deferred refinement, not built)*
-- [ ] **ACCESS-05**: `lawyerReason` and the internal rationale never appear in any `/hr/*` response or HR-facing document, including after sign-off (AC-04)
+- [x] **ACCESS-05**: `lawyerReason` and the internal rationale never appear in any `/hr/*` response or HR-facing document, including after sign-off (AC-04)
 - [ ] **ACCESS-06**: Identity comes from a swappable provider seeded with test users, and no guard depends on which provider is in use *(decision: PROJECT.md — prototype framing)*
 - [x] **ACCESS-07**: No unreviewed assessment data reaches an HR user through a server-component payload or a cached response, tested as its own leak channel distinct from the API tests *(research)*
 - [ ] **ACCESS-08**: Every endpoint is tested against every role, asserting on response bodies and not only status codes (§14)
@@ -118,7 +118,7 @@
 
 - [x] **SIGNOFF-01**: Sign-off with any line in `PENDING` returns 409 and names the pending lines (AC-16)
 - [x] **SIGNOFF-02**: Sign-off is blocked until every matter-level flag requiring acknowledgement appears in `acknowledgedFlags` (AC-24)
-- [ ] **SIGNOFF-03**: The attestation is recorded verbatim by version, with the extended wording appended where the pack is `STALE` (§9.5)
+- [x] **SIGNOFF-03**: The attestation is recorded verbatim by version, with the extended wording appended where the pack is `STALE` (§9.5)
 - [x] **SIGNOFF-04**: Sign-off records the lawyer, name, qualification, timestamp, final amount and pinned pack version (§6.4)
 - [x] **SIGNOFF-05**: HR sees the signed-off figure, the reviewing lawyer, and both allowed and struck items with their plain-language basis (§10.4)
 - [x] **SIGNOFF-06**: HR can mark the notice sent, recording the date only, with a visible note that the tool emails nobody (§10.4, NS-3)
@@ -285,7 +285,7 @@ Every v1 requirement maps to exactly one phase in `.planning/ROADMAP.md`.
 | ACCESS-02 | Phase 6 | Complete |
 | ACCESS-03 | Phase 6 | Complete |
 | ACCESS-04 | Phase 7 | Complete |
-| ACCESS-05 | Phase 7 | Pending |
+| ACCESS-05 | Phase 7 | Complete |
 | ACCESS-06 | Phase 3.2 | Pending |
 | ACCESS-07 | Phase 6 | Complete |
 | ACCESS-08 | Phase 3.2 | Pending |
@@ -320,7 +320,7 @@ Every v1 requirement maps to exactly one phase in `.planning/ROADMAP.md`.
 | REVIEW-12 | Phase 6 | Complete |
 | SIGNOFF-01 | Phase 7 | Complete |
 | SIGNOFF-02 | Phase 7 | Complete |
-| SIGNOFF-03 | Phase 7 | Pending |
+| SIGNOFF-03 | Phase 7 | Complete |
 | SIGNOFF-04 | Phase 7 | Complete |
 | SIGNOFF-05 | Phase 7 | Complete |
 | SIGNOFF-06 | Phase 7 | Complete |
