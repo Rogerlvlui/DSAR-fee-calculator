@@ -9,6 +9,7 @@
 import { describe, expect, it } from "vitest";
 import {
   buildNoticeDraft,
+  findAc17Violations,
   NOTICE_NOT_YET_AUTHORED_STATEMENT,
   type NoticeDraftAllowedLine,
 } from "./notice-draft.ts";
@@ -89,5 +90,64 @@ describe("HR-RESULT", () => {
     expect(draft).not.toMatch(/SG-PDPA\./);
     expect(draft).not.toMatch(/PDPA 2012|Personal Data Protection Regulations/);
     expect(draft).not.toMatch(/engine|LLM|AI-drafted/i);
+  });
+
+  // DOC-03/AC-17 — the actual regex assertion, over every reachable notice
+  // variant. Each case is named separately rather than looped over one
+  // fixture, per the plan's own acceptance criteria.
+  describe("HR-RESULT: findAc17Violations — every reachable notice variant is clean", () => {
+    it("HR-RESULT: an authored-template notice carries zero AC-17 violations", () => {
+      const draft = buildNoticeDraft({
+        template: "This notice explains the fee for responding to your data access request.",
+        amount: 18640 as never,
+        currency: CURRENCY,
+        allowedLines: ALLOWED_LINES,
+        matterReference: "DSAR-2026-0142",
+      });
+
+      expect(findAc17Violations(draft)).toEqual([]);
+    });
+
+    it("HR-RESULT: an unauthored-marker-template notice carries zero AC-17 violations", () => {
+      const draft = buildNoticeDraft({
+        template:
+          "UNAUTHORED — counsel must author the requestor-facing fee notice for this jurisdiction before this pack can reach ACTIVE.",
+        amount: 18640 as never,
+        currency: CURRENCY,
+        allowedLines: ALLOWED_LINES,
+        matterReference: "DSAR-2026-0142",
+      });
+
+      expect(findAc17Violations(draft)).toEqual([]);
+    });
+
+    it("HR-RESULT: a zero-allowed-lines notice carries zero AC-17 violations", () => {
+      const draft = buildNoticeDraft({
+        template: "This notice explains the fee for responding to your data access request.",
+        amount: 0 as never,
+        currency: CURRENCY,
+        allowedLines: [],
+        matterReference: "DSAR-2026-0142",
+      });
+
+      expect(findAc17Violations(draft)).toEqual([]);
+    });
+  });
+
+  // A scan that has never been observed catching anything is not evidence
+  // of anything (this project's own standing gate-integrity discipline,
+  // Phase 2) — proves the scan has teeth before trusting it above.
+  it("HR-RESULT: findAc17Violations names all three violation kinds for a deliberately dirty input", () => {
+    const dirty =
+      "This determination applied rule HK-PDPO.STAFF_TIME_SEARCH under PDPO s.28(2)-(3), " +
+      "drafted with the help of our AI assistant.";
+
+    const violations = findAc17Violations(dirty);
+    const labels = violations.map((violation) => violation.label);
+
+    expect(labels).toContain("rule-identifier");
+    expect(labels).toContain("citation");
+    expect(labels).toContain("tool-or-model-mention");
+    expect(violations.length).toBeGreaterThanOrEqual(3);
   });
 });

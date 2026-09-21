@@ -16,8 +16,12 @@ import { POST as submitRoute } from "../../apps/web/app/api/matters/[id]/submit/
 import { POST as dispositionRoute } from "../../apps/web/app/api/assessment-lines/[id]/disposition/route.ts";
 import { POST as signoffRoute } from "../../apps/web/app/api/assessments/[id]/signoff/route.ts";
 import { POST as noticeSentRoute } from "../../apps/web/app/api/matters/[id]/notice-sent/route.ts";
-import { DEMO_ROLE_COOKIE } from "../../apps/web/src/server/data/auth.ts";
+import { DEMO_ROLE_COOKIE, DEMO_USERS } from "../../apps/web/src/server/data/auth.ts";
 import { memoryMatterRepository } from "../../apps/web/src/server/repositories/memory/matter-repository.ts";
+import { getSignedOffAssessmentForHr } from "../../apps/web/src/server/data/assessments.ts";
+import { getExpenseLinesForHr } from "../../apps/web/src/server/data/matters.ts";
+import { resolvePinnedRulePack } from "../../apps/web/src/server/engine-invocation.ts";
+import { buildNoticeDraft, findAc17Violations } from "../../apps/web/src/domain/notice-draft.ts";
 
 const MATTERS_URL = "http://localhost/api/matters";
 const LEGAL_COOKIE = `${DEMO_ROLE_COOKIE}=LEGAL_REVIEWER`;
@@ -181,6 +185,90 @@ async function signOffFixture(assessmentId: string): Promise<Response> {
   );
 }
 
+// DOC-03/AC-17's route-level half needs a signed-off matter against the
+// REAL committed HK-PDPO and SG-PDPA packs (not merely a synthetic string),
+// so the scan is proven against actual pack content for both authored
+// jurisdictions, not only the pure unit fixtures in notice-draft.test.tsx.
+// Generalised beyond buildFixtureMatterAndAssessment (SG-only, and assumes
+// one line of each of the four verdicts): this builder disposes every line
+// by its own verdict (STRIKE if FLAG, ACCEPT otherwise) and signs off,
+// which works identically for any jurisdiction's stub-generated category
+// rules regardless of their specific treatments.
+interface SignedOffFixture {
+  matterId: string;
+}
+
+async function buildSignedOffMatter(jurisdictionCode: string, currency: string, referencePrefix: string): Promise<SignedOffFixture> {
+  matterCounter += 1;
+  const reference = `${referencePrefix}-${String(matterCounter).padStart(4, "0")}`;
+  const matterResponse = await createMatterRoute(
+    jsonRequest(
+      MATTERS_URL,
+      "POST",
+      { ...VALID_MATTER_INPUT_BASE, jurisdictionCode, currency, reference },
+      HR_COOKIE
+    )
+  );
+  const matter = (await matterResponse.json()) as { id: string };
+
+  for (const input of LINE_INPUTS) {
+    const response = await addLineRoute(jsonRequest(`${MATTERS_URL}/${matter.id}/lines`, "POST", input, HR_COOKIE), {
+      params: Promise.resolve({ id: matter.id }),
+    });
+    expect(response.status).toBe(201);
+  }
+
+  const submitResponse = await submitRoute(jsonRequest(`${MATTERS_URL}/${matter.id}/submit`, "POST", {}, HR_COOKIE), {
+    params: Promise.resolve({ id: matter.id }),
+  });
+  expect(submitResponse.status).toBe(200);
+  const assessment = (await submitResponse.json()) as FixtureAssessment;
+
+  for (const line of assessment.lines) {
+    if (line.verdict === "FLAG") {
+      await strikeLine(line.id);
+    } else {
+      await acceptLine(line.id);
+    }
+  }
+
+  const signoffResponse = await signOffFixture(assessment.id);
+  expect(signoffResponse.status).toBe(200);
+
+  return { matterId: matter.id };
+}
+
+// Rebuilds the exact notice the real HR page assembles (apps/web/app/hr/matters/[id]/page.tsx):
+// the same getSignedOffAssessmentForHr/getExpenseLinesForHr reads, the same
+// resultLines derivation, and the same buildNoticeDraft call against the
+// pinned pack's own requestorNoticeTemplate.
+async function buildRealNoticeForMatter(matterId: string): Promise<{ notice: string; basisStrings: string[] }> {
+  const assessment = await getSignedOffAssessmentForHr(DEMO_USERS.HR_PREPARER, matterId);
+  const expenseLines = await getExpenseLinesForHr(DEMO_USERS.HR_PREPARER, matterId);
+  const expenseLineById = new Map(expenseLines.map((line) => [line.id, line]));
+  const matter = await memoryMatterRepository.getMatter(matterId);
+  if (!matter) throw new Error("expected matter to exist");
+
+  const allowedLinesForNotice = assessment.lines
+    .filter((line) => line.disposition !== "STRUCK")
+    .map((line) => {
+      const expenseLine = expenseLineById.get(line.expenseLineId);
+      return { description: expenseLine?.description ?? "", amount: line.engineAmount };
+    });
+
+  const pack = resolvePinnedRulePack(assessment.rulePackId, assessment.rulePackVersion);
+  const notice = buildNoticeDraft({
+    template: pack.requestorNoticeTemplate,
+    amount: (assessment.totals.finalAmount ?? 0) as never,
+    currency: matter.currency,
+    allowedLines: allowedLinesForNotice as never,
+    matterReference: matter.reference,
+  });
+
+  const basisStrings = pack.categoryRules.map((rule) => rule.basis);
+  return { notice, basisStrings };
+}
+
 const ISO_INSTANT_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/;
 
 describe("NOTICE-OUTPUTS", () => {
@@ -229,5 +317,27 @@ describe("NOTICE-OUTPUTS", () => {
       { params: Promise.resolve({ id: assessment.matterId }) }
     );
     expect(noticeResponse.status).toBe(403);
+  });
+
+  // DOC-03/AC-17 — proven against the real committed pack content for both
+  // authored jurisdictions, not only the pure unit fixtures.
+  it("NOTICE-OUTPUTS: the real SG-PDPA-derived notice carries zero AC-17 violations and no pack basis string", async () => {
+    const { matterId } = await buildSignedOffMatter("SG", "SGD", "DSAR-NOTICEOUT-SG");
+    const { notice, basisStrings } = await buildRealNoticeForMatter(matterId);
+
+    expect(findAc17Violations(notice)).toEqual([]);
+    for (const basis of basisStrings) {
+      expect(notice).not.toContain(basis);
+    }
+  });
+
+  it("NOTICE-OUTPUTS: the real HK-PDPO-derived notice carries zero AC-17 violations and no pack basis string", async () => {
+    const { matterId } = await buildSignedOffMatter("HK", "HKD", "DSAR-NOTICEOUT-HK");
+    const { notice, basisStrings } = await buildRealNoticeForMatter(matterId);
+
+    expect(findAc17Violations(notice)).toEqual([]);
+    for (const basis of basisStrings) {
+      expect(notice).not.toContain(basis);
+    }
   });
 });
