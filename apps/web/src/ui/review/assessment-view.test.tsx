@@ -83,7 +83,7 @@ const LINE_DETAILS: AssessmentViewLineDetail[] = LINE_SPECS.map((spec, index) =>
   verificationStatus: "NEEDS_VERIFICATION",
 }));
 
-function renderView(): string {
+function renderView(overrides: Partial<React.ComponentProps<typeof AssessmentView>> = {}): string {
   return renderToStaticMarkup(
     React.createElement(AssessmentView, {
       assessment: buildAssessment(),
@@ -113,6 +113,7 @@ function renderView(): string {
         reviewDueOn: "2027-03-12",
         openQuestions: ["Is staff time costed at incremental cost, or at a loaded charge-out rate?"],
       },
+      ...overrides,
     })
   );
 }
@@ -165,6 +166,27 @@ describe("ASSESSMENT-VIEW", () => {
 
     expect(html).toContain("known dispute with the company");
     expect(html).toContain("Is staff time costed at incremental cost, or at a loaded charge-out rate?");
+  });
+
+  it("ASSESSMENT-VIEW: renders the internalRecordDownload slot when provided, in the same position signOffPanel occupies", () => {
+    const html = renderView({
+      internalRecordDownload: React.createElement("div", { "data-testid": "internal-record-download-stub" }),
+    });
+
+    expect(html).toContain('data-testid="internal-record-download-stub"');
+  });
+
+  it("ASSESSMENT-VIEW: renders the stalePackNotice slot above recomputeBanner when both are provided", () => {
+    const html = renderView({
+      stalePackNotice: React.createElement("div", { "data-testid": "stale-pack-notice-stub" }),
+      recomputeBanner: React.createElement("div", { "data-testid": "recompute-banner-stub" }),
+    });
+
+    const staleIndex = html.indexOf('data-testid="stale-pack-notice-stub"');
+    const recomputeIndex = html.indexOf('data-testid="recompute-banner-stub"');
+    expect(staleIndex).toBeGreaterThan(-1);
+    expect(recomputeIndex).toBeGreaterThan(-1);
+    expect(staleIndex).toBeLessThan(recomputeIndex);
   });
 
   // No test here for absence of a language-model-provenance badge or a

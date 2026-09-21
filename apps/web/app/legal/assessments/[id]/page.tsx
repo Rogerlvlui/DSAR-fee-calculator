@@ -37,6 +37,7 @@ import { RecomputeConfirm } from "../../../../src/ui/review/recompute-confirm.ts
 import { shouldRenderRecomputeBanner } from "../../../../src/domain/recompute-banner.ts";
 import { StalePackNotice } from "../../../../src/ui/review/stale-pack-notice.tsx";
 import { shouldRenderStalePackNotice } from "../../../../src/domain/stale-pack-notice.ts";
+import { InternalRecordDownload } from "../../../../src/ui/review/internal-record-download.tsx";
 
 export default async function LegalAssessmentPage({
   params,
@@ -79,7 +80,15 @@ export default async function LegalAssessmentPage({
   const showStalePackNotice = shouldRenderStalePackNotice(pack, now);
   const pendingCount = assessment.lines.filter((line) => line.disposition === "PENDING").length;
   let signOffPanel: ReactNode = null;
-  if (pendingCount === 0) {
+  let internalRecordDownload: ReactNode = null;
+  // ACCESS-05/07-UI-SPEC.md's placement rule: the download trigger is a
+  // secondary action that only ever appears once the primary "Sign off and
+  // release to HR" CTA has already fired and disappeared — replacing the
+  // sign-off panel in the same slot, never alongside it. Every earlier
+  // status keeps today's exact pendingCount-gated sign-off-panel behaviour.
+  if (matter.status === "SIGNED_OFF" || matter.status === "CLOSED") {
+    internalRecordDownload = <InternalRecordDownload assessmentId={assessment.id} />;
+  } else if (pendingCount === 0) {
     const tallies = computeReviewTallies(assessment.lines);
     // Same feeChoice-aware logic signOff() itself calls (CR-01) — the
     // preview shown here must never drift from what sign-off would
@@ -171,6 +180,7 @@ export default async function LegalAssessmentPage({
         }}
         bulkAcceptBar={<BulkAcceptBar assessmentId={assessment.id} eligibleLineIds={eligibleLineIds} />}
         signOffPanel={signOffPanel}
+        internalRecordDownload={internalRecordDownload}
         flatFeeChoice={
           <FlatFeeChoice
             assessmentId={assessment.id}
