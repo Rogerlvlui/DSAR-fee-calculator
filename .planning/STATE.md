@@ -2,17 +2,17 @@
 gsd_state_version: "1.0"
 current_phase: 07
 current_phase_name: Sign-off, Outputs and Edge States
-status: complete
-stopped_at: Phase 07 UI-SPEC approved
-last_updated: "2026-09-20T12:31:09.269Z"
-last_activity: 2026-09-20
-last_activity_desc: "Executed all 9 Phase 6 plans across 5 waves. Wave 1 (06-01 pack-coercion generalization + ENGINE-14 golden files against real HK/SG content; 06-02 verdict-badge accessible name + visual distinctness; 06-03 GET /api/assessments/{id} + ACCESS-02/03/07 leak-channel proofs + REVIEW-06). Wave 2 (06-04 route restructuring to real /hr/*, /legal/* segments incl. /legal/queue, with before/after getCurrentActor/requireRole grep-count proof on all six moved page.tsx files; 06-05 REASON_STOP_LIST wired into both server and client, stop-list checked BEFORE length — a documented deviation from the plan's literal ordering, since every stop-list entry is under the 10-char minimum and length-first would make the stop-list branch unreachable). Wave 3 (06-06 /legal/queue widened to INFO_REQUEST/CLOSED + pure queue-sort comparator + sort toggle; 06-07 Assessment.feeChoice + FEE_CHOICE_SET audit event + FlatFeeChoice UI + RecomputeConfirm banner). Wave 4 (06-08 pure keyboard-shortcuts map + shared ShortcutHelpOverlay + ReviewKeyboardScope (j/k/a/r/s/?) + QueueKeyboardScope (j/k/Enter/?), zero changes to disposition-controls.tsx's own internals). Wave 5 (06-09 regression sweep: REVIEW-01/02/04/12 proven against real HK data for the first time in this codebase's history; REVIEW-07's bulk-accept eligible set confirmed empty against both real packs for two distinct, separately-verified reasons). Discovered during Wave 5 that a concurrent process was actively fixing a real \"use client\"-boundary defect class in this shared worktree in real time (own Plan 06-07's RecomputeConfirm.tsx exported shouldRenderRecomputeBanner from a client module, called directly by a Server Component — the identical defect class Phase 05's humanizePackDisplayStatus had) — did not touch, stage, or interfere with that in-progress work; it completed and landed cleanly as commits a4f4df7/f903666 before this agent's own Wave 5 commits, verified via git show --stat that none of this agent's own commits were contaminated. gsd-tools.cjs remains unavailable in this worktree (same recurring gap as every prior phase) — STATE.md/ROADMAP.md/REQUIREMENTS.md all updated manually. THEN, a follow-up session ran an independent code-reviewer + security-auditor pass (06-REVIEW-ADDENDUM.md): the recurring authorization-gap bug class from Phases 3.1/4/5 did NOT recur this time (security audit SECURED, 20/20, 0 open) — genuine improvement — but the code-reviewer found CR-01 (Critical: the REVIEW-11 flat-fee-vs-itemised choice had zero effect on finalAmount — computeFinalAmount() never read assessment.feeChoice) plus WR-01 (fee-choice route accepted an unvalidated choice string) and WR-02 (legal assessment page bypassed the role-gated data layer for two reads — a smaller, not-currently-exploitable instance of the same recurring pattern) plus two minor items (dead code with a misleading comment; four stale doc-comment paths) and one docs cleanup (a leftover \"DEMO-ONLY TRANSFORM\" comment string the 06-01 plan's own acceptance criterion required removed). All 6 fixed directly across 6 atomic commits with 4 new regression tests; full suite 949 -> 953."
-state_head: 8a365d72b86b6b5235d45dbe682a4e91539e6a07
+status: in_progress
+stopped_at: Completed 07-01-PLAN.md (Wave 1 tracer)
+last_updated: "2026-09-21T15:10:00.000Z"
+last_activity: 2026-09-21
+last_activity_desc: "Executed Phase 7 Plan 07-01 (Wave 1 tracer): Task 1's blocking-human checkpoint (approve @react-pdf/renderer 4.9.0 into packages/documents only) was pre-resolved by the product owner before this run and not re-asked. Task 2 built the new @dsar/documents workspace package end to end — a pure internal-record-view.ts (no React/renderer/apps-web import, proven by its own source-scan test), the only-@react-pdf/renderer-importing internal-record-document.tsx (landscape A4, Helvetica, fixed footer band), and the first binary-body Route Handler in this codebase (GET /api/assessments/{id}/internal-record, LEGAL_REVIEWER-only, 409 before sign-off) — plus every scaffold surface a new package needs (vitest.config.ts documents project, root tsconfig.json reference, depcruise script, apps/web transpilePackages + workspace dependency). Two Rule-1 bugs fixed inline (getMatterForLegalReview imported from the wrong module; a Buffer/BodyInit TS6 type mismatch needing a Uint8Array copy) and one Rule-2 addition (internal-record-view.test.ts, not in the plan's own files list but required by its acceptance criteria). Task 3 wrote scripts/smoke-internal-record.mjs, which spawns the app's own dev server as a real child process and drives the full create-matter-to-signed-off-PDF path over real HTTP — the open upstream diegomura/react-pdf#3285 monorepo-import crash (07-RESEARCH.md Pitfall 4, the phase's single highest-risk technical unknown) did NOT reproduce, confirmed by two consecutive clean runs and a clean pnpm --filter @dsar/web build. Full suite 953 -> 962 passing; typecheck/depcruise/lint clean throughout. DOC-01/DOC-05/ACCESS-05 (this plan's own frontmatter requirements) deliberately left Pending in REQUIREMENTS.md — 07-04-PLAN.md and 07-05-PLAN.md's own frontmatter re-claim the same IDs for the dense line-item table and the download-trigger placement respectively; this plan discharges only the architecture and the role gate. gsd-tools.cjs remains unavailable in this worktree (same recurring gap as every prior phase) — STATE.md/ROADMAP.md updated manually."
+state_head: dc5d51343fba9e1523124de6cce76685e0c7f6a
 progress:
   total_phases: 10
   completed_phases: 1
   total_plans: 52
-  completed_plans: 43
+  completed_plans: 44
   percent: 0
 ---
 
@@ -23,14 +23,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-13)
 
 **Core value:** A lawyer can defend the output by saying "the engine applied rule HK-PDPO.STAFF_TIME_REDACT_EXEMPT, version 2026.09.1, authored by X on date Y, and struck the line" — never "the model assessed the claim."
-**Current focus:** Phase 06 — Convergence and Legal Review — FULLY EXECUTED (9/9 plans across 5 waves) AND its independent review addendum resolved (06-REVIEW-ADDENDUM.md: 1 Critical + 2 Warnings + 3 minor/docs findings, all fixed); all 19 phase requirements marked Complete in REQUIREMENTS.md; Phase 05 (HR Intake and Disclosure Shell) and Phase 04 (Workflow and Audit Backbone) remain fully closed out; 03.2 Database Boundary remains separately planned, runs concurrently per ROADMAP.md; next up is Phase 7 (Sign-off, Outputs and Edge States)
+**Current focus:** Phase 07 — Sign-off, Outputs and Edge States — IN PROGRESS. Plan 07-01 (Wave 1 tracer) executed: `packages/documents`, the internal-record PDF architecture, and the role-gated binary Route Handler all proven end to end, including a real-HTTP proof that the open upstream `@react-pdf/renderer` monorepo-import crash does not reproduce here. 5 of 6 Phase 7 plans remain (07-02, 07-03 in Wave 1; 07-04, 07-05 in Wave 2; 07-06 in Wave 3). Phase 06 (Convergence and Legal Review) remains fully closed out including its independent review addendum; 03.2 Database Boundary remains separately planned, runs concurrently per ROADMAP.md.
 
 ## Current Position
 
-Phase: 07 (Sign-off, Outputs and Edge States) — READY TO EXECUTE
-Plan: 9/9 complete — fully executed, independent review addendum resolved
-Status: Complete — ready for Phase 7
-Last activity: 2026-09-20 — Executed all 9 plans across 5 waves (see state_head commit and last_activity_desc above for the full per-wave account), THEN resolved 06-REVIEW-ADDENDUM.md's independent-followup findings (CR-01 flat-fee-choice-ignored, WR-01 unvalidated fee-choice body, WR-02 legal page bypassing role-gated reads, plus IN-01/IN-02/doc-cleanup). Full suite 838 -> 949 (execution) -> 953 (addendum) passing; typecheck/lint/depcruise clean after every commit. All 19 phase requirements (ENGINE-14, REVIEW-01..12, NAV-01, NAV-03, ACCESS-02/03/07, DISC-04) marked Complete in REQUIREMENTS.md; ROADMAP.md's Phase 6 entry and all 9 plan checkboxes marked complete.
+Phase: 07 (Sign-off, Outputs and Edge States) — IN PROGRESS
+Plan: 1/6 complete (07-01 done; 07-02 through 07-06 remaining)
+Status: In progress
+Last activity: 2026-09-21 — Executed Plan 07-01 (see state_head commit and last_activity_desc above for the full account). Full suite 953 -> 962 passing; typecheck/lint/depcruise clean after every commit. DOC-01/DOC-05/ACCESS-05 deliberately left Pending in REQUIREMENTS.md (split across 07-01/07-04/07-05 — see last_activity_desc); ROADMAP.md's 07-01-PLAN.md checkbox marked complete.
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -91,6 +91,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 04 P03 | 30min | 2 tasks | 7 files |
 | Phase 04 P04 | 130min | 3 tasks (10 commits) | 15 files |
 | Phase 04 P05 | 55min | 3 tasks | 9 files |
+| Phase 07 P01 | ~50min | 3 tasks (2 commits) | 17 files |
 
 ## Accumulated Context
 
@@ -258,6 +259,11 @@ None yet.
 
 - **PRODUCT-OWNER DECISION 2026-09-20: PACK-09's full category authoring is deferred; Phase 6 proceeds against the partial packs.** Before starting Phase 6 planning, research confirmed `.planning/REQUIREMENTS.md`'s PACK-09 row was mis-marked "Complete" — only 9/21 HK-PDPO and 6/15 SG-PDPA categories are actually authored with real content; the remaining 27 (12 HK + 15 SG) are `FLAG`/`NEEDS_VERIFICATION` stubs. Crucially, the PRD itself (§7.5, §7.6) explicitly instructs "do not invent them" for every one of the 27 — there is no PRD content to transcribe this time, unlike the first 15, so each is a genuine, original legal-content decision (treatment/cap/conditions/citation/basis) with nothing to fall back on. Presented three options to the product owner (author first, author as a Phase 6 Wave 0, or defer and plan against partial packs); **the product owner chose to defer** — Phase 6 planning and execution proceeds now against the 15 already-authored categories, with Phase 6's own success criterion 1 ("AC-09 golden files pass for both the HK and SG packs") **re-scoped for this pass to the categories that are actually authored**, not the full 21/15. The remaining category rules stay `FLAG` (a normal, already-correctly-handled engine state that a lawyer must disposition line by line per Phase 6's own review mechanics — REVIEW-01..12 do not depend on every category having non-FLAG content). Full PACK-09 completion is tracked below as a follow-up, not abandoned.
 
+- **[Phase 07 P01]: Task 1's blocking-human checkpoint (approve `@react-pdf/renderer` 4.9.0, installed into `packages/documents` only) was pre-resolved by the product owner before this execution run — treated as "approve" and not re-asked, per the orchestrator's explicit instruction.**
+- **[Phase 07 P01]: `@react-pdf/renderer`'s open upstream monorepo-import crash (diegomura/react-pdf#3285, 07-RESEARCH.md Pitfall 4) does NOT reproduce in this repo's Next.js 16.3.5 + Turbopack + pnpm-workspace shape** — proven by `scripts/smoke-internal-record.mjs` driving the full create-matter-to-signed-off-PDF path over real HTTP against the app's own dev server (not merely a Vitest-level route test, which bypasses Next's bundler entirely), run twice consecutively with clean teardown both times, plus a clean `pnpm --filter @dsar/web build`. The documented fallback (move the renderer call into `apps/web` as its own direct dependency) was NOT needed.
+- **[Phase 07 P01]: `packages/documents`'s exports map carries two explicit subpath keys (`./internal-record-view`, `./internal-record-document`) instead of the single `"./*"` wildcard every other workspace package in this monorepo uses** — a package with both a `.ts` and a `.tsx` source file cannot resolve both through one wildcard entry.
+- **[Phase 07 P01]: DOC-01, DOC-05 and ACCESS-05 deliberately left Pending in REQUIREMENTS.md after this plan**, even though they are this plan's own frontmatter `requirements` — `07-04-PLAN.md`'s frontmatter also claims DOC-01/DOC-05 (the dense line-item table, matter details and sign-off block this tracer's PDF deliberately omits) and `07-05-PLAN.md`'s frontmatter also claims ACCESS-05 (the download-trigger UI placement half). This plan discharges the architecture and the role gate only.
+
 ### Quick Tasks Completed
 
 | # | Description | Date | Commit | Directory |
@@ -278,7 +284,7 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-09-20T08:27:40.586Z
-Stopped at: Phase 07 UI-SPEC approved
-Resume file: .planning/phases/07-sign-off-outputs-and-edge-states/07-UI-SPEC.md
-Last activity: 2026-09-20 - Executed Phase 6 in full (9 plans, 5 waves); quick task 260920-kmd (server/client boundary fix) landed concurrently in the same worktree during Wave 5, verified not to have contaminated this agent's own commits. Then resolved the independent code-reviewer/security-auditor follow-up findings recorded in 06-REVIEW-ADDENDUM.md.
+Last session: 2026-09-21T15:10:00.000Z
+Stopped at: Completed 07-01-PLAN.md (Wave 1 tracer)
+Resume file: .planning/phases/07-sign-off-outputs-and-edge-states/07-02-PLAN.md
+Last activity: 2026-09-21 - Executed Phase 7 Plan 07-01: packages/documents workspace package, the internal-record PDF architecture, the role-gated binary Route Handler, and the real-HTTP smoke proof that @react-pdf/renderer's open monorepo-import crash does not reproduce here. See STATE.md frontmatter last_activity_desc and .planning/phases/07-sign-off-outputs-and-edge-states/07-01-SUMMARY.md for the full account. Next: 07-02-PLAN.md (the sign-off gate) and 07-03-PLAN.md (HR outputs), both Wave 1, parallelisable with each other.

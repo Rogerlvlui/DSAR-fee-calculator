@@ -319,7 +319,7 @@ Scope note: 03-05's `03-05-SUMMARY.md`/D-16 deferral is honoured here — succes
 Plans:
 **Wave 1**
 
-- [ ] 07-01-PLAN.md — Tracer: `packages/documents`, the pure record view, the `@react-pdf/renderer` document, the role-gated binary Route Handler, and an HTTP smoke test proving the upstream monorepo crash does not bite
+- [x] 07-01-PLAN.md — Tracer: `packages/documents`, the pure record view, the `@react-pdf/renderer` document, the role-gated binary Route Handler, and an HTTP smoke test proving the upstream monorepo crash does not bite (completed 2026-09-21 — no crash reproduced)
 - [ ] 07-02-PLAN.md — The sign-off gate: SIGNOFF-01's 409 naming the pending lines, SIGNOFF-02's matching 409, PACK-08's activation block, and SIGNOFF-04/ACCESS-04 proven
 - [ ] 07-03-PLAN.md — HR outputs: the DRAFT watermark gated on not-yet-sent, a date-only sent record, DOC-03's AC-17 scan, and DOC-04's zero-allowable outcome end to end
 
