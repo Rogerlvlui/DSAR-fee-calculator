@@ -20,6 +20,7 @@ import {
   signOffPayload,
   supersededPayload,
 } from "@dsar/audit/payload-builders";
+import { memoryPackLifecycleEventWriter } from "@dsar/audit/memory/pack-lifecycle-event-writer";
 import { recordAuditEvent } from "../audit-trail.ts";
 import { buildGuardInput } from "../guard-input.ts";
 import { evaluateTransition } from "@dsar/workflow/evaluate-transition";
@@ -462,6 +463,31 @@ export async function signOff(
     throw new ValidationError("Qualification is required before sign-off");
   }
 
+  const pack = resolvePinnedRulePack(assessment.rulePackId, assessment.rulePackVersion); // real, uncoerced — never the ACTIVE-coerced copy
+
+  // PACK-08 / AC-41b — a specific, human-readable early refusal, following
+  // this file's own precedent (the STRUCTURAL guard comment below), sitting
+  // ahead of it rather than threading pack-activation-actor data through
+  // the frozen 11-member GuardInput, which structurally cannot carry it.
+  // Query packages/audit's own canonical pack-lifecycle stream — the single
+  // source of truth for "who last activated this pack version" — rather
+  // than building a second, parallel answer. Compared by exact UserRef.id
+  // string equality only: never displayName, never role, never case-
+  // folded or trimmed, since a looser comparison would silently widen or
+  // narrow who is blocked.
+  const lifecycleEvents = await memoryPackLifecycleEventWriter.listByPack(
+    assessment.rulePackId,
+    assessment.rulePackVersion
+  );
+  const lastActivation = [...lifecycleEvents].reverse().find((event) => event.type === "PACK_ACTIVATED");
+  if (lastActivation && lastActivation.actor.id === actor.user.id) {
+    throw new ForbiddenError(
+      `Blocked — you activated rule pack ${assessment.rulePackId} ${assessment.rulePackVersion} in this session. ` +
+        `Sign-off by the same person who activated the pack is not permitted; ask another reviewer with the ` +
+        `Legal Reviewer role to sign off this assessment instead.`
+    );
+  }
+
   // Only now — every condition met — do we compute anything or write
   // anything. This is the only module in the codebase that writes
   // finalAmount, and it is never derived from the draft baseline. The
@@ -474,7 +500,6 @@ export async function signOff(
     assessment.totals.flatFeeComparison ?? null
   );
 
-  const pack = resolvePinnedRulePack(assessment.rulePackId, assessment.rulePackVersion); // real, uncoerced — never the ACTIVE-coerced copy
   const now = new Date().toISOString();
   const packIsStale = deriveEffectiveStatus(pack, now) === "STALE";
   const attestationText = renderAttestation({
