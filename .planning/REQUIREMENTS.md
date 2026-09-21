@@ -120,15 +120,15 @@
 - [x] **SIGNOFF-02**: Sign-off is blocked until every matter-level flag requiring acknowledgement appears in `acknowledgedFlags` (AC-24)
 - [ ] **SIGNOFF-03**: The attestation is recorded verbatim by version, with the extended wording appended where the pack is `STALE` (§9.5)
 - [x] **SIGNOFF-04**: Sign-off records the lawyer, name, qualification, timestamp, final amount and pinned pack version (§6.4)
-- [ ] **SIGNOFF-05**: HR sees the signed-off figure, the reviewing lawyer, and both allowed and struck items with their plain-language basis (§10.4)
-- [ ] **SIGNOFF-06**: HR can mark the notice sent, recording the date only, with a visible note that the tool emails nobody (§10.4, NS-3)
+- [x] **SIGNOFF-05**: HR sees the signed-off figure, the reviewing lawyer, and both allowed and struck items with their plain-language basis (§10.4)
+- [x] **SIGNOFF-06**: HR can mark the notice sent, recording the date only, with a visible note that the tool emails nobody (§10.4, NS-3)
 
 ### Documents
 
 - [ ] **DOC-01**: The internal fee assessment record generates as a PDF carrying matter details, pack and engine version, every line with verdict, rule, basis, citation, disposition and lawyer's reason, matter flags, and the sign-off block with verbatim attestation (AC-18)
-- [ ] **DOC-02**: The requestor-facing notice generates as copy-to-clipboard text from the pack's template, watermarked DRAFT until HR marks it sent (§10.4, §10.5)
-- [ ] **DOC-03**: The requestor notice contains no rule ID, no citation, no basis string and no mention of AI or of this tool, asserted by regex over the generated text (AC-17)
-- [ ] **DOC-04**: A zero-allowable outcome produces a valid notice stating that no fee is charged, treated as a normal result rather than an error (AC-14)
+- [x] **DOC-02**: The requestor-facing notice generates as copy-to-clipboard text from the pack's template, watermarked DRAFT until HR marks it sent (§10.4, §10.5)
+- [x] **DOC-03**: The requestor notice contains no rule ID, no citation, no basis string and no mention of AI or of this tool, asserted by regex over the generated text (AC-17)
+- [x] **DOC-04**: A zero-allowable outcome produces a valid notice stating that no fee is charged, treated as a normal result rather than an error (AC-14)
 - [ ] **DOC-05**: Every page of the internal record carries the disclosure footer naming pack version, engine version, AI-drafted paragraphs and the signing lawyer (§10.5)
 
 ### Audit
@@ -322,12 +322,12 @@ Every v1 requirement maps to exactly one phase in `.planning/ROADMAP.md`.
 | SIGNOFF-02 | Phase 7 | Complete |
 | SIGNOFF-03 | Phase 7 | Pending |
 | SIGNOFF-04 | Phase 7 | Complete |
-| SIGNOFF-05 | Phase 7 | Pending |
-| SIGNOFF-06 | Phase 7 | Pending |
+| SIGNOFF-05 | Phase 7 | Complete |
+| SIGNOFF-06 | Phase 7 | Complete |
 | DOC-01 | Phase 7 | Pending |
-| DOC-02 | Phase 7 | Pending |
-| DOC-03 | Phase 7 | Pending |
-| DOC-04 | Phase 7 | Pending |
+| DOC-02 | Phase 7 | Complete |
+| DOC-03 | Phase 7 | Complete |
+| DOC-04 | Phase 7 | Complete |
 | DOC-05 | Phase 7 | Pending |
 | AUDIT-01 | Phase 4 | Complete |
 | AUDIT-02 | Phase 3.2 | Pending |

@@ -96,4 +96,41 @@ describe("HR-RESULT", () => {
     expect(zero).toMatch(/<h1 class="screen" data-testid="result-headline">Fee assessed: .*0\.00<\/h1>/);
     expect(nonZero).toMatch(/<h1 class="screen" data-testid="result-headline">Fee assessed: .*[\d.]+<\/h1>/);
   });
+
+  // DOC-04's presentation-equivalence property, proven directly rather than
+  // merely inferred from a regex that happens to match both: the headline
+  // element's own opening tag — testid and className — must be byte-for-byte
+  // identical between a zero-amount and a non-zero-amount render, not merely
+  // "a zero appears somewhere in a similarly-shaped tag".
+  it("HR-RESULT: the headline element's testid and className are identical between a zero-amount and a non-zero-amount render", () => {
+    const zero = render({
+      finalAmount: 0 as never,
+      lines: LINES.map((line) => ({ ...line, struck: true, amount: 0 as never })),
+    });
+    const nonZero = render();
+
+    const headlineOpenTag = /<h1[^>]*>/;
+    const zeroOpenTag = zero.match(headlineOpenTag)?.[0];
+    const nonZeroOpenTag = nonZero.match(headlineOpenTag)?.[0];
+
+    expect(zeroOpenTag).toBeTruthy();
+    expect(zeroOpenTag).toBe(nonZeroOpenTag);
+    expect(zeroOpenTag).toContain('class="screen"');
+    expect(zeroOpenTag).toContain('data-testid="result-headline"');
+  });
+
+  // SIGNOFF-05: an amount-based distinction is impossible here on purpose —
+  // both lines carry zero — so the outcome marker (data-outcome) is what
+  // must differ.
+  it("HR-RESULT: a struck zero-amount line and an allowed zero-amount line render with different outcome markers", () => {
+    const html = render({
+      lines: [
+        { ...LINES[0]!, struck: false, amount: 0 as never },
+        { ...LINES[1]!, struck: true, amount: 0 as never },
+      ],
+    });
+
+    expect(html).toContain('data-outcome="allowed"');
+    expect(html).toContain('data-outcome="struck"');
+  });
 });
