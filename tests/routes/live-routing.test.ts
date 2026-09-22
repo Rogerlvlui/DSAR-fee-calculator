@@ -47,6 +47,7 @@ import { POST as submitRoute } from "../../apps/web/app/api/matters/[id]/submit/
 import { POST as dispositionRoute } from "../../apps/web/app/api/assessment-lines/[id]/disposition/route.ts";
 import { POST as bulkAcceptRoute } from "../../apps/web/app/api/assessments/[id]/bulk-accept/route.ts";
 import { POST as signoffRoute } from "../../apps/web/app/api/assessments/[id]/signoff/route.ts";
+import { GET as internalRecordRoute } from "../../apps/web/app/api/assessments/[id]/internal-record/route.ts";
 import { DEMO_ROLE_COOKIE } from "../../apps/web/src/server/data/auth.ts";
 import {
   REFERENCE_MATTER_INPUT,
@@ -63,6 +64,10 @@ function jsonRequest(url: string, method: string, body: unknown, cookie?: string
   const headers: Record<string, string> = { "content-type": "application/json" };
   if (cookie) headers.cookie = cookie;
   return new Request(url, { method, headers, body: JSON.stringify(body) });
+}
+
+function getRequest(url: string, cookie: string): Request {
+  return new Request(url, { method: "GET", headers: { cookie } });
 }
 
 function findSourceFiles(dir: string, extensions: string[]): string[] {
@@ -186,5 +191,78 @@ describe("LIVE-ROUTING: colon-bearing ids decode correctly", () => {
     // found the real assessment by its decoded id, not that sign-off itself
     // succeeds.
     expect(response.status).toBe(409);
+  });
+
+  // WR-03 (07-REVIEW.md): the internal-record route's own header comment
+  // says it "copies the sign-off route's control flow" — including the
+  // decodeURIComponent(rawId) step — specifically to avoid this project's
+  // own recorded colon-bearing-id 404 bug class. Every case above proves
+  // that decode step for bulk-accept/disposition/signoff; this case proves
+  // it for internal-record too, the one route this suite previously missed.
+  it("LIVE-ROUTING: a percent-encoded assessment id reaches internal-record (200/PDF, not a 404) — proves the id resolved", async () => {
+    // Not createSubmittedMatter (REFERENCE_MATTER_INPUT carries
+    // isKnownDisputeOrLitigation: true, which raises a matter-level flag
+    // requiring acknowledgement at sign-off — an orthogonal concern this
+    // routing-only regression test has no need to exercise).
+    const matterResponse = await createMatterRoute(
+      jsonRequest(MATTERS_URL, "POST", { ...REFERENCE_MATTER_INPUT, reference: "DSAR-ROUTING-0004", isKnownDisputeOrLitigation: false })
+    );
+    expect(matterResponse.status).toBe(201);
+    const matter = (await matterResponse.json()) as { id: string };
+
+    for (const lineInput of REFERENCE_FIXTURE_LINE_INPUTS) {
+      const lineResponse = await addLineRoute(jsonRequest(`${MATTERS_URL}/${matter.id}/lines`, "POST", lineInput), {
+        params: Promise.resolve({ id: matter.id }),
+      });
+      expect(lineResponse.status).toBe(201);
+    }
+
+    const submitResponse = await submitRoute(jsonRequest(`${MATTERS_URL}/${matter.id}/submit`, "POST", {}), {
+      params: Promise.resolve({ id: matter.id }),
+    });
+    expect(submitResponse.status).toBe(200);
+    const assessment = (await submitResponse.json()) as {
+      id: string;
+      lines: { id: string; verdict: string }[];
+    };
+
+    // Every line needs a real disposition before sign-off will succeed —
+    // ACCEPT for anything not FLAG/ALLOW_CAPPED, STRIKE for FLAG,
+    // REDUCE for ALLOW_CAPPED, mirroring tests/routes/internal-record.test.ts's
+    // own dispositionAllLines helper.
+    for (const line of assessment.lines) {
+      const encodedLineId = encodeURIComponent(line.id);
+      const body =
+        line.verdict === "FLAG"
+          ? { action: "STRIKE", reason: "Struck during routing regression fixture setup." }
+          : line.verdict === "ALLOW_CAPPED"
+            ? { action: "REDUCE", amountMinor: 1, reason: "Reduced during routing regression fixture setup." }
+            : { action: "ACCEPT", reason: "Accepted during routing regression fixture setup." };
+      const dispositionResponse = await dispositionRoute(
+        jsonRequest(`http://localhost/api/assessment-lines/${encodedLineId}/disposition`, "POST", body, LEGAL_COOKIE),
+        { params: Promise.resolve({ id: encodedLineId }) }
+      );
+      expect(dispositionResponse.status).toBe(200);
+    }
+
+    const encodedId = encodeURIComponent(assessment.id);
+    const signoffResponse = await signoffRoute(
+      jsonRequest(
+        `http://localhost/api/assessments/${encodedId}/signoff`,
+        "POST",
+        { qualification: "Advocate & Solicitor, Singapore", acknowledgedFlags: [], attestation: true },
+        LEGAL_COOKIE
+      ),
+      { params: Promise.resolve({ id: encodedId }) }
+    );
+    expect(signoffResponse.status).toBe(200);
+
+    const response = await internalRecordRoute(
+      getRequest(`http://localhost/api/assessments/${encodedId}/internal-record`, LEGAL_COOKIE),
+      { params: Promise.resolve({ id: encodedId }) }
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("content-type")).toBe("application/pdf");
   });
 });
