@@ -24,12 +24,16 @@ export const PERSONAL_DATA_DENY_LIST = [
 
 // PRD §12.1 free-text field caps: ExpenseLine.description (300),
 // ExpenseLine.hrNote (500), Matter.identityVerifiedNote (200),
-// AssessmentLine.lawyerReason (1000).
+// AssessmentLine.lawyerReason (1000), SignOff.qualification (200 — WR-02,
+// 07-REVIEW.md: the only sign-off free-text field that previously had no
+// upper bound at all, added at the same magnitude as identityVerifiedNote
+// since a realistic professional-qualification string is comparably short).
 export const FREE_TEXT_LIMITS = {
   description: 300,
   hrNote: 500,
   identityVerifiedNote: 200,
   lawyerReason: 1000,
+  qualification: 200,
 } as const;
 
 // AC-32(a)'s canonical banned-word list, transcribed verbatim (PRD §10.1 /

@@ -158,7 +158,9 @@ export type Totals = z.infer<typeof TotalsSchema>;
 export const SignOffSchema = z.object({
   lawyer: UserRefSchema,
   lawyerName: z.string(),
-  qualification: z.string(),
+  // WR-02 (07-REVIEW.md): the only sign-off free-text field with no upper
+  // bound at all, capped the same way AssessmentLine.lawyerReason is above.
+  qualification: z.string().max(FREE_TEXT_LIMITS.qualification),
   signedAt: IsoDateTimeSchema,
   finalAmount: MinorSchema,
   acknowledgedFlags: z.array(z.string()),

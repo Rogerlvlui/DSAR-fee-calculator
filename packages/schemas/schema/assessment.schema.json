@@ -444,7 +444,8 @@
               "type": "string"
             },
             "qualification": {
-              "type": "string"
+              "type": "string",
+              "maxLength": 200
             },
             "signedAt": {
               "type": "string",

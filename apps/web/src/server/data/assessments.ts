@@ -462,6 +462,12 @@ export async function signOff(
   if (qualification.length === 0) {
     throw new ValidationError("Qualification is required before sign-off");
   }
+  // WR-02 (07-REVIEW.md) — qualification was the only sign-off free-text
+  // field with no upper bound; enforced the same way assertSufficientReason
+  // enforces FREE_TEXT_LIMITS.lawyerReason.
+  if (qualification.length > FREE_TEXT_LIMITS.qualification) {
+    throw new ValidationError(`Qualification must not exceed ${FREE_TEXT_LIMITS.qualification} characters`);
+  }
 
   const pack = resolvePinnedRulePack(assessment.rulePackId, assessment.rulePackVersion); // real, uncoerced — never the ACTIVE-coerced copy
 

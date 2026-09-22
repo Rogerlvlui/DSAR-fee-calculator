@@ -347,6 +347,42 @@ describe("SIGNOFF", () => {
     expect(stored?.signOff).toBeNull();
   });
 
+  // WR-02 (07-REVIEW.md): qualification was the only sign-off free-text
+  // field with no upper bound at all — now capped at FREE_TEXT_LIMITS.qualification (200).
+  it("WR-02: sign-off with a qualification exceeding the 200-character cap is refused and stores nothing", async () => {
+    const assessment = await buildFixtureAssessment();
+    await dispositionAllLines(assessment);
+
+    const response = await signoffRoute(
+      jsonRequest(`${SIGNOFF_URL}/${assessment.id}/signoff`, "POST", {
+        ...VALID_SIGNOFF_INPUT,
+        qualification: "A".repeat(201),
+      }),
+      { params: Promise.resolve({ id: assessment.id }) }
+    );
+    expect(response.status).toBe(400);
+
+    const stored = await storedAssessment(assessment.id);
+    expect(stored?.signOff).toBeNull();
+  });
+
+  it("WR-02: sign-off with a qualification at exactly the 200-character cap is accepted", async () => {
+    const assessment = await buildFixtureAssessment();
+    await dispositionAllLines(assessment);
+
+    const response = await signoffRoute(
+      jsonRequest(`${SIGNOFF_URL}/${assessment.id}/signoff`, "POST", {
+        ...VALID_SIGNOFF_INPUT,
+        qualification: "A".repeat(200),
+      }),
+      { params: Promise.resolve({ id: assessment.id }) }
+    );
+    expect(response.status).toBe(200);
+
+    const stored = await storedAssessment(assessment.id);
+    expect(stored?.signOff?.qualification).toBe("A".repeat(200));
+  });
+
   it("SIGNOFF: sign-off carrying the HR role cookie is refused with 403, changes nothing, and the body carries no assessment content (ACCESS-04)", async () => {
     const assessment = await buildFixtureAssessment();
     await dispositionAllLines(assessment);
