@@ -350,13 +350,6 @@ body {
     color: var(--color-ink-3);
   }
 
-  .confirmed {
-    background-color: var(--color-ok-wash);
-    color: var(--color-ok);
-    padding: var(--spacing-sm);
-    border-radius: 8px;
-  }
-
   .summary-row {
     display: flex;
     flex-wrap: wrap;
