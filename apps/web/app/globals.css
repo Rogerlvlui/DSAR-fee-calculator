@@ -293,15 +293,6 @@ body {
     padding: var(--spacing-2xl);
   }
 
-  .card-ok {
-    border-color: color-mix(in oklab, var(--color-ok) 40%, var(--color-surface));
-  }
-
-  .card-ok .card-ok-label {
-    color: var(--color-ok);
-    font-weight: 600;
-  }
-
   /* AC-39/PRD §0 non-negotiable #4: the decided state is already expressed
      in the line card's own data-disposition attribute — the confirmation
      ground needs no new markup, only a rule keyed to it. `disposition` is
