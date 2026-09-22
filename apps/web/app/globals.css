@@ -312,7 +312,13 @@ body {
      the badge's own visible text (VERDICT_LABELS) and aria-label carry the
      verdict regardless of this rule; the tint is a secondary reinforcement
      keyed to the SAME article[data-verdict] attribute line-card.tsx already
-     sets, so no new markup is needed to differentiate it by verdict. */
+     sets, so no new markup is needed to differentiate it by verdict.
+     Structural properties only, deliberately no default tint here: Verdict
+     is a closed four-value enum and the four article[data-verdict="..."]
+     rules below cover all of it, so a base deny-tinted fallback could never
+     be the winning rule for a real line card — worse, it would silently
+     read as "not supported" for any future fifth verdict added without a
+     matching override, rather than visibly failing unstyled. */
   .pill {
     display: inline-block;
     font-size: var(--text-label);
@@ -320,8 +326,6 @@ body {
     font-weight: var(--text-label--font-weight);
     padding: var(--spacing-2xs) var(--spacing-sm);
     border-radius: 999px;
-    background-color: var(--color-deny-wash);
-    color: var(--color-deny);
   }
 
   article[data-verdict="FLAG"] .pill {
