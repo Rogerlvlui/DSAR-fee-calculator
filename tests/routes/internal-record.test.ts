@@ -32,10 +32,8 @@ import { POST as addLineRoute } from "../../apps/web/app/api/matters/[id]/lines/
 import { POST as submitRoute } from "../../apps/web/app/api/matters/[id]/submit/route.ts";
 import { POST as dispositionRoute } from "../../apps/web/app/api/assessment-lines/[id]/disposition/route.ts";
 import { POST as signoffRoute } from "../../apps/web/app/api/assessments/[id]/signoff/route.ts";
-import {
-  GET as internalRecordRoute,
-  buildInternalRecordContentDisposition,
-} from "../../apps/web/app/api/assessments/[id]/internal-record/route.ts";
+import { GET as internalRecordRoute } from "../../apps/web/app/api/assessments/[id]/internal-record/route.ts";
+import { buildInternalRecordContentDisposition } from "../../apps/web/src/domain/internal-record-content-disposition.ts";
 import { ATTESTATION_TEMPLATE_VERSION, renderAttestation } from "../../apps/web/src/domain/attestation.ts";
 import { DEMO_ROLE_COOKIE, resolveActorFromCookieHeader } from "../../apps/web/src/server/data/auth.ts";
 import { getAssessmentForLegalReview } from "../../apps/web/src/server/data/assessments.ts";
