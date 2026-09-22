@@ -304,9 +304,16 @@ body {
 
   /* AC-39/PRD §0 non-negotiable #4: the decided state is already expressed
      in the line card's own data-disposition attribute — the confirmation
-     ground needs no new markup, only a rule keyed to it. Never applies
-     while data-disposition is empty (a still-PENDING line). */
-  article.card[data-disposition]:not([data-disposition=""]) {
+     ground needs no new markup, only a rule keyed to it. `disposition` is
+     a closed five-value enum (PENDING, ACCEPTED, REDUCED, STRUCK,
+     ALLOWED_BY_LAWYER) and PENDING is never an empty string, so this must
+     name the four decided values explicitly rather than testing for
+     attribute presence/non-emptiness — never applies while
+     data-disposition="PENDING". */
+  article.card[data-disposition="ACCEPTED"],
+  article.card[data-disposition="REDUCED"],
+  article.card[data-disposition="STRUCK"],
+  article.card[data-disposition="ALLOWED_BY_LAWYER"] {
     background-color: var(--color-ok-wash);
   }
 
