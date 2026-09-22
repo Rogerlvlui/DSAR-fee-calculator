@@ -18,6 +18,8 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import postcss from "postcss";
+import tailwindPostcss from "@tailwindcss/postcss";
 
 const GLOBALS_CSS_PATH = path.resolve(fileURLToPath(import.meta.url), "../globals.css");
 
@@ -42,5 +44,24 @@ describe("GLOBALS-CSS", () => {
 
     expect(matchedDispositions).not.toContain("PENDING");
     expect(matchedDispositions.sort()).toEqual(["ACCEPTED", "ALLOWED_BY_LAWYER", "REDUCED", "STRUCK"].sort());
+  });
+
+  it("GLOBALS-CSS CR-02: a rule exists for .summary-row[data-indent] and applies a non-zero spacing-token indent", async () => {
+    const source = readFileSync(GLOBALS_CSS_PATH, "utf-8");
+    const result = await postcss([tailwindPostcss()]).process(source, {
+      from: GLOBALS_CSS_PATH,
+    });
+    const css = result.css;
+
+    const ruleMatch = /\.summary-row\[data-indent="true"\]\s*\{[^}]*\}/.exec(css);
+    expect(ruleMatch).not.toBeNull();
+    expect(ruleMatch![0]).toMatch(/padding-inline-start:\s*var\(--spacing-\w+\)/);
+
+    document.body.innerHTML = [
+      '<div class="summary-row" data-indent="true"></div>',
+      '<div class="summary-row"></div>',
+    ].join("\n");
+    const indented = document.querySelectorAll('.summary-row[data-indent="true"]');
+    expect(indented.length).toBe(1);
   });
 });

@@ -383,6 +383,14 @@ body {
     flex-basis: 100%;
   }
 
+  /* totals-rail.tsx's own header comment: this indentation is load-bearing,
+     not decorative (PRD §10.3) — without it, "resting on unverified rules"
+     and "excluded from every total" read as a fourth/fifth top-level
+     figure rather than a sub-total of the row above them. */
+  .summary-row[data-indent="true"] {
+    padding-inline-start: var(--spacing-lg);
+  }
+
   .summary-row dd,
   .summary-total dd {
     font-family: var(--font-mono);
