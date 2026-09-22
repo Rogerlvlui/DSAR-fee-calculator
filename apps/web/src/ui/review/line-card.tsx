@@ -97,29 +97,32 @@ export function LineCard({
       data-disposition={line.disposition}
       data-line-id={line.id}
       tabIndex={-1}
-      className="focus:outline-2 focus:outline-seal"
+      className="card focus:outline-2 focus:outline-seal flex flex-col gap-sm"
     >
-      <div data-testid="card-head">
-        <span data-testid="verdict-badge" aria-label={VERDICT_LABELS[line.verdict]}>
+      <div data-testid="card-head" className="row">
+        <span data-testid="verdict-badge" aria-label={VERDICT_LABELS[line.verdict]} className="pill">
           {VERDICT_LABELS[line.verdict]}
         </span>
-        <span data-testid="line-seq"> Line {seq}</span>
-        <span data-testid="card-title"> {categoryLabel}</span>
+        <span data-testid="line-seq" className="kicker">
+          {" "}
+          Line {seq}
+        </span>
+        <span data-testid="card-title" className="font-serif text-heading"> {categoryLabel}</span>
       </div>
 
       <div data-testid="hr-description">
-        <span>HR's description{categoryChosenByHr ? " · category chosen by HR" : ""}</span>
+        <span className="hint">HR's description{categoryChosenByHr ? " · category chosen by HR" : ""}</span>
         <q>{description}</q>
       </div>
 
-      <div data-testid="claimed-arithmetic">
+      <div data-testid="claimed-arithmetic" className="fig">
         Claimed {quantity} {UNIT_LABELS[unit]} × {formatMinor(unitRate, currency)} ={" "}
         {formatMinor(claimedAmount, currency)}
         {line.verdict !== "FLAG" ? <> → {formatMinor(line.engineAmount, currency)}</> : null}
       </div>
 
       {line.verdict === "FLAG" && line.flagReasons.length > 0 ? (
-        <div data-testid="why-this-needs-you">
+        <div data-testid="why-this-needs-you" className="why">
           <h4>Why this needs you</h4>
           <ul>
             {line.flagReasons.map((reason, index) => (
@@ -129,7 +132,7 @@ export function LineCard({
         </div>
       ) : null}
 
-      <div data-testid="provenance">
+      <div data-testid="provenance" className="hint">
         <div data-testid="applied-rule-id">
           {line.appliedRuleId}
           {verificationStatus === "NEEDS_VERIFICATION" ? (
@@ -140,7 +143,7 @@ export function LineCard({
           ) : null}
         </div>
         <div data-testid="basis">{line.basis}</div>
-        <div data-testid="citation">
+        <div data-testid="citation" className="fig">
           <b>Citation:</b> {formatCitation(line.citation)}
         </div>
       </div>

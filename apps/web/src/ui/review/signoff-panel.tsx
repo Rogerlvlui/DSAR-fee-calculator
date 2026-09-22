@@ -81,33 +81,34 @@ export function SignOffPanelView({
   const disabled = pending || unacknowledged.length > 0;
 
   return (
-    <div data-testid="signoff-panel">
+    <div data-testid="signoff-panel" className="card">
+      <div className="eyebrow">Sign off</div>
       <dl data-testid="signoff-tally">
-        <div>
+        <div className="summary-row">
           <dt>Accepted as assessed</dt>
           <dd data-testid="signoff-accepted">{tallies.accepted}</dd>
         </div>
-        <div>
+        <div className="summary-row">
           <dt>Reduced by you</dt>
           <dd data-testid="signoff-reduced">{tallies.reduced}</dd>
         </div>
-        <div>
+        <div className="summary-row">
           <dt>Struck by you</dt>
           <dd data-testid="signoff-struck">{tallies.struck}</dd>
         </div>
-        <div>
+        <div className="summary-row">
           <dt>Allowed by you</dt>
           <dd data-testid="signoff-lawyer-allowed">{tallies.lawyerAllowed}</dd>
         </div>
-        <div>
+        <div className="summary-total">
           <dt>Final fee</dt>
           <dd data-testid="signoff-final-amount">{formatMinor(finalAmount, currency)}</dd>
         </div>
       </dl>
 
       {flagsRequiringAck.map((flag) => (
-        <div key={flag.id} data-testid="signoff-ack-row">
-          <label>
+        <div key={flag.id} data-testid="signoff-ack-row" className="why">
+          <label className="flex items-center gap-xs">
             <input
               type="checkbox"
               data-testid="signoff-ack-checkbox"
@@ -123,18 +124,22 @@ export function SignOffPanelView({
         </div>
       ))}
 
-      <div data-testid="signoff-attestation">
+      <div data-testid="signoff-attestation" className="why">
         <p>{attestationText}</p>
-        {reviewedOnNotRecorded ? <p data-testid="signoff-reviewed-on-note">{REVIEWED_ON_NOT_RECORDED_NOTE}</p> : null}
+        {reviewedOnNotRecorded ? (
+          <p data-testid="signoff-reviewed-on-note" className="hint">
+            {REVIEWED_ON_NOT_RECORDED_NOTE}
+          </p>
+        ) : null}
       </div>
 
-      <div data-testid="signoff-signatory">
-        <label>
-          <span>Lawyer</span>
+      <div data-testid="signoff-signatory" className="flex flex-col gap-xs">
+        <label className="flex flex-col gap-2xs">
+          <span className="hint">Lawyer</span>
           <input type="text" value={lawyerName} readOnly />
         </label>
-        <label>
-          <span>Qualification</span>
+        <label className="flex flex-col gap-2xs">
+          <span className="hint">Qualification</span>
           <input
             type="text"
             data-testid="signoff-qualification"
@@ -145,15 +150,17 @@ export function SignOffPanelView({
         </label>
       </div>
 
-      <button type="button" data-testid="signoff-submit" disabled={disabled} onClick={onSubmit}>
+      <button type="button" data-testid="signoff-submit" disabled={disabled} className="btn btn-primary" onClick={onSubmit}>
         {SIGN_OFF_CTA}
       </button>
       {unacknowledged.length > 0 ? (
-        <span data-testid="signoff-blocking-reason">{SIGN_OFF_BLOCKING_REASON}</span>
+        <span data-testid="signoff-blocking-reason" className="hint stern">
+          {SIGN_OFF_BLOCKING_REASON}
+        </span>
       ) : null}
 
       {error ? (
-        <p role="alert" data-testid="signoff-error">
+        <p role="alert" data-testid="signoff-error" className="hint stern">
           {signOffFailureMessage(error)}
         </p>
       ) : null}

@@ -17,7 +17,13 @@
  * block, declared but unused, so a later phase can wire dark mode without a
  * rename. No dark-mode interface is built this phase — light mode only.
  *
- * Later plans consume these tokens and must not add to this file.
+ * This file has two parts. The @theme block above is frozen — closed to
+ * additions, exactly as it always was. Below the body rule is a
+ * @layer components block (260922-jr4): every declaration in it consumes
+ * the tokens declared above (var(--color-*), var(--spacing-*),
+ * var(--text-*), var(--font-*)) and introduces no new theme entry and no
+ * new literal colour. Border radius, border width and box-shadow are the
+ * only raw literals in it, since the theme declares no token for them.
  */
 
 @import "tailwindcss";
@@ -126,4 +132,355 @@ body {
   background-color: var(--color-ground);
   color: var(--color-ink);
   font-family: var(--font-sans);
+}
+
+/* ==========================================================================
+   Component layer (260922-jr4)
+
+   Two families. Family one rescues the nineteen bespoke class names already
+   present in this app's markup that no stylesheet has ever defined — every
+   one of them resolves here, from tokens only. Family two is the mockup's
+   own visual language (docs/dsar-fee-agent-mockup.html), applied under new
+   names: card, eyebrow, summary-row/summary-total, the three-tier button
+   set, page and review-grid. No selector below introduces a new @theme
+   token or a new literal colour — every colour is var(--color-*), every
+   space is var(--spacing-*), every typographic role is var(--text-*)/
+   var(--font-*). Radius, border width and box-shadow are plain literals,
+   since the theme declares no token for any of the three.
+   ========================================================================== */
+
+@layer components {
+  /* ---- Family one: the nineteen orphaned class names ---- */
+
+  .screen {
+    font-family: var(--font-serif);
+    font-size: var(--text-display);
+    line-height: var(--text-display--line-height);
+    font-weight: var(--text-display--font-weight);
+    letter-spacing: var(--text-display--letter-spacing);
+    color: var(--color-ink);
+  }
+
+  .caption {
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    color: var(--color-ink-3);
+  }
+
+  .kicker {
+    display: inline-block;
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+    font-weight: var(--text-label--font-weight);
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--color-seal);
+  }
+
+  .lede {
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    color: var(--color-ink-2);
+    max-width: 62ch;
+  }
+
+  .hint {
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+    font-weight: 400;
+    letter-spacing: normal;
+    text-transform: none;
+    color: var(--color-ink-3);
+  }
+
+  .hint.stern {
+    color: var(--color-stop);
+  }
+
+  .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--spacing-md);
+    border-bottom: 1px solid var(--color-line-soft);
+    padding-block: var(--spacing-sm);
+  }
+
+  .why,
+  .posture {
+    background-color: var(--color-warn-wash);
+    border: 1px solid var(--color-warn-edge);
+    border-radius: 8px;
+    padding: var(--spacing-md);
+  }
+
+  .why > :first-child,
+  .posture > :first-child {
+    font-weight: 600;
+    color: var(--color-warn);
+  }
+
+  .claimfoot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--color-surface-sunk);
+    border-top: 1px solid var(--color-line);
+    padding: var(--spacing-lg);
+  }
+
+  .claimfoot .lbl {
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+    color: var(--color-ink-3);
+  }
+
+  .fig,
+  .fig.num {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--color-ink);
+  }
+
+  .wordmark {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+  }
+
+  .why-layered {
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+    color: var(--color-ink-4);
+  }
+
+  .typein {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+  }
+
+  .typein .f {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2xs);
+  }
+
+  .typein .lb {
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+    color: var(--color-ink-3);
+  }
+
+  .typein .t {
+    font-family: var(--font-mono);
+    font-size: var(--text-body);
+    color: var(--color-ink);
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: 6px;
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+
+  /* ---- Family two: the mockup's patterns, under new names ---- */
+
+  .card {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: 10px;
+    box-shadow: 0 1px 2px rgba(23, 27, 34, 0.06);
+    padding: var(--spacing-2xl);
+  }
+
+  .card-ok {
+    border-color: color-mix(in oklab, var(--color-ok) 40%, var(--color-surface));
+  }
+
+  .card-ok .card-ok-label {
+    color: var(--color-ok);
+    font-weight: 600;
+  }
+
+  /* AC-39/PRD §0 non-negotiable #4: the decided state is already expressed
+     in the line card's own data-disposition attribute — the confirmation
+     ground needs no new markup, only a rule keyed to it. Never applies
+     while data-disposition is empty (a still-PENDING line). */
+  article.card[data-disposition]:not([data-disposition=""]) {
+    background-color: var(--color-ok-wash);
+  }
+
+  /* The verdict badge's pill shape. Colour is never the only signal here —
+     the badge's own visible text (VERDICT_LABELS) and aria-label carry the
+     verdict regardless of this rule; the tint is a secondary reinforcement
+     keyed to the SAME article[data-verdict] attribute line-card.tsx already
+     sets, so no new markup is needed to differentiate it by verdict. */
+  .pill {
+    display: inline-block;
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+    font-weight: var(--text-label--font-weight);
+    padding: var(--spacing-2xs) var(--spacing-sm);
+    border-radius: 999px;
+    background-color: var(--color-deny-wash);
+    color: var(--color-deny);
+  }
+
+  article[data-verdict="FLAG"] .pill {
+    background-color: var(--color-warn-wash);
+    color: var(--color-warn);
+  }
+
+  article[data-verdict="ALLOW"] .pill,
+  article[data-verdict="ALLOW_CAPPED"] .pill {
+    background-color: var(--color-ok-wash);
+    color: var(--color-ok);
+  }
+
+  article[data-verdict="DISALLOW"] .pill {
+    background-color: var(--color-stop-wash);
+    color: var(--color-stop);
+  }
+
+  .eyebrow {
+    display: inline-block;
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+    font-weight: var(--text-label--font-weight);
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--color-ink-3);
+  }
+
+  .confirmed {
+    background-color: var(--color-ok-wash);
+    color: var(--color-ok);
+    padding: var(--spacing-sm);
+    border-radius: 8px;
+  }
+
+  .summary-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--spacing-md);
+    border-bottom: 1px solid var(--color-line-soft);
+    padding-block: var(--spacing-sm);
+  }
+
+  /* A summary-row that carries a third, explanatory child (e.g. pack-rail's
+     status-disclosure paragraph) — the disclosure wraps to its own full-
+     width line below the dt/dd pair rather than fighting them for space. */
+  .summary-row > :nth-child(3) {
+    flex-basis: 100%;
+  }
+
+  .summary-row dd,
+  .summary-total dd {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--color-ink);
+  }
+
+  .summary-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--spacing-md);
+    background-color: var(--color-surface-sunk);
+    border-bottom: none;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: 6px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-2xs);
+    font-size: var(--text-body);
+    font-weight: 600;
+    border-radius: 8px;
+    padding: var(--spacing-xs) var(--spacing-lg);
+    cursor: pointer;
+  }
+
+  .btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  .btn-primary {
+    background-color: var(--color-seal);
+    color: var(--color-surface);
+    border: 1px solid var(--color-seal);
+  }
+
+  .btn-secondary {
+    background-color: var(--color-surface);
+    color: var(--color-ink-2);
+    border: 1px solid var(--color-line);
+  }
+
+  .btn-tertiary {
+    background-color: transparent;
+    color: var(--color-ink-2);
+    border: none;
+    text-decoration: underline;
+    padding-inline: var(--spacing-2xs);
+  }
+
+  .page {
+    max-width: 1100px;
+    margin-inline: auto;
+    padding: var(--spacing-3xl);
+  }
+
+  .review-grid {
+    display: grid;
+    grid-template-columns: minmax(220px, 280px) minmax(0, 1fr) minmax(240px, 300px);
+    gap: var(--spacing-xl);
+    align-items: start;
+  }
+
+  .review-grid-rails {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xl);
+  }
+
+  .review-grid-main {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xl);
+    min-width: 0;
+  }
+
+  .review-grid-totals {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xl);
+  }
+
+  @media (max-width: 640px) {
+    .review-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* WCAG 2.1 AA: every focusable element carries a visible focus ring keyed
+     to --color-seal, matching line-card.tsx's own pre-existing
+     focus:outline-2 focus:outline-seal treatment — a button whose only
+     focus signal was the browser default would lose it the moment .btn
+     sets a background. */
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 2px solid var(--color-seal);
+    outline-offset: 2px;
+  }
 }

@@ -26,19 +26,28 @@ export function AppHeader({ actors, cookieName, caption }: AppHeaderProps) {
   }
 
   return (
-    <header>
-      <div className="wordmark">
-        DSAR Fee Assessment
-        <span className="text-seal">.</span>
+    <header className="border-b border-line bg-surface">
+      <div className="page flex items-center justify-between gap-md py-sm">
+        <div className="wordmark">
+          DSAR Fee Assessment
+          <span className="text-seal">.</span>
+        </div>
+        <nav aria-label="Switch demo role" className="flex items-center gap-xs">
+          {actors.map((actor) => (
+            <button
+              key={actor.value}
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => selectActor(actor.value)}
+            >
+              {actor.label}
+            </button>
+          ))}
+        </nav>
       </div>
-      <nav aria-label="Switch demo role">
-        {actors.map((actor) => (
-          <button key={actor.value} type="button" onClick={() => selectActor(actor.value)}>
-            {actor.label}
-          </button>
-        ))}
-      </nav>
-      <p data-testid="app-header-caption">{caption}</p>
+      <p data-testid="app-header-caption" className="hint">
+        {caption}
+      </p>
     </header>
   );
 }

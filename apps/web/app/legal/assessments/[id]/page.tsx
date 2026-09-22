@@ -123,7 +123,7 @@ export default async function LegalAssessmentPage({
 
   return (
     <main>
-      <h1>Fee assessment — {matter.reference}</h1>
+      <h1 className="screen">Fee assessment — {matter.reference}</h1>
       <StatusStrip
         matterReference={matter.reference}
         jurisdictionName={pack.jurisdiction.name}

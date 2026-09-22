@@ -139,13 +139,15 @@ export function DispositionControlsView({
   const actions = VERDICT_ACTIONS[verdict];
 
   return (
-    <div data-testid="disposition-controls">
-      <div data-testid="disposition-action-buttons">
-        {actions.map((action) =>
-          ACTIONS_TAKING_AMOUNT.has(action) ? (
-            <span key={action}>
-              <label>
-                <span>{ACTION_LABEL[action](currency)}</span>
+    <div data-testid="disposition-controls" className="flex flex-col gap-sm">
+      <div data-testid="disposition-action-buttons" className="flex flex-wrap gap-xs">
+        {actions.map((action) => {
+          const isPrimary = action === "ACCEPT" || action === "ALLOW_WITH_AMOUNT" || action === "ALLOW_ANYWAY";
+          const actionBtnClass = isPrimary ? "btn btn-primary" : "btn btn-secondary";
+          return ACTIONS_TAKING_AMOUNT.has(action) ? (
+            <span key={action} className="flex items-center gap-xs">
+              <label className="flex items-center gap-xs">
+                <span className="hint">{ACTION_LABEL[action](currency)}</span>
                 <input
                   type="number"
                   step="0.01"
@@ -160,6 +162,7 @@ export function DispositionControlsView({
                 data-testid="disposition-action"
                 data-action={action.toLowerCase()}
                 disabled={pending}
+                className={actionBtnClass}
                 onClick={() => onSubmit(action)}
               >
                 {ACTION_LABEL[action](currency)}
@@ -172,12 +175,13 @@ export function DispositionControlsView({
               data-testid="disposition-action"
               data-action={action.toLowerCase()}
               disabled={pending}
+              className={actionBtnClass}
               onClick={() => onSubmit(action)}
             >
               {ACTION_LABEL[action](currency)}
             </button>
-          )
-        )}
+          );
+        })}
 
         {verdict === "FLAG" ? (
           // The reason field above doubles as the lawyer's query: askHr()
@@ -189,6 +193,7 @@ export function DispositionControlsView({
             data-testid="disposition-action"
             data-action="ask-hr"
             disabled={pending}
+            className="btn btn-secondary"
             onClick={() => onAskHr?.()}
           >
             Ask HR
@@ -198,7 +203,7 @@ export function DispositionControlsView({
 
       <div data-testid="disposition-reason">
         <label>
-          <span>
+          <span className="hint">
             Reason <b>{REASON_LABEL[verdict]}</b>
           </span>
           <textarea
@@ -206,16 +211,17 @@ export function DispositionControlsView({
             value={reason}
             disabled={pending}
             maxLength={1000}
+            className="bg-surface border-line border"
             onChange={(event) => onReasonChange(event.target.value)}
           />
         </label>
-        <div data-testid="disposition-reason-counter">
+        <div data-testid="disposition-reason-counter" className="hint">
           {attemptedSubmit ? (reasonCounterFailureText(reason) ?? reasonCounterText(reason)) : reasonCounterText(reason)}
         </div>
       </div>
 
       {error ? (
-        <p role="alert" data-testid="disposition-error">
+        <p role="alert" data-testid="disposition-error" className="hint stern">
           {error}
         </p>
       ) : null}

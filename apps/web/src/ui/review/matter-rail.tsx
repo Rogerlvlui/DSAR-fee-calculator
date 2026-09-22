@@ -76,55 +76,55 @@ export function MatterRail({
   advisoryDeadline,
 }: MatterRailProps) {
   return (
-    <aside data-testid="matter-rail">
-      <div>Matter</div>
+    <aside data-testid="matter-rail" className="card">
+      <div className="eyebrow">Matter</div>
       <dl>
-        <div>
+        <div className="summary-row">
           <dt>Reference</dt>
           <dd>{reference}</dd>
         </div>
-        <div>
+        <div className="summary-row">
           <dt>Jurisdiction</dt>
           <dd>{jurisdictionName}</dd>
         </div>
-        <div>
+        <div className="summary-row">
           <dt>Entity</dt>
           <dd>{legalEntity}</dd>
         </div>
-        <div>
+        <div className="summary-row">
           <dt>Controller</dt>
           <dd>{CONTROLLER_TYPE_LABELS[controllerType]}</dd>
         </div>
-        <div>
+        <div className="summary-row">
           <dt>Received</dt>
           <dd>{requestReceivedOn}</dd>
         </div>
-        <div>
+        <div className="summary-row">
           <dt>Requestor</dt>
           <dd>{REQUESTOR_CLASS_LABELS[requestorClass]}</dd>
         </div>
-        <div>
+        <div className="summary-row">
           <dt>Identity verified</dt>
           <dd>
             {identityVerified ? "Yes" : "No"}
             {identityVerifiedNote ? ` — ${identityVerifiedNote}` : ""}
           </dd>
         </div>
-        <div>
+        <div className="summary-row">
           <dt>Scope clarified</dt>
           <dd>{scopeClarified ? "Yes" : "No"}</dd>
         </div>
       </dl>
 
       {matterFlags.map((flag) => (
-        <div key={flag.id} data-testid="matter-flag" data-code={flag.code}>
+        <div key={flag.id} data-testid="matter-flag" data-code={flag.code} className="why">
           <div>{flag.requiresAcknowledgement ? "Acknowledge to sign off" : "Notice"}</div>
           <p>{flag.message}</p>
         </div>
       ))}
 
       {advisoryDeadline ? (
-        <div data-testid="advisory-deadline">
+        <div data-testid="advisory-deadline" className="hint">
           {advisoryDeadline.basis === "FEE_NOTIFICATION" ? "Fee notification due " : "Response due "}
           <b>
             {formatAdvisoryDate(advisoryDeadline.dueDateIso)} — {advisoryDeadline.daysRemaining} days

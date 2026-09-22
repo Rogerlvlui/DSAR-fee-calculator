@@ -28,7 +28,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body>
         <AppHeader actors={ACTOR_OPTIONS} cookieName={DEMO_ROLE_COOKIE} caption={ROLE_SWITCH_CAPTION} />
         <DemoBanner />
-        {children}
+        {/* Every page.tsx already renders its own <main> — this wraps it in
+            the shell class, never a second <main> landmark. */}
+        <div className="page">{children}</div>
       </body>
     </html>
   );
