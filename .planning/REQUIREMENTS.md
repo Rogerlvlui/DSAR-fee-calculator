@@ -145,7 +145,7 @@
 - [x] **DISC-03**: No engine-derived UI string contains any canonical banned word, asserted by a lint rule over the strings file (AC-32a)
 - [x] **DISC-04**: Every verdict badge's accessible name includes its verdict in words, and no badge conveys verdict by colour alone (AC-32b)
 - [x] **DISC-05**: Every rendered deadline figure carries the word "Advisory" within its own container (AC-15a)
-- [ ] **DISC-06**: Empty, error and edge states behave exactly as specified in §10.7 rather than being improvised (§10.7)
+- [x] **DISC-06**: Empty, error and edge states behave exactly as specified in §10.7 rather than being improvised (§10.7)
 
 ### LLM boundary
 
@@ -338,7 +338,7 @@ Every v1 requirement maps to exactly one phase in `.planning/ROADMAP.md`.
 | DISC-03 | Phase 5 | Complete |
 | DISC-04 | Phase 6 | Complete |
 | DISC-05 | Phase 5 | Complete |
-| DISC-06 | Phase 7 | Pending |
+| DISC-06 | Phase 7 | Complete |
 | LLM-01 | Phase 8 | Pending |
 | LLM-02 | Phase 8 | Pending |
 | LLM-03 | Phase 8 | Pending |

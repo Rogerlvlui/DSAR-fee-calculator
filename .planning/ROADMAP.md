@@ -21,7 +21,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 4: Workflow and Audit Backbone** - Guarded transitions, immutable sign-off, and the append-only event log every later phase writes to (completed 2026-09-19; STATE-04's database half stays with Phase 3.2, as already noted below)
 - [x] **Phase 5: HR Intake and Disclosure Shell** - HR can itemise a claim inside a shell that states what the tool is and is not (completed 2026-09-20)
 - [x] **Phase 6: Convergence and Legal Review** - Golden files pass, then the line-by-line review screen with its automation-bias controls (completed 2026-09-20)
-- [ ] **Phase 7: Sign-off, Outputs and Edge States** - The sign-off gate, the internal record, the requestor notice, and every §10.7 state
+- [x] **Phase 7: Sign-off, Outputs and Edge States** - The sign-off gate, the internal record, the requestor notice, and every §10.7 state (completed 2026-09-22)
 - [ ] **Phase 8: LLM Job 1 — Category Suggestion** - One advisory suggestion, verbatim-validated, that never moves a verdict or an amount
 
 ## Phase Details
@@ -208,6 +208,7 @@ Why this exists: Docker is unavailable on the build machine and the presentation
 **Plans**: 5 plans across 4 waves — a tracer slice first, then the guard table and the second audit stream in parallel, then the retrofit of Phase 3.1's seven status literals, then the correction path and the lifecycle proof
 
 Plans:
+
 - [x] 04-01-PLAN.md — Tracer: `packages/workflow` and `packages/audit` stood up, one submission transition guarded and audited end to end
 - [x] 04-02-PLAN.md — The full PRD §5 guard table, plus the dependency and determinism gates that keep the guard package pure
 - [x] 04-03-PLAN.md — The D-21 pack-lifecycle event stream, the `DPO_ADMIN` demo identity, and the role-gated audit log export
@@ -300,7 +301,7 @@ Plans:
 
 Scope note: 03-05's `03-05-SUMMARY.md`/D-16 deferral is honoured here — success criterion 1 is discharged against the 15 categories (9 HK, 6 SG) actually authored today, per the product owner's 2026-09-20 decision recorded in STATE.md, not the full 21/21.
 
-### Phase 7: Sign-off, Outputs and Edge States
+### Phase 7: Sign-off, Outputs and Edge States — COMPLETE (2026-09-22)
 
 **Goal**: A named lawyer signs off under a recorded attestation, and only then does HR receive a figure, an internal record and a notice draft
 **Depends on**: Phase 6
@@ -314,7 +315,7 @@ Scope note: 03-05's `03-05-SUMMARY.md`/D-16 deferral is honoured here — succes
   4. HR sees the signed-off figure, the reviewing lawyer, and both allowed and struck items with their plain-language basis, plus the notice as a copy-to-clipboard block watermarked DRAFT until marked sent — while `lawyerReason` and the internal rationale appear in no `/hr/*` response and no HR-facing document, including after sign-off (AC-04); marking sent records a date only, under a visible note that the tool emails nobody
   5. A zero-allowable outcome produces a valid notice stating that no fee is charged, treated as a normal result (AC-14); regex over the generated notice finds no rule ID, citation, basis string, or mention of AI or of this tool (AC-17); and every row of §10.7's table behaves exactly as specified rather than being improvised
 
-**Plans**: 6 plans across 3 waves — a tracer proving the PDF architecture end to end first, then the independent sign-off-gate and HR-output work in parallel beside it, then the record's full content and the review-screen surfaces, then the §10.7 sweep
+**Plans**: 6/6 plans executed across 3 waves — a tracer proving the PDF architecture end to end first, then the independent sign-off-gate and HR-output work in parallel beside it, then the record's full content and the review-screen surfaces, then the §10.7 sweep
 
 Plans:
 **Wave 1**
@@ -330,7 +331,7 @@ Plans:
 
 **Wave 3** *(blocked on all of the above)*
 
-- [ ] 07-06-PLAN.md — DISC-06: PRD §10.7 row by row in one file, plus the phase regression sweep and honest record closure
+- [x] 07-06-PLAN.md — DISC-06: PRD §10.7 row by row in one file, plus the phase regression sweep and honest record closure (completed 2026-09-22 — all seven rows proven, three plan-assumption corrections recorded; full suite 1046 -> 1058 passing)
 
 **UI hint**: yes
 
@@ -370,6 +371,6 @@ Where capacity allows, Phases 2, 3, 4 and 5 may run concurrently — they have z
 | 3.2 Database Boundary and Audit Immutability | 0/3 | Planned (inherited from Phase 1) | - |
 | 4. Workflow and Audit Backbone | 5/5 | Complete    | 2026-09-19 |
 | 5. HR Intake and Disclosure Shell | 6/6 | Complete    | 2026-09-20 |
-| 6. Convergence and Legal Review | 0/9 | Planned | - |
-| 7. Sign-off, Outputs and Edge States | 0/6 | Planned | - |
+| 6. Convergence and Legal Review | 9/9 | Complete    | 2026-09-20 |
+| 7. Sign-off, Outputs and Edge States | 6/6 | Complete    | 2026-09-22 |
 | 8. LLM Job 1 — Category Suggestion | 0/TBD | Not started | - |
