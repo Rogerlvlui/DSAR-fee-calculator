@@ -32,7 +32,10 @@ import { POST as addLineRoute } from "../../apps/web/app/api/matters/[id]/lines/
 import { POST as submitRoute } from "../../apps/web/app/api/matters/[id]/submit/route.ts";
 import { POST as dispositionRoute } from "../../apps/web/app/api/assessment-lines/[id]/disposition/route.ts";
 import { POST as signoffRoute } from "../../apps/web/app/api/assessments/[id]/signoff/route.ts";
-import { GET as internalRecordRoute } from "../../apps/web/app/api/assessments/[id]/internal-record/route.ts";
+import {
+  GET as internalRecordRoute,
+  buildInternalRecordContentDisposition,
+} from "../../apps/web/app/api/assessments/[id]/internal-record/route.ts";
 import { ATTESTATION_TEMPLATE_VERSION, renderAttestation } from "../../apps/web/src/domain/attestation.ts";
 import { DEMO_ROLE_COOKIE, resolveActorFromCookieHeader } from "../../apps/web/src/server/data/auth.ts";
 import { getAssessmentForLegalReview } from "../../apps/web/src/server/data/assessments.ts";
@@ -519,4 +522,90 @@ describe("INTERNAL-RECORD", () => {
     const longBuffer = await renderInternalRecordPdf(longView);
     expect(longBuffer.length).toBeGreaterThan(shortBuffer.length);
   }, 20000);
+
+  // CR-01 (07-REVIEW.md) — matter.reference is HR-controlled free text with
+  // no length limit and no character restriction. A `"` in reference must
+  // never be able to break out of the quoted `filename` Content-Disposition
+  // parameter and inject a `filename*` (or any other) parameter of an
+  // HR_PREPARER's choosing that a LEGAL_REVIEWER's browser would honor.
+  it("INTERNAL-RECORD: CR-01 — a quote-and-semicolon-bearing reference cannot inject a filename* parameter into Content-Disposition", () => {
+    const malicious = 'weird"; filename*=UTF-8\'\'evil.pdf; x="';
+    const header = buildInternalRecordContentDisposition(malicious);
+
+    // Parsed the same way the browser/runtime Headers implementation would
+    // parse it — there must be exactly one filename* parameter, and it must
+    // be the percent-encoded real reference, never the attacker's literal.
+    const filenameStarMatches = [...header.matchAll(/filename\*=UTF-8''([^;]*)/g)];
+    expect(filenameStarMatches).toHaveLength(1);
+    expect(filenameStarMatches[0]![1]).toBe(encodeURIComponent(malicious) + "-internal-record.pdf");
+
+    // The quoted ASCII fallback filename carries no raw quote, semicolon or
+    // other character that could terminate the parameter early — nothing
+    // beyond the two parameters this function itself sets ever appears.
+    const fallbackMatch = header.match(/filename="([^"]*)"/);
+    expect(fallbackMatch).not.toBeNull();
+    expect(fallbackMatch![1]).not.toContain('"');
+    expect(fallbackMatch![1]).not.toContain(";");
+    expect(header).not.toMatch(/x=/);
+
+    // Round-tripped through the real Headers implementation: still a single,
+    // well-formed content-disposition value — not split into extra headers
+    // or parameters beyond the two this function itself sets.
+    const headers = new Headers();
+    headers.set("content-disposition", header);
+    expect(headers.get("content-disposition")).toBe(header);
+  });
+
+  it("INTERNAL-RECORD: CR-01 — a matter created with a quote-bearing reference downloads a record whose Content-Disposition carries no attacker-controlled filename* value", async () => {
+    const malicious = `${nextReference()}" evil`;
+    const matterResponse = await createMatterRoute(
+      jsonRequest(MATTERS_URL, "POST", {
+        reference: malicious,
+        jurisdictionCode: "SG",
+        legalEntity: "Acme Pte Ltd",
+        controllerType: "PRIVATE_ORGANISATION",
+        requestReceivedOn: "2026-09-01",
+        requestorClass: "FORMER_EMPLOYEE",
+        currency: "SGD",
+        identityVerified: true,
+        identityVerifiedNote: null,
+        scopeClarified: true,
+        isRepeatRequestWithin12Months: false,
+        isKnownDisputeOrLitigation: false,
+      }, HR_COOKIE)
+    );
+    expect(matterResponse.status).toBe(201);
+    const matter = (await matterResponse.json()) as { id: string };
+
+    for (const input of SG_LINE_INPUTS) {
+      const response = await addLineRoute(jsonRequest(`${MATTERS_URL}/${matter.id}/lines`, "POST", input, HR_COOKIE), {
+        params: Promise.resolve({ id: matter.id }),
+      });
+      expect(response.status).toBe(201);
+    }
+    const submitResponse = await submitRoute(jsonRequest(`${MATTERS_URL}/${matter.id}/submit`, "POST", {}, HR_COOKIE), {
+      params: Promise.resolve({ id: matter.id }),
+    });
+    expect(submitResponse.status).toBe(200);
+    const maliciousAssessment = (await submitResponse.json()) as FixtureAssessment;
+
+    await dispositionAllLines(maliciousAssessment);
+    await signOffFixture(maliciousAssessment);
+
+    const response = await internalRecordRoute(
+      getRequest(`${ASSESSMENTS_URL}/${maliciousAssessment.id}/internal-record`, LEGAL_COOKIE),
+      { params: Promise.resolve({ id: maliciousAssessment.id }) }
+    );
+
+    expect(response.status).toBe(200);
+    const disposition = response.headers.get("content-disposition")!;
+    expect(disposition).toBeTruthy();
+    // Exactly one filename* parameter — the malicious `"` never breaks out
+    // of the fallback filename's quotes to append a second, attacker-chosen
+    // filename* of its own; the one that exists is the full percent-encoded
+    // real reference, not a truncated "evil.pdf".
+    const filenameStarMatches = [...disposition.matchAll(/filename\*=UTF-8''([^;]*)/g)];
+    expect(filenameStarMatches).toHaveLength(1);
+    expect(filenameStarMatches[0]![1]).toBe(encodeURIComponent(malicious) + "-internal-record.pdf");
+  });
 });
