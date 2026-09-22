@@ -235,8 +235,7 @@ body {
     color: var(--color-ink-3);
   }
 
-  .fig,
-  .fig.num {
+  .fig {
     font-family: var(--font-mono);
     font-variant-numeric: tabular-nums;
     color: var(--color-ink);
