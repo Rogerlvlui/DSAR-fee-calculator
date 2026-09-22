@@ -39,7 +39,7 @@ function renderPanel(overrides: Partial<Parameters<typeof SignOffPanelView>[0]> 
       onToggleAck: () => {},
       attestationText: ATTESTATION_TEXT,
       reviewedOnNotRecorded: true,
-      lawyerName: "Marcus Tan — Legal, Singapore",
+      lawyerName: "Roger Lui — Legal, Singapore",
       qualification: "",
       onQualificationChange: () => {},
       error: null,

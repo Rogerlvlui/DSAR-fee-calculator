@@ -68,7 +68,7 @@ const FIXTURE_PACK_DETAILS: InternalRecordView["pack"] = {
 };
 
 const FIXTURE_SIGN_OFF: InternalRecordView["signOff"] = {
-  lawyerName: "Marcus Tan",
+  lawyerName: "Roger Lui",
   qualification: "Advocate & Solicitor, Singapore",
   signedAt: "2026-09-20T10:00:00Z",
   finalAmount: "$180.00",
@@ -98,7 +98,7 @@ function buildFixtureView(overrides: Partial<InternalRecordView> = {}): Internal
           code: "LITIGATION_POSTURE",
           message: "This matter is in a known dispute posture.",
           requiresAcknowledgement: true,
-          acknowledgement: { lawyerName: "Marcus Tan", acknowledgedAt: "2026-09-20T10:00:00Z" },
+          acknowledgement: { lawyerName: "Roger Lui", acknowledgedAt: "2026-09-20T10:00:00Z" },
         },
         {
           code: "PACK_FLAG",
@@ -115,7 +115,7 @@ function buildFixtureView(overrides: Partial<InternalRecordView> = {}): Internal
       packId: "SG-PDPA",
       packVersion: "2026.09.1",
       engineVersion: "0.1.0",
-      lawyerName: "Marcus Tan",
+      lawyerName: "Roger Lui",
       qualification: "Advocate & Solicitor, Singapore",
       date: "2026-09-20T10:00:00Z",
     },

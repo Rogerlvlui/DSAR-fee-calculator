@@ -248,7 +248,7 @@ function renderEveryComponent(): string {
         matterReference: "DSAR-2026-0001",
         finalAmount: 16000 as ResultViewLine["amount"],
         currency: "SGD",
-        lawyerName: "Marcus Tan",
+        lawyerName: "Roger Lui",
         qualification: "Advocate & Solicitor, Singapore",
         signedAt: "2026-09-15T00:00:00.000Z",
         lines: RESULT_VIEW_LINES,

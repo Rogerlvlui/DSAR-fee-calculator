@@ -39,7 +39,7 @@ function render(overrides: Partial<Parameters<typeof ResultView>[0]> = {}): stri
       matterReference: "DSAR-2026-0142",
       finalAmount: 16000 as never,
       currency: "SGD",
-      lawyerName: "Marcus Tan — Legal, Singapore",
+      lawyerName: "Roger Lui — Legal, Singapore",
       qualification: "Advocate & Solicitor, Singapore",
       signedAt: "2026-09-18T12:00:00Z",
       lines: LINES,
@@ -57,7 +57,7 @@ describe("HR-RESULT", () => {
     // own money.test.ts only ever asserts the numeric substring).
     expect(html).toContain("Fee assessed:");
     expect(html).toContain("160.00");
-    expect(html).toContain("Marcus Tan — Legal, Singapore");
+    expect(html).toContain("Roger Lui — Legal, Singapore");
     // React escapes "&" to "&amp;" in rendered text — assert around it
     // rather than the raw ampersand.
     expect(html).toContain("Advocate");
