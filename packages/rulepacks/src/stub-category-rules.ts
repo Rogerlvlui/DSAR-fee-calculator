@@ -1,0 +1,325 @@
+// packages/rulepacks/src/stub-category-rules.ts
+//
+// D-19 (03-CONTEXT.md) — the generator whose in-memory output the seven
+// unauthored jurisdictions' committed `categoryRules` are literal copies of.
+// PRD §7.3: "the repository is the source of truth; the database copy is a
+// cache" — the same reasoning applies to this generator's output. It is run
+// once by a human to produce the committed JSON, and again by
+// stub-category-rules.test.ts's drift test to prove the two still agree.
+// Rules are never generated at load time (that would make the repository
+// stop being the literal source of truth PRD §7.3 describes).
+//
+// CONTEXT.md's Claude's Discretion item 1 scopes both the drift test and
+// the ACTIVE gate by the SAME `UNAUTHORED_TOKEN` marker (D-15) — there is
+// no second list of "which rules are still generated" to keep in sync with
+// the token.
+
+import type { ControllerType, Instrument, JurisdictionCode } from "@dsar/schemas/primitives";
+import type { CategoryRule, FeePosture, LoadableRulePack } from "@dsar/schemas/rule-pack";
+import { UNAUTHORED_TOKEN } from "@dsar/schemas/constants";
+import { EXPENSE_CATEGORY_CODES } from "@dsar/schemas/taxonomy";
+import { STUB_CONSTRAINTS } from "./stub-constraints.ts";
+
+// One fixed string for every generated rule's `basis`. It asserts nothing —
+// it is not a legal position, just a placeholder pointing a reader at the
+// jurisdiction's `openQuestions` entry for what actually needs authoring.
+export const UNAUTHORED_BASIS =
+  "No treatment has been authored for this category in this jurisdiction.";
+
+// `packKind` exists from the outset (not added later) because plan 03-05
+// adds HK-PDPO and SG-PDPA rows to this SAME table — those packs are partly
+// authored but still need generated placeholder rules for their unwritten
+// categories. A second, parallel table for "authored" packs would be
+// exactly the two-lists-that-must-agree failure mode D-19/CONTEXT.md warns
+// against.
+export interface PackJurisdiction {
+  packId: string;
+  jurisdictionCode: JurisdictionCode;
+  jurisdictionName: string;
+  instruments: Instrument[];
+  feePosture: { PRIVATE_ORGANISATION: FeePosture; PUBLIC_AGENCY: FeePosture };
+  appliesTo: ControllerType[];
+  authoringNote: string;
+  packKind: "stub" | "authored";
+}
+
+// Exactly one entry for now (VN-PDPL, this plan). Later plans append rows
+// for the remaining jurisdictions — this table is not pre-populated here.
+export const PACK_JURISDICTIONS: readonly PackJurisdiction[] = [
+  {
+    packId: "VN-PDPL",
+    jurisdictionCode: "VN",
+    jurisdictionName: "Vietnam",
+    instruments: [
+      { title: "Law on Personal Data Protection No. 91/2025/QH15", provisions: [] },
+      { title: "Decree 356/2025/ND-CP", provisions: [] },
+    ],
+    // PRD §7.4 Vietnam row: feePosture NO_EXPRESS_AUTHORITY for both
+    // controller types. `appliesTo` is derived (RulePackSchema's own
+    // comment): the controller types whose posture is not PROHIBITED —
+    // NO_EXPRESS_AUTHORITY is not PROHIBITED, so both controller types
+    // apply.
+    feePosture: { PRIVATE_ORGANISATION: "NO_EXPRESS_AUTHORITY", PUBLIC_AGENCY: "NO_EXPRESS_AUTHORITY" },
+    appliesTo: ["PRIVATE_ORGANISATION", "PUBLIC_AGENCY"],
+    // PRD §7.4 Vietnam note, transcribed verbatim with markdown emphasis
+    // markers (**...**) removed — D-14 forbids extrapolating anything the
+    // PRD does not itself state.
+    authoringNote:
+      "Regime changed on 1 Jan 2026. Response timing under the new law must be confirmed by counsel and not carried over from Decree 13/2023, whose 72-hour rule no longer applies of its own force.",
+    packKind: "stub",
+  },
+  {
+    packId: "AU-PRIVACY-ACT",
+    jurisdictionCode: "AU",
+    jurisdictionName: "Australia",
+    instruments: [
+      { title: "Privacy Act 1988", provisions: ["APP 12.7", "APP 12.8"] },
+      { title: "OAIC APP Guidelines ch. 12", provisions: [] },
+    ],
+    // PRD §7.4 Australia row: PRIVATE_ORGANISATION PERMITTED_NOT_EXCESSIVE,
+    // PUBLIC_AGENCY PROHIBITED. PD-3: PROHIBITED excludes a controller type
+    // from `appliesTo`; only PRIVATE_ORGANISATION applies.
+    feePosture: { PRIVATE_ORGANISATION: "PERMITTED_NOT_EXCESSIVE", PUBLIC_AGENCY: "PROHIBITED" },
+    appliesTo: ["PRIVATE_ORGANISATION"],
+    // PRD §7.4 Australia note, transcribed verbatim with markdown emphasis
+    // markers (**...**, *...*) removed — D-14 forbids extrapolating anything
+    // the PRD does not itself state.
+    authoringNote:
+      "The split posture is why `feePosture` is a map. Our reading: an APP agency must not charge at all; an organisation may charge for giving access but never for making the request; OAIC treats inefficiency-driven and legal-advice costs as excessive. Counsel to confirm all three before activation.",
+    packKind: "stub",
+  },
+  {
+    packId: "NZ-PRIVACY-ACT",
+    jurisdictionCode: "NZ",
+    jurisdictionName: "New Zealand",
+    instruments: [
+      { title: "Privacy Act 2020", provisions: ["s.66", "s.67", "IPP 6"] },
+      { title: "OPC guidance on charging", provisions: [] },
+    ],
+    // PRD §7.4 New Zealand row: PERMITTED_REASONABLE / PROHIBITED. PD-3:
+    // PROHIBITED excludes PUBLIC_AGENCY from `appliesTo`.
+    feePosture: { PRIVATE_ORGANISATION: "PERMITTED_REASONABLE", PUBLIC_AGENCY: "PROHIBITED" },
+    appliesTo: ["PRIVATE_ORGANISATION"],
+    // PRD §7.4 New Zealand note, transcribed verbatim with markdown emphasis
+    // markers removed.
+    authoringNote:
+      "Our reading: charge must be reasonable; time assessing whether to withhold is not chargeable while time doing the redaction is; the requestor must be told the amount and any advance-payment requirement, with complaint rights; public sector cannot charge absent Commissioner authorisation; health sector further restricted. Each of those is a proposition counsel must verify — the withhold/redact distinction in particular drives four categories in §6.3.",
+    packKind: "stub",
+  },
+  {
+    packId: "JP-APPI",
+    jurisdictionCode: "JP",
+    jurisdictionName: "Japan",
+    // PRD §7.4: "counsel to supply the current article number, which we have
+    // deliberately not guessed" — an empty provisions array, not an invented
+    // citation (D-14).
+    instruments: [
+      { title: "Act on the Protection of Personal Information (APPI)", provisions: [] },
+    ],
+    // PRD §7.4 Japan row: PRIVATE_ORGANISATION PERMITTED_ACTUAL_COST,
+    // PUBLIC_AGENCY "counsel to determine". CONTEXT.md's Claude's Discretion
+    // item 4 fixes the convention for an unresearched public-agency posture
+    // as NO_EXPRESS_AUTHORITY (PRD §7.4's own stated convention for HK). Not
+    // PROHIBITED, so PD-3 keeps PUBLIC_AGENCY in `appliesTo`.
+    feePosture: { PRIVATE_ORGANISATION: "PERMITTED_ACTUAL_COST", PUBLIC_AGENCY: "NO_EXPRESS_AUTHORITY" },
+    appliesTo: ["PRIVATE_ORGANISATION", "PUBLIC_AGENCY"],
+    // PRD §7.4 Japan note, transcribed verbatim (no markdown emphasis
+    // markers present in the source note).
+    authoringNote:
+      'Our reading of the standard: the fee must be fixed "within a scope that can be considered reasonable in consideration of actual costs". If confirmed, express as a `PERCENT_OF_CLAIM: 100` ceiling with no profit element.',
+    packKind: "stub",
+  },
+  {
+    packId: "KR-PIPA",
+    jurisdictionCode: "KR",
+    jurisdictionName: "South Korea",
+    instruments: [
+      { title: "Personal Information Protection Act (PIPA)", provisions: ["art.38(3)"] },
+      { title: "PIPA Enforcement Decree", provisions: ["art.47"] },
+    ],
+    // PRD §7.4 South Korea row: PRIVATE_ORGANISATION PERMITTED_ACTUAL_COST,
+    // PUBLIC_AGENCY "counsel to determine" -> NO_EXPRESS_AUTHORITY (same
+    // convention as JP, Claude's Discretion item 4). Not PROHIBITED, so
+    // PD-3 keeps PUBLIC_AGENCY in `appliesTo`.
+    feePosture: { PRIVATE_ORGANISATION: "PERMITTED_ACTUAL_COST", PUBLIC_AGENCY: "NO_EXPRESS_AUTHORITY" },
+    appliesTo: ["PRIVATE_ORGANISATION", "PUBLIC_AGENCY"],
+    // PRD §7.4 South Korea note, transcribed verbatim with markdown
+    // emphasis markers removed. Carries the live 2026 amendment warning and
+    // the local-government ordinance point, both of which counsel needs.
+    authoringNote:
+      'Our reading: fee and postage only, "within the actual expenses necessary for the processing of the request". Narrow. A 2026 PIPA amendment is in play — counsel must check the current text, and note that a local-government controller is governed by its own ordinance.',
+    packKind: "stub",
+  },
+  {
+    packId: "CN-PIPL",
+    jurisdictionCode: "CN",
+    jurisdictionName: "China",
+    instruments: [
+      { title: "Personal Information Protection Law (PIPL)", provisions: ["art.45", "art.50"] },
+      { title: "GB/T 35273", provisions: [] },
+    ],
+    // PRD §7.4 China row: NO_EXPRESS_AUTHORITY for both controller types.
+    // Neither posture is PROHIBITED, so PD-3 keeps both in `appliesTo`.
+    feePosture: { PRIVATE_ORGANISATION: "NO_EXPRESS_AUTHORITY", PUBLIC_AGENCY: "NO_EXPRESS_AUTHORITY" },
+    appliesTo: ["PRIVATE_ORGANISATION", "PUBLIC_AGENCY"],
+    // PRD §7.4 China note, transcribed verbatim with markdown emphasis
+    // markers removed. Includes the instruction not to infer a fee right
+    // from silence, and not to infer a prohibition from it either.
+    authoringNote:
+      "We found no provision conferring a right to charge for providing a copy, and we are treating that as silence rather than as a prohibition. Default: no fee, every line flagged. Do not infer a fee right from silence, and do not infer a prohibition from it either — counsel to characterise.",
+    packKind: "stub",
+  },
+  {
+    packId: "IN-DPDP",
+    jurisdictionCode: "IN",
+    jurisdictionName: "India",
+    instruments: [
+      { title: "Digital Personal Data Protection Act 2023", provisions: ["s.11"] },
+      { title: "Digital Personal Data Protection Rules 2025", provisions: [] },
+    ],
+    // PRD §7.4 India row: NO_EXPRESS_AUTHORITY for both controller types.
+    // Neither posture is PROHIBITED, so PD-3 keeps both in `appliesTo`.
+    feePosture: { PRIVATE_ORGANISATION: "NO_EXPRESS_AUTHORITY", PUBLIC_AGENCY: "NO_EXPRESS_AUTHORITY" },
+    appliesTo: ["PRIVATE_ORGANISATION", "PUBLIC_AGENCY"],
+    // PRD §7.4 India note, transcribed verbatim, including the
+    // phased-commencement point (no markdown emphasis markers in source).
+    authoringNote:
+      "We identified no controller-side access fee. Default: no fee. Commencement is phased — the pack must record which provisions counsel considers in force as at `reviewedOn`.",
+    packKind: "stub",
+  },
+  {
+    packId: "HK-PDPO",
+    jurisdictionCode: "HK",
+    jurisdictionName: "Hong Kong SAR",
+    // PRD §7.5's two instruments, transcribed exactly. instruments[0] here
+    // must equal the pack JSON's own instruments[0] (plan 03-05 Task 2) —
+    // generateStubCategoryRules() builds its placeholder citation from this
+    // row's instruments[0], and the two must agree.
+    instruments: [
+      {
+        title: "Personal Data (Privacy) Ordinance (Cap. 486)",
+        provisions: ["s.19", "s.28(2)", "s.28(3)", "DPP6"],
+      },
+      {
+        title:
+          "PCPD, Proper Handling of Data Access Request and Charging of Data Access Request Fee by Data Users",
+        provisions: [],
+        revised: "2020-07",
+      },
+    ],
+    // PRD §7.5's own feePosture/appliesTo, printed directly (not the
+    // PROHIBITED-exclusion derivation PD-3 applies to the seven stub rows —
+    // HK's PUBLIC_AGENCY posture is NO_EXPRESS_AUTHORITY, not PROHIBITED,
+    // so §7.5's own narrower appliesTo is transcribed as printed rather than
+    // derived (PD-5 iii, flagged in the pack's own openQuestions)).
+    feePosture: { PRIVATE_ORGANISATION: "PERMITTED_NOT_EXCESSIVE", PUBLIC_AGENCY: "NO_EXPRESS_AUTHORITY" },
+    appliesTo: ["PRIVATE_ORGANISATION"],
+    // PRD §7.4 Hong Kong note, transcribed verbatim with markdown emphasis
+    // markers (**...**) removed; backticks retained (03-02 precedent — code
+    // references, not stylistic emphasis).
+    authoringNote:
+      "Worked pack. Most developed guidance of the nine. See §7.5. Public-sector posture not researched — the pack ships with `PUBLIC_AGENCY: 'NO_EXPRESS_AUTHORITY'` until counsel rules.",
+    packKind: "authored",
+  },
+  {
+    packId: "SG-PDPA",
+    jurisdictionCode: "SG",
+    jurisdictionName: "Singapore",
+    // PRD §7.6's three instruments, transcribed exactly.
+    instruments: [
+      { title: "Personal Data Protection Act 2012", provisions: ["s.21", "s.48H"] },
+      { title: "Personal Data Protection Regulations 2021", provisions: ["reg.7"] },
+      { title: "PDPC, Guide to Handling Access Requests", provisions: [], revised: "2020-10" },
+    ],
+    // PRD §7.6's own feePosture/appliesTo, printed directly.
+    feePosture: { PRIVATE_ORGANISATION: "PERMITTED_REASONABLE", PUBLIC_AGENCY: "NO_EXPRESS_AUTHORITY" },
+    appliesTo: ["PRIVATE_ORGANISATION"],
+    // PRD §7.4 Singapore note, transcribed verbatim with markdown emphasis
+    // markers removed.
+    authoringNote:
+      'Worked pack. Reg. 7 permits "a reasonable fee for services provided to the applicant to enable the organisation to respond". Written estimate before charging. PDPC may review reasonableness. See §7.6.',
+    packKind: "authored",
+  },
+];
+
+export class UnknownPackJurisdictionError extends Error {
+  constructor(packId: string) {
+    super(`No PACK_JURISDICTIONS entry found for packId "${packId}"`);
+    this.name = "UnknownPackJurisdictionError";
+  }
+}
+
+export class NotAStubPackError extends Error {
+  constructor(packId: string) {
+    super(`generateStubPack called for packId "${packId}", whose packKind is not "stub"`);
+    this.name = "NotAStubPackError";
+  }
+}
+
+function findPackJurisdiction(packId: string): PackJurisdiction {
+  const row = PACK_JURISDICTIONS.find((entry) => entry.packId === packId);
+  if (!row) throw new UnknownPackJurisdictionError(packId);
+  return row;
+}
+
+// Valid for any `packKind` — an authored pack's unwritten categories take
+// exactly the same placeholder shape as a wholly-unauthored stub pack's.
+export function generateStubCategoryRules(packId: string): CategoryRule[] {
+  const { instruments, authoringNote } = findPackJurisdiction(packId);
+  const [firstInstrument] = instruments;
+  const citation = {
+    instrument: firstInstrument?.title ?? "",
+    // D-14/CONTEXT.md's Specific Ideas: `citation.provision` is the empty
+    // string for a jurisdiction whose §7.4 row names no provision —
+    // inventing one would be exactly the extrapolation D-14 forbids.
+    provision: firstInstrument?.provisions[0] ?? "",
+  };
+
+  return EXPENSE_CATEGORY_CODES.map((categoryCode): CategoryRule => ({
+    ruleId: `${packId}.${categoryCode}`,
+    categoryCode,
+    treatment: "FLAG",
+    cap: null,
+    conditions: [],
+    basis: UNAUTHORED_BASIS,
+    citation,
+    verificationStatus: "NEEDS_VERIFICATION",
+    verificationNote: `${UNAUTHORED_TOKEN} — ${authoringNote}`,
+  }));
+}
+
+// Assembles a whole stub pack. A partly-authored pack (HK-PDPO, SG-PDPA in
+// plan 03-05) is assembled by hand from the PRD, never generated wholesale
+// by this function — it throws rather than silently producing a fully
+// generated pack for a `packKind: "authored"` row.
+export function generateStubPack(packId: string): LoadableRulePack {
+  const row = findPackJurisdiction(packId);
+  if (row.packKind !== "stub") throw new NotAStubPackError(packId);
+
+  return {
+    packId: row.packId,
+    jurisdiction: { code: row.jurisdictionCode, name: row.jurisdictionName },
+    version: "2026.09.1",
+    status: "DRAFT",
+    authoredBy: null,
+    reviewedBy: null,
+    reviewedOn: null,
+    // Twelve months from this phase's authoring date (PRD §7.3's default) —
+    // a scheduling value, not a legal position. Every stub is DRAFT and
+    // unusable regardless of this date.
+    reviewDueOn: "2027-09-16",
+    instruments: row.instruments,
+    feePosture: row.feePosture,
+    appliesTo: row.appliesTo,
+    rateSanityCeiling: {},
+    constraints: STUB_CONSTRAINTS,
+    categoryRules: generateStubCategoryRules(packId),
+    matterFlagRules: [],
+    // Carries the UNAUTHORED_TOKEN because no counsel has drafted the
+    // requestor-facing notice for this jurisdiction; the template can never
+    // be selected for a real matter while the pack is DRAFT.
+    requestorNoticeTemplate: `${UNAUTHORED_TOKEN} — counsel must author the requestor-facing fee notice for this jurisdiction before this pack can reach ACTIVE.`,
+    openQuestions: [row.authoringNote],
+    // No `flatFee` key — omitted entirely, per RulePackSchema's `.optional()`.
+  };
+}

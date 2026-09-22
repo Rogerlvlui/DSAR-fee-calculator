@@ -1,0 +1,20 @@
+{
+  "name": "@dsar/documents",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./internal-record-view": "./src/internal-record-view.ts",
+    "./internal-record-document": "./src/internal-record-document.tsx"
+  },
+  "dependencies": {
+    "@dsar/schemas": "workspace:*",
+    "@dsar/engine": "workspace:*",
+    "@react-pdf/renderer": "4.9.0",
+    "react": "19.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "26.5.1",
+    "@types/react": "19.3.0"
+  }
+}

@@ -1,0 +1,149 @@
+// tests/routes/workflow-tracer.test.ts
+//
+// The Phase 4 tracer's proof (04-01-PLAN.md Task 1): drives the real
+// create/add-line/submit route handlers with real Request objects over the
+// real committed SG-PDPA pack, then reads the audit store through the
+// writer's own list method to assert exactly one record exists for the
+// matter with every provenance field populated, and that the matter's
+// stored status is the executor's own returned destination — not a value
+// the calling function chose. Every test name is tagged WORKFLOW-TRACER.
+
+import { describe, expect, it } from "vitest";
+import { POST as createMatterRoute } from "../../apps/web/app/api/matters/route.ts";
+import { POST as addLineRoute } from "../../apps/web/app/api/matters/[id]/lines/route.ts";
+import { POST as submitRoute } from "../../apps/web/app/api/matters/[id]/submit/route.ts";
+import { memoryMatterRepository } from "../../apps/web/src/server/repositories/memory/matter-repository.ts";
+import { memoryAuditEventWriter } from "@dsar/audit/memory/audit-event-writer";
+import { ENGINE_VERSION } from "@dsar/engine";
+
+const BASE_URL = "http://localhost/api/matters";
+
+function jsonRequest(url: string, body: unknown): Request {
+  return new Request(url, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(body),
+  });
+}
+
+function validMatterInput(reference: string) {
+  return {
+    reference,
+    jurisdictionCode: "SG",
+    legalEntity: "Acme Pte Ltd",
+    controllerType: "PRIVATE_ORGANISATION",
+    requestReceivedOn: "2026-09-01",
+    requestorClass: "FORMER_EMPLOYEE",
+    currency: "SGD",
+    identityVerified: true,
+    identityVerifiedNote: null,
+    scopeClarified: true,
+    isRepeatRequestWithin12Months: false,
+    isKnownDisputeOrLitigation: false,
+  };
+}
+
+async function createDemoMatter(reference: string): Promise<{ id: string }> {
+  const response = await createMatterRoute(jsonRequest(BASE_URL, validMatterInput(reference)));
+  return (await response.json()) as { id: string };
+}
+
+describe("WORKFLOW-TRACER — one guarded, audited transition end to end", () => {
+  it("WORKFLOW-TRACER: a permitted submission writes the executor's own destination and exactly one provenance-complete audit record", async () => {
+    const matter = await createDemoMatter("DSAR-WORKFLOW-TRACER-0001");
+
+    const lineResponse = await addLineRoute(
+      jsonRequest(`${BASE_URL}/${matter.id}/lines`, {
+        categoryCode: "STAFF_TIME_SEARCH",
+        description: "Staff time locating and retrieving the requested records",
+        quantity: 4,
+        unit: "HOUR",
+        unitRate: 4000,
+        incurredByGrade: "EXECUTIVE",
+        isThirdPartyInvoiced: false,
+        vendorName: null,
+        evidenceRef: null,
+        hrNote: null,
+      }),
+      { params: Promise.resolve({ id: matter.id }) }
+    );
+    expect(lineResponse.status).toBe(201);
+
+    const submitResponse = await submitRoute(jsonRequest(`${BASE_URL}/${matter.id}/submit`, {}), {
+      params: Promise.resolve({ id: matter.id }),
+    });
+    expect(submitResponse.status).toBe(200);
+
+    // The route's own pipeline continues past the guarded SUBMIT edge (this
+    // plan's one converted edge) into the untouched COMPUTING -> LEGAL_REVIEW
+    // edge once assessMatter succeeds — asserted here, separately from the
+    // audit record's before/after pair below, so this test proves BOTH that
+    // the transition happened (the matter's final status) AND what the
+    // guarded executor itself returned for the one edge this plan converted
+    // (the audit record's payload).
+    const storedMatter = await memoryMatterRepository.getMatter(matter.id);
+    expect(storedMatter?.status).toBe("LEGAL_REVIEW");
+
+    // Four provenance-complete records now: MATTER_CREATED and LINE_ADDED
+    // (04-05's intake-act records), SUBMITTED (this plan's one converted
+    // edge, 04-01) and COMPUTED (04-04's conversion of the
+    // COMPUTING -> LEGAL_REVIEW edge) — counted by event type, per
+    // 04-04-PLAN.md's own instruction, since later plans in this phase add
+    // further event types to the same matter's log.
+    const events = await memoryAuditEventWriter.listByMatter(matter.id);
+    expect(events).toHaveLength(4);
+    expect(events.filter((e) => e.type === "MATTER_CREATED")).toHaveLength(1);
+    expect(events.filter((e) => e.type === "LINE_ADDED")).toHaveLength(1);
+
+    const submittedEvent = events.find((e) => e.type === "SUBMITTED");
+    if (!submittedEvent) throw new Error("expected exactly one SUBMITTED audit event");
+    expect(submittedEvent.matterId).toBe(matter.id);
+    expect(submittedEvent.actor.id).toEqual(expect.any(String));
+    expect(submittedEvent.actorRole).toBe("HR_PREPARER");
+    expect(submittedEvent.at).toEqual(expect.any(String));
+    expect(submittedEvent.payload.before).toBe("DRAFT");
+    expect(submittedEvent.payload.after).toBe("COMPUTING");
+    expect(submittedEvent.rulePackVersion).toBe("2026.09.1");
+    expect(submittedEvent.engineVersion).toBe(ENGINE_VERSION);
+
+    const computedEvent = events.find((e) => e.type === "COMPUTED");
+    if (!computedEvent) throw new Error("expected exactly one COMPUTED audit event");
+    expect(computedEvent.matterId).toBe(matter.id);
+    expect(computedEvent.actorRole).toBe("HR_PREPARER");
+    expect(computedEvent.payload.before).toBe("COMPUTING");
+    expect(computedEvent.payload.after).toBe("LEGAL_REVIEW");
+    expect(computedEvent.rulePackVersion).toBe("2026.09.1");
+    expect(computedEvent.engineVersion).toBe(ENGINE_VERSION);
+  });
+
+  it("WORKFLOW-TRACER: a matter with no expense lines is refused, leaves the matter in DRAFT, and writes no submission-related audit record", async () => {
+    const matter = await createDemoMatter("DSAR-WORKFLOW-TRACER-0002");
+
+    const submitResponse = await submitRoute(jsonRequest(`${BASE_URL}/${matter.id}/submit`, {}), {
+      params: Promise.resolve({ id: matter.id }),
+    });
+
+    // This refusal fires from the pre-existing 03.1 business-rule check
+    // (matters.ts's own module note explains why that check, not the
+    // guard, is what a zero-line submission hits through this real route);
+    // the guard's identical condition is proven directly and separately in
+    // packages/workflow/src/evaluate-transition.test.ts. What this test
+    // proves is the OUTCOME every refusal path — pre-existing check or
+    // guard — must share: the matter stays in DRAFT and no SUBMITTED/COMPUTED
+    // record is written.
+    expect(submitResponse.status).toBeGreaterThanOrEqual(400);
+    const body = (await submitResponse.json()) as { error?: string };
+    expect(body.error?.toLowerCase()).toContain("expense line");
+
+    const storedMatter = await memoryMatterRepository.getMatter(matter.id);
+    expect(storedMatter?.status).toBe("DRAFT");
+
+    // One record exists — MATTER_CREATED, from creating the matter above,
+    // before any submission was ever attempted (04-05's intake-act
+    // records). No SUBMITTED or COMPUTED record exists for the refused
+    // submission itself.
+    const events = await memoryAuditEventWriter.listByMatter(matter.id);
+    expect(events).toHaveLength(1);
+    expect(events[0]?.type).toBe("MATTER_CREATED");
+  });
+});

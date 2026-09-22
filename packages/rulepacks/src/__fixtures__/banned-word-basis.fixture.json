@@ -1,0 +1,346 @@
+{
+  "packId": "FIXTURE-BANNED-WORD",
+  "jurisdiction": {
+    "code": "VN",
+    "name": "Vietnam"
+  },
+  "version": "2026.09.1",
+  "status": "DRAFT",
+  "authoredBy": null,
+  "reviewedBy": null,
+  "reviewedOn": null,
+  "reviewDueOn": "2027-09-16",
+  "instruments": [
+    {
+      "title": "Law on Personal Data Protection No. 91/2025/QH15",
+      "provisions": []
+    },
+    {
+      "title": "Decree 356/2025/ND-CP",
+      "provisions": []
+    }
+  ],
+  "feePosture": {
+    "PRIVATE_ORGANISATION": "NO_EXPRESS_AUTHORITY",
+    "PUBLIC_AGENCY": "NO_EXPRESS_AUTHORITY"
+  },
+  "appliesTo": [
+    "PRIVATE_ORGANISATION",
+    "PUBLIC_AGENCY"
+  ],
+  "rateSanityCeiling": {},
+  "constraints": {
+    "noChargeForMakingRequest": null,
+    "estimateRequiredBeforeCharging": null,
+    "feeNotificationDeadlineDays": null,
+    "deadlineBasis": null,
+    "responseDeadlineDays": null,
+    "advancePaymentPermitted": null,
+    "mayWithholdDataUntilPaid": null,
+    "profitElementPermitted": null,
+    "deterrentUsePermitted": null,
+    "regulatorMayReviewFee": null,
+    "aggregateCap": null
+  },
+  "categoryRules": [
+    {
+      "ruleId": "FIXTURE-BANNED-WORD.STAFF_TIME_SEARCH",
+      "categoryCode": "STAFF_TIME_SEARCH",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "This line is fully compliant with the applicable statute.",
+      "citation": {
+        "instrument": "Law on Personal Data Protection No. 91/2025/QH15",
+        "provision": ""
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Regime changed on 1 Jan 2026. Response timing under the new law must be confirmed by counsel and not carried over from Decree 13/2023, whose 72-hour rule no longer applies of its own force."
+    },
+    {
+      "ruleId": "FIXTURE-BANNED-WORD.STAFF_TIME_COLLATE",
+      "categoryCode": "STAFF_TIME_COLLATE",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Law on Personal Data Protection No. 91/2025/QH15",
+        "provision": ""
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Regime changed on 1 Jan 2026. Response timing under the new law must be confirmed by counsel and not carried over from Decree 13/2023, whose 72-hour rule no longer applies of its own force."
+    },
+    {
+      "ruleId": "FIXTURE-BANNED-WORD.STAFF_TIME_REDACT_THIRD_PARTY",
+      "categoryCode": "STAFF_TIME_REDACT_THIRD_PARTY",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Law on Personal Data Protection No. 91/2025/QH15",
+        "provision": ""
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Regime changed on 1 Jan 2026. Response timing under the new law must be confirmed by counsel and not carried over from Decree 13/2023, whose 72-hour rule no longer applies of its own force."
+    },
+    {
+      "ruleId": "FIXTURE-BANNED-WORD.STAFF_TIME_REDACT_EXEMPT",
+      "categoryCode": "STAFF_TIME_REDACT_EXEMPT",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Law on Personal Data Protection No. 91/2025/QH15",
+        "provision": ""
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Regime changed on 1 Jan 2026. Response timing under the new law must be confirmed by counsel and not carried over from Decree 13/2023, whose 72-hour rule no longer applies of its own force."
+    },
+    {
+      "ruleId": "FIXTURE-BANNED-WORD.STAFF_TIME_ASSESS_EXEMPTIONS",
+      "categoryCode": "STAFF_TIME_ASSESS_EXEMPTIONS",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Law on Personal Data Protection No. 91/2025/QH15",
+        "provision": ""
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Regime changed on 1 Jan 2026. Response timing under the new law must be confirmed by counsel and not carried over from Decree 13/2023, whose 72-hour rule no longer applies of its own force."
+    },
+    {
+      "ruleId": "FIXTURE-BANNED-WORD.STAFF_TIME_LEGAL_REVIEW",
+      "categoryCode": "STAFF_TIME_LEGAL_REVIEW",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Law on Personal Data Protection No. 91/2025/QH15",
+        "provision": ""
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Regime changed on 1 Jan 2026. Response timing under the new law must be confirmed by counsel and not carried over from Decree 13/2023, whose 72-hour rule no longer applies of its own force."
+    },
+    {
+      "ruleId": "FIXTURE-BANNED-WORD.PROFESSIONAL_REVIEW",
+      "categoryCode": "PROFESSIONAL_REVIEW",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Law on Personal Data Protection No. 91/2025/QH15",
+        "provision": ""
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Regime changed on 1 Jan 2026. Response timing under the new law must be confirmed by counsel and not carried over from Decree 13/2023, whose 72-hour rule no longer applies of its own force."
+    },
+    {
+      "ruleId": "FIXTURE-BANNED-WORD.PHOTOCOPY_PRINT",
+      "categoryCode": "PHOTOCOPY_PRINT",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Law on Personal Data Protection No. 91/2025/QH15",
+        "provision": ""
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Regime changed on 1 Jan 2026. Response timing under the new law must be confirmed by counsel and not carried over from Decree 13/2023, whose 72-hour rule no longer applies of its own force."
+    },
+    {
+      "ruleId": "FIXTURE-BANNED-WORD.MEDIA_MATERIALS",
+      "categoryCode": "MEDIA_MATERIALS",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Law on Personal Data Protection No. 91/2025/QH15",
+        "provision": ""
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Regime changed on 1 Jan 2026. Response timing under the new law must be confirmed by counsel and not carried over from Decree 13/2023, whose 72-hour rule no longer applies of its own force."
+    },
+    {
+      "ruleId": "FIXTURE-BANNED-WORD.POSTAGE_COURIER",
+      "categoryCode": "POSTAGE_COURIER",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Law on Personal Data Protection No. 91/2025/QH15",
+        "provision": ""
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Regime changed on 1 Jan 2026. Response timing under the new law must be confirmed by counsel and not carried over from Decree 13/2023, whose 72-hour rule no longer applies of its own force."
+    },
+    {
+      "ruleId": "FIXTURE-BANNED-WORD.SECURE_TRANSFER",
+      "categoryCode": "SECURE_TRANSFER",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Law on Personal Data Protection No. 91/2025/QH15",
+        "provision": ""
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Regime changed on 1 Jan 2026. Response timing under the new law must be confirmed by counsel and not carried over from Decree 13/2023, whose 72-hour rule no longer applies of its own force."
+    },
+    {
+      "ruleId": "FIXTURE-BANNED-WORD.IT_EXTRACTION",
+      "categoryCode": "IT_EXTRACTION",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Law on Personal Data Protection No. 91/2025/QH15",
+        "provision": ""
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Regime changed on 1 Jan 2026. Response timing under the new law must be confirmed by counsel and not carried over from Decree 13/2023, whose 72-hour rule no longer applies of its own force."
+    },
+    {
+      "ruleId": "FIXTURE-BANNED-WORD.VENDOR_PAYROLL",
+      "categoryCode": "VENDOR_PAYROLL",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Law on Personal Data Protection No. 91/2025/QH15",
+        "provision": ""
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Regime changed on 1 Jan 2026. Response timing under the new law must be confirmed by counsel and not carried over from Decree 13/2023, whose 72-hour rule no longer applies of its own force."
+    },
+    {
+      "ruleId": "FIXTURE-BANNED-WORD.VENDOR_ARCHIVE",
+      "categoryCode": "VENDOR_ARCHIVE",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Law on Personal Data Protection No. 91/2025/QH15",
+        "provision": ""
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Regime changed on 1 Jan 2026. Response timing under the new law must be confirmed by counsel and not carried over from Decree 13/2023, whose 72-hour rule no longer applies of its own force."
+    },
+    {
+      "ruleId": "FIXTURE-BANNED-WORD.VENDOR_OTHER",
+      "categoryCode": "VENDOR_OTHER",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Law on Personal Data Protection No. 91/2025/QH15",
+        "provision": ""
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Regime changed on 1 Jan 2026. Response timing under the new law must be confirmed by counsel and not carried over from Decree 13/2023, whose 72-hour rule no longer applies of its own force."
+    },
+    {
+      "ruleId": "FIXTURE-BANNED-WORD.TRANSLATION",
+      "categoryCode": "TRANSLATION",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Law on Personal Data Protection No. 91/2025/QH15",
+        "provision": ""
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Regime changed on 1 Jan 2026. Response timing under the new law must be confirmed by counsel and not carried over from Decree 13/2023, whose 72-hour rule no longer applies of its own force."
+    },
+    {
+      "ruleId": "FIXTURE-BANNED-WORD.TRANSCRIPTION_CONVERSION",
+      "categoryCode": "TRANSCRIPTION_CONVERSION",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Law on Personal Data Protection No. 91/2025/QH15",
+        "provision": ""
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Regime changed on 1 Jan 2026. Response timing under the new law must be confirmed by counsel and not carried over from Decree 13/2023, whose 72-hour rule no longer applies of its own force."
+    },
+    {
+      "ruleId": "FIXTURE-BANNED-WORD.IDENTITY_VERIFICATION",
+      "categoryCode": "IDENTITY_VERIFICATION",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Law on Personal Data Protection No. 91/2025/QH15",
+        "provision": ""
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Regime changed on 1 Jan 2026. Response timing under the new law must be confirmed by counsel and not carried over from Decree 13/2023, whose 72-hour rule no longer applies of its own force."
+    },
+    {
+      "ruleId": "FIXTURE-BANNED-WORD.ADMIN_OVERHEAD",
+      "categoryCode": "ADMIN_OVERHEAD",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Law on Personal Data Protection No. 91/2025/QH15",
+        "provision": ""
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Regime changed on 1 Jan 2026. Response timing under the new law must be confirmed by counsel and not carried over from Decree 13/2023, whose 72-hour rule no longer applies of its own force."
+    },
+    {
+      "ruleId": "FIXTURE-BANNED-WORD.RECORDS_REMEDIATION",
+      "categoryCode": "RECORDS_REMEDIATION",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Law on Personal Data Protection No. 91/2025/QH15",
+        "provision": ""
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Regime changed on 1 Jan 2026. Response timing under the new law must be confirmed by counsel and not carried over from Decree 13/2023, whose 72-hour rule no longer applies of its own force."
+    },
+    {
+      "ruleId": "FIXTURE-BANNED-WORD.OTHER_UNCLASSIFIED",
+      "categoryCode": "OTHER_UNCLASSIFIED",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Law on Personal Data Protection No. 91/2025/QH15",
+        "provision": ""
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Regime changed on 1 Jan 2026. Response timing under the new law must be confirmed by counsel and not carried over from Decree 13/2023, whose 72-hour rule no longer applies of its own force."
+    }
+  ],
+  "matterFlagRules": [],
+  "requestorNoticeTemplate": "UNAUTHORED — counsel must author the requestor-facing fee notice for this jurisdiction before this pack can reach ACTIVE.",
+  "openQuestions": [
+    "Regime changed on 1 Jan 2026. Response timing under the new law must be confirmed by counsel and not carried over from Decree 13/2023, whose 72-hour rule no longer applies of its own force."
+  ]
+}

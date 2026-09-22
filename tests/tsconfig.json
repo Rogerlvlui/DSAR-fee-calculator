@@ -1,0 +1,89 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    // Widened from "." (tests/ itself) to ".." (the repo root): 03.1-01's
+    // tests/routes/demo-pipeline.test.ts imports apps/web route handlers
+    // directly for the tracer's proof, which sit outside tests/'s own
+    // directory. A composite project's rootDir must be a common ancestor of
+    // every file the program reaches, or `tsc --build` refuses with TS6059/
+    // TS6307 — apps/web is deliberately NOT a project reference (see
+    // apps/web/tsconfig.json's own note), so widening this project's rootDir
+    // is the fix, not adding a reference. dist/ is gitignored and consumed
+    // by nothing else in the repo, so the resulting deeper output nesting
+    // under outDir is harmless.
+    "rootDir": "..",
+    "outDir": "../dist/tests",
+    "jsx": "react-jsx",
+    "types": ["node"]
+  },
+  // Targeted, not a blanket "../apps/web/**" glob: rootDir only says WHERE a
+  // file may live, "include" says WHICH files are added to the program — a
+  // file outside "include" is still TS6307 even once it satisfies rootDir.
+  // apps/web is otherwise typechecked on its own via
+  // `tsc -p apps/web/tsconfig.json` (see that file's own note, "bundler"
+  // resolution); these entries cover exactly the route handlers,
+  // server/data-layer modules and (03.1-02) the three HR intake
+  // presentational components that tests/routes/*.test.ts and
+  // tests/boundary/dom-denylist.test.ts import directly, under this
+  // project's inherited "nodenext" resolution. Deliberately NOT
+  // "../apps/web/app/**", "../apps/web/src/**" or even
+  // "../apps/web/src/ui/intake/**" wholesale: those also match
+  // apps/web/src/server/current-actor.ts, apps/web/app/layout.tsx, the
+  // page.tsx files and apps/web/src/ui/intake/intake-form.tsx, none of
+  // which any test in this project imports directly — and
+  // current-actor.ts's "next/headers" import (like intake-form.tsx's
+  // "next/navigation") does not resolve under "nodenext" (next ships no
+  // "exports" map) the way it does under apps/web/tsconfig.json's
+  // "bundler" resolution.
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "../apps/web/app/api/**/*.ts",
+    "../apps/web/src/server/**/*.ts",
+    // 03.1-03 Task 2: tests/routes/review-tallies.test.ts and
+    // disposition.test.ts import the domain modules directly — the same
+    // class of direct route/domain import demo-pipeline.test.ts (03.1-01)
+    // established for apps/web/app/api/** and src/server/**.
+    "../apps/web/src/domain/**/*.ts",
+    "../apps/web/src/ui/intake/matter-details-fields.tsx",
+    "../apps/web/src/ui/intake/attestations-panel.tsx",
+    "../apps/web/src/ui/intake/expense-line-repeater.tsx",
+    // 05-06 Task 1: tests/boundary/ui-banned-words.test.ts imports these
+    // directly for the DISC-03 render-and-scan gate. Each is safe under
+    // this project's "nodenext" resolution (no next/navigation or
+    // next/headers import, unlike notice-block.tsx/info-request-panel.tsx
+    // below, which are loaded via a runtime dynamic import instead —
+    // see that test file's own header note).
+    "../apps/web/src/ui/capability/capability-statement.tsx",
+    "../apps/web/src/ui/chrome/status-strip.tsx",
+    "../apps/web/src/ui/intake/claim-footer.tsx",
+    "../apps/web/src/ui/intake/autosave-indicator.tsx",
+    "../apps/web/src/ui/intake/use-draft-autosave.ts",
+    "../apps/web/src/ui/hr/result-view.tsx",
+    // 07-05 Task 3: tests/boundary/hr-internal-record-absent.test.ts
+    // imports INTERNAL_RECORD_DOWNLOAD_LABEL directly, so the ACCESS-05
+    // scan checks against the real constant rather than a duplicated
+    // literal that could silently drift. Safe under this project's
+    // "nodenext" resolution — this component imports only "react".
+    "../apps/web/src/ui/review/internal-record-download.tsx",
+    // 06-03 Task 2: tests/boundary/rsc-payload-leak.test.ts renders
+    // TotalsRail directly for the REVIEW-06 no-total-while-pending proof —
+    // safe under this project's "nodenext" resolution (no next/navigation
+    // or next/headers import).
+    "../apps/web/src/ui/review/totals-rail.tsx",
+    // 03.1-05 Task 2: tests/routes/honesty.test.ts renders the real root
+    // layout to prove the permanent marker's position relative to the
+    // children slot — it cannot do this under the jsdom "web" project
+    // (apps/web/**/*.test.tsx) because layout.tsx transitively imports
+    // apps/web/src/server/data/auth.ts, and server-only.ts's runtime guard
+    // throws the moment `window` exists, which jsdom always provides. The
+    // "routes" project's node environment has no `window`, so the guard
+    // never trips — the same reason tests/boundary/dom-denylist.test.ts
+    // (03.1-01) renders page.tsx files there rather than under "web".
+    "../apps/web/app/layout.tsx",
+    "../apps/web/src/ui/chrome/app-header.tsx",
+    "../apps/web/src/ui/chrome/demo-banner.tsx"
+  ],
+  "exclude": ["node_modules", "../apps/web/src/server/current-actor.ts"]
+}

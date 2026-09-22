@@ -2,6 +2,12 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Communication preferences
+
+- Be concise. No preamble, no restating the task, no trailing "what I did" summary unless asked — token budget matters to Roger.
+- Don't ask clarifying/Socratic questions by default. Make the reasonable call yourself (naming, structure, non-legal implementation details) and note the decision briefly inline; keep moving.
+- The one exception: stop and ask when a question is a **critical legal or privacy-law point** — e.g. it risks the Non-negotiables or the NS-1..NS-10 out-of-scope list below, a rule-pack legal judgment call (citation, category treatment, jurisdiction constraint), or anything where an invented answer would misstate the law. Flag those explicitly as legal/privacy questions rather than folding them into ordinary implementation questions.
+
 ## Current state of this repository
 
 There is no application code yet. The repository currently contains only the spec:

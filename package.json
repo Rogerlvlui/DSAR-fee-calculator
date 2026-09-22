@@ -1,0 +1,58 @@
+{
+  "name": "dsar-fee-agent",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.27.0",
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @dsar/web dev",
+    "test": "vitest run",
+    "typecheck": "tsc --build tsconfig.json && tsc -p apps/web/tsconfig.json",
+    "lint": "eslint .",
+    "depcruise": "depcruise --config .dependency-cruiser.cjs packages/engine packages/schemas packages/workflow packages/audit packages/documents apps/web",
+    "smoke:internal-record": "node scripts/smoke-internal-record.mjs",
+    "schema:json": "node packages/schemas/scripts/generate-json-schema.ts",
+    "pack:validate": "node packages/rulepacks/scripts/validate-cli.ts",
+    "db:validate": "prisma validate",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate deploy",
+    "db:migrate:dev": "prisma migrate dev"
+  },
+  "dependencies": {
+    "@dsar/audit": "workspace:*",
+    "@dsar/documents": "workspace:*",
+    "@dsar/engine": "workspace:*",
+    "@dsar/rulepacks": "workspace:*",
+    "@dsar/schemas": "workspace:*",
+    "@dsar/workflow": "workspace:*",
+    "@prisma/client": "7.10.0",
+    "@prisma/internals": "7.10.0",
+    "next": "16.3.5",
+    "prisma": "7.10.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@fast-check/vitest": "0.5.0",
+    "@testcontainers/postgresql": "12.1.0",
+    "@types/node": "26.5.1",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitest/coverage-v8": "5.0.0",
+    "dependency-cruiser": "18.3.0",
+    "dotenv": "17.4.2",
+    "eslint": "10.10.0",
+    "fast-check": "4.10.0",
+    "jsdom": "30.0.1",
+    "playwright": "1.63.0",
+    "tailwindcss": "4.3.3",
+    "testcontainers": "12.1.0",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.70.0",
+    "vitest": "5.0.0"
+  }
+}

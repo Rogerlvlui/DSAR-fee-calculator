@@ -1,0 +1,390 @@
+{
+  "packId": "HK-PDPO",
+  "jurisdiction": {
+    "code": "HK",
+    "name": "Hong Kong SAR"
+  },
+  "version": "2026.09.1",
+  "status": "DRAFT",
+  "authoredBy": null,
+  "reviewedBy": null,
+  "reviewedOn": null,
+  "reviewDueOn": "2027-09-01",
+  "instruments": [
+    {
+      "title": "Personal Data (Privacy) Ordinance (Cap. 486)",
+      "provisions": ["s.19", "s.28(2)", "s.28(3)", "DPP6"]
+    },
+    {
+      "title": "PCPD, Proper Handling of Data Access Request and Charging of Data Access Request Fee by Data Users",
+      "provisions": [],
+      "revised": "2020-07"
+    }
+  ],
+  "feePosture": {
+    "PRIVATE_ORGANISATION": "PERMITTED_NOT_EXCESSIVE",
+    "PUBLIC_AGENCY": "NO_EXPRESS_AUTHORITY"
+  },
+  "appliesTo": ["PRIVATE_ORGANISATION"],
+  "rateSanityCeiling": {
+    "ADMIN": 3000,
+    "EXECUTIVE": 5000,
+    "MANAGER": 9000
+  },
+  "constraints": {
+    "noChargeForMakingRequest": false,
+    "estimateRequiredBeforeCharging": false,
+    "feeNotificationDeadlineDays": 40,
+    "deadlineBasis": "CALENDAR_DAYS",
+    "responseDeadlineDays": 40,
+    "advancePaymentPermitted": true,
+    "mayWithholdDataUntilPaid": true,
+    "profitElementPermitted": false,
+    "deterrentUsePermitted": false,
+    "regulatorMayReviewFee": true,
+    "aggregateCap": null
+  },
+  "categoryRules": [
+    {
+      "ruleId": "HK-PDPO.STAFF_TIME_SEARCH",
+      "categoryCode": "STAFF_TIME_SEARCH",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "Direct labour cost of locating and retrieving the requested data is directly related to and necessary for complying with the request.",
+      "citation": {
+        "instrument": "PDPO",
+        "provision": "s.28(2)-(3)",
+        "guidance": "PCPD DAR guidance note (rev. 07/2020)"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "Provisional pending the authoring lawyer's confirmation of §7.5's own 'directly related to and necessary for' characterisation of recoverable cost; printed as VERIFIED in the PRD extract."
+    },
+    {
+      "ruleId": "HK-PDPO.STAFF_TIME_COLLATE",
+      "categoryCode": "STAFF_TIME_COLLATE",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Data (Privacy) Ordinance (Cap. 486)",
+        "provision": "s.19"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Worked pack. Most developed guidance of the nine. See §7.5. Public-sector posture not researched — the pack ships with `PUBLIC_AGENCY: 'NO_EXPRESS_AUTHORITY'` until counsel rules."
+    },
+    {
+      "ruleId": "HK-PDPO.STAFF_TIME_REDACT_THIRD_PARTY",
+      "categoryCode": "STAFF_TIME_REDACT_THIRD_PARTY",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "Time spent redacting third-party identifying particulars is a necessary step in supplying a copy that may lawfully be released.",
+      "citation": {
+        "instrument": "PDPO",
+        "provision": "s.28(2)-(3)",
+        "guidance": "PCPD DAR guidance note (rev. 07/2020)"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "Provisional pending the authoring lawyer's confirmation of §7.5's own 'directly related to and necessary for' characterisation of recoverable cost; printed as VERIFIED in the PRD extract."
+    },
+    {
+      "ruleId": "HK-PDPO.STAFF_TIME_REDACT_EXEMPT",
+      "categoryCode": "STAFF_TIME_REDACT_EXEMPT",
+      "treatment": "DISALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "Costs of severing data that is exempt from access are not recoverable.",
+      "citation": {
+        "instrument": "PDPO",
+        "provision": "s.28(3)",
+        "guidance": "PCPD DAR guidance note (rev. 07/2020)"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "Provisional pending the authoring lawyer's confirmation of §7.5's own 'directly related to and necessary for' characterisation of recoverable cost; printed as VERIFIED in the PRD extract."
+    },
+    {
+      "ruleId": "HK-PDPO.STAFF_TIME_ASSESS_EXEMPTIONS",
+      "categoryCode": "STAFF_TIME_ASSESS_EXEMPTIONS",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Data (Privacy) Ordinance (Cap. 486)",
+        "provision": "s.19"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Worked pack. Most developed guidance of the nine. See §7.5. Public-sector posture not researched — the pack ships with `PUBLIC_AGENCY: 'NO_EXPRESS_AUTHORITY'` until counsel rules."
+    },
+    {
+      "ruleId": "HK-PDPO.STAFF_TIME_LEGAL_REVIEW",
+      "categoryCode": "STAFF_TIME_LEGAL_REVIEW",
+      "treatment": "DISALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "Cost of obtaining advice from counsel or studying compliance obligations is not a cost of complying with the request.",
+      "citation": {
+        "instrument": "PDPO",
+        "provision": "s.28(3)",
+        "guidance": "PCPD DAR guidance note (rev. 07/2020)"
+      },
+      "verificationStatus": "VERIFIED",
+      "verificationNote": "Confirmed by the product owner on 2026-09-17: the reworded basis (PD-5 i, 'advice from counsel' in place of the banned-word phrase) preserves the intended position."
+    },
+    {
+      "ruleId": "HK-PDPO.PROFESSIONAL_REVIEW",
+      "categoryCode": "PROFESSIONAL_REVIEW",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Data (Privacy) Ordinance (Cap. 486)",
+        "provision": "s.19"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Worked pack. Most developed guidance of the nine. See §7.5. Public-sector posture not researched — the pack ships with `PUBLIC_AGENCY: 'NO_EXPRESS_AUTHORITY'` until counsel rules."
+    },
+    {
+      "ruleId": "HK-PDPO.PHOTOCOPY_PRINT",
+      "categoryCode": "PHOTOCOPY_PRINT",
+      "treatment": "ALLOW_WITH_CAP",
+      "cap": { "type": "PER_UNIT", "amount": 150, "unit": "PAGE" },
+      "conditions": [{ "field": "unit", "op": "eq", "value": "PAGE" }],
+      "basis": "Reproduction cost at a standard per-page rate. Cap expressed in minor units (HK$1.50/page) and to be set by counsel against the entity's actual copying cost.",
+      "citation": {
+        "instrument": "PDPO",
+        "provision": "s.28(2)",
+        "guidance": "PCPD DAR guidance note (rev. 07/2020)"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "Per-page cap is an entity-specific figure and must not exceed actual direct cost. Confirm before activation."
+    },
+    {
+      "ruleId": "HK-PDPO.MEDIA_MATERIALS",
+      "categoryCode": "MEDIA_MATERIALS",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Data (Privacy) Ordinance (Cap. 486)",
+        "provision": "s.19"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Worked pack. Most developed guidance of the nine. See §7.5. Public-sector posture not researched — the pack ships with `PUBLIC_AGENCY: 'NO_EXPRESS_AUTHORITY'` until counsel rules."
+    },
+    {
+      "ruleId": "HK-PDPO.POSTAGE_COURIER",
+      "categoryCode": "POSTAGE_COURIER",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Data (Privacy) Ordinance (Cap. 486)",
+        "provision": "s.19"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Worked pack. Most developed guidance of the nine. See §7.5. Public-sector posture not researched — the pack ships with `PUBLIC_AGENCY: 'NO_EXPRESS_AUTHORITY'` until counsel rules."
+    },
+    {
+      "ruleId": "HK-PDPO.SECURE_TRANSFER",
+      "categoryCode": "SECURE_TRANSFER",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Data (Privacy) Ordinance (Cap. 486)",
+        "provision": "s.19"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Worked pack. Most developed guidance of the nine. See §7.5. Public-sector posture not researched — the pack ships with `PUBLIC_AGENCY: 'NO_EXPRESS_AUTHORITY'` until counsel rules."
+    },
+    {
+      "ruleId": "HK-PDPO.IT_EXTRACTION",
+      "categoryCode": "IT_EXTRACTION",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Data (Privacy) Ordinance (Cap. 486)",
+        "provision": "s.19"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Worked pack. Most developed guidance of the nine. See §7.5. Public-sector posture not researched — the pack ships with `PUBLIC_AGENCY: 'NO_EXPRESS_AUTHORITY'` until counsel rules."
+    },
+    {
+      "ruleId": "HK-PDPO.VENDOR_PAYROLL",
+      "categoryCode": "VENDOR_PAYROLL",
+      "treatment": "ALLOW_IF",
+      "cap": null,
+      "conditions": [
+        { "field": "isThirdPartyInvoiced", "op": "eq", "value": true },
+        { "field": "evidenceRef", "op": "isNotNull" }
+      ],
+      "basis": "Out-of-pocket charge actually paid to a third party to obtain data the employer does not itself hold, where invoiced and evidenced.",
+      "citation": {
+        "instrument": "PDPO",
+        "provision": "s.28(2)",
+        "guidance": "PCPD DAR guidance note (rev. 07/2020)"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "Recoverable only to the extent necessary; a vendor charge covering more than the requested data should be apportioned. Consider a FLAG treatment instead."
+    },
+    {
+      "ruleId": "HK-PDPO.VENDOR_ARCHIVE",
+      "categoryCode": "VENDOR_ARCHIVE",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Data (Privacy) Ordinance (Cap. 486)",
+        "provision": "s.19"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Worked pack. Most developed guidance of the nine. See §7.5. Public-sector posture not researched — the pack ships with `PUBLIC_AGENCY: 'NO_EXPRESS_AUTHORITY'` until counsel rules."
+    },
+    {
+      "ruleId": "HK-PDPO.VENDOR_OTHER",
+      "categoryCode": "VENDOR_OTHER",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Data (Privacy) Ordinance (Cap. 486)",
+        "provision": "s.19"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Worked pack. Most developed guidance of the nine. See §7.5. Public-sector posture not researched — the pack ships with `PUBLIC_AGENCY: 'NO_EXPRESS_AUTHORITY'` until counsel rules."
+    },
+    {
+      "ruleId": "HK-PDPO.TRANSLATION",
+      "categoryCode": "TRANSLATION",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Data (Privacy) Ordinance (Cap. 486)",
+        "provision": "s.19"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Worked pack. Most developed guidance of the nine. See §7.5. Public-sector posture not researched — the pack ships with `PUBLIC_AGENCY: 'NO_EXPRESS_AUTHORITY'` until counsel rules."
+    },
+    {
+      "ruleId": "HK-PDPO.TRANSCRIPTION_CONVERSION",
+      "categoryCode": "TRANSCRIPTION_CONVERSION",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Data (Privacy) Ordinance (Cap. 486)",
+        "provision": "s.19"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Worked pack. Most developed guidance of the nine. See §7.5. Public-sector posture not researched — the pack ships with `PUBLIC_AGENCY: 'NO_EXPRESS_AUTHORITY'` until counsel rules."
+    },
+    {
+      "ruleId": "HK-PDPO.IDENTITY_VERIFICATION",
+      "categoryCode": "IDENTITY_VERIFICATION",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Data (Privacy) Ordinance (Cap. 486)",
+        "provision": "s.19"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — Worked pack. Most developed guidance of the nine. See §7.5. Public-sector posture not researched — the pack ships with `PUBLIC_AGENCY: 'NO_EXPRESS_AUTHORITY'` until counsel rules."
+    },
+    {
+      "ruleId": "HK-PDPO.ADMIN_OVERHEAD",
+      "categoryCode": "ADMIN_OVERHEAD",
+      "treatment": "DISALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "General administrative and office overheads are incurred regardless of the request and are not directly related to it.",
+      "citation": {
+        "instrument": "PDPO",
+        "provision": "s.28(3)",
+        "guidance": "PCPD DAR guidance note (rev. 07/2020)"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "Provisional pending the authoring lawyer's confirmation of §7.5's own 'directly related to and necessary for' characterisation of recoverable cost; printed as VERIFIED in the PRD extract."
+    },
+    {
+      "ruleId": "HK-PDPO.RECORDS_REMEDIATION",
+      "categoryCode": "RECORDS_REMEDIATION",
+      "treatment": "DISALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "Costs arising from the data user's own record-keeping deficiencies exceed what would be necessary in normal circumstances.",
+      "citation": {
+        "instrument": "PDPO",
+        "provision": "s.28(3)",
+        "guidance": "PCPD DAR guidance note (rev. 07/2020)"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "Provisional pending the authoring lawyer's confirmation of §7.5's own 'directly related to and necessary for' characterisation of recoverable cost; printed as VERIFIED in the PRD extract."
+    },
+    {
+      "ruleId": "HK-PDPO.OTHER_UNCLASSIFIED",
+      "categoryCode": "OTHER_UNCLASSIFIED",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "Uncategorised cost. Counsel to determine whether it is directly related to and necessary for compliance.",
+      "citation": {
+        "instrument": "PDPO",
+        "provision": "s.28(3)"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "Provisional pending the authoring lawyer's confirmation of §7.5's own 'directly related to and necessary for' characterisation of recoverable cost; printed as VERIFIED in the PRD extract."
+    }
+  ],
+  "matterFlagRules": [
+    {
+      "flagId": "HK.FLAT_FEE_CHECK",
+      "when": { "field": "lineCount", "op": "gte", "value": 8 },
+      "message": "A flat fee may be charged for administrative convenience provided it is lower than direct compliance costs and not excessive. Consider whether a flat fee is preferable to this itemisation.",
+      "requiresAcknowledgement": false
+    },
+    {
+      "flagId": "HK.NOTIFY_40_DAYS",
+      "when": { "always": true },
+      "message": "The requestor must be told what fee, if any, will be charged as soon as practicable and in any event within 40 days of the request.",
+      "requiresAcknowledgement": false
+    }
+  ],
+  "requestorNoticeTemplate": "UNAUTHORED — counsel must author the requestor-facing fee notice for this jurisdiction before this pack can reach ACTIVE.",
+  "openQuestions": [
+    "Apportionment method where a payroll vendor invoice covers more than the requested data.",
+    "Whether computer/system run time replacing manual labour is being claimed at cost.",
+    "Whether the entity's per-page rate reflects current actual cost.",
+    "constraints.noChargeForMakingRequest is set false — confirm there is no separate prohibition on charging for the act of making the request, as distinct from complying with it.",
+    "constraints.estimateRequiredBeforeCharging is set false while matterFlagRules requires notification of the fee within 40 days. Confirm whether the 40-day notification is, in substance, an estimate obligation; if so both fields should change together.",
+    "RESOLVED 2026-09-17: HK-PDPO.STAFF_TIME_LEGAL_REVIEW's basis replaces the phrase naming counsel's advice with 'advice from counsel' to avoid the banned word 'legal' (PD-5 i); the product owner confirmed the reworded basis still reflects the intended position — rule's substance unchanged.",
+    "RESOLVED 2026-09-17: HK-PDPO.STAFF_TIME_REDACT_THIRD_PARTY's basis contains 'lawfully' (an adverbial inflection of the banned word 'lawful') that the canonical word-boundary matcher does not catch; the sentence ships verbatim per §7.5. Product owner confirmed: no need for the filter to catch inflections like 'lawfully' — matcher stays as-is (PD-5 ii).",
+    "RESOLVED 2026-09-17: appliesTo is printed in §7.5 as ['PRIVATE_ORGANISATION'] only, narrower than RulePackSchema's own documented derivation (the controller types whose posture is not PROHIBITED) — HK's PUBLIC_AGENCY posture is NO_EXPRESS_AUTHORITY, not PROHIBITED, so the derived rule would otherwise include it. The product owner confirmed the PRD's narrower scope is deliberate: appliesTo stays ['PRIVATE_ORGANISATION'] as transcribed; public agencies are intentionally excluded from this pack (PD-5 iii).",
+    "flatFee.amount was set to HK$100 (10000 minor units) by the product owner on 2026-09-17. The source specification supplies no figure of its own (§7.5 carries only the advisory HK.FLAT_FEE_CHECK matterFlagRule); this is an entity-specific business decision, not a PRD transcription. Counsel to confirm before this pack can be marked ACTIVE (PD-4, resolved pending formal verification)."
+  ],
+  "flatFee": {
+    "amount": 10000,
+    "basis": "Flat-fee figure of HK$100 (10000 minor units), set by the product owner. The source specification supplies no figure of its own — see openQuestions.",
+    "citation": {
+      "instrument": "PCPD, Proper Handling of Data Access Request and Charging of Data Access Request Fee by Data Users",
+      "provision": ""
+    },
+    "verificationStatus": "NEEDS_VERIFICATION",
+    "verificationNote": "Figure set by the product owner, not sourced from the PRD extract. Pending formal counsel verification before activation."
+  }
+}

@@ -1,0 +1,353 @@
+{
+  "packId": "FIXTURE-UNAUTHORED-TOKEN",
+  "jurisdiction": {
+    "code": "SG",
+    "name": "Singapore"
+  },
+  "version": "2026.09.1",
+  "status": "ACTIVE",
+  "authoredBy": {
+    "id": "01K5GSD0PRT0TYPECNSE000001",
+    "displayName": "Product Owner — Prototype Authoring Counsel",
+    "email": "product-owner@example.invalid"
+  },
+  "reviewedBy": {
+    "id": "01K5GSD0PRT0TYPECNSE000001",
+    "displayName": "Product Owner — Prototype Authoring Counsel",
+    "email": "product-owner@example.invalid"
+  },
+  "reviewedOn": "2026-09-16",
+  "reviewDueOn": "2027-09-16",
+  "instruments": [
+    {
+      "title": "Fixture Instrument",
+      "provisions": [
+        "Reg 3(1)"
+      ]
+    }
+  ],
+  "feePosture": {
+    "PRIVATE_ORGANISATION": "PERMITTED_REASONABLE",
+    "PUBLIC_AGENCY": "PERMITTED_REASONABLE"
+  },
+  "appliesTo": [
+    "PRIVATE_ORGANISATION",
+    "PUBLIC_AGENCY"
+  ],
+  "rateSanityCeiling": {},
+  "constraints": {
+    "noChargeForMakingRequest": true,
+    "estimateRequiredBeforeCharging": true,
+    "feeNotificationDeadlineDays": 30,
+    "deadlineBasis": "CALENDAR_DAYS",
+    "responseDeadlineDays": 30,
+    "advancePaymentPermitted": false,
+    "mayWithholdDataUntilPaid": false,
+    "profitElementPermitted": false,
+    "deterrentUsePermitted": false,
+    "regulatorMayReviewFee": true,
+    "aggregateCap": {
+      "type": "PER_MATTER",
+      "amount": 500000
+    }
+  },
+  "categoryRules": [
+    {
+      "ruleId": "FIXTURE-UNAUTHORED-TOKEN.STAFF_TIME_SEARCH",
+      "categoryCode": "STAFF_TIME_SEARCH",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "This category is a permitted reasonable-cost item under the pack's instrument, subject to standard verification.",
+      "citation": {
+        "instrument": "Fixture Instrument",
+        "provision": "Reg 3(1)"
+      },
+      "verificationStatus": "VERIFIED",
+      "verificationNote": null
+    },
+    {
+      "ruleId": "FIXTURE-UNAUTHORED-TOKEN.STAFF_TIME_COLLATE",
+      "categoryCode": "STAFF_TIME_COLLATE",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "This category is a permitted reasonable-cost item under the pack's instrument, subject to standard verification.",
+      "citation": {
+        "instrument": "Fixture Instrument",
+        "provision": "Reg 3(1)"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — counsel has not yet reviewed this category for this jurisdiction."
+    },
+    {
+      "ruleId": "FIXTURE-UNAUTHORED-TOKEN.STAFF_TIME_REDACT_THIRD_PARTY",
+      "categoryCode": "STAFF_TIME_REDACT_THIRD_PARTY",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "This category is a permitted reasonable-cost item under the pack's instrument, subject to standard verification.",
+      "citation": {
+        "instrument": "Fixture Instrument",
+        "provision": "Reg 3(1)"
+      },
+      "verificationStatus": "VERIFIED",
+      "verificationNote": null
+    },
+    {
+      "ruleId": "FIXTURE-UNAUTHORED-TOKEN.STAFF_TIME_REDACT_EXEMPT",
+      "categoryCode": "STAFF_TIME_REDACT_EXEMPT",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "This category is a permitted reasonable-cost item under the pack's instrument, subject to standard verification.",
+      "citation": {
+        "instrument": "Fixture Instrument",
+        "provision": "Reg 3(1)"
+      },
+      "verificationStatus": "VERIFIED",
+      "verificationNote": null
+    },
+    {
+      "ruleId": "FIXTURE-UNAUTHORED-TOKEN.STAFF_TIME_ASSESS_EXEMPTIONS",
+      "categoryCode": "STAFF_TIME_ASSESS_EXEMPTIONS",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "This category is a permitted reasonable-cost item under the pack's instrument, subject to standard verification.",
+      "citation": {
+        "instrument": "Fixture Instrument",
+        "provision": "Reg 3(1)"
+      },
+      "verificationStatus": "VERIFIED",
+      "verificationNote": null
+    },
+    {
+      "ruleId": "FIXTURE-UNAUTHORED-TOKEN.STAFF_TIME_LEGAL_REVIEW",
+      "categoryCode": "STAFF_TIME_LEGAL_REVIEW",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "This category is a permitted reasonable-cost item under the pack's instrument, subject to standard verification.",
+      "citation": {
+        "instrument": "Fixture Instrument",
+        "provision": "Reg 3(1)"
+      },
+      "verificationStatus": "VERIFIED",
+      "verificationNote": null
+    },
+    {
+      "ruleId": "FIXTURE-UNAUTHORED-TOKEN.PROFESSIONAL_REVIEW",
+      "categoryCode": "PROFESSIONAL_REVIEW",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "This category is a permitted reasonable-cost item under the pack's instrument, subject to standard verification.",
+      "citation": {
+        "instrument": "Fixture Instrument",
+        "provision": "Reg 3(1)"
+      },
+      "verificationStatus": "VERIFIED",
+      "verificationNote": null
+    },
+    {
+      "ruleId": "FIXTURE-UNAUTHORED-TOKEN.PHOTOCOPY_PRINT",
+      "categoryCode": "PHOTOCOPY_PRINT",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "This category is a permitted reasonable-cost item under the pack's instrument, subject to standard verification.",
+      "citation": {
+        "instrument": "Fixture Instrument",
+        "provision": "Reg 3(1)"
+      },
+      "verificationStatus": "VERIFIED",
+      "verificationNote": null
+    },
+    {
+      "ruleId": "FIXTURE-UNAUTHORED-TOKEN.MEDIA_MATERIALS",
+      "categoryCode": "MEDIA_MATERIALS",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "This category is a permitted reasonable-cost item under the pack's instrument, subject to standard verification.",
+      "citation": {
+        "instrument": "Fixture Instrument",
+        "provision": "Reg 3(1)"
+      },
+      "verificationStatus": "VERIFIED",
+      "verificationNote": null
+    },
+    {
+      "ruleId": "FIXTURE-UNAUTHORED-TOKEN.POSTAGE_COURIER",
+      "categoryCode": "POSTAGE_COURIER",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "This category is a permitted reasonable-cost item under the pack's instrument, subject to standard verification.",
+      "citation": {
+        "instrument": "Fixture Instrument",
+        "provision": "Reg 3(1)"
+      },
+      "verificationStatus": "VERIFIED",
+      "verificationNote": null
+    },
+    {
+      "ruleId": "FIXTURE-UNAUTHORED-TOKEN.SECURE_TRANSFER",
+      "categoryCode": "SECURE_TRANSFER",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "This category is a permitted reasonable-cost item under the pack's instrument, subject to standard verification.",
+      "citation": {
+        "instrument": "Fixture Instrument",
+        "provision": "Reg 3(1)"
+      },
+      "verificationStatus": "VERIFIED",
+      "verificationNote": null
+    },
+    {
+      "ruleId": "FIXTURE-UNAUTHORED-TOKEN.IT_EXTRACTION",
+      "categoryCode": "IT_EXTRACTION",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "This category is a permitted reasonable-cost item under the pack's instrument, subject to standard verification.",
+      "citation": {
+        "instrument": "Fixture Instrument",
+        "provision": "Reg 3(1)"
+      },
+      "verificationStatus": "VERIFIED",
+      "verificationNote": null
+    },
+    {
+      "ruleId": "FIXTURE-UNAUTHORED-TOKEN.VENDOR_PAYROLL",
+      "categoryCode": "VENDOR_PAYROLL",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "This category is a permitted reasonable-cost item under the pack's instrument, subject to standard verification.",
+      "citation": {
+        "instrument": "Fixture Instrument",
+        "provision": "Reg 3(1)"
+      },
+      "verificationStatus": "VERIFIED",
+      "verificationNote": null
+    },
+    {
+      "ruleId": "FIXTURE-UNAUTHORED-TOKEN.VENDOR_ARCHIVE",
+      "categoryCode": "VENDOR_ARCHIVE",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "This category is a permitted reasonable-cost item under the pack's instrument, subject to standard verification.",
+      "citation": {
+        "instrument": "Fixture Instrument",
+        "provision": "Reg 3(1)"
+      },
+      "verificationStatus": "VERIFIED",
+      "verificationNote": null
+    },
+    {
+      "ruleId": "FIXTURE-UNAUTHORED-TOKEN.VENDOR_OTHER",
+      "categoryCode": "VENDOR_OTHER",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "This category is a permitted reasonable-cost item under the pack's instrument, subject to standard verification.",
+      "citation": {
+        "instrument": "Fixture Instrument",
+        "provision": "Reg 3(1)"
+      },
+      "verificationStatus": "VERIFIED",
+      "verificationNote": null
+    },
+    {
+      "ruleId": "FIXTURE-UNAUTHORED-TOKEN.TRANSLATION",
+      "categoryCode": "TRANSLATION",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "This category is a permitted reasonable-cost item under the pack's instrument, subject to standard verification.",
+      "citation": {
+        "instrument": "Fixture Instrument",
+        "provision": "Reg 3(1)"
+      },
+      "verificationStatus": "VERIFIED",
+      "verificationNote": null
+    },
+    {
+      "ruleId": "FIXTURE-UNAUTHORED-TOKEN.TRANSCRIPTION_CONVERSION",
+      "categoryCode": "TRANSCRIPTION_CONVERSION",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "This category is a permitted reasonable-cost item under the pack's instrument, subject to standard verification.",
+      "citation": {
+        "instrument": "Fixture Instrument",
+        "provision": "Reg 3(1)"
+      },
+      "verificationStatus": "VERIFIED",
+      "verificationNote": null
+    },
+    {
+      "ruleId": "FIXTURE-UNAUTHORED-TOKEN.IDENTITY_VERIFICATION",
+      "categoryCode": "IDENTITY_VERIFICATION",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "This category is a permitted reasonable-cost item under the pack's instrument, subject to standard verification.",
+      "citation": {
+        "instrument": "Fixture Instrument",
+        "provision": "Reg 3(1)"
+      },
+      "verificationStatus": "VERIFIED",
+      "verificationNote": null
+    },
+    {
+      "ruleId": "FIXTURE-UNAUTHORED-TOKEN.ADMIN_OVERHEAD",
+      "categoryCode": "ADMIN_OVERHEAD",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "This category is a permitted reasonable-cost item under the pack's instrument, subject to standard verification.",
+      "citation": {
+        "instrument": "Fixture Instrument",
+        "provision": "Reg 3(1)"
+      },
+      "verificationStatus": "VERIFIED",
+      "verificationNote": null
+    },
+    {
+      "ruleId": "FIXTURE-UNAUTHORED-TOKEN.RECORDS_REMEDIATION",
+      "categoryCode": "RECORDS_REMEDIATION",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "This category is a permitted reasonable-cost item under the pack's instrument, subject to standard verification.",
+      "citation": {
+        "instrument": "Fixture Instrument",
+        "provision": "Reg 3(1)"
+      },
+      "verificationStatus": "VERIFIED",
+      "verificationNote": null
+    },
+    {
+      "ruleId": "FIXTURE-UNAUTHORED-TOKEN.OTHER_UNCLASSIFIED",
+      "categoryCode": "OTHER_UNCLASSIFIED",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "This category is a permitted reasonable-cost item under the pack's instrument, subject to standard verification.",
+      "citation": {
+        "instrument": "Fixture Instrument",
+        "provision": "Reg 3(1)"
+      },
+      "verificationStatus": "VERIFIED",
+      "verificationNote": null
+    }
+  ],
+  "matterFlagRules": [],
+  "requestorNoticeTemplate": "This notice explains the fee for responding to your data access request.",
+  "openQuestions": []
+}

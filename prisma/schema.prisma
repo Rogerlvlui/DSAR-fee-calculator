@@ -1,0 +1,386 @@
+// prisma/schema.prisma
+//
+// Phase 1 plan 01-03 (D-01): all six core entities plus `User`, modelled and
+// validated here so Phases 2-5 never collide on this file while running
+// concurrently. This freeze is transcription of PRD §6 / §7.2, not design —
+// see 01-CONTEXT.md D-01, D-06, D-09.
+//
+// Deliberately NOT here (see 01-CONTEXT.md):
+//   - the SIGNED_OFF immutability trigger (D-07 — Phase 4)
+//   - any migration application (Phase 3.2, plan 03.2-01)
+//   - the two-role GRANT/REVOKE SQL and the currency check constraint
+//     (D-06's DB-level invariants — also Phase 3.2)
+//
+// Prisma 7.10.0 note: the connection URL no longer lives in the `datasource`
+// block (that syntax was removed — see prisma.config.ts). This schema
+// declares only the provider; the URL is supplied via prisma.config.ts,
+// which is why `prisma validate`/`prisma generate` both run with no
+// database available (this plan needs no Docker).
+
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client"
+  output   = "./generated"
+}
+
+// ---------------------------------------------------------------------------
+// Native Postgres enums — one per PRD closed set. STATE-01: a native enum
+// means "no other status value exists anywhere in the system" holds at the
+// database, not only in zod. Every enum below transcribes the corresponding
+// packages/schemas tuple member-for-member and in the same order.
+// ---------------------------------------------------------------------------
+
+// Mirrors packages/schemas/src/matter-status.ts MATTER_STATUSES exactly,
+// same order — PRD §5 lifecycle order. Asserted equal member-for-member by
+// tests/db (Phase 3.2) and by this plan's acceptance criteria.
+enum MatterStatus {
+  DRAFT
+  COMPUTING
+  LEGAL_REVIEW
+  INFO_REQUEST
+  SIGNED_OFF
+  CLOSED
+  SUPERSEDED
+}
+
+// Mirrors packages/schemas/src/primitives.ts RoleSchema.
+enum Role {
+  HR_PREPARER
+  LEGAL_REVIEWER
+  RULEPACK_AUTHOR
+  DPO_ADMIN
+}
+
+// PRD §6.1 Matter.controllerType.
+enum ControllerType {
+  PRIVATE_ORGANISATION
+  PUBLIC_AGENCY
+}
+
+// PRD §6.1 Matter.requestorClass.
+enum RequestorClass {
+  FORMER_EMPLOYEE
+  CURRENT_EMPLOYEE
+  OTHER
+}
+
+// PRD §6.2 ExpenseLine.unit.
+enum ExpenseUnit {
+  HOUR
+  PAGE
+  ITEM
+  GIGABYTE
+  FIXED
+}
+
+// Mirrors packages/schemas/src/primitives.ts StaffGradeSchema.
+enum StaffGrade {
+  ADMIN
+  EXECUTIVE
+  MANAGER
+  SENIOR_MANAGER
+  SPECIALIST
+}
+
+// Mirrors packages/schemas/src/taxonomy.ts EXPENSE_CATEGORY_CODES exactly,
+// same order — PRD §6.3's closed 21-code taxonomy.
+enum ExpenseCategoryCode {
+  STAFF_TIME_SEARCH
+  STAFF_TIME_COLLATE
+  STAFF_TIME_REDACT_THIRD_PARTY
+  STAFF_TIME_REDACT_EXEMPT
+  STAFF_TIME_ASSESS_EXEMPTIONS
+  STAFF_TIME_LEGAL_REVIEW
+  PROFESSIONAL_REVIEW
+  PHOTOCOPY_PRINT
+  MEDIA_MATERIALS
+  POSTAGE_COURIER
+  SECURE_TRANSFER
+  IT_EXTRACTION
+  VENDOR_PAYROLL
+  VENDOR_ARCHIVE
+  VENDOR_OTHER
+  TRANSLATION
+  TRANSCRIPTION_CONVERSION
+  IDENTITY_VERIFICATION
+  ADMIN_OVERHEAD
+  RECORDS_REMEDIATION
+  OTHER_UNCLASSIFIED
+}
+
+// PRD §6.4 Verdict.
+enum Verdict {
+  ALLOW
+  ALLOW_CAPPED
+  DISALLOW
+  FLAG
+}
+
+// PRD §6.4 Disposition.
+enum Disposition {
+  PENDING
+  ACCEPTED
+  REDUCED
+  STRUCK
+  ALLOWED_BY_LAWYER
+}
+
+// PRD §7.2 RulePack.status.
+enum RulePackStatus {
+  DRAFT
+  ACTIVE
+  STALE
+  WITHDRAWN
+}
+
+// Mirrors packages/schemas/src/primitives.ts JurisdictionCodeSchema.
+enum JurisdictionCode {
+  SG
+  HK
+  AU
+  NZ
+  JP
+  KR
+  CN
+  IN
+  VN
+}
+
+// Mirrors packages/schemas/src/primitives.ts CurrencyCodeSchema.
+enum CurrencyCode {
+  SGD
+  HKD
+  AUD
+  NZD
+  JPY
+  KRW
+  CNY
+  INR
+  VND
+}
+
+// Mirrors packages/schemas/src/primitives.ts AuditEventTypeSchema, member for
+// member (all seventeen values). AUDIT-02 makes this table append-only via a
+// DB-level UPDATE/DELETE/TRUNCATE revoke (Phase 3.2) — a bad row here can
+// never be corrected, only worked around forever, so this is the one table
+// where a native enum matters most, not least (WR-02).
+enum AuditEventType {
+  MATTER_CREATED
+  LINE_ADDED
+  LINE_EDITED
+  LINE_DELETED
+  SUBMITTED
+  COMPUTED
+  COMPUTE_FAILED
+  LINE_DISPOSITIONED
+  DISPOSITION_UNDONE
+  INFO_REQUESTED
+  FLAG_ACKNOWLEDGED
+  SIGNED_OFF
+  NOTICE_MARKED_SENT
+  SUPERSEDED
+  PACK_ACTIVATED
+  PACK_EDITED
+  CAPABILITY_STATEMENT_ACKNOWLEDGED
+}
+
+// ---------------------------------------------------------------------------
+// User — the UserRef shape the role guard and the audit actor need. Carries
+// no requestor-side data (BOUND-02).
+// ---------------------------------------------------------------------------
+
+model User {
+  id          String @id
+  displayName String
+  email       String @unique
+  role        Role
+
+  createdMatters           Matter[]          @relation("MatterCreatedBy")
+  signOffAssessments       Assessment[]      @relation("AssessmentSignOffLawyer")
+  dispositionedLines       AssessmentLine[]  @relation("AssessmentLineDispositionedBy")
+  rulePackVersionsAuthored RulePackVersion[] @relation("RulePackVersionAuthoredBy")
+  rulePackVersionsReviewed RulePackVersion[] @relation("RulePackVersionReviewedBy")
+  auditEvents              AuditEvent[]      @relation("AuditEventActor")
+}
+
+// ---------------------------------------------------------------------------
+// Matter — PRD §6.1
+// ---------------------------------------------------------------------------
+
+model Matter {
+  id                            String           @id
+  reference                     String           @unique
+  jurisdictionCode              JurisdictionCode
+  legalEntity                   String
+  controllerType                ControllerType
+  requestReceivedOn             DateTime         @db.Date
+  requestorClass                RequestorClass
+  currency                      CurrencyCode
+  // Attestations by HR. Booleans only — NEVER the underlying evidence (§12.1).
+  identityVerified              Boolean
+  identityVerifiedNote          String?          @db.VarChar(200)
+  scopeClarified                Boolean
+  isRepeatRequestWithin12Months Boolean
+  isKnownDisputeOrLitigation    Boolean
+  status                        MatterStatus     @default(DRAFT)
+  createdById                   String
+  createdBy                     User             @relation("MatterCreatedBy", fields: [createdById], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  createdAt                     DateTime         @default(now())
+
+  expenseLines ExpenseLine[]
+  assessments  Assessment[]
+  auditEvents  AuditEvent[]
+}
+
+// ---------------------------------------------------------------------------
+// ExpenseLine — PRD §6.2, HR's itemised "wish list"
+// ---------------------------------------------------------------------------
+
+model ExpenseLine {
+  id                   String              @id
+  matterId             String
+  matter               Matter              @relation(fields: [matterId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  seq                  Int
+  categoryCode         ExpenseCategoryCode
+  description          String              @db.VarChar(300)
+  // Whole units of the declared `unit` (an HOUR/PAGE/ITEM/GIGABYTE/FIXED
+  // count) — read as an integer count, not a fractional quantity. Recorded
+  // per this plan's <output> instruction.
+  quantity             Int
+  unit                 ExpenseUnit
+  unitRate             Int
+  claimedAmount        Int
+  incurredByGrade      StaffGrade?
+  isThirdPartyInvoiced Boolean
+  vendorName           String?
+  evidenceRef          String?
+  hrNote               String?             @db.VarChar(500)
+
+  assessmentLines AssessmentLine[]
+
+  @@unique([matterId, seq])
+}
+
+// ---------------------------------------------------------------------------
+// Assessment — PRD §6.4 plus the §8.1 step-6 Totals, and SignOff inlined as
+// nullable columns (matches `signOff: SignOff | null` without a seventh
+// entity).
+// ---------------------------------------------------------------------------
+
+model Assessment {
+  id                       String   @id
+  matterId                 String
+  matter                   Matter   @relation(fields: [matterId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  // Pinned at compute time, immutable copies of the pack identity — never a
+  // live FK to RulePackVersion, so a later pack edit cannot retroactively
+  // change what an already-computed assessment says it applied.
+  rulePackId               String
+  rulePackVersion          String
+  engineVersion            String
+  computedAt               DateTime
+  matterLevelFlags         Json
+  claimedTotal             Int
+  draftBaseline            Int
+  disallowedTotal          Int
+  flaggedTotal             Int
+  restingOnUnverifiedRules Int
+  // Nullable with NO default (AC-25): must be unrepresentable as a number
+  // before sign-off. A @default(0) would make "not yet signed off"
+  // indistinguishable from a genuine zero-fee outcome.
+  finalAmount              Int?
+
+  // SignOff, inlined (nullable until sign-off).
+  signOffLawyerId      String?
+  signOffLawyer        User?     @relation("AssessmentSignOffLawyer", fields: [signOffLawyerId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  signOffLawyerName    String?
+  signOffQualification String?
+  signedAt             DateTime?
+  acknowledgedFlags    Json?
+  attestationVersion   String?
+
+  lines AssessmentLine[]
+}
+
+// ---------------------------------------------------------------------------
+// AssessmentLine — PRD §6.4
+// ---------------------------------------------------------------------------
+
+model AssessmentLine {
+  id                String      @id
+  assessmentId      String
+  assessment        Assessment  @relation(fields: [assessmentId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  expenseLineId     String
+  expenseLine       ExpenseLine @relation(fields: [expenseLineId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  verdict           Verdict
+  engineAmount      Int
+  appliedRuleId     String
+  appliedCap        Json?
+  basis             String      @db.VarChar(240)
+  citation          Json
+  flagReasons       Json
+  disposition       Disposition @default(PENDING)
+  lawyerAmount      Int?
+  lawyerReason      String?     @db.VarChar(1000)
+  dispositionedById String?
+  dispositionedBy   User?       @relation("AssessmentLineDispositionedBy", fields: [dispositionedById], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  dispositionedAt   DateTime?
+}
+
+// ---------------------------------------------------------------------------
+// RulePackVersion — PRD §7.2 fields carried as columns, not opaque JSON,
+// plus the full authored pack body as `content`.
+// ---------------------------------------------------------------------------
+
+model RulePackVersion {
+  id               String           @id
+  packId           String
+  version          String
+  status           RulePackStatus
+  jurisdictionCode JurisdictionCode
+  authoredById     String?
+  authoredBy       User?            @relation("RulePackVersionAuthoredBy", fields: [authoredById], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  reviewedById     String?
+  reviewedBy       User?            @relation("RulePackVersionReviewedBy", fields: [reviewedById], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  reviewedOn       DateTime?        @db.Date
+  reviewDueOn      DateTime         @db.Date
+  // The full authored pack body (Phase 3 writes content; Phase 1 freezes
+  // only the shape via this column, not any pack content).
+  content          Json
+  createdAt        DateTime         @default(now())
+
+  @@unique([packId, version])
+}
+
+// ---------------------------------------------------------------------------
+// AuditEvent — PRD §6.5. Append-only: no ORM-level cascade reaches this
+// table, `at` defaults to server time (never a client-supplied timestamp),
+// and `id` is a monotonic autoincrement. The database-level
+// UPDATE/DELETE/TRUNCATE revoke that completes AUDIT-02 is Phase 3.2's job
+// (D-06/D-07 informational note in 01-CONTEXT.md).
+// ---------------------------------------------------------------------------
+
+model AuditEvent {
+  id              BigInt         @id @default(autoincrement())
+  matterId        String
+  matter          Matter         @relation(fields: [matterId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  actorId         String
+  actor           User           @relation("AuditEventActor", fields: [actorId], references: [id], onDelete: Restrict, onUpdate: Restrict)
+  actorRole       Role
+  at              DateTime       @default(now())
+  // Native enum, mirroring the frozen AuditEventTypeSchema member-for-member
+  // (WR-02): this is the one table AUDIT-02 makes append-only (Phase 3.2
+  // revokes UPDATE/DELETE/TRUNCATE from dsar_runtime), so a bad row here can
+  // never be corrected — DB-level rejection of an out-of-set value matters
+  // more on this table than on any of the others, not less. Every other
+  // closed set in this file already gets a native enum; this was the one
+  // deliberate exception, and the exception did not hold up.
+  type            AuditEventType
+  payload         Json
+  rulePackVersion String?
+  engineVersion   String?
+
+  @@index([matterId, at])
+}

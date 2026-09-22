@@ -1,0 +1,349 @@
+{
+  "packId": "CN-PIPL",
+  "jurisdiction": {
+    "code": "CN",
+    "name": "China"
+  },
+  "version": "2026.09.1",
+  "status": "DRAFT",
+  "authoredBy": null,
+  "reviewedBy": null,
+  "reviewedOn": null,
+  "reviewDueOn": "2027-09-16",
+  "instruments": [
+    {
+      "title": "Personal Information Protection Law (PIPL)",
+      "provisions": [
+        "art.45",
+        "art.50"
+      ]
+    },
+    {
+      "title": "GB/T 35273",
+      "provisions": []
+    }
+  ],
+  "feePosture": {
+    "PRIVATE_ORGANISATION": "NO_EXPRESS_AUTHORITY",
+    "PUBLIC_AGENCY": "NO_EXPRESS_AUTHORITY"
+  },
+  "appliesTo": [
+    "PRIVATE_ORGANISATION",
+    "PUBLIC_AGENCY"
+  ],
+  "rateSanityCeiling": {},
+  "constraints": {
+    "noChargeForMakingRequest": null,
+    "estimateRequiredBeforeCharging": null,
+    "feeNotificationDeadlineDays": null,
+    "deadlineBasis": null,
+    "responseDeadlineDays": null,
+    "advancePaymentPermitted": null,
+    "mayWithholdDataUntilPaid": null,
+    "profitElementPermitted": null,
+    "deterrentUsePermitted": null,
+    "regulatorMayReviewFee": null,
+    "aggregateCap": null
+  },
+  "categoryRules": [
+    {
+      "ruleId": "CN-PIPL.STAFF_TIME_SEARCH",
+      "categoryCode": "STAFF_TIME_SEARCH",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Information Protection Law (PIPL)",
+        "provision": "art.45"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — We found no provision conferring a right to charge for providing a copy, and we are treating that as silence rather than as a prohibition. Default: no fee, every line flagged. Do not infer a fee right from silence, and do not infer a prohibition from it either — counsel to characterise."
+    },
+    {
+      "ruleId": "CN-PIPL.STAFF_TIME_COLLATE",
+      "categoryCode": "STAFF_TIME_COLLATE",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Information Protection Law (PIPL)",
+        "provision": "art.45"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — We found no provision conferring a right to charge for providing a copy, and we are treating that as silence rather than as a prohibition. Default: no fee, every line flagged. Do not infer a fee right from silence, and do not infer a prohibition from it either — counsel to characterise."
+    },
+    {
+      "ruleId": "CN-PIPL.STAFF_TIME_REDACT_THIRD_PARTY",
+      "categoryCode": "STAFF_TIME_REDACT_THIRD_PARTY",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Information Protection Law (PIPL)",
+        "provision": "art.45"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — We found no provision conferring a right to charge for providing a copy, and we are treating that as silence rather than as a prohibition. Default: no fee, every line flagged. Do not infer a fee right from silence, and do not infer a prohibition from it either — counsel to characterise."
+    },
+    {
+      "ruleId": "CN-PIPL.STAFF_TIME_REDACT_EXEMPT",
+      "categoryCode": "STAFF_TIME_REDACT_EXEMPT",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Information Protection Law (PIPL)",
+        "provision": "art.45"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — We found no provision conferring a right to charge for providing a copy, and we are treating that as silence rather than as a prohibition. Default: no fee, every line flagged. Do not infer a fee right from silence, and do not infer a prohibition from it either — counsel to characterise."
+    },
+    {
+      "ruleId": "CN-PIPL.STAFF_TIME_ASSESS_EXEMPTIONS",
+      "categoryCode": "STAFF_TIME_ASSESS_EXEMPTIONS",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Information Protection Law (PIPL)",
+        "provision": "art.45"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — We found no provision conferring a right to charge for providing a copy, and we are treating that as silence rather than as a prohibition. Default: no fee, every line flagged. Do not infer a fee right from silence, and do not infer a prohibition from it either — counsel to characterise."
+    },
+    {
+      "ruleId": "CN-PIPL.STAFF_TIME_LEGAL_REVIEW",
+      "categoryCode": "STAFF_TIME_LEGAL_REVIEW",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Information Protection Law (PIPL)",
+        "provision": "art.45"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — We found no provision conferring a right to charge for providing a copy, and we are treating that as silence rather than as a prohibition. Default: no fee, every line flagged. Do not infer a fee right from silence, and do not infer a prohibition from it either — counsel to characterise."
+    },
+    {
+      "ruleId": "CN-PIPL.PROFESSIONAL_REVIEW",
+      "categoryCode": "PROFESSIONAL_REVIEW",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Information Protection Law (PIPL)",
+        "provision": "art.45"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — We found no provision conferring a right to charge for providing a copy, and we are treating that as silence rather than as a prohibition. Default: no fee, every line flagged. Do not infer a fee right from silence, and do not infer a prohibition from it either — counsel to characterise."
+    },
+    {
+      "ruleId": "CN-PIPL.PHOTOCOPY_PRINT",
+      "categoryCode": "PHOTOCOPY_PRINT",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Information Protection Law (PIPL)",
+        "provision": "art.45"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — We found no provision conferring a right to charge for providing a copy, and we are treating that as silence rather than as a prohibition. Default: no fee, every line flagged. Do not infer a fee right from silence, and do not infer a prohibition from it either — counsel to characterise."
+    },
+    {
+      "ruleId": "CN-PIPL.MEDIA_MATERIALS",
+      "categoryCode": "MEDIA_MATERIALS",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Information Protection Law (PIPL)",
+        "provision": "art.45"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — We found no provision conferring a right to charge for providing a copy, and we are treating that as silence rather than as a prohibition. Default: no fee, every line flagged. Do not infer a fee right from silence, and do not infer a prohibition from it either — counsel to characterise."
+    },
+    {
+      "ruleId": "CN-PIPL.POSTAGE_COURIER",
+      "categoryCode": "POSTAGE_COURIER",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Information Protection Law (PIPL)",
+        "provision": "art.45"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — We found no provision conferring a right to charge for providing a copy, and we are treating that as silence rather than as a prohibition. Default: no fee, every line flagged. Do not infer a fee right from silence, and do not infer a prohibition from it either — counsel to characterise."
+    },
+    {
+      "ruleId": "CN-PIPL.SECURE_TRANSFER",
+      "categoryCode": "SECURE_TRANSFER",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Information Protection Law (PIPL)",
+        "provision": "art.45"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — We found no provision conferring a right to charge for providing a copy, and we are treating that as silence rather than as a prohibition. Default: no fee, every line flagged. Do not infer a fee right from silence, and do not infer a prohibition from it either — counsel to characterise."
+    },
+    {
+      "ruleId": "CN-PIPL.IT_EXTRACTION",
+      "categoryCode": "IT_EXTRACTION",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Information Protection Law (PIPL)",
+        "provision": "art.45"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — We found no provision conferring a right to charge for providing a copy, and we are treating that as silence rather than as a prohibition. Default: no fee, every line flagged. Do not infer a fee right from silence, and do not infer a prohibition from it either — counsel to characterise."
+    },
+    {
+      "ruleId": "CN-PIPL.VENDOR_PAYROLL",
+      "categoryCode": "VENDOR_PAYROLL",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Information Protection Law (PIPL)",
+        "provision": "art.45"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — We found no provision conferring a right to charge for providing a copy, and we are treating that as silence rather than as a prohibition. Default: no fee, every line flagged. Do not infer a fee right from silence, and do not infer a prohibition from it either — counsel to characterise."
+    },
+    {
+      "ruleId": "CN-PIPL.VENDOR_ARCHIVE",
+      "categoryCode": "VENDOR_ARCHIVE",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Information Protection Law (PIPL)",
+        "provision": "art.45"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — We found no provision conferring a right to charge for providing a copy, and we are treating that as silence rather than as a prohibition. Default: no fee, every line flagged. Do not infer a fee right from silence, and do not infer a prohibition from it either — counsel to characterise."
+    },
+    {
+      "ruleId": "CN-PIPL.VENDOR_OTHER",
+      "categoryCode": "VENDOR_OTHER",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Information Protection Law (PIPL)",
+        "provision": "art.45"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — We found no provision conferring a right to charge for providing a copy, and we are treating that as silence rather than as a prohibition. Default: no fee, every line flagged. Do not infer a fee right from silence, and do not infer a prohibition from it either — counsel to characterise."
+    },
+    {
+      "ruleId": "CN-PIPL.TRANSLATION",
+      "categoryCode": "TRANSLATION",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Information Protection Law (PIPL)",
+        "provision": "art.45"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — We found no provision conferring a right to charge for providing a copy, and we are treating that as silence rather than as a prohibition. Default: no fee, every line flagged. Do not infer a fee right from silence, and do not infer a prohibition from it either — counsel to characterise."
+    },
+    {
+      "ruleId": "CN-PIPL.TRANSCRIPTION_CONVERSION",
+      "categoryCode": "TRANSCRIPTION_CONVERSION",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Information Protection Law (PIPL)",
+        "provision": "art.45"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — We found no provision conferring a right to charge for providing a copy, and we are treating that as silence rather than as a prohibition. Default: no fee, every line flagged. Do not infer a fee right from silence, and do not infer a prohibition from it either — counsel to characterise."
+    },
+    {
+      "ruleId": "CN-PIPL.IDENTITY_VERIFICATION",
+      "categoryCode": "IDENTITY_VERIFICATION",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Information Protection Law (PIPL)",
+        "provision": "art.45"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — We found no provision conferring a right to charge for providing a copy, and we are treating that as silence rather than as a prohibition. Default: no fee, every line flagged. Do not infer a fee right from silence, and do not infer a prohibition from it either — counsel to characterise."
+    },
+    {
+      "ruleId": "CN-PIPL.ADMIN_OVERHEAD",
+      "categoryCode": "ADMIN_OVERHEAD",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Information Protection Law (PIPL)",
+        "provision": "art.45"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — We found no provision conferring a right to charge for providing a copy, and we are treating that as silence rather than as a prohibition. Default: no fee, every line flagged. Do not infer a fee right from silence, and do not infer a prohibition from it either — counsel to characterise."
+    },
+    {
+      "ruleId": "CN-PIPL.RECORDS_REMEDIATION",
+      "categoryCode": "RECORDS_REMEDIATION",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Information Protection Law (PIPL)",
+        "provision": "art.45"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — We found no provision conferring a right to charge for providing a copy, and we are treating that as silence rather than as a prohibition. Default: no fee, every line flagged. Do not infer a fee right from silence, and do not infer a prohibition from it either — counsel to characterise."
+    },
+    {
+      "ruleId": "CN-PIPL.OTHER_UNCLASSIFIED",
+      "categoryCode": "OTHER_UNCLASSIFIED",
+      "treatment": "FLAG",
+      "cap": null,
+      "conditions": [],
+      "basis": "No treatment has been authored for this category in this jurisdiction.",
+      "citation": {
+        "instrument": "Personal Information Protection Law (PIPL)",
+        "provision": "art.45"
+      },
+      "verificationStatus": "NEEDS_VERIFICATION",
+      "verificationNote": "UNAUTHORED — We found no provision conferring a right to charge for providing a copy, and we are treating that as silence rather than as a prohibition. Default: no fee, every line flagged. Do not infer a fee right from silence, and do not infer a prohibition from it either — counsel to characterise."
+    }
+  ],
+  "matterFlagRules": [],
+  "requestorNoticeTemplate": "UNAUTHORED — counsel must author the requestor-facing fee notice for this jurisdiction before this pack can reach ACTIVE.",
+  "openQuestions": [
+    "We found no provision conferring a right to charge for providing a copy, and we are treating that as silence rather than as a prohibition. Default: no fee, every line flagged. Do not infer a fee right from silence, and do not infer a prohibition from it either — counsel to characterise."
+  ]
+}

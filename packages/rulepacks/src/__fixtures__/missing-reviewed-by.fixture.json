@@ -1,0 +1,349 @@
+{
+  "packId": "FIXTURE-MISSING-REVIEWED-BY",
+  "jurisdiction": {
+    "code": "SG",
+    "name": "Singapore"
+  },
+  "version": "2026.09.1",
+  "status": "ACTIVE",
+  "authoredBy": {
+    "id": "01K5GSD0PRT0TYPECNSE000001",
+    "displayName": "Product Owner — Prototype Authoring Counsel",
+    "email": "product-owner@example.invalid"
+  },
+  "reviewedBy": null,
+  "reviewedOn": "2026-09-16",
+  "reviewDueOn": "2027-09-16",
+  "instruments": [
+    {
+      "title": "Fixture Instrument",
+      "provisions": [
+        "Reg 3(1)"
+      ]
+    }
+  ],
+  "feePosture": {
+    "PRIVATE_ORGANISATION": "PERMITTED_REASONABLE",
+    "PUBLIC_AGENCY": "PERMITTED_REASONABLE"
+  },
+  "appliesTo": [
+    "PRIVATE_ORGANISATION",
+    "PUBLIC_AGENCY"
+  ],
+  "rateSanityCeiling": {},
+  "constraints": {
+    "noChargeForMakingRequest": true,
+    "estimateRequiredBeforeCharging": true,
+    "feeNotificationDeadlineDays": 30,
+    "deadlineBasis": "CALENDAR_DAYS",
+    "responseDeadlineDays": 30,
+    "advancePaymentPermitted": false,
+    "mayWithholdDataUntilPaid": false,
+    "profitElementPermitted": false,
+    "deterrentUsePermitted": false,
+    "regulatorMayReviewFee": true,
+    "aggregateCap": {
+      "type": "PER_MATTER",
+      "amount": 500000
+    }
+  },
+  "categoryRules": [
+    {
+      "ruleId": "FIXTURE-MISSING-REVIEWED-BY.STAFF_TIME_SEARCH",
+      "categoryCode": "STAFF_TIME_SEARCH",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "This category is a permitted reasonable-cost item under the pack's instrument, subject to standard verification.",
+      "citation": {
+        "instrument": "Fixture Instrument",
+        "provision": "Reg 3(1)"
+      },
+      "verificationStatus": "VERIFIED",
+      "verificationNote": null
+    },
+    {
+      "ruleId": "FIXTURE-MISSING-REVIEWED-BY.STAFF_TIME_COLLATE",
+      "categoryCode": "STAFF_TIME_COLLATE",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "This category is a permitted reasonable-cost item under the pack's instrument, subject to standard verification.",
+      "citation": {
+        "instrument": "Fixture Instrument",
+        "provision": "Reg 3(1)"
+      },
+      "verificationStatus": "VERIFIED",
+      "verificationNote": null
+    },
+    {
+      "ruleId": "FIXTURE-MISSING-REVIEWED-BY.STAFF_TIME_REDACT_THIRD_PARTY",
+      "categoryCode": "STAFF_TIME_REDACT_THIRD_PARTY",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "This category is a permitted reasonable-cost item under the pack's instrument, subject to standard verification.",
+      "citation": {
+        "instrument": "Fixture Instrument",
+        "provision": "Reg 3(1)"
+      },
+      "verificationStatus": "VERIFIED",
+      "verificationNote": null
+    },
+    {
+      "ruleId": "FIXTURE-MISSING-REVIEWED-BY.STAFF_TIME_REDACT_EXEMPT",
+      "categoryCode": "STAFF_TIME_REDACT_EXEMPT",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "This category is a permitted reasonable-cost item under the pack's instrument, subject to standard verification.",
+      "citation": {
+        "instrument": "Fixture Instrument",
+        "provision": "Reg 3(1)"
+      },
+      "verificationStatus": "VERIFIED",
+      "verificationNote": null
+    },
+    {
+      "ruleId": "FIXTURE-MISSING-REVIEWED-BY.STAFF_TIME_ASSESS_EXEMPTIONS",
+      "categoryCode": "STAFF_TIME_ASSESS_EXEMPTIONS",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "This category is a permitted reasonable-cost item under the pack's instrument, subject to standard verification.",
+      "citation": {
+        "instrument": "Fixture Instrument",
+        "provision": "Reg 3(1)"
+      },
+      "verificationStatus": "VERIFIED",
+      "verificationNote": null
+    },
+    {
+      "ruleId": "FIXTURE-MISSING-REVIEWED-BY.STAFF_TIME_LEGAL_REVIEW",
+      "categoryCode": "STAFF_TIME_LEGAL_REVIEW",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "This category is a permitted reasonable-cost item under the pack's instrument, subject to standard verification.",
+      "citation": {
+        "instrument": "Fixture Instrument",
+        "provision": "Reg 3(1)"
+      },
+      "verificationStatus": "VERIFIED",
+      "verificationNote": null
+    },
+    {
+      "ruleId": "FIXTURE-MISSING-REVIEWED-BY.PROFESSIONAL_REVIEW",
+      "categoryCode": "PROFESSIONAL_REVIEW",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "This category is a permitted reasonable-cost item under the pack's instrument, subject to standard verification.",
+      "citation": {
+        "instrument": "Fixture Instrument",
+        "provision": "Reg 3(1)"
+      },
+      "verificationStatus": "VERIFIED",
+      "verificationNote": null
+    },
+    {
+      "ruleId": "FIXTURE-MISSING-REVIEWED-BY.PHOTOCOPY_PRINT",
+      "categoryCode": "PHOTOCOPY_PRINT",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "This category is a permitted reasonable-cost item under the pack's instrument, subject to standard verification.",
+      "citation": {
+        "instrument": "Fixture Instrument",
+        "provision": "Reg 3(1)"
+      },
+      "verificationStatus": "VERIFIED",
+      "verificationNote": null
+    },
+    {
+      "ruleId": "FIXTURE-MISSING-REVIEWED-BY.MEDIA_MATERIALS",
+      "categoryCode": "MEDIA_MATERIALS",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "This category is a permitted reasonable-cost item under the pack's instrument, subject to standard verification.",
+      "citation": {
+        "instrument": "Fixture Instrument",
+        "provision": "Reg 3(1)"
+      },
+      "verificationStatus": "VERIFIED",
+      "verificationNote": null
+    },
+    {
+      "ruleId": "FIXTURE-MISSING-REVIEWED-BY.POSTAGE_COURIER",
+      "categoryCode": "POSTAGE_COURIER",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "This category is a permitted reasonable-cost item under the pack's instrument, subject to standard verification.",
+      "citation": {
+        "instrument": "Fixture Instrument",
+        "provision": "Reg 3(1)"
+      },
+      "verificationStatus": "VERIFIED",
+      "verificationNote": null
+    },
+    {
+      "ruleId": "FIXTURE-MISSING-REVIEWED-BY.SECURE_TRANSFER",
+      "categoryCode": "SECURE_TRANSFER",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "This category is a permitted reasonable-cost item under the pack's instrument, subject to standard verification.",
+      "citation": {
+        "instrument": "Fixture Instrument",
+        "provision": "Reg 3(1)"
+      },
+      "verificationStatus": "VERIFIED",
+      "verificationNote": null
+    },
+    {
+      "ruleId": "FIXTURE-MISSING-REVIEWED-BY.IT_EXTRACTION",
+      "categoryCode": "IT_EXTRACTION",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "This category is a permitted reasonable-cost item under the pack's instrument, subject to standard verification.",
+      "citation": {
+        "instrument": "Fixture Instrument",
+        "provision": "Reg 3(1)"
+      },
+      "verificationStatus": "VERIFIED",
+      "verificationNote": null
+    },
+    {
+      "ruleId": "FIXTURE-MISSING-REVIEWED-BY.VENDOR_PAYROLL",
+      "categoryCode": "VENDOR_PAYROLL",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "This category is a permitted reasonable-cost item under the pack's instrument, subject to standard verification.",
+      "citation": {
+        "instrument": "Fixture Instrument",
+        "provision": "Reg 3(1)"
+      },
+      "verificationStatus": "VERIFIED",
+      "verificationNote": null
+    },
+    {
+      "ruleId": "FIXTURE-MISSING-REVIEWED-BY.VENDOR_ARCHIVE",
+      "categoryCode": "VENDOR_ARCHIVE",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "This category is a permitted reasonable-cost item under the pack's instrument, subject to standard verification.",
+      "citation": {
+        "instrument": "Fixture Instrument",
+        "provision": "Reg 3(1)"
+      },
+      "verificationStatus": "VERIFIED",
+      "verificationNote": null
+    },
+    {
+      "ruleId": "FIXTURE-MISSING-REVIEWED-BY.VENDOR_OTHER",
+      "categoryCode": "VENDOR_OTHER",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "This category is a permitted reasonable-cost item under the pack's instrument, subject to standard verification.",
+      "citation": {
+        "instrument": "Fixture Instrument",
+        "provision": "Reg 3(1)"
+      },
+      "verificationStatus": "VERIFIED",
+      "verificationNote": null
+    },
+    {
+      "ruleId": "FIXTURE-MISSING-REVIEWED-BY.TRANSLATION",
+      "categoryCode": "TRANSLATION",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "This category is a permitted reasonable-cost item under the pack's instrument, subject to standard verification.",
+      "citation": {
+        "instrument": "Fixture Instrument",
+        "provision": "Reg 3(1)"
+      },
+      "verificationStatus": "VERIFIED",
+      "verificationNote": null
+    },
+    {
+      "ruleId": "FIXTURE-MISSING-REVIEWED-BY.TRANSCRIPTION_CONVERSION",
+      "categoryCode": "TRANSCRIPTION_CONVERSION",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "This category is a permitted reasonable-cost item under the pack's instrument, subject to standard verification.",
+      "citation": {
+        "instrument": "Fixture Instrument",
+        "provision": "Reg 3(1)"
+      },
+      "verificationStatus": "VERIFIED",
+      "verificationNote": null
+    },
+    {
+      "ruleId": "FIXTURE-MISSING-REVIEWED-BY.IDENTITY_VERIFICATION",
+      "categoryCode": "IDENTITY_VERIFICATION",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "This category is a permitted reasonable-cost item under the pack's instrument, subject to standard verification.",
+      "citation": {
+        "instrument": "Fixture Instrument",
+        "provision": "Reg 3(1)"
+      },
+      "verificationStatus": "VERIFIED",
+      "verificationNote": null
+    },
+    {
+      "ruleId": "FIXTURE-MISSING-REVIEWED-BY.ADMIN_OVERHEAD",
+      "categoryCode": "ADMIN_OVERHEAD",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "This category is a permitted reasonable-cost item under the pack's instrument, subject to standard verification.",
+      "citation": {
+        "instrument": "Fixture Instrument",
+        "provision": "Reg 3(1)"
+      },
+      "verificationStatus": "VERIFIED",
+      "verificationNote": null
+    },
+    {
+      "ruleId": "FIXTURE-MISSING-REVIEWED-BY.RECORDS_REMEDIATION",
+      "categoryCode": "RECORDS_REMEDIATION",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "This category is a permitted reasonable-cost item under the pack's instrument, subject to standard verification.",
+      "citation": {
+        "instrument": "Fixture Instrument",
+        "provision": "Reg 3(1)"
+      },
+      "verificationStatus": "VERIFIED",
+      "verificationNote": null
+    },
+    {
+      "ruleId": "FIXTURE-MISSING-REVIEWED-BY.OTHER_UNCLASSIFIED",
+      "categoryCode": "OTHER_UNCLASSIFIED",
+      "treatment": "ALLOW",
+      "cap": null,
+      "conditions": [],
+      "basis": "This category is a permitted reasonable-cost item under the pack's instrument, subject to standard verification.",
+      "citation": {
+        "instrument": "Fixture Instrument",
+        "provision": "Reg 3(1)"
+      },
+      "verificationStatus": "VERIFIED",
+      "verificationNote": null
+    }
+  ],
+  "matterFlagRules": [],
+  "requestorNoticeTemplate": "This notice explains the fee for responding to your data access request.",
+  "openQuestions": []
+}

@@ -1,0 +1,24 @@
+{
+  "name": "@dsar/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@dsar/audit": "workspace:*",
+    "@dsar/documents": "workspace:*",
+    "@dsar/engine": "workspace:*",
+    "@dsar/rulepacks": "workspace:*",
+    "@dsar/schemas": "workspace:*",
+    "@dsar/workflow": "workspace:*",
+    "next": "16.3.5",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "ulid": "3.0.2",
+    "zod": "4.6.5"
+  }
+}

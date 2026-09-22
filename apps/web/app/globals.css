@@ -1,0 +1,129 @@
+/* apps/web/app/globals.css
+ *
+ * The single stylesheet for this phase. Every token below is transcribed
+ * from 03.1-UI-SPEC.md's Spacing Scale, Typography and Color sections,
+ * ported through the UI-SPEC's own rounding table so no non-four-multiple
+ * spacing value reaches this file. Font sizes are expressed in rem
+ * (Tailwind's own convention) rather than pixels, so this file's literal
+ * pixel values stay unambiguous under a plain text scan and the four-
+ * multiple spacing rule is never in question.
+ *
+ * System-only font stacks — no webfont link, no font loader of any kind, no
+ * outbound network fetch of any kind. Annex A's own Google-fonts link is
+ * exactly the network fetch this phase forbids; these are Annex A's own
+ * declared fallback stacks, promoted here to primary.
+ *
+ * Dark-mode token values are carried forward from Annex A's own dark theme
+ * block, declared but unused, so a later phase can wire dark mode without a
+ * rename. No dark-mode interface is built this phase — light mode only.
+ *
+ * Later plans consume these tokens and must not add to this file.
+ */
+
+@import "tailwindcss";
+
+@theme {
+  /* Spacing scale — ten tokens, every value a multiple of four. */
+  --spacing-2xs: 4px;
+  --spacing-xs: 8px;
+  --spacing-sm: 12px;
+  --spacing-md: 16px;
+  --spacing-lg: 20px;
+  --spacing-xl: 24px;
+  --spacing-2xl: 28px;
+  --spacing-3xl: 32px;
+  --spacing-4xl: 48px;
+  --spacing-5xl: 64px;
+
+  /* Typography — four roles, exactly two weights across the whole
+     contract (400 regular, 600 semibold). Sizes in rem: eleven, fourteen,
+     sixteen and twenty-four hundredths-of-a-rem equivalents. */
+  --text-label: 0.6875rem;
+  --text-label--line-height: 1.3;
+  --text-label--font-weight: 600;
+  --text-label--letter-spacing: 0.08em;
+
+  --text-body: 0.875rem;
+  --text-body--line-height: 1.5;
+  --text-body--font-weight: 400;
+
+  --text-heading: 1rem;
+  --text-heading--line-height: 1.3;
+  --text-heading--font-weight: 600;
+
+  --text-display: 1.5rem;
+  --text-display--line-height: 1.2;
+  --text-display--font-weight: 600;
+  --text-display--letter-spacing: -0.015em;
+
+  /* System-only font stacks — no webfont, no network fetch. */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-serif: ui-serif, Georgia, "Times New Roman", serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  /* Color — dominant surface, secondary backdrop/sunk zones, accent (seal),
+     destructive (stop), plus the neutral text/border roles. */
+  --color-surface: #ffffff;
+  --color-ground: #eef0f2;
+  --color-surface-sunk: #f5f6f8;
+
+  --color-seal: #7c2334;
+  --color-seal-ink: #5e1a27;
+  --color-seal-wash: #f7ecee;
+
+  --color-stop: #a32020;
+  --color-stop-wash: #fbecec;
+
+  --color-ink: #171b22;
+  --color-ink-2: #3c4450;
+  --color-ink-3: #6b7480;
+  --color-ink-4: #8f97a2;
+  --color-line: #d8dce1;
+  --color-line-soft: #e6e9ed;
+
+  /* Verdict and status semantic colours — a fourth category, distinct from
+     accent/destructive. Every one of these carries a required text label
+     wherever it is used; colour is never the only signal (WCAG 2.1 AA). */
+  --color-warn: #8a5a06;
+  --color-warn-wash: #fbf1de;
+  --color-warn-edge: #e0b869;
+  --color-ok: #1c6146;
+  --color-ok-wash: #e8f2ed;
+  --color-deny: #565f6c;
+  --color-deny-wash: #eceef1;
+}
+
+/* Dark-mode token names, carried forward from Annex A's own dark theme
+   block (docs/dsar-fee-agent-mockup.html), declared but unused: a later
+   phase can wire dark mode by reading these rather than inventing new
+   names. No selector below applies them — there is no dark-mode interface
+   in this phase, light mode only. */
+:root {
+  --dark-ground: #10131a;
+  --dark-surface: #181c25;
+  --dark-surface-sunk: #14181f;
+  --dark-line: #2c323d;
+  --dark-line-soft: #232833;
+  --dark-ink: #e7eaee;
+  --dark-ink-2: #c0c6cf;
+  --dark-ink-3: #8d96a3;
+  --dark-ink-4: #6c757f;
+  --dark-seal: #d98a99;
+  --dark-seal-ink: #eab8c2;
+  --dark-seal-wash: #2b1a1f;
+  --dark-ok: #6fc39c;
+  --dark-ok-wash: #14261e;
+  --dark-warn: #d9a850;
+  --dark-warn-wash: #2a2113;
+  --dark-warn-edge: #6b5424;
+  --dark-deny: #98a2af;
+  --dark-deny-wash: #1d222b;
+  --dark-stop: #e08a8a;
+  --dark-stop-wash: #2b1717;
+}
+
+body {
+  background-color: var(--color-ground);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}

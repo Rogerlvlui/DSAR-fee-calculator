@@ -1,0 +1,16 @@
+{
+  "name": "@dsar/rulepacks",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./*": "./src/*.ts"
+  },
+  "dependencies": {
+    "@dsar/engine": "workspace:*",
+    "@dsar/schemas": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "26.5.1"
+  }
+}
