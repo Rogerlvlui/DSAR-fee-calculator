@@ -87,6 +87,39 @@ describe("renderInternalRecordFooter", () => {
   it("carries PRD §10.5(a)'s own not-legal-advice sentence, verbatim", () => {
     expect(INTERNAL_RECORD_FOOTER_TEMPLATE).toContain("Not legal advice to any third party.");
   });
+
+  // WR-01 (07-REVIEW.md): String.prototype.replace's special replacement
+  // patterns ($&, $$, etc.) must never be interpreted when substituting a
+  // lawyer-typed qualification value into the footer template.
+  it("WR-01: a qualification containing '$&' is inserted literally, not interpreted as a replacement pattern", () => {
+    const footer: InternalRecordFooter = {
+      ...FOOTER,
+      qualification: "Advocate & Solicitor $& test",
+    };
+    const rendered = renderInternalRecordFooter(footer);
+    expect(rendered).toContain("Advocate & Solicitor $& test");
+    expect(rendered).not.toContain("{qualification}");
+  });
+
+  it("WR-01: a qualification containing '$$' renders a literal double dollar sign, not a single collapsed one", () => {
+    const footer: InternalRecordFooter = {
+      ...FOOTER,
+      qualification: "Senior Counsel $$ Grade",
+    };
+    const rendered = renderInternalRecordFooter(footer);
+    expect(rendered).toContain("Senior Counsel $$ Grade");
+  });
+
+  it("WR-01: a lawyerName containing a '$'-bearing value does not corrupt neighboring placeholders", () => {
+    const footer: InternalRecordFooter = {
+      ...FOOTER,
+      lawyerName: "M. Tan $` test",
+    };
+    const rendered = renderInternalRecordFooter(footer);
+    expect(rendered).toContain("M. Tan $` test");
+    expect(rendered).toContain(FOOTER.qualification);
+    expect(rendered).not.toMatch(/\{[a-zA-Z]+\}/);
+  });
 });
 
 // ---------------------------------------------------------------------------
