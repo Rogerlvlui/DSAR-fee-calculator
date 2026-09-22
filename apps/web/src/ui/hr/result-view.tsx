@@ -45,21 +45,28 @@ export function ResultView({
   lines,
 }: ResultViewProps) {
   return (
-    <div data-testid="result-view">
+    <div data-testid="result-view" className="card flex flex-col gap-lg">
       <h1 className="screen" data-testid="result-headline">
         Fee assessed: {formatMinor(finalAmount, currency)}
       </h1>
-      <p data-testid="result-signoff-meta">
+      <p data-testid="result-signoff-meta" className="caption">
         Matter {matterReference} — reviewed and signed off by {lawyerName}, {qualification}, on {signedAt}.
       </p>
       <ul data-testid="result-lines">
         {lines.map((line) => (
-          <li key={line.id} data-testid="result-line" data-outcome={line.struck ? "struck" : "allowed"}>
+          <li
+            key={line.id}
+            data-testid="result-line"
+            data-outcome={line.struck ? "struck" : "allowed"}
+            className="summary-row"
+          >
             <div data-testid="result-line-description">
               Line {line.seq} · {line.categoryLabel} — {line.description}
             </div>
             {line.struck ? (
-              <div data-testid="result-line-basis">Not charged. {line.basis}</div>
+              <div data-testid="result-line-basis" className="text-ink-3">
+                Not charged. {line.basis}
+              </div>
             ) : (
               <div data-testid="result-line-amount">{formatMinor(line.amount, currency)}</div>
             )}

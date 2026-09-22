@@ -245,7 +245,7 @@ export function IntakeForm({ packsByJurisdiction, defaultReference }: IntakeForm
   }
 
   return (
-    <div data-testid="intake-form">
+    <div data-testid="intake-form" className="flex flex-col gap-xl">
       <AutosaveIndicator status={autosave.status} savedAt={autosave.savedAt} />
       <StatusStrip
         matterReference={matterDetails.reference}

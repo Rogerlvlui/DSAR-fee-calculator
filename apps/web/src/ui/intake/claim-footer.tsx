@@ -39,10 +39,14 @@ export function ClaimFooter({ claimedTotalMinor, currency, disabledReason, submi
         <div className="fig num" data-testid="claim-total">
           {formatMinor(toMinor(claimedTotalMinor), currency)}
         </div>
-        <button type="button" disabled={disabled} onClick={onSubmit}>
+        <button type="button" disabled={disabled} className="btn btn-primary" onClick={onSubmit}>
           Submit to Legal
         </button>
-        {disabledReason ? <span data-testid="submit-disabled-reason">{disabledReason}</span> : null}
+        {disabledReason ? (
+          <span data-testid="submit-disabled-reason" className="hint stern">
+            {disabledReason}
+          </span>
+        ) : null}
       </div>
     </div>
   );
