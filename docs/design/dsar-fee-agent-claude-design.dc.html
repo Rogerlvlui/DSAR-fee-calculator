@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" />
+<style>
+  body { margin: 0; background: #eef0f2; color: #171b22; font-family: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif; font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  * { box-sizing: border-box; }
+  a { color: #7c2334; text-decoration: underline; text-underline-offset: 2px; }
+  a:hover { color: #5e1a27; }
+  input, select, textarea, button { font-family: inherit; }
+  input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible { outline: 2px solid #7c2334; outline-offset: 1px; }
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #eef0f2;">
+
+  <sc-if value="{{ mockBanner }}" hint-placeholder-val="{{ true }}">
+    <div style="background: #171b22; color: #f2f4f6; padding: 7px 20px; font-size: 11.5px; display: flex; gap: 14px; align-items: center; flex-wrap: wrap;">
+      <strong style="font-weight: 600; letter-spacing: .07em; text-transform: uppercase;">Prototype</strong>
+      <span style="color: #a8b0ba; font-size: 12px;">Annex A screens, working through. Illustrative data — not a live system, and not legal advice.</span>
+    </div>
+  </sc-if>
+
+  <div style="max-width: 1240px; margin: 0 auto; padding: 0 20px 80px;">
+
+    <header style="display: flex; align-items: baseline; justify-content: space-between; gap: 20px; flex-wrap: wrap; padding: 22px 0 14px;">
+      <div>
+        <div style="font-family: Newsreader, ui-serif, Georgia, serif; font-size: 21px; font-weight: 500; letter-spacing: -.01em;">DSAR Fee Assessment<em style="font-style: normal; color: #7c2334;">.</em></div>
+        <div style="font-size: 12.5px; color: #6b7480; margin-top: 2px;">Signed in as <b style="color: #3c4450; font-weight: 600;">{{ who.name }}</b> · {{ who.team }} · <span style="white-space: nowrap;">role <b style="color: #3c4450; font-weight: 600;">{{ who.role }}</b></span></div>
+      </div>
+      <nav style="display: flex; gap: 2px; flex-wrap: wrap;" aria-label="Screens">
+        <sc-for list="{{ navItems }}" as="nav" hint-placeholder-count="4">
+          <sc-if value="{{ nav.active }}" hint-placeholder-val="{{ true }}">
+            <button type="button" onClick="{{ nav.go }}" style="font-size: 12.5px; font-weight: 500; padding: 7px 13px; background: #ffffff; color: #171b22; border: 1px solid #d8dce1; border-radius: 3px; cursor: pointer; box-shadow: 0 1px 0 #e6e9ed;">{{ nav.label }}</button>
+          </sc-if>
+          <sc-if value="{{ nav.inactive }}" hint-placeholder-val="{{ false }}">
+            <button type="button" onClick="{{ nav.go }}" style="font-size: 12.5px; font-weight: 500; padding: 7px 13px; background: transparent; color: #6b7480; border: 1px solid transparent; border-radius: 3px; cursor: pointer;" style-hover="background: #f5f6f8; color: #171b22;">{{ nav.label }}</button>
+          </sc-if>
+        </sc-for>
+      </nav>
+    </header>
+
+    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px;">
+      <span style="font-size: 10px; letter-spacing: .09em; text-transform: uppercase; color: #8f97a2; font-weight: 600;">Scenario</span>
+      <sc-for list="{{ scenarioItems }}" as="sc" hint-placeholder-count="3">
+        <sc-if value="{{ sc.active }}" hint-placeholder-val="{{ true }}">
+          <button type="button" onClick="{{ sc.go }}" style="font-size: 12px; font-weight: 600; padding: 6px 11px; background: #f7ecee; color: #5e1a27; border: 1px solid #7c2334; border-radius: 3px; cursor: pointer;">{{ sc.label }}</button>
+        </sc-if>
+        <sc-if value="{{ sc.inactive }}" hint-placeholder-val="{{ false }}">
+          <button type="button" onClick="{{ sc.go }}" style="font-size: 12px; font-weight: 500; padding: 6px 11px; background: #ffffff; color: #6b7480; border: 1px solid #d8dce1; border-radius: 3px; cursor: pointer;" style-hover="color: #171b22; border-color: #8f97a2;">{{ sc.label }}</button>
+        </sc-if>
+      </sc-for>
+    </div>
+
+    <div style="display: flex; align-items: stretch; flex-wrap: wrap; background: #ffffff; border: 1px solid #d8dce1; border-left: 3px solid #e0b869; border-radius: 3px; margin-bottom: 20px; overflow: hidden;">
+      <div style="padding: 9px 16px; border-right: 1px solid #e6e9ed; display: flex; flex-direction: column; gap: 1px;">
+        <span style="font-size: 10px; letter-spacing: .09em; text-transform: uppercase; color: #8f97a2; font-weight: 600;">Jurisdiction</span>
+        <span style="font-size: 12.5px; color: #3c4450; font-weight: 500;">{{ m.jurisdiction }}</span>
+      </div>
+      <div style="padding: 9px 16px; border-right: 1px solid #e6e9ed; display: flex; flex-direction: column; gap: 1px;">
+        <span style="font-size: 10px; letter-spacing: .09em; text-transform: uppercase; color: #8f97a2; font-weight: 600;">Rule pack</span>
+        <span style="font-size: 12.5px; color: #3c4450; font-weight: 500; font-family: 'IBM Plex Mono', ui-monospace, monospace;">{{ m.pack }}</span>
+      </div>
+      <div style="padding: 9px 16px; border-right: 1px solid #e6e9ed; display: flex; flex-direction: column; gap: 1px;">
+        <span style="font-size: 10px; letter-spacing: .09em; text-transform: uppercase; color: #8f97a2; font-weight: 600;">Authored / reviewed by</span>
+        <span style="font-size: 12.5px; color: #3c4450; font-weight: 500;">{{ m.packAuthor }}</span>
+      </div>
+      <div style="padding: 9px 16px; border-right: 1px solid #e6e9ed; display: flex; flex-direction: column; gap: 1px;">
+        <span style="font-size: 10px; letter-spacing: .09em; text-transform: uppercase; color: #8f97a2; font-weight: 600;">Reviewed</span>
+        <span style="font-size: 12.5px; color: #3c4450; font-weight: 500;">{{ m.packReviewed }}</span>
+      </div>
+      <div style="padding: 9px 16px; display: flex; flex-direction: column; gap: 1px; margin-left: auto;">
+        <span style="font-size: 10px; letter-spacing: .09em; text-transform: uppercase; color: #8f97a2; font-weight: 600;">Review due</span>
+        <span style="font-size: 12.5px; color: #8a5a06; font-weight: 600;">{{ m.packDue }}</span>
+      </div>
+    </div>
+
+    <!-- ══ SCREEN 1 — HR INTAKE ══ -->
+    <sc-if value="{{ onIntake }}" hint-placeholder-val="{{ true }}">
+      <section data-screen-label="HR intake">
+        <h1 style="font-family: Newsreader, ui-serif, Georgia, serif; font-size: 24px; font-weight: 500; letter-spacing: -.015em; margin: 0 0 4px; text-wrap: balance;">New fee claim — {{ m.ref }}</h1>
+        <p style="font-size: 12px; color: #6b7480; max-width: 78ch; margin: 0 0 18px;">HR records what the response actually cost. <b style="color: #3c4450; font-weight: 600;">HR never sees a draft figure</b> — the claim goes to Legal, and a fee appears here only once a lawyer has signed it off.</p>
+
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+
+          <div style="background: #ffffff; border: 1px solid #d8dce1; border-radius: 4px;">
+            <div style="padding: 14px 18px; border-bottom: 1px solid #e6e9ed; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 10px;">
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; color: #ffffff; background: #3c4450; width: 19px; height: 19px; display: grid; place-items: center; border-radius: 2px;">1</span> Matter details
+            </div>
+            <div style="padding: 18px; display: flex; flex-direction: column; gap: 16px;">
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px;">
+                <label style="display: flex; flex-direction: column; gap: 5px;">
+                  <span style="font-size: 11px; letter-spacing: .07em; text-transform: uppercase; color: #6b7480; font-weight: 600;">Matter reference</span>
+                  <input readonly="readonly" value="{{ m.ref }}" style="font-size: 13.5px; color: #6b7480; background: #f5f6f8; border: 1px solid #d8dce1; border-radius: 3px; padding: 7px 9px; width: 100%;" />
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 5px;">
+                  <span style="font-size: 11px; letter-spacing: .07em; text-transform: uppercase; color: #6b7480; font-weight: 600;">Jurisdiction</span>
+                  <input readonly="readonly" value="{{ m.jurisdictionLong }}" style="font-size: 13.5px; color: #171b22; background: #f5f6f8; border: 1px solid #d8dce1; border-radius: 3px; padding: 7px 9px; width: 100%;" />
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 5px;">
+                  <span style="font-size: 11px; letter-spacing: .07em; text-transform: uppercase; color: #6b7480; font-weight: 600;">Employing entity</span>
+                  <input readonly="readonly" value="{{ m.entity }}" style="font-size: 13.5px; color: #171b22; background: #f5f6f8; border: 1px solid #d8dce1; border-radius: 3px; padding: 7px 9px; width: 100%;" />
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 5px;">
+                  <span style="font-size: 11px; letter-spacing: .07em; text-transform: uppercase; color: #6b7480; font-weight: 600;">Controller type</span>
+                  <input readonly="readonly" value="Private organisation" style="font-size: 13.5px; color: #171b22; background: #f5f6f8; border: 1px solid #d8dce1; border-radius: 3px; padding: 7px 9px; width: 100%;" />
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 5px;">
+                  <span style="font-size: 11px; letter-spacing: .07em; text-transform: uppercase; color: #6b7480; font-weight: 600;">Request received</span>
+                  <input readonly="readonly" value="{{ m.received }}" style="font-size: 13.5px; color: #171b22; background: #f5f6f8; border: 1px solid #d8dce1; border-radius: 3px; padding: 7px 9px; width: 100%;" />
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 5px;">
+                  <span style="font-size: 11px; letter-spacing: .07em; text-transform: uppercase; color: #6b7480; font-weight: 600;">Currency</span>
+                  <input readonly="readonly" value="{{ m.cur }}" style="font-size: 13.5px; color: #171b22; background: #f5f6f8; border: 1px solid #d8dce1; border-radius: 3px; padding: 7px 9px; width: 100%;" />
+                </label>
+              </div>
+              <sc-if value="{{ m.noBasis }}" hint-placeholder-val="{{ false }}">
+                <div style="border: 1px solid #e0b869; background: #fbf1de; border-radius: 3px; padding: 12px 14px; font-size: 13px; color: #171b22;">
+                  <b style="color: #8a5a06;">Heads up — {{ m.jurisdiction }}.</b> Our rule pack records no clear legal basis for charging a fee for a data access request in this jurisdiction. You can still record the costs, but the likely outcome is that Legal advises charging nothing. Talk to Legal before spending time on this.
+                </div>
+              </sc-if>
+              <p style="font-size: 11.5px; color: #6b7480; margin: 0;">Requestor class: <b style="color: #3c4450;">former employee</b>. There is no field for the requestor's name or ID anywhere in this tool.</p>
+            </div>
+          </div>
+
+          <div style="background: #ffffff; border: 1px solid #d8dce1; border-radius: 4px;">
+            <div style="padding: 14px 18px; border-bottom: 1px solid #e6e9ed; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 10px;">
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; color: #ffffff; background: #3c4450; width: 19px; height: 19px; display: grid; place-items: center; border-radius: 2px;">2</span> What the response cost
+              <span style="margin-left: auto; font-size: 11.5px; font-weight: 500; color: #8f97a2;">{{ lineCountLabel }}</span>
+            </div>
+            <div style="padding: 18px; display: flex; flex-direction: column; gap: 10px;">
+              <sc-for list="{{ intakeLines }}" as="ln" hint-placeholder-count="6">
+                <div style="border: 1px solid #e6e9ed; background: #f5f6f8; border-radius: 3px; padding: 12px; display: flex; flex-wrap: wrap; gap: 10px 12px; align-items: flex-end;">
+                  <label style="display: flex; flex-direction: column; gap: 5px; flex: 1 1 200px; min-width: 0;">
+                    <span style="font-size: 11px; letter-spacing: .07em; text-transform: uppercase; color: #6b7480; font-weight: 600;">Category</span>
+                    <span style="font-size: 13px; color: #171b22; background: #ffffff; border: 1px solid #d8dce1; border-radius: 3px; padding: 7px 9px; text-wrap: pretty;">{{ ln.cat }}</span>
+                  </label>
+                  <label style="display: flex; flex-direction: column; gap: 5px; flex: 2 1 260px; min-width: 0;">
+                    <span style="font-size: 11px; letter-spacing: .07em; text-transform: uppercase; color: #6b7480; font-weight: 600;">What this cost was for</span>
+                    <span style="font-size: 13px; color: #171b22; background: #ffffff; border: 1px solid #d8dce1; border-radius: 3px; padding: 7px 9px; text-wrap: pretty;">{{ ln.desc }}</span>
+                  </label>
+                  <label style="display: flex; flex-direction: column; gap: 5px; flex: 0 0 56px;">
+                    <span style="font-size: 11px; letter-spacing: .07em; text-transform: uppercase; color: #6b7480; font-weight: 600;">Qty</span>
+                    <span style="font-size: 13px; font-family: 'IBM Plex Mono', monospace; color: #171b22; background: #ffffff; border: 1px solid #d8dce1; border-radius: 3px; padding: 7px 9px; text-align: right;">{{ ln.qty }}</span>
+                  </label>
+                  <label style="display: flex; flex-direction: column; gap: 5px; flex: 0 0 76px;">
+                    <span style="font-size: 11px; letter-spacing: .07em; text-transform: uppercase; color: #6b7480; font-weight: 600;">Unit</span>
+                    <span style="font-size: 13px; color: #171b22; background: #ffffff; border: 1px solid #d8dce1; border-radius: 3px; padding: 7px 9px;">{{ ln.unit }}</span>
+                  </label>
+                  <label style="display: flex; flex-direction: column; gap: 5px; flex: 0 0 84px;">
+                    <span style="font-size: 11px; letter-spacing: .07em; text-transform: uppercase; color: #6b7480; font-weight: 600;">Rate</span>
+                    <span style="font-size: 13px; font-family: 'IBM Plex Mono', monospace; color: #171b22; background: #ffffff; border: 1px solid #d8dce1; border-radius: 3px; padding: 7px 9px; text-align: right;">{{ ln.rate }}</span>
+                  </label>
+                  <div style="flex: 0 0 96px;">
+                    <div style="font-size: 11px; letter-spacing: .07em; text-transform: uppercase; color: #6b7480; font-weight: 600; margin-bottom: 5px;">Amount</div>
+                    <div style="text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 500; padding: 7px 9px; border: 1px dashed #d8dce1; border-radius: 3px; color: #3c4450;">{{ ln.amount }}</div>
+                  </div>
+                  <sc-if value="{{ ln.isOther }}" hint-placeholder-val="{{ false }}">
+                    <div style="flex: 1 1 100%; font-size: 12px; color: #3c4450; border-left: 2px solid #e0b869; padding: 4px 0 4px 10px;">
+                      <b style="color: #8a5a06; font-weight: 600;">Sorted to “Other claims”.</b> The engine has no category in {{ m.pack }} that fits this cost, so it is not scored and contributes nothing to any total.
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-for>
+              <div><button type="button" style="font-size: 12px; font-weight: 500; padding: 6px 11px; border-radius: 3px; border: 1px solid #d8dce1; background: #ffffff; color: #171b22; cursor: pointer;" style-hover="border-color: #8f97a2;">+ Add a cost line</button></div>
+            </div>
+          </div>
+
+          <!-- engine sort result -->
+          <div style="background: #ffffff; border: 1px solid #d8dce1; border-radius: 4px;">
+            <div style="padding: 14px 18px; border-bottom: 1px solid #e6e9ed; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 10px;">
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; color: #ffffff; background: #3c4450; width: 19px; height: 19px; display: grid; place-items: center; border-radius: 2px;">3</span> How the engine sorted these lines
+              <span style="margin-left: auto; font-size: 11.5px; font-weight: 500; color: #8f97a2;">Deterministic · {{ m.pack }}</span>
+            </div>
+            <div style="padding: 18px; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+              <div style="border: 1px solid #e6e9ed; border-left: 3px solid #1c6146; border-radius: 3px; padding: 14px 15px;">
+                <div style="font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: #1c6146; font-weight: 700;">Categorised</div>
+                <div style="font-family: 'IBM Plex Mono', monospace; font-size: 20px; font-weight: 600; margin: 4px 0 8px;">{{ sort.catLabel }} · {{ sort.catTotal }}</div>
+                <p style="margin: 0; font-size: 12.5px; color: #3c4450;">Matched to a category in the rule pack. These go to Legal with a rule, a citation and a computed figure attached.</p>
+              </div>
+              <div style="border: 1px solid #e0b869; background: #fbf1de; border-left: 3px solid #e0b869; border-radius: 3px; padding: 14px 15px;">
+                <div style="font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: #8a5a06; font-weight: 700;">Other claims</div>
+                <div style="font-family: 'IBM Plex Mono', monospace; font-size: 20px; font-weight: 600; margin: 4px 0 8px;">{{ sort.otherLabel }} · {{ sort.otherTotal }}</div>
+                <p style="margin: 0; font-size: 12.5px; color: #171b22;">Costs the engine could not place in any pre-determined category. They are never scored automatically and contribute nothing to any total.</p>
+              </div>
+            </div>
+            <sc-if value="{{ sort.hasOther }}" hint-placeholder-val="{{ true }}">
+              <div style="margin: 0 18px 18px; border: 1px solid #e0b869; border-radius: 3px; overflow: hidden;">
+                <div style="background: #fbf1de; padding: 13px 15px; border-bottom: 1px solid #e0b869;">
+                  <div style="font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: #8a5a06; font-weight: 700; margin-bottom: 5px;">Advisory</div>
+                  <p style="margin: 0; font-family: Newsreader, ui-serif, Georgia, serif; font-size: 16.5px; line-height: 1.5; color: #171b22;">HR is advised to submit a query by email to Legal for review in respect of “Other Claims”.</p>
+                </div>
+                <div style="padding: 14px 15px; display: flex; flex-direction: column; gap: 12px;">
+                  <ul style="margin: 0; padding-left: 16px; display: flex; flex-direction: column; gap: 5px;">
+                    <sc-for list="{{ sort.otherLines }}" as="o" hint-placeholder-count="2">
+                      <li style="font-size: 12.5px; color: #3c4450;">Line {{ o.n }} — {{ o.desc }} · <span style="font-family: 'IBM Plex Mono', monospace;">{{ o.amount }}</span></li>
+                    </sc-for>
+                  </ul>
+                  <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    <button type="button" onClick="{{ openEmail }}" style="font-size: 13px; font-weight: 600; padding: 8px 15px; border-radius: 3px; border: 1px solid #7c2334; background: #7c2334; color: #ffffff; cursor: pointer;" style-hover="background: #5e1a27; border-color: #5e1a27;">Draft the query email to Legal</button>
+                    <span style="font-size: 12px; color: #6b7480;">This tool never sends anything. It prepares wording for you to send yourself.</span>
+                  </div>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+
+          <div style="background: #ffffff; border: 1px solid #d8dce1; border-radius: 4px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 14px 18px;">
+            <div style="font-size: 12.5px; color: #6b7480; max-width: 52ch;">Total you are claiming — <b style="color: #3c4450; font-weight: 600;">not the fee.</b> Legal decides what can actually be charged, and will strike anything local law doesn't support.</div>
+            <div style="text-align: right;">
+              <div style="font-family: 'IBM Plex Mono', monospace; font-size: 20px; font-weight: 600;">{{ totals.claimed }}</div>
+              <div style="margin-top: 8px;"><button type="button" onClick="{{ goReview }}" style="font-size: 13px; font-weight: 600; padding: 8px 15px; border-radius: 3px; border: 1px solid #7c2334; background: #7c2334; color: #ffffff; cursor: pointer;" style-hover="background: #5e1a27; border-color: #5e1a27;">Submit to Legal</button></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </sc-if>
+
+    <!-- ══ SCREEN 2 — LEGAL REVIEW ══ -->
+    <sc-if value="{{ onReview }}" hint-placeholder-val="{{ false }}">
+      <section data-screen-label="Legal review">
+        <h1 style="font-family: Newsreader, ui-serif, Georgia, serif; font-size: 24px; font-weight: 500; letter-spacing: -.015em; margin: 0 0 4px; text-wrap: balance;">Fee assessment — {{ m.ref }}</h1>
+        <p style="font-size: 12px; color: #6b7480; max-width: 78ch; margin: 0 0 18px;">Disposition every line below. <b style="color: #3c4450; font-weight: 600;">The recommended fee stays hidden until each line has your decision</b> — that gate is the anti-rubber-stamp mechanism, not a loading state.</p>
+
+        <div style="display: grid; grid-template-columns: minmax(0, 262px) minmax(0, 1fr) minmax(0, 268px); gap: 18px; align-items: start;">
+
+          <aside style="display: flex; flex-direction: column; gap: 14px; min-width: 0;">
+            <div style="background: #ffffff; border: 1px solid #d8dce1; border-radius: 4px;">
+              <div style="padding: 14px 16px; border-bottom: 1px solid #e6e9ed; font-size: 13px; font-weight: 600;">Matter</div>
+              <div style="padding: 6px 0;">
+                <sc-for list="{{ matterKv }}" as="kv" hint-placeholder-count="7">
+                  <div style="display: flex; justify-content: space-between; gap: 10px; padding: 6px 16px; font-size: 12.5px;">
+                    <span style="color: #6b7480;">{{ kv.k }}</span>
+                    <span style="font-weight: 500; text-align: right;">{{ kv.v }}</span>
+                  </div>
+                </sc-for>
+              </div>
+              <sc-for list="{{ m.flags }}" as="fl" hint-placeholder-count="2">
+                <div style="margin: 6px 12px 12px; border: 1px solid #e0b869; background: #fbf1de; border-radius: 3px; padding: 10px 12px;">
+                  <div style="font-size: 11px; letter-spacing: .07em; text-transform: uppercase; font-weight: 700; color: #8a5a06; margin-bottom: 4px;">{{ fl.title }}</div>
+                  <p style="margin: 0; font-size: 12px; color: #3c4450;">{{ fl.text }}</p>
+                </div>
+              </sc-for>
+              <div style="font-size: 11.5px; color: #6b7480; padding: 10px 16px; border-top: 1px solid #e6e9ed;">Response due <b style="color: #8a5a06;">{{ m.due }}</b>. <b style="color: #8a5a06;">Advisory only</b> — this tool is not the deadline system of record.</div>
+            </div>
+
+            <div style="background: #ffffff; border: 1px solid #d8dce1; border-radius: 4px;">
+              <div style="padding: 12px 16px; border-bottom: 1px solid #e6e9ed; font-size: 12px; font-weight: 600;">Rule pack</div>
+              <div style="padding: 6px 0;">
+                <div style="display: flex; justify-content: space-between; gap: 10px; padding: 6px 16px; font-size: 12px;"><span style="color: #6b7480;">Pack</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; font-weight: 600;">{{ m.pack }}</span></div>
+                <div style="display: flex; justify-content: space-between; gap: 10px; padding: 6px 16px; font-size: 12px;"><span style="color: #6b7480;">Posture</span><span style="font-weight: 500;">{{ m.posture }}</span></div>
+                <div style="display: flex; justify-content: space-between; gap: 10px; padding: 6px 16px; font-size: 12px;"><span style="color: #6b7480;">Authored</span><span style="font-weight: 500;">{{ m.packAuthor }}</span></div>
+                <div style="display: flex; justify-content: space-between; gap: 10px; padding: 6px 16px; font-size: 12px;"><span style="color: #6b7480;">Review due</span><span style="font-weight: 600; color: #8a5a06;">{{ m.packDue }}</span></div>
+              </div>
+              <div style="padding: 10px 16px 14px; border-top: 1px solid #e6e9ed;">
+                <h3 style="margin: 0 0 6px; font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: #8f97a2; font-weight: 700;">This pack's open questions</h3>
+                <ul style="margin: 0; padding-left: 15px; display: flex; flex-direction: column; gap: 5px;">
+                  <sc-for list="{{ m.openQs }}" as="q" hint-placeholder-count="3">
+                    <li style="font-size: 12px; color: #3c4450;">{{ q.t }}</li>
+                  </sc-for>
+                </ul>
+              </div>
+            </div>
+          </aside>
+
+          <div style="display: flex; flex-direction: column; gap: 12px; min-width: 0;">
+            <sc-if value="{{ hasOtherCards }}" hint-placeholder-val="{{ true }}">
+              <div style="background: #fbf1de; border: 1px solid #e0b869; border-radius: 4px; padding: 12px 15px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                <div style="font-size: 12.5px; color: #171b22; max-width: 66ch;"><b style="color: #8a5a06; font-weight: 700;">Other claims — {{ sort.otherLabel }}, {{ sort.otherTotal }}.</b> HR has been advised to raise these with you by email. Nothing here is scored; each needs your decision.</div>
+                <button type="button" onClick="{{ openEmail }}" style="margin-left: auto; font-size: 12px; font-weight: 500; padding: 6px 11px; border-radius: 3px; border: 1px solid #d8dce1; background: #ffffff; color: #171b22; cursor: pointer;" style-hover="border-color: #8f97a2;">View HR's query</button>
+              </div>
+            </sc-if>
+
+            <sc-for list="{{ cards }}" as="c" hint-placeholder-count="6">
+              <article style="background: #ffffff; border: 1px solid #d8dce1; border-radius: 4px; display: flex; overflow: hidden;">
+                <sc-if value="{{ c.barOk }}" hint-placeholder-val="{{ true }}"><div style="width: 3px; background: #1c6146; flex: none;"></div></sc-if>
+                <sc-if value="{{ c.barWarn }}" hint-placeholder-val="{{ false }}"><div style="width: 3px; background: #e0b869; flex: none;"></div></sc-if>
+                <sc-if value="{{ c.barDeny }}" hint-placeholder-val="{{ false }}"><div style="width: 3px; background: #565f6c; flex: none;"></div></sc-if>
+                <sc-if value="{{ c.barStop }}" hint-placeholder-val="{{ false }}"><div style="width: 3px; background: #a32020; flex: none;"></div></sc-if>
+                <div style="flex: 1; min-width: 0;">
+                  <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 11px 15px 0;">
+                    <sc-if value="{{ c.isAllow }}" hint-placeholder-val="{{ true }}"><span style="font-size: 10.5px; letter-spacing: .07em; text-transform: uppercase; font-weight: 700; padding: 3px 7px; border-radius: 2px; background: #e8f2ed; color: #1c6146;">Supported by rule</span></sc-if>
+                    <sc-if value="{{ c.isCap }}" hint-placeholder-val="{{ false }}"><span style="font-size: 10.5px; letter-spacing: .07em; text-transform: uppercase; font-weight: 700; padding: 3px 7px; border-radius: 2px; background: #e8f2ed; color: #1c6146; border: 1px solid #1c6146;">Supported — reduced to cap</span></sc-if>
+                    <sc-if value="{{ c.isDisallow }}" hint-placeholder-val="{{ false }}"><span style="font-size: 10.5px; letter-spacing: .07em; text-transform: uppercase; font-weight: 700; padding: 3px 7px; border-radius: 2px; background: #eceef1; color: #565f6c;">Not supported</span></sc-if>
+                    <sc-if value="{{ c.isFlag }}" hint-placeholder-val="{{ false }}"><span style="font-size: 10.5px; letter-spacing: .07em; text-transform: uppercase; font-weight: 700; padding: 3px 7px; border-radius: 2px; background: #fbf1de; color: #8a5a06; border: 1px solid #e0b869;">Needs your decision</span></sc-if>
+                    <sc-if value="{{ c.isOther }}" hint-placeholder-val="{{ false }}"><span style="font-size: 10.5px; letter-spacing: .07em; text-transform: uppercase; font-weight: 700; padding: 3px 7px; border-radius: 2px; background: #fbf1de; color: #8a5a06; border: 1px solid #e0b869;">Other claim — referred to you</span></sc-if>
+                    <sc-if value="{{ c.isNoBasis }}" hint-placeholder-val="{{ false }}"><span style="font-size: 10.5px; letter-spacing: .07em; text-transform: uppercase; font-weight: 700; padding: 3px 7px; border-radius: 2px; background: #fbecec; color: #a32020;">No fee basis in pack</span></sc-if>
+                    <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: #8f97a2;">Line {{ c.n }}</span>
+                    <span style="font-weight: 600; font-size: 13.5px;">{{ c.cat }}</span>
+                    <sc-if value="{{ c.done }}" hint-placeholder-val="{{ false }}"><span style="margin-left: auto; font-size: 10.5px; letter-spacing: .07em; text-transform: uppercase; font-weight: 700; padding: 3px 7px; border-radius: 2px; background: #3c4450; color: #ffffff;">{{ c.doneLabel }}</span></sc-if>
+                  </div>
+                  <div style="padding: 10px 15px 14px; display: flex; flex-direction: column; gap: 11px;">
+                    <div style="font-size: 13px; color: #3c4450; border-left: 2px solid #d8dce1; padding-left: 11px;">
+                      <div style="font-size: 11px; letter-spacing: .07em; text-transform: uppercase; color: #8f97a2; font-weight: 600;">HR's description</div>
+                      <div style="font-family: Newsreader, ui-serif, Georgia, serif; font-size: 14.5px; font-style: italic; color: #171b22;">“{{ c.desc }}”</div>
+                    </div>
+                    <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; color: #3c4450;">{{ c.calc }}</div>
+                    <sc-if value="{{ c.hasWhy }}" hint-placeholder-val="{{ false }}">
+                      <div style="background: #fbf1de; border-radius: 3px; padding: 10px 12px;">
+                        <h4 style="margin: 0 0 5px; font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: #8a5a06; font-weight: 700;">Why this needs you</h4>
+                        <ul style="margin: 0; padding-left: 16px; display: flex; flex-direction: column; gap: 3px;">
+                          <sc-for list="{{ c.why }}" as="w" hint-placeholder-count="2">
+                            <li style="font-size: 12.5px; color: #171b22;">{{ w.t }}</li>
+                          </sc-for>
+                        </ul>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ showProvenance }}" hint-placeholder-val="{{ true }}">
+                      <div style="border-top: 1px dotted #d8dce1; padding-top: 10px; display: flex; flex-direction: column; gap: 5px;">
+                        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600; color: #3c4450;">{{ c.ruleId }}</div>
+                        <div style="font-size: 12.5px; color: #3c4450; max-width: 68ch;">{{ c.basis }}</div>
+                        <div style="font-size: 11.5px; color: #6b7480;"><b style="font-weight: 600; color: #3c4450;">Citation:</b> {{ c.cite }}</div>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ c.pending }}" hint-placeholder-val="{{ true }}">
+                      <div style="display: flex; flex-direction: column; gap: 9px;">
+                        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                          <sc-if value="{{ c.canAccept }}" hint-placeholder-val="{{ true }}">
+                            <button type="button" onClick="{{ c.accept }}" style="font-size: 12px; font-weight: 500; padding: 6px 11px; border-radius: 3px; border: 1px solid #d8dce1; background: #ffffff; color: #171b22; cursor: pointer;" style-hover="border-color: #8f97a2;">{{ c.acceptLabel }}</button>
+                          </sc-if>
+                          <span style="display: flex; align-items: center; gap: 5px;">
+                            <span style="font-size: 12px; color: #6b7480; font-family: 'IBM Plex Mono', monospace;">{{ c.allowLabel }}</span>
+                            <input value="{{ c.amountVal }}" onChange="{{ c.setAmount }}" style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; width: 88px; padding: 6px 8px; border: 1px solid #d8dce1; border-radius: 3px; background: #ffffff; color: #171b22; text-align: right;" />
+                          </span>
+                          <button type="button" onClick="{{ c.allow }}" style="font-size: 12px; font-weight: 500; padding: 6px 11px; border-radius: 3px; border: 1px solid #d8dce1; background: #ffffff; color: #171b22; cursor: pointer;" style-hover="border-color: #8f97a2;">{{ c.allowBtn }}</button>
+                          <button type="button" onClick="{{ c.strike }}" style="font-size: 12px; font-weight: 500; padding: 6px 11px; border-radius: 3px; border: 1px solid #d8dce1; background: #ffffff; color: #a32020; cursor: pointer;" style-hover="border-color: #a32020;">Strike</button>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                          <label style="font-size: 11px; letter-spacing: .07em; text-transform: uppercase; color: #6b7480; font-weight: 600;">Reason <span style="color: #a32020;">{{ c.reasonReq }}</span></label>
+                          <textarea rows="2" value="{{ c.reasonVal }}" onChange="{{ c.setReason }}" placeholder="{{ c.reasonHint }}" style="font-size: 13.5px; color: #171b22; background: #ffffff; border: 1px solid #d8dce1; border-radius: 3px; padding: 7px 9px; width: 100%; resize: vertical; min-height: 40px;"></textarea>
+                          <div style="font-size: 11px; color: #8f97a2; font-family: 'IBM Plex Mono', monospace;">{{ c.reasonCount }}</div>
+                        </div>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ c.done }}" hint-placeholder-val="{{ false }}">
+                      <div style="display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; font-size: 12.5px; color: #3c4450; background: #f5f6f8; border-radius: 3px; padding: 9px 12px;">
+                        <span>{{ c.resolvedText }}</span>
+                        <span style="font-style: italic; color: #6b7480;">{{ c.resolvedReason }}</span>
+                        <button type="button" onClick="{{ c.undo }}" style="margin-left: auto; font-size: 12px; font-weight: 500; padding: 5px 10px; border-radius: 3px; border: 1px solid #d8dce1; background: #ffffff; color: #171b22; cursor: pointer;" style-hover="border-color: #8f97a2;">Undo</button>
+                      </div>
+                    </sc-if>
+                  </div>
+                </div>
+              </article>
+            </sc-for>
+          </div>
+
+          <aside style="display: flex; flex-direction: column; gap: 14px; min-width: 0;">
+            <div style="background: #ffffff; border: 1px solid #d8dce1; border-radius: 4px;">
+              <div style="padding: 14px 16px; border-bottom: 1px solid #e6e9ed; font-size: 13px; font-weight: 600;">Running totals</div>
+              <div style="padding: 6px 0;">
+                <div style="display: flex; justify-content: space-between; gap: 10px; padding: 7px 16px; font-size: 12.5px;"><span style="color: #3c4450;">Claimed by HR</span><span style="font-family: 'IBM Plex Mono', monospace; font-weight: 500;">{{ totals.claimed }}</span></div>
+                <div style="border-top: 1px solid #e6e9ed; margin: 6px 0;"></div>
+                <div style="display: flex; justify-content: space-between; gap: 10px; padding: 7px 16px; font-size: 12.5px;"><span style="color: #3c4450;">Supported by rules</span><span style="font-family: 'IBM Plex Mono', monospace; font-weight: 500;">{{ totals.supported }}</span></div>
+                <div style="display: flex; justify-content: space-between; gap: 10px; padding: 7px 16px; font-size: 12.5px;"><span style="color: #3c4450;">Allowed by you, not by a rule</span><span style="font-family: 'IBM Plex Mono', monospace; font-weight: 500;">{{ totals.lawyer }}</span></div>
+                <div style="display: flex; justify-content: space-between; gap: 10px; padding: 7px 16px; font-size: 12.5px;"><span style="color: #3c4450;">Not supported / struck</span><span style="font-family: 'IBM Plex Mono', monospace; font-weight: 500;">{{ totals.struck }}</span></div>
+                <div style="display: flex; justify-content: space-between; gap: 10px; padding: 7px 16px; font-size: 12.5px; color: #8a5a06; font-weight: 600;"><span>Awaiting your decision</span><span style="font-family: 'IBM Plex Mono', monospace;">{{ totals.pending }}</span></div>
+                <div style="display: flex; justify-content: space-between; gap: 10px; padding: 0 16px 6px 26px; font-size: 11.5px; color: #6b7480;"><span>↳ excluded from every total</span><span style="font-family: 'IBM Plex Mono', monospace;">{{ totals.pendingCount }}</span></div>
+              </div>
+              <sc-if value="{{ gate.hidden }}" hint-placeholder-val="{{ true }}">
+                <div style="margin: 8px 12px; border: 1px solid #d8dce1; background: #f5f6f8; border-radius: 3px; padding: 14px; text-align: center;">
+                  <div style="font-size: 10.5px; letter-spacing: .09em; text-transform: uppercase; color: #8f97a2; font-weight: 700;">Recommended fee</div>
+                  <div style="font-family: Newsreader, ui-serif, Georgia, serif; font-size: 17px; color: #6b7480; font-style: italic; margin-top: 5px;">— hidden —</div>
+                  <div style="font-size: 11.5px; color: #8a5a06; margin-top: 6px; font-weight: 600;">{{ gate.subMsg }}</div>
+                </div>
+              </sc-if>
+              <sc-if value="{{ gate.revealed }}" hint-placeholder-val="{{ false }}">
+                <div style="margin: 8px 12px; border: 1px solid #1c6146; background: #e8f2ed; border-radius: 3px; padding: 14px; text-align: center;">
+                  <div style="font-size: 10.5px; letter-spacing: .09em; text-transform: uppercase; color: #8f97a2; font-weight: 700;">Recommended fee</div>
+                  <div style="font-family: 'IBM Plex Mono', monospace; font-size: 25px; font-weight: 600; margin-top: 4px; letter-spacing: -.02em; color: #1c6146;">{{ totals.final }}</div>
+                  <div style="font-size: 11.5px; color: #3c4450; margin-top: 6px;">{{ gate.subMsg }}</div>
+                </div>
+              </sc-if>
+              <div style="padding: 4px 12px 14px; display: flex; flex-direction: column; gap: 8px;">
+                <sc-if value="{{ gate.canSign }}" hint-placeholder-val="{{ false }}">
+                  <button type="button" onClick="{{ scrollSign }}" style="width: 100%; font-size: 13px; font-weight: 600; padding: 8px 15px; border-radius: 3px; border: 1px solid #7c2334; background: #7c2334; color: #ffffff; cursor: pointer;" style-hover="background: #5e1a27; border-color: #5e1a27;">Go to sign-off</button>
+                </sc-if>
+                <sc-if value="{{ gate.hidden }}" hint-placeholder-val="{{ true }}">
+                  <button type="button" disabled="disabled" style="width: 100%; font-size: 13px; font-weight: 600; padding: 8px 15px; border-radius: 3px; border: 1px solid #d8dce1; background: #ffffff; color: #171b22; opacity: .45; cursor: not-allowed;">Sign off</button>
+                  <div style="font-size: 12px; color: #6b7480;">Every line needs a decision before you can sign off.</div>
+                </sc-if>
+              </div>
+            </div>
+          </aside>
+        </div>
+
+        <!-- sign-off -->
+        <sc-if value="{{ gate.revealed }}" hint-placeholder-val="{{ false }}">
+          <div style="background: #ffffff; border: 1px solid #d8dce1; border-radius: 4px; margin-top: 16px;">
+            <div style="padding: 14px 18px; border-bottom: 1px solid #7c2334; background: #f7ecee; color: #5e1a27; font-size: 13px; font-weight: 600;">Sign off — {{ m.ref }}</div>
+            <div style="padding: 18px; display: flex; flex-direction: column; gap: 16px;">
+              <div style="display: flex; gap: 22px; flex-wrap: wrap;">
+                <sc-for list="{{ tally }}" as="t" hint-placeholder-count="5">
+                  <div style="display: flex; flex-direction: column;">
+                    <span style="font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: #8f97a2; font-weight: 700;">{{ t.k }}</span>
+                    <span style="font-family: 'IBM Plex Mono', monospace; font-size: 16px; font-weight: 600;">{{ t.v }}</span>
+                  </div>
+                </sc-for>
+              </div>
+              <sc-for list="{{ acks }}" as="a" hint-placeholder-count="2">
+                <div style="display: grid; grid-template-columns: 18px 1fr; gap: 10px; align-items: start;">
+                  <input type="checkbox" checked="{{ a.checked }}" onChange="{{ a.toggle }}" style="width: 16px; height: 16px; margin: 2px 0 0; accent-color: #7c2334;" />
+                  <p style="margin: 0; font-size: 12.5px; color: #3c4450;"><b style="color: #a32020;">{{ a.title }}</b> {{ a.text }}</p>
+                </div>
+              </sc-for>
+              <div style="font-family: Newsreader, ui-serif, Georgia, serif; font-size: 15px; line-height: 1.6; color: #171b22; background: #f5f6f8; border: 1px solid #d8dce1; border-left: 3px solid #7c2334; border-radius: 3px; padding: 14px 16px; max-width: 66ch;">
+                I am reviewing this fee assessment as a qualified lawyer for <b style="font-weight: 600;">{{ m.jurisdiction }}</b>. I have considered each line item individually, including the “Other claims” HR referred to me. I have applied my own judgement to the amounts I have allowed, and I do not rely on the tool's calculation as legal advice. Rule pack <b style="font-weight: 600;">{{ m.pack }}</b>, reviewed {{ m.packReviewed }}.
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; max-width: 560px;">
+                <label style="display: flex; flex-direction: column; gap: 5px;">
+                  <span style="font-size: 11px; letter-spacing: .07em; text-transform: uppercase; color: #6b7480; font-weight: 600;">Lawyer</span>
+                  <input readonly="readonly" value="{{ m.lawyer }}" style="font-size: 13.5px; color: #6b7480; background: #f5f6f8; border: 1px solid #d8dce1; border-radius: 3px; padding: 7px 9px;" />
+                </label>
+                <label style="display: flex; flex-direction: column; gap: 5px;">
+                  <span style="font-size: 11px; letter-spacing: .07em; text-transform: uppercase; color: #6b7480; font-weight: 600;">Qualification</span>
+                  <input readonly="readonly" value="{{ m.lawyerQual }}" style="font-size: 13.5px; color: #6b7480; background: #f5f6f8; border: 1px solid #d8dce1; border-radius: 3px; padding: 7px 9px;" />
+                </label>
+              </div>
+              <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <sc-if value="{{ gate.canSign }}" hint-placeholder-val="{{ false }}">
+                  <button type="button" onClick="{{ signOff }}" style="font-size: 13px; font-weight: 600; padding: 8px 15px; border-radius: 3px; border: 1px solid #7c2334; background: #7c2334; color: #ffffff; cursor: pointer;" style-hover="background: #5e1a27; border-color: #5e1a27;">Sign off and release to HR</button>
+                </sc-if>
+                <sc-if value="{{ gate.blockedSign }}" hint-placeholder-val="{{ true }}">
+                  <button type="button" disabled="disabled" style="font-size: 13px; font-weight: 600; padding: 8px 15px; border-radius: 3px; border: 1px solid #d8dce1; background: #ffffff; color: #171b22; opacity: .45; cursor: not-allowed;">Sign off and release to HR</button>
+                </sc-if>
+                <span style="font-size: 12px; color: #6b7480;">{{ gate.signMsg }}</span>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+      </section>
+    </sc-if>
+
+    <!-- ══ SCREEN 3 — FEE NOTICE ══ -->
+    <sc-if value="{{ onNotice }}" hint-placeholder-val="{{ false }}">
+      <section data-screen-label="Fee notice">
+        <h1 style="font-family: Newsreader, ui-serif, Georgia, serif; font-size: 24px; font-weight: 500; letter-spacing: -.015em; margin: 0 0 4px;">Fee notice — {{ m.ref }}</h1>
+        <p style="font-size: 12px; color: #6b7480; max-width: 78ch; margin: 0 0 18px;">The requestor-facing document. Generated from the signed-off assessment only — no figure reaches this page until a named lawyer has signed.</p>
+
+        <sc-if value="{{ notice.draft }}" hint-placeholder-val="{{ true }}">
+          <div style="border: 1px solid #a32020; background: #fbecec; border-radius: 3px; padding: 12px 15px; margin-bottom: 16px; font-size: 12.5px; color: #171b22; max-width: 78ch;">
+            <b style="color: #a32020; font-weight: 700;">Not available.</b> No lawyer sign-off is recorded for this matter, so there is no fee to notify. Complete the assessment on the Legal review screen first.
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ notice.issued }}" hint-placeholder-val="{{ false }}">
+          <div style="max-width: 760px; background: #ffffff; border: 1px solid #d8dce1; border-radius: 4px; box-shadow: 0 1px 2px rgba(20,26,34,.06), 0 8px 24px -12px rgba(20,26,34,.18);">
+            <div style="padding: 30px 36px 26px; border-bottom: 1px solid #e6e9ed;">
+              <div style="display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; align-items: baseline;">
+                <div>
+                  <div style="font-family: Newsreader, ui-serif, Georgia, serif; font-size: 19px; font-weight: 500;">{{ m.entity }}</div>
+                  <div style="font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: #7c2334; font-weight: 700; margin-top: 6px;">Notice of fee — data access request</div>
+                </div>
+                <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #6b7480; text-align: right;">{{ m.ref }}<br />{{ notice.signedAt }}</div>
+              </div>
+            </div>
+            <div style="padding: 26px 36px 30px; display: flex; flex-direction: column; gap: 18px;">
+              <p style="margin: 0; font-family: Newsreader, ui-serif, Georgia, serif; font-size: 16px; line-height: 1.6; color: #171b22; max-width: 62ch;">{{ notice.lede }}</p>
+
+              <table style="width: 100%; border-collapse: collapse; font-size: 12.5px;">
+                <thead>
+                  <tr>
+                    <th style="text-align: left; padding: 8px 0; border-bottom: 1px solid #171b22; font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: #6b7480; font-weight: 700;">Item</th>
+                    <th style="text-align: right; padding: 8px 0; border-bottom: 1px solid #171b22; font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: #6b7480; font-weight: 700;">Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <sc-for list="{{ notice.rows }}" as="r" hint-placeholder-count="4">
+                    <tr>
+                      <td style="padding: 9px 0; border-bottom: 1px solid #e6e9ed; color: #3c4450;">{{ r.label }}</td>
+                      <td style="padding: 9px 0; border-bottom: 1px solid #e6e9ed; text-align: right; font-family: 'IBM Plex Mono', monospace; color: #171b22;">{{ r.amount }}</td>
+                    </tr>
+                  </sc-for>
+                  <tr>
+                    <td style="padding: 12px 0; font-weight: 600;">Total fee payable</td>
+                    <td style="padding: 12px 0; text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 17px; font-weight: 600;">{{ totals.final }}</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <div style="font-size: 12.5px; color: #3c4450; border-left: 2px solid #d8dce1; padding-left: 12px; max-width: 66ch;">
+                <b style="font-weight: 600;">Basis.</b> {{ notice.basis }}
+              </div>
+
+              <sc-if value="{{ notice.hasExcluded }}" hint-placeholder-val="{{ false }}">
+                <div style="font-size: 12.5px; color: #3c4450; border-left: 2px solid #d8dce1; padding-left: 12px; max-width: 66ch;">
+                  <b style="font-weight: 600;">Costs not charged to you.</b> {{ notice.excludedText }}
+                </div>
+              </sc-if>
+
+              <div style="border-top: 1px solid #e6e9ed; padding-top: 16px; display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; align-items: flex-end;">
+                <div style="font-size: 12.5px; color: #3c4450;">
+                  Reviewed and approved by<br />
+                  <b style="font-family: Newsreader, ui-serif, Georgia, serif; font-size: 16px; font-weight: 500;">{{ m.lawyer }}</b><br />
+                  <span style="color: #6b7480;">{{ m.lawyerQual }}</span>
+                </div>
+                <div style="font-size: 11px; color: #8f97a2; font-family: 'IBM Plex Mono', monospace;">Assessment {{ notice.assessmentId }}<br />Pack {{ m.pack }}</div>
+              </div>
+              <p style="margin: 0; font-size: 11.5px; color: #6b7480; max-width: 68ch;">Parts of the wording in this notice were drafted by an AI language model from the figures above; the figures themselves were computed by the fee engine and approved by the named lawyer. If you think the fee is wrong, reply to this notice and it will be reassessed.</p>
+            </div>
+          </div>
+        </sc-if>
+      </section>
+    </sc-if>
+
+    <!-- ══ SCREEN 4 — AUDIT TRAIL ══ -->
+    <sc-if value="{{ onAudit }}" hint-placeholder-val="{{ false }}">
+      <section data-screen-label="Audit trail">
+        <h1 style="font-family: Newsreader, ui-serif, Georgia, serif; font-size: 24px; font-weight: 500; letter-spacing: -.015em; margin: 0 0 4px;">Audit trail — {{ m.ref }}</h1>
+        <p style="font-size: 12px; color: #6b7480; max-width: 78ch; margin: 0 0 18px;">Append-only. Every disposition, acknowledgement and sign-off is written here with the actor who made it. Nothing in this list can be edited or removed.</p>
+        <div style="background: #ffffff; border: 1px solid #d8dce1; border-radius: 4px; overflow: hidden;">
+          <div style="padding: 14px 18px; border-bottom: 1px solid #e6e9ed; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 10px;">
+            Events
+            <span style="margin-left: auto; font-size: 11.5px; font-weight: 500; color: #8f97a2;">{{ auditCount }} · newest last</span>
+          </div>
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 720px;">
+              <thead>
+                <tr>
+                  <th style="text-align: left; padding: 9px 18px; background: #f5f6f8; border-bottom: 1px solid #e6e9ed; font-size: 10px; letter-spacing: .09em; text-transform: uppercase; color: #8f97a2; font-weight: 600;">Seq</th>
+                  <th style="text-align: left; padding: 9px 12px; background: #f5f6f8; border-bottom: 1px solid #e6e9ed; font-size: 10px; letter-spacing: .09em; text-transform: uppercase; color: #8f97a2; font-weight: 600;">Timestamp</th>
+                  <th style="text-align: left; padding: 9px 12px; background: #f5f6f8; border-bottom: 1px solid #e6e9ed; font-size: 10px; letter-spacing: .09em; text-transform: uppercase; color: #8f97a2; font-weight: 600;">Actor</th>
+                  <th style="text-align: left; padding: 9px 12px; background: #f5f6f8; border-bottom: 1px solid #e6e9ed; font-size: 10px; letter-spacing: .09em; text-transform: uppercase; color: #8f97a2; font-weight: 600;">Event</th>
+                  <th style="text-align: left; padding: 9px 12px; background: #f5f6f8; border-bottom: 1px solid #e6e9ed; font-size: 10px; letter-spacing: .09em; text-transform: uppercase; color: #8f97a2; font-weight: 600;">Detail</th>
+                  <th style="text-align: right; padding: 9px 18px; background: #f5f6f8; border-bottom: 1px solid #e6e9ed; font-size: 10px; letter-spacing: .09em; text-transform: uppercase; color: #8f97a2; font-weight: 600;">Hash</th>
+                </tr>
+              </thead>
+              <tbody>
+                <sc-for list="{{ audit }}" as="e" hint-placeholder-count="6">
+                  <tr>
+                    <td style="padding: 10px 18px; border-bottom: 1px solid #e6e9ed; font-family: 'IBM Plex Mono', monospace; color: #8f97a2;">{{ e.seq }}</td>
+                    <td style="padding: 10px 12px; border-bottom: 1px solid #e6e9ed; font-family: 'IBM Plex Mono', monospace; color: #3c4450; white-space: nowrap;">{{ e.t }}</td>
+                    <td style="padding: 10px 12px; border-bottom: 1px solid #e6e9ed; color: #3c4450;">{{ e.actor }}</td>
+                    <td style="padding: 10px 12px; border-bottom: 1px solid #e6e9ed; font-family: 'IBM Plex Mono', monospace; font-weight: 500; color: #171b22; white-space: nowrap;">{{ e.event }}</td>
+                    <td style="padding: 10px 12px; border-bottom: 1px solid #e6e9ed; color: #3c4450;">{{ e.detail }}</td>
+                    <td style="padding: 10px 18px; border-bottom: 1px solid #e6e9ed; text-align: right; font-family: 'IBM Plex Mono', monospace; color: #8f97a2;">{{ e.hash }}</td>
+                  </tr>
+                </sc-for>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </sc-if>
+  </div>
+
+  <!-- email draft overlay -->
+  <sc-if value="{{ emailOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position: fixed; inset: 0; background: rgba(20,26,34,.42); display: grid; place-items: center; padding: 24px; z-index: 50;">
+      <div style="width: 100%; max-width: 640px; background: #ffffff; border: 1px solid #d8dce1; border-radius: 4px; box-shadow: 0 1px 2px rgba(20,26,34,.06), 0 18px 48px -18px rgba(20,26,34,.5); max-height: 86vh; display: flex; flex-direction: column;">
+        <div style="padding: 14px 18px; border-bottom: 1px solid #e6e9ed; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 10px;">
+          Query to Legal — “Other claims”
+          <button type="button" onClick="{{ closeEmail }}" style="margin-left: auto; font-size: 12px; font-weight: 500; padding: 5px 10px; border-radius: 3px; border: 1px solid #d8dce1; background: #ffffff; color: #171b22; cursor: pointer;" style-hover="border-color: #8f97a2;">Close</button>
+        </div>
+        <div style="padding: 18px; display: flex; flex-direction: column; gap: 14px; overflow-y: auto;">
+          <div style="font-size: 12.5px; color: #6b7480;">Nothing is sent from here. Copy this into your own mail client and send it yourself.</div>
+          <div style="border: 1px solid #d8dce1; border-radius: 3px; overflow: hidden;">
+            <div style="background: #f5f6f8; padding: 10px 14px; border-bottom: 1px solid #e6e9ed; font-size: 12.5px; color: #3c4450;">
+              <div><b style="font-weight: 600;">To</b> &nbsp;{{ email.to }}</div>
+              <div style="margin-top: 3px;"><b style="font-weight: 600;">Subject</b> &nbsp;{{ email.subject }}</div>
+            </div>
+            <pre style="margin: 0; padding: 14px; font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; line-height: 1.6; color: #171b22; white-space: pre-wrap;">{{ email.body }}</pre>
+          </div>
+          <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <button type="button" onClick="{{ copyEmail }}" style="font-size: 13px; font-weight: 600; padding: 8px 15px; border-radius: 3px; border: 1px solid #7c2334; background: #7c2334; color: #ffffff; cursor: pointer;" style-hover="background: #5e1a27; border-color: #5e1a27;">{{ email.copyLabel }}</button>
+            <span style="font-size: 12px; color: #6b7480;">{{ email.note }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;mockBanner&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Prototype&quot;},&quot;showProvenance&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Legal review&quot;},&quot;startScenario&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;sg_other&quot;,&quot;sg_flags&quot;,&quot;cn_nil&quot;],&quot;default&quot;:&quot;sg_other&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Prototype&quot;}}">
+class Component extends DCLogic {
+  state = { screen: 'intake', scenario: null, dispo: {}, reasons: {}, amounts: {}, acks: {}, emailOpen: false, copied: false, signed: null, extra: [] };
+
+  data() {
+    const SG_QS = [
+      { t: 'Is staff time costed at incremental cost, or at a loaded charge-out rate? A loaded rate carrying a profit element is not defensible.' },
+      { t: 'Does any element relate to assessing exceptions rather than providing access?' },
+      { t: 'Apportionment where a vendor invoice covers more than the requested data.' }
+    ];
+    const staleFlag = { title: 'Rule pack review due · acknowledge to sign off', text: 'SG-PDPA 2026.09.1 is due for review on 1 Oct 2026, in 24 days. It is still usable, but the law may have moved since 12 Mar 2026.' };
+    const staleAck = { key: 'stale', title: 'Rule pack review due — acknowledgement required.', text: 'SG-PDPA 2026.09.1 was reviewed on 12 March 2026 and is due for review on 1 October 2026. Confirm you are content to rely on it as it stands.' };
+    const sgBase = {
+      jurisdiction: 'Singapore', jurisdictionLong: 'Singapore — PDPA', entity: 'Acme Asia Services Pte Ltd', cur: 'SGD',
+      pack: 'SG-PDPA 2026.09.1', packAuthor: 'W. Tan', packReviewed: '12 Mar 2026', packDue: '1 Oct 2026 · in 24 days',
+      posture: 'Reasonable fee', lawyer: 'Roger Lui', lawyerQual: 'Advocate & Solicitor, Singapore', openQs: SG_QS,
+      basisText: 'A reasonable fee for services provided to enable the organisation to respond to your access request, under PDPA 2012 s.21 and reg. 7 of the Personal Data Protection Regulations 2021. It covers the cost of locating, retrieving, collating and reproducing your data, and no more.'
+    };
+
+    return {
+      sg_other: Object.assign({}, sgBase, {
+        label: 'A · Other claims', ref: 'DSAR-2026-0142', received: '20 Aug 2026', due: '19 Sep 2026 — 12 days',
+        flags: [staleFlag], acks: [staleAck],
+        lines: [
+          { n: 1, cat: 'Staff time — locating and retrieving', desc: 'Searching HRIS, shared drives and archived mail, 2019–2022', qty: 4, unit: 'Hours', rate: 40, verdict: 'ALLOW', engine: 160, ruleId: 'SG-PDPA.STAFF_TIME_SEARCH', basis: 'Locating and retrieving the requested personal data is a service provided to the applicant to enable the organisation to respond.', cite: 'PDPA 2012 s.21; PDP Regulations 2021 reg. 7.' },
+          { n: 2, cat: 'Staff time — collating the response', desc: 'Collating and paginating the response pack', qty: 2, unit: 'Hours', rate: 40, verdict: 'ALLOW', engine: 80, ruleId: 'SG-PDPA.STAFF_TIME_COLLATE', basis: 'Compiling and paginating the response is a service provided to the applicant to enable the organisation to respond.', cite: 'PDP Regulations 2021 reg. 7.' },
+          { n: 3, cat: 'Photocopying and printing', desc: 'Printed response pack, single-sided A4', qty: 220, unit: 'Pages', rate: 0.15, verdict: 'ALLOW_CAPPED', engine: 26.4, ruleId: 'SG-PDPA.PHOTOCOPY_PRINT', basis: 'Reproduction cost at a standard per-page rate, not exceeding the entity\u2019s actual direct copying cost.', cite: 'PDP Regulations 2021 reg. 7 — per-page cap of SGD 0.12 is entity-specific.' },
+          { n: 4, cat: 'Third-party payroll / tax vendor charge', desc: 'Vendor extract of 2019–2022 payslips and IR8A records (INV-88421)', qty: 3, unit: 'Items', rate: 150, verdict: 'ALLOW', engine: 450, ruleId: 'SG-PDPA.VENDOR_PAYROLL', basis: 'Out-of-pocket charge actually paid to a third party to obtain data the employer does not itself hold, where invoiced and evidenced.', cite: 'PDP Regulations 2021 reg. 7. Invoice INV-88421 sighted.' },
+          { n: 5, cat: 'Other claims', desc: 'Meeting room and refreshments for the internal review session', qty: 1, unit: 'Fixed', rate: 45, verdict: 'OTHER', ruleId: 'SG-PDPA.OTHER_UNCLASSIFIED', basis: 'Uncategorised cost. Legal to determine whether it is a service provided to enable the organisation to respond to the request.', cite: 'PDP Regulations 2021 reg. 7.', why: [{ t: 'No category in the rule pack matches this cost, so the engine did not score it.' }, { t: 'HR has raised it with Legal by email as an “Other claim”.' }] },
+          { n: 6, cat: 'Other claims', desc: 'External consultant\u2019s scoping call on the archive structure', qty: 1.5, unit: 'Hours', rate: 180, verdict: 'OTHER', ruleId: 'SG-PDPA.OTHER_UNCLASSIFIED', basis: 'Uncategorised cost. Legal to determine whether it is a service provided to enable the organisation to respond to the request.', cite: 'PDP Regulations 2021 reg. 7.', why: [{ t: 'No category in the rule pack matches this cost, so the engine did not score it.' }, { t: 'Materiality — this line is 26% of the total claim.' }] }
+        ],
+        events: [
+          { t: '20 Aug 09:14', actor: 'system', event: 'MATTER_CREATED', detail: 'DSAR-2026-0142 · Singapore · private organisation' },
+          { t: '21 Aug 16:02', actor: 'P. Menon (HR_PREPARER)', event: 'IDENTITY_ATTESTED', detail: 'IDV log ref 0142-A — no personal data stored' },
+          { t: '02 Sep 11:01', actor: 'P. Menon (HR_PREPARER)', event: 'CLAIM_SUBMITTED', detail: '6 lines · SGD 1,038.00 claimed' },
+          { t: '02 Sep 11:01', actor: 'engine v1.4.0', event: 'ASSESSMENT_COMPUTED', detail: 'pack SG-PDPA 2026.09.1 · 4 categorised · 2 sorted to Other claims' },
+          { t: '02 Sep 11:06', actor: 'P. Menon (HR_PREPARER)', event: 'LEGAL_QUERY_DRAFTED', detail: 'Other claims — query email prepared for Legal, not sent by tool' }
+        ]
+      }),
+
+      sg_flags: Object.assign({}, sgBase, {
+        label: 'B · Flagged lines', ref: 'DSAR-2026-0138', received: '14 Aug 2026', due: '13 Sep 2026 — 6 days',
+        flags: [
+          { title: 'Known dispute · acknowledge to sign off', text: 'This requestor is in a known dispute with the company. A fee that is defensible in principle may still be unwise here, and may be characterised as obstructive.' },
+          staleFlag
+        ],
+        acks: [
+          { key: 'dispute', title: 'Known dispute — acknowledgement required.', text: 'This requestor is in a known dispute with the company. Confirm you have considered whether to charge at all.' },
+          staleAck
+        ],
+        lines: [
+          { n: 1, cat: 'Staff time — locating and retrieving', desc: 'Searching HRIS, shared drives and archived mail, 2019–2022', qty: 4, unit: 'Hours', rate: 40, verdict: 'ALLOW', engine: 160, ruleId: 'SG-PDPA.STAFF_TIME_SEARCH', basis: 'Locating and retrieving the requested personal data is a service provided to the applicant to enable the organisation to respond.', cite: 'PDPA 2012 s.21; PDP Regulations 2021 reg. 7.' },
+          { n: 2, cat: 'Staff time — collating the response', desc: 'Collating and paginating the response pack', qty: 2, unit: 'Hours', rate: 40, verdict: 'ALLOW', engine: 80, ruleId: 'SG-PDPA.STAFF_TIME_COLLATE', basis: 'Compiling and paginating the response is a service provided to the applicant to enable the organisation to respond.', cite: 'PDP Regulations 2021 reg. 7.' },
+          { n: 3, cat: 'Staff time — deciding what may be withheld', desc: 'Reviewing manager comments for material that could be withheld', qty: 3, unit: 'Hours', rate: 40, verdict: 'DISALLOW', engine: 0, ruleId: 'SG-PDPA.STAFF_TIME_ASSESS_EXEMPTIONS', basis: 'Time spent assessing whether an exception applies is the organisation\u2019s own compliance cost, not a service provided to enable the response.', cite: 'PDPA 2012 s.21; PDP Regulations 2021 reg. 7.' },
+          { n: 4, cat: 'Photocopying and printing', desc: 'Printed response pack, single-sided A4', qty: 220, unit: 'Pages', rate: 0.15, verdict: 'ALLOW_CAPPED', engine: 26.4, ruleId: 'SG-PDPA.PHOTOCOPY_PRINT', basis: 'Reproduction cost at a standard per-page rate, not exceeding the entity\u2019s actual direct copying cost.', cite: 'PDP Regulations 2021 reg. 7 — per-page cap of SGD 0.12 is entity-specific.' },
+          { n: 5, cat: 'Third-party payroll / tax vendor charge', desc: 'Vendor extract of 2019–2022 payslips and IR8A records from archive', qty: 3, unit: 'Items', rate: 150, verdict: 'FLAG', ruleId: 'SG-PDPA.VENDOR_PAYROLL', basis: 'Out-of-pocket charge actually paid to a third party to obtain data the employer does not itself hold, where invoiced and evidenced.', cite: 'PDPA 2012 s.21; PDP Regulations 2021 reg. 7.', why: [{ t: 'Conditions not met — no invoice or DMS evidence reference supplied.' }, { t: 'Materiality — this line is 51% of the total claim.' }] },
+          { n: 6, cat: 'Other claims', desc: 'Meeting room and refreshments for the internal review session', qty: 1, unit: 'Fixed', rate: 45, verdict: 'OTHER', ruleId: 'SG-PDPA.OTHER_UNCLASSIFIED', basis: 'Uncategorised cost. Legal to determine whether it is a service provided to enable the organisation to respond to the request.', cite: 'PDP Regulations 2021 reg. 7.', why: [{ t: 'No category in the rule pack matches this cost, so the engine did not score it.' }] }
+        ],
+        events: [
+          { t: '14 Aug 08:40', actor: 'system', event: 'MATTER_CREATED', detail: 'DSAR-2026-0138 · Singapore · private organisation' },
+          { t: '15 Aug 10:12', actor: 'P. Menon (HR_PREPARER)', event: 'DISPUTE_DECLARED', detail: 'Requestor in known dispute — flag raised to Legal' },
+          { t: '29 Aug 17:55', actor: 'P. Menon (HR_PREPARER)', event: 'CLAIM_SUBMITTED', detail: '6 lines · SGD 888.00 claimed' },
+          { t: '29 Aug 17:55', actor: 'engine v1.4.0', event: 'ASSESSMENT_COMPUTED', detail: 'pack SG-PDPA 2026.09.1 · 1 line flagged · 1 sorted to Other claims' }
+        ]
+      }),
+
+      cn_nil: {
+        label: 'C · No fee basis (PIPL)', ref: 'DSAR-2026-0151', received: '28 Aug 2026', due: '12 Oct 2026 — 20 days',
+        jurisdiction: 'China', jurisdictionLong: 'China — PIPL', entity: 'Acme (Shanghai) Trading Co., Ltd', cur: 'CNY',
+        pack: 'CN-PIPL 2026.02.0-draft', packAuthor: 'L. Zhao', packReviewed: '4 Feb 2026', packDue: '4 Aug 2026 · overdue',
+        posture: 'No authored fee basis', lawyer: 'Roger Lui', lawyerQual: 'Advocate & Solicitor (supervising), Singapore',
+        noBasis: true,
+        openQs: [{ t: 'PIPL art. 45 permits a “reasonable fee”, but no implementing measure sets one. Pack records no defensible basis.' }, { t: 'Any charge here needs local counsel sign-off, not this pack.' }],
+        basisText: 'No fee is charged for this request.',
+        flags: [{ title: 'No fee basis · acknowledge to sign off', text: 'The China pack records no clear legal basis for charging a fee for a data access request. Every line is unscored, and the defensible outcome is a nil fee.' }],
+        acks: [{ key: 'nil', title: 'Nil fee — acknowledgement required.', text: 'CN-PIPL 2026.02.0-draft records no authored fee basis and is past its review date. Confirm that the fee notified to the requestor is nil, and that any charge would need local counsel.' }],
+        lines: [
+          { n: 1, cat: 'Staff time — locating and retrieving', desc: 'Retrieval of personnel file and payroll records, 2021–2024', qty: 6, unit: 'Hours', rate: 250, verdict: 'NO_BASIS', engine: 0, ruleId: 'CN-PIPL.NO_FEE_BASIS', basis: 'The pack records no legal basis on which a fee may be charged for a data access request in this jurisdiction. The line is not scored.', cite: 'PIPL art. 45 — “reasonable fee” permitted in principle; no implementing rate or measure identified.' },
+          { n: 2, cat: 'Photocopying and printing', desc: 'Printed and stamped copy of the personnel file', qty: 180, unit: 'Pages', rate: 0.8, verdict: 'NO_BASIS', engine: 0, ruleId: 'CN-PIPL.NO_FEE_BASIS', basis: 'The pack records no legal basis on which a fee may be charged for a data access request in this jurisdiction. The line is not scored.', cite: 'PIPL art. 45.' },
+          { n: 3, cat: 'Other claims', desc: 'Notarised translation of the employment file into English', qty: 1, unit: 'Fixed', rate: 900, verdict: 'OTHER', ruleId: 'CN-PIPL.OTHER_UNCLASSIFIED', basis: 'Uncategorised cost, in a jurisdiction with no authored fee basis. Legal to determine whether anything may be charged at all.', cite: 'PIPL art. 45.', why: [{ t: 'No category in the pack matches this cost, so the engine did not score it.' }, { t: 'The pack records no fee basis for this jurisdiction in any event.' }] }
+        ],
+        events: [
+          { t: '28 Aug 14:20', actor: 'system', event: 'MATTER_CREATED', detail: 'DSAR-2026-0151 · China · private organisation' },
+          { t: '28 Aug 14:21', actor: 'engine v1.4.0', event: 'POSTURE_WARNED', detail: 'CN-PIPL 2026.02.0-draft — no authored fee basis; pack past review date' },
+          { t: '05 Sep 09:33', actor: 'D. Chen (HR_PREPARER)', event: 'CLAIM_SUBMITTED', detail: '3 lines · CNY 2,544.00 claimed' },
+          { t: '05 Sep 09:33', actor: 'engine v1.4.0', event: 'ASSESSMENT_COMPUTED', detail: '2 lines unscored (no fee basis) · 1 sorted to Other claims' },
+          { t: '05 Sep 09:40', actor: 'D. Chen (HR_PREPARER)', event: 'LEGAL_QUERY_DRAFTED', detail: 'Other claims — query email prepared for Legal, not sent by tool' }
+        ]
+      }
+    };
+  }
+
+  key() { return this.state.scenario || this.props.startScenario || 'sg_other'; }
+  sc() { return this.data()[this.key()]; }
+  money(v) {
+    const s = Number(v || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return this.sc().cur + ' ' + s;
+  }
+  hash(s) {
+    let h = 2166136261;
+    for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return (h >>> 0).toString(16).padStart(8, '0').slice(0, 6);
+  }
+  engineAmount(l) {
+    if (l.verdict === 'ALLOW') return l.engine;
+    if (l.verdict === 'ALLOW_CAPPED') return l.engine;
+    if (l.verdict === 'DISALLOW' || l.verdict === 'NO_BASIS') return 0;
+    return null;
+  }
+  dKey(n) { return this.key() + ':' + n; }
+  set(n, act, amount, reason) {
+    const k = this.dKey(n);
+    this.setState(s => ({
+      dispo: Object.assign({}, s.dispo, { [k]: { act: act, amount: amount, reason: reason } }),
+      extra: s.extra.concat([{ t: this.now(), actor: this.sc().lawyer + ' (LEGAL_REVIEWER)', event: act === 'strike' ? 'LINE_STRUCK' : (act === 'accept' ? 'LINE_ACCEPTED' : 'LINE_ALLOWED'), detail: 'Line ' + n + ' → ' + this.money(amount) + (reason ? ' · “' + reason + '”' : '') }])
+    }));
+  }
+  now() {
+    const d = new Date();
+    const mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()];
+    const p = v => String(v).padStart(2, '0');
+    return p(d.getDate()) + ' ' + mo + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+  }
+
+  renderVals() {
+    const s = this.state;
+    const m = this.sc();
+    const key = this.key();
+    const cur = m.cur;
+    const lines = m.lines;
+    const showProvenance = this.props.showProvenance !== false;
+
+    const claimed = lines.reduce((a, l) => a + l.qty * l.rate, 0);
+    const otherLines = lines.filter(l => l.verdict === 'OTHER');
+    const catLines = lines.filter(l => l.verdict !== 'OTHER');
+    const otherTotal = otherLines.reduce((a, l) => a + l.qty * l.rate, 0);
+
+    const dispoFor = n => s.dispo[key + ':' + n];
+    const amountFor = l => {
+      const v = s.amounts[key + ':' + l.n];
+      if (v !== undefined) return v;
+      const e = this.engineAmount(l);
+      return (e === null ? l.qty * l.rate : e).toFixed(2);
+    };
+
+    let supported = 0, lawyer = 0, struck = 0, pending = 0, pendingCount = 0, final = 0;
+    let tAcc = 0, tRed = 0, tStr = 0, tLaw = 0;
+
+    const cards = lines.map(l => {
+      const claim = l.qty * l.rate;
+      const eng = this.engineAmount(l);
+      const d = dispoFor(l.n);
+      const pend = !d;
+      if (pend) { pending += claim; pendingCount += 1; }
+      else {
+        final += d.amount;
+        if (d.act === 'strike') { struck += claim; tStr += 1; }
+        else if (d.act === 'accept') { supported += d.amount; tAcc += 1; if (eng !== null && d.amount < claim) tRed += 1; }
+        else { if (l.verdict === 'ALLOW' || l.verdict === 'ALLOW_CAPPED') { supported += d.amount; tRed += 1; } else { lawyer += d.amount; tLaw += 1; } }
+      }
+      const calc = eng === null
+        ? 'Claimed ' + l.qty + ' ' + l.unit.toLowerCase() + ' × ' + this.money(l.rate) + ' = ' + this.money(claim) + ' → not scored'
+        : (Math.abs(eng - claim) < 0.005
+            ? 'Claimed ' + l.qty + ' ' + l.unit.toLowerCase() + ' × ' + this.money(l.rate) + ' = ' + this.money(claim) + ' → allowed ' + this.money(eng)
+            : 'Claimed ' + this.money(claim) + ' → engine ' + this.money(eng));
+      const acceptLabel = eng === null ? '' : (eng === 0 ? 'Accept — not chargeable' : 'Accept ' + this.money(eng));
+      return {
+        n: l.n, cat: l.cat, desc: l.desc, calc: calc, ruleId: l.ruleId, basis: l.basis, cite: l.cite,
+        why: l.why || [], hasWhy: !!(l.why && l.why.length),
+        isAllow: l.verdict === 'ALLOW', isCap: l.verdict === 'ALLOW_CAPPED', isDisallow: l.verdict === 'DISALLOW',
+        isFlag: l.verdict === 'FLAG', isOther: l.verdict === 'OTHER', isNoBasis: l.verdict === 'NO_BASIS',
+        barOk: l.verdict === 'ALLOW' || l.verdict === 'ALLOW_CAPPED',
+        barWarn: l.verdict === 'FLAG' || l.verdict === 'OTHER',
+        barDeny: l.verdict === 'DISALLOW',
+        barStop: l.verdict === 'NO_BASIS',
+        pending: pend, done: !pend,
+        canAccept: eng !== null, acceptLabel: acceptLabel,
+        allowLabel: eng === 0 ? 'Allow anyway ' + cur : 'Allow ' + cur,
+        allowBtn: eng === 0 ? 'Allow anyway' : 'Allow',
+        amountVal: amountFor(l),
+        reasonVal: s.reasons[key + ':' + l.n] || '',
+        reasonReq: eng === null || eng === 0 ? 'required' : 'required if you change the amount',
+        reasonHint: eng === null ? 'e.g. General overhead, not a service provided to enable the response. Struck.' : 'Only needed if you depart from the engine figure.',
+        reasonCount: (s.reasons[key + ':' + l.n] || '').length + ' / 10 characters minimum',
+        doneLabel: d ? (d.act === 'strike' ? 'Struck' : d.act === 'accept' ? 'Accepted' : 'Allowed') : '',
+        resolvedText: d ? (d.act === 'strike' ? 'Struck — nothing charged for this line.' : 'Allowed ' + this.money(d.amount) + '.') : '',
+        resolvedReason: d && d.reason ? '“' + d.reason + '”' : '',
+        accept: () => this.set(l.n, 'accept', eng === null ? 0 : eng, s.reasons[key + ':' + l.n] || ''),
+        allow: () => {
+          const amt = parseFloat(String(amountFor(l)).replace(/[^0-9.]/g, '')) || 0;
+          const reason = s.reasons[key + ':' + l.n] || '';
+          if ((eng === null || eng === 0 || Math.abs(amt - (eng || 0)) > 0.005) && reason.trim().length < 10) {
+            this.setState({ nudge: l.n });
+            return;
+          }
+          this.set(l.n, 'allow', amt, reason);
+        },
+        strike: () => {
+          const reason = s.reasons[key + ':' + l.n] || '';
+          if (reason.trim().length < 10) { this.setState({ nudge: l.n }); return; }
+          this.set(l.n, 'strike', 0, reason);
+        },
+        undo: () => this.setState(st => {
+          const nd = Object.assign({}, st.dispo); delete nd[key + ':' + l.n];
+          return { dispo: nd, signed: null };
+        }),
+        setAmount: e => { const v = e.target.value; this.setState(st => ({ amounts: Object.assign({}, st.amounts, { [key + ':' + l.n]: v }) })); },
+        setReason: e => { const v = e.target.value; this.setState(st => ({ reasons: Object.assign({}, st.reasons, { [key + ':' + l.n]: v }) })); }
+      };
+    });
+
+    const allDecided = pendingCount === 0;
+    const acks = (m.acks || []).map(a => ({
+      title: a.title, text: a.text, checked: !!s.acks[key + ':' + a.key],
+      toggle: () => this.setState(st => ({ acks: Object.assign({}, st.acks, { [key + ':' + a.key]: !st.acks[key + ':' + a.key] }) }))
+    }));
+    const acksDone = acks.every(a => a.checked);
+    const signed = s.signed && s.signed.key === key ? s.signed : null;
+
+    const email = {
+      to: 'legal-privacy@acme.example',
+      subject: m.ref + ' — query on “Other claims” lines',
+      body: 'Dear Legal,\n\nWe have recorded the cost of responding to ' + m.ref + ' (' + m.jurisdiction + ', received ' + m.received + ').\n\nThe fee engine sorted ' + catLines.length + ' of ' + lines.length + ' cost lines into categories in rule pack ' + m.pack + '. The following ' + otherLines.length + ' line(s) could not be placed in any pre-determined category and have been recorded as “Other claims”. They carry no figure and contribute nothing to any total:\n\n' + otherLines.map(l => '  • Line ' + l.n + ' — ' + l.desc + ' — ' + this.money(l.qty * l.rate)).join('\n') + '\n\nHR is advised to submit a query by email to Legal for review in respect of “Other Claims”. Please review these lines and confirm whether any part of them may be charged to the requestor.\n\nNo personal data relating to the requestor is included in this message.\n\n' + (key === 'cn_nil' ? 'D. Chen' : 'Priya Menon') + '\nHR Shared Services',
+      copyLabel: s.copied ? 'Copied' : 'Copy the email',
+      note: s.copied ? 'Copied to your clipboard. Nothing was sent.' : 'Copies subject and body. Nothing is sent.'
+    };
+
+    const noticeRows = cards.filter(c => {
+      const d = dispoFor(c.n);
+      return d && d.amount > 0;
+    }).map(c => ({ label: 'Line ' + c.n + ' — ' + c.cat, amount: this.money(dispoFor(c.n).amount) }));
+    const excluded = cards.filter(c => { const d = dispoFor(c.n); return d && d.amount === 0; });
+
+    return {
+      mockBanner: this.props.mockBanner !== false,
+      showProvenance: showProvenance,
+      m: {
+        ref: m.ref, jurisdiction: m.jurisdiction, jurisdictionLong: m.jurisdictionLong, entity: m.entity, cur: cur,
+        pack: m.pack, packAuthor: m.packAuthor, packReviewed: m.packReviewed, packDue: m.packDue, posture: m.posture,
+        received: m.received, due: m.due, lawyer: m.lawyer, lawyerQual: m.lawyerQual,
+        flags: m.flags || [], openQs: m.openQs || [], noBasis: !!m.noBasis
+      },
+      who: s.screen === 'review'
+        ? { name: m.lawyer, team: 'Legal', role: 'LEGAL_REVIEWER' }
+        : (s.screen === 'audit' ? { name: 'Audit view', team: 'Read-only', role: 'ANY' } : { name: key === 'cn_nil' ? 'Daniel Chen' : 'Priya Menon', team: 'HR Shared Services', role: 'HR_PREPARER' }),
+      navItems: ['intake', 'review', 'notice', 'audit'].map((k, i) => ({
+        label: ['1 · HR intake', '2 · Legal review', '3 · Fee notice', '4 · Audit trail'][i],
+        active: s.screen === k, inactive: s.screen !== k,
+        go: () => { this.setState({ screen: k }); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+      })),
+      scenarioItems: ['sg_other', 'sg_flags', 'cn_nil'].map(k => ({
+        label: this.data()[k].label, active: key === k, inactive: key !== k,
+        go: () => this.setState({ scenario: k, screen: 'intake' })
+      })),
+      onIntake: s.screen === 'intake', onReview: s.screen === 'review', onNotice: s.screen === 'notice', onAudit: s.screen === 'audit',
+      lineCountLabel: lines.length + ' lines',
+      intakeLines: lines.map(l => ({
+        n: l.n, cat: l.cat, desc: l.desc, qty: l.qty, unit: l.unit,
+        rate: l.rate.toFixed(2), amount: (l.qty * l.rate).toFixed(2), isOther: l.verdict === 'OTHER'
+      })),
+      sort: {
+        catCount: catLines.length, otherCount: otherLines.length,
+        catLabel: catLines.length + (catLines.length === 1 ? ' line' : ' lines'),
+        otherLabel: otherLines.length + (otherLines.length === 1 ? ' line' : ' lines'),
+        catTotal: this.money(catLines.reduce((a, l) => a + l.qty * l.rate, 0)),
+        otherTotal: this.money(otherTotal), hasOther: otherLines.length > 0,
+        otherLines: otherLines.map(l => ({ n: l.n, desc: l.desc, amount: this.money(l.qty * l.rate) }))
+      },
+      hasOtherCards: otherLines.length > 0,
+      matterKv: [
+        { k: 'Reference', v: m.ref }, { k: 'Jurisdiction', v: m.jurisdiction }, { k: 'Entity', v: m.entity },
+        { k: 'Received', v: m.received }, { k: 'Requestor', v: 'Former employee' },
+        { k: 'Identity verified', v: 'Yes' }, { k: 'Scope clarified', v: 'Yes' }
+      ],
+      cards: cards,
+      totals: {
+        claimed: this.money(claimed), supported: this.money(supported), lawyer: this.money(lawyer),
+        struck: '– ' + this.money(struck), pending: this.money(pending),
+        pendingCount: pendingCount + (pendingCount === 1 ? ' item' : ' items'),
+        final: this.money(final)
+      },
+      gate: {
+        hidden: !allDecided, revealed: allDecided,
+        canSign: allDecided && acksDone && !signed,
+        blockedSign: allDecided && (!acksDone || !!signed),
+        subMsg: allDecided
+          ? (signed ? 'Signed off by ' + m.lawyer + ' · released to HR' : 'Every line has your decision. Sign off to release it to HR.')
+          : pendingCount + (pendingCount === 1 ? ' line still needs' : ' lines still need') + ' your decision',
+        signMsg: signed ? 'Signed off ' + signed.at + '. The fee notice is now available to HR.' : (acksDone ? 'This records your name against the assessment.' : 'Acknowledge the flag' + (acks.length > 1 ? 's' : '') + ' above to continue.')
+      },
+      acks: acks,
+      tally: [
+        { k: 'Accepted as assessed', v: tAcc }, { k: 'Adjusted by you', v: tRed }, { k: 'Struck by you', v: tStr },
+        { k: 'Allowed against the rule', v: tLaw }, { k: 'Final fee', v: this.money(final) }
+      ],
+      signOff: () => this.setState(st => ({
+        signed: { key: key, at: this.now() },
+        screen: 'notice',
+        extra: st.extra.concat([{ t: this.now(), actor: m.lawyer + ' (LEGAL_REVIEWER)', event: 'ASSESSMENT_SIGNED_OFF', detail: 'Final fee ' + this.money(final) + ' · ' + m.pack + ' · released to HR' }])
+      })),
+      scrollSign: () => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }),
+      goReview: () => { this.setState({ screen: 'review' }); window.scrollTo({ top: 0, behavior: 'smooth' }); },
+      notice: {
+        draft: !signed, issued: !!signed, signedAt: signed ? signed.at : '',
+        assessmentId: 'ASM-' + m.ref.slice(-4) + '-01',
+        lede: final > 0
+          ? 'We have assessed the fee for responding to your data access request. The amount below reflects only what our lawyers consider chargeable under ' + m.jurisdiction + ' law; costs we decided were not chargeable to you have been removed.'
+          : 'We have assessed the cost of responding to your data access request and are not charging you a fee. The costs we incurred are set out below for completeness.',
+        rows: noticeRows, basis: m.basisText,
+        hasExcluded: excluded.length > 0,
+        excludedText: excluded.length + (excluded.length === 1 ? ' cost line was' : ' cost lines were') + ' reviewed and not charged to you, either because the rule pack does not support them or because the reviewing lawyer struck them.'
+      },
+      audit: (m.events || []).concat(s.extra.filter(() => true)).map((e, i) => ({
+        seq: String(i + 1).padStart(3, '0'), t: e.t, actor: e.actor, event: e.event, detail: e.detail,
+        hash: this.hash(key + i + e.event + e.detail)
+      })),
+      auditCount: ((m.events || []).length + s.extra.length) + ' events',
+      emailOpen: s.emailOpen, email: email,
+      openEmail: () => this.setState({ emailOpen: true, copied: false }),
+      closeEmail: () => this.setState({ emailOpen: false }),
+      copyEmail: () => {
+        const txt = 'To: ' + email.to + '\nSubject: ' + email.subject + '\n\n' + email.body;
+        if (navigator.clipboard) { navigator.clipboard.writeText(txt).catch(() => {}); }
+        this.setState({ copied: true });
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

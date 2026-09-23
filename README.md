@@ -2,7 +2,7 @@
 
 A tool for deciding — defensibly, consistently, and in minutes rather than hours — what fee an employer may lawfully charge a former employee who has made a data subject access request.
 
-> **Status: demo slice built.** `packages/schemas`, `packages/engine`, `packages/rulepacks` and a first `apps/web` slice (Phase 03.1 — an in-memory, no-database demo pipeline for a stakeholder presentation) exist and are tested. See [Running the demo](#running-the-demo) to start it, and [Current state](#current-state) for what is and is not built yet.
+> **Status: full workflow built, demo-ready.** `packages/schemas`, `packages/engine`, `packages/rulepacks`, and all four `apps/web` screens — HR intake, legal review, sign-off, and HR/internal outputs, including every §10.7 edge state — are built and tested end to end (Phases 1–7). It runs against an in-memory store: the durable Postgres layer and its two-role audit-immutability boundary (Phase 3.2) and the LLM boundary (Phase 8) are the two pieces still outstanding. See [Running the demo](#running-the-demo) to start it, and [Current state](#current-state) for the full picture.
 
 ## The problem
 
@@ -56,10 +56,10 @@ A stub pack is unusable until counsel authors it. That is the intended behaviour
 
 ## Running the demo
 
-Phase 03.1 built an in-memory, no-database demo slice of `apps/web` for a stakeholder
-presentation: HR intake → legal review → sign-off → HR result, running the real
-`packages/engine` against the real committed Singapore pack, with no persistence layer
-behind it. This is the fastest way to see the product work; it is not the pilot-ready build
+Phases 1–7 built the real HR intake → legal review → sign-off → outputs pipeline — every
+screen and edge state in PRD §10 — against `packages/engine` and the real, committed rule
+packs, with no persistence layer behind it yet. This is the actual product, not a
+throwaway slice; the one piece it still needs before a pilot is the durable Postgres layer
 (see [Current state](#current-state) for what that still needs).
 
 **Prerequisites:** Node satisfying this repository's `engines.node` field (`>=20.9.0`), and
@@ -76,22 +76,29 @@ The app serves on **http://localhost:3000**.
 
 **Not required, explicitly:**
 - No database — matters and assessments live in an in-memory store for the life of the
-  process.
-- No Docker — nothing in this phase runs in a container.
+  process (Phase 3.2 swaps in Postgres behind the same repository interface; no
+  application code changes when it lands).
+- No Docker — nothing runs in a container yet; `docker-compose.yml` provisions the
+  Postgres service Phase 3.2 will use, not this build.
 - No network — the dev server disables Next's telemetry ping (`apps/web/scripts/dev.mjs`)
   and no font or asset is fetched remotely.
-- No environment file — no `.env` of any kind is read to start this demo.
+- No environment file — no `.env` of any kind is read to start this build.
 
-**What this demo honestly is not, yet:**
+**What this build honestly is not, yet:**
 - **No persistent data.** Everything typed into it is lost on restart or on any code
   change during `pnpm dev` — there is a permanent on-screen marker saying so.
-- **The rule pack it computes against is a draft**, and the status strip on every screen
-  says so — the engine computes against an in-memory copy coerced to `ACTIVE` for this
-  demo only; the committed pack file itself is never edited and stays `DRAFT`.
-- **The audit backbone is not yet wired.** Phase 4 delivers the append-only log; this
-  demo's sign-off action does not write one.
+- **The rule packs it computes against are drafts**, and the status strip on every screen
+  says so — both `SG-PDPA` and `HK-PDPO` are `status: "DRAFT"`, pending full 21-category
+  authoring and a named lawyer's sign-off. The engine computes against an in-memory copy
+  coerced to `ACTIVE` for this build only; the committed pack files themselves are never
+  edited.
 - **Identity is stubbed.** There is no real login — a cookie-based role switcher stands in
-  for HR/Legal identity, and the demo says so on every screen it switches on.
+  for HR/Legal/DPO identity, and the demo says so on every screen it switches on.
+
+The audit backbone, sign-off gate, internal-record PDF, HR/requestor outputs, and every
+§10.7 edge state (stale pack, no pack, currency mismatch, zero-fee outcome, and more) are
+built and tested (Phases 4–7) — the three bullets above are the complete list of what is
+genuinely still missing before a pilot.
 
 **One figure that looks wrong and is not:** the review screen's "resting on unverified
 rules" figure equals the *entire* supported baseline (SGD 266.40 for the reference
@@ -120,19 +127,22 @@ The PRD is written to be built from directly, in a binding order:
 1. `packages/schemas` — types and zod validators. Nothing else compiles until these exist. **Built.**
 2. `packages/engine` — the deterministic evaluator, with its golden-file tests alongside. **Built.**
 3. `packages/rulepacks` — the nine packs, plus loader and validator. **Built** — Hong Kong and Singapore are
-   fully worked reference packs; the other seven are correct-posture stubs, unusable until counsel authors
+   fully worked reference packs (both still `status: "DRAFT"`, pending full authoring and a lawyer's sign-off
+   before either reaches `ACTIVE`); the other seven are correct-posture stubs, unusable until counsel authors
    them.
-4. `apps/web` — the four production screens, against the Annex A mockup. **Not yet built.** A separate,
-   demo-only slice (Phase 03.1 — see [Running the demo](#running-the-demo)) exists for a stakeholder
-   presentation ahead of the pilot build: it runs the real engine and the real Singapore pack, but with no
-   database, no persistence, no audit log, and stubbed identity, and completing no `INTAKE-*`/`REVIEW-*`/
-   `DISC-*` requirement the production screens still owe.
+4. `apps/web` — the four production screens, against the Annex A mockup. **Built** (Phases 4–7): HR intake,
+   legal review, sign-off, the internal-record PDF, HR/requestor outputs, and every §10.7 edge state, all
+   running against an in-memory store — see [Running the demo](#running-the-demo). Phase 3.2 replaces the
+   store with Postgres behind the same repository interface; no screen or route changes when it does.
 5. `packages/agent` — the LLM boundary. **Last, not yet built.** Everything must work with the model stubbed
    out.
 
-Stack actually in use: TypeScript, Postgres (Phase 3.2+), Prisma, Next.js 16, Tailwind v4, Vitest, pnpm
-workspaces. Playwright is installed but not yet configured against `apps/web`. Deviation from any of this is
-fine; the package boundaries are not.
+Stack actually in use: TypeScript, Postgres (Phase 3.2, not yet applied), Prisma, Next.js 16, Tailwind v4,
+Vitest, pnpm workspaces. `apps/web`'s visual design now matches the mockup's actual styling (cards, warm
+callouts, serif headings, maroon seal accent), not just its structure — the Tailwind pipeline that renders it
+had silently never compiled from Phase 1 until it was fixed on 2026-09-22 (see `HANDOFF.md`). Playwright is
+installed but not yet configured against `apps/web`. Deviation from any of this is fine; the package
+boundaries are not.
 
 ## Reading the spec
 

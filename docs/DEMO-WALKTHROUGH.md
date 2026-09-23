@@ -1,11 +1,15 @@
-# Demo walkthrough — Phase 03.1 in-memory slice
+# Demo walkthrough — HR intake through sign-off
 
 A presenter's script for the stakeholder demo: what to type, in what order, and the exact
 figure to expect at each stage, so it is obvious the moment something has gone wrong.
 
+This walks the full built pipeline (Phases 1–7): HR intake, legal review, sign-off, and
+outputs, running the real `packages/engine` against the real committed Singapore pack.
 Start the app first — see the README's [Running the demo](../README.md#running-the-demo)
-section for the one command, the prerequisites, and what this demo honestly is not yet
-(no persistent data, a draft rule pack, no audit backbone, stubbed identity).
+section for the one command, the prerequisites, and what this build honestly is not yet
+(no persistent data, draft rule packs, stubbed identity — the audit backbone, sign-off
+gate, and internal-record PDF are all real and wired in, as of Phase 4 and Phase 7
+respectively).
 
 There is no database, no Docker and no network involved anywhere below. Restarting the
 server, or saving a source file while `pnpm dev` is running, loses everything typed in —
@@ -55,6 +59,12 @@ Total claimed: **SGD 888.00** (16000 + 8000 + 12000 + 3300 + 45000 + 4500 minor 
    "Advocate & Solicitor, Singapore"), and **sign off**.
 8. **Switch back to HR** and open the matter again: read the fee, the struck line's basis,
    and the draft notice.
+9. **(Optional, Legal-only) Download the internal record.** Back in the legal identity,
+   the signed-off matter now shows a "Download internal record (PDF)" trigger — this
+   control only ever appears on `/legal/*`, and only once a matter is `SIGNED_OFF` or
+   `CLOSED` (Phase 7). It opens the dense, ten-column line-item PDF with the matter, pack,
+   flags and sign-off sections, and a page-repeating footer — the internal compliance
+   record, never sent anywhere automatically (NS-3).
 
 ## Figures to expect at each stage
 
