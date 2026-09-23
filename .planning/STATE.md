@@ -3,16 +3,16 @@ gsd_state_version: "1.0"
 current_phase: 08
 current_phase_name: LLM Job 1 — Category Suggestion
 status: not_started
-stopped_at: Completed 07-06-PLAN.md (Wave 3, final plan of Phase 7 — DISC-06 edge-state-table sweep, phase closed)
-last_updated: "2026-09-22T01:30:00.000Z"
+stopped_at: Phase 3.2 context updated with repository-swap decision (D-11/D-12/D-13); existing plans 03.2-01/02/03 predate it, need replanning
+last_updated: "2026-09-23T01:17:28.082Z"
 last_activity: 2026-09-22
 last_activity_desc: "Executed Phase 7 Plan 07-06 (Wave 3, final plan — DISC-06): one new file, tests/routes/edge-state-table.test.ts, tagged EDGE-STATE-TABLE, one describe per PRD §10.7 row in the table's own order (a row() helper records its own title at collection time, so the final completeness assertion reddens if a row is ever dropped later). Three of the seven rows could not be proven exactly as the plan first described, once checked against this codebase's actual frozen architecture, each recorded inline and here: (1) 'No pack for jurisdiction's server-side refusal is unreachable through the real committed pack directory (all nine schema-valid jurisdiction codes have a committed pack file) — proven instead via a partial mock of jurisdiction-packs.ts's buildJurisdictionPackViews (delegates to the real implementation for every call except the one this row overrides); (2) 'Pack STALE's first half (new-matter submit refusal) is unreachable through the live route at all — apps/web/src/server/guard-input.ts's own documented DEMO-ONLY coercePackForDemoEngine forces every pack's status to ACTIVE before the SUBMIT guard runs, since every committed pack is honestly DRAFT (D-16) — proven instead directly against packages/workflow's real, uncoerced guard table (evaluateTransition), the same row packages/workflow/src/evaluate-transition.test.ts already proves independently; (3) Currency mismatch sub-case (a) ('a second expense line whose currency differs from the matter's') cannot be constructed at all — packages/schemas/src/expense-line.ts's ExpenseLineSchema (frozen since Phase 1) carries no currency field, matching the PRD's own §6.2 comment ('unitRate: number; // in matter currency') and the repeatedly-recorded architectural decision that currency is a matter-level-only property (assessment.ts's feeChoice, rule-pack.ts's flatFee) — proven instead as the structural guarantee that makes the PRD's sub-case unreachable (a crafted line-creation request naming a differing currency is silently ignored by production code, and the created line carries no currency property at all), not a fabricated refusal. The remaining four rows (Pack activated mid-review via the committed two-version ACME-FIXTURE pack; Engine error via audit-trail.test.ts's own rollback technique; LLM unavailable as a named, executing, non-skipped case recording packages/agent's absence and LLM-08/AC-28's Pending status, per the plan's own instruction never to fake a green skip; Zero allowable via the JP-APPI no-express-authority round trip already proven in 07-03) were provable as planned and are proven again here, each with a cross-reference comment to the file that already proves it elsewhere. Full suite 1046 -> 1058 passing (12 new tests); typecheck/lint/depcruise all clean. DISC-06 marked Complete in REQUIREMENTS.md — all fifteen Phase 7 requirements now Complete, each with a named proof (walked and confirmed in this plan's own Task 3, not assumed from a prior plan's claim). ROADMAP.md's Phase 7 entry marked complete (6/6 plans, all checkboxes ticked); its Phase 6 Progress-table row corrected from a stale '0/9 Planned' to '9/9 Complete', matching STATE.md's own long-standing record that all nine Phase 6 plans (plus its review addendum) were executed. gsd-tools.cjs was found and runs in this worktree for the first time this project (node $HOME/.claude/gsd-core/bin/gsd-tools.cjs, v1.13.0) — used for requirements mark-complete and roadmap update-plan-progress, both idempotent no-ops confirming the manual REQUIREMENTS.md/ROADMAP.md edits already matched; state advance-plan itself could not run, since this project's STATE.md 'Current Position' section has never used the tool's expected 'Current Plan: N' / 'Total Plans in Phase: M' label format across any of its 30+ prior plans (every one of which recorded gsd-tools.cjs as unavailable) — STATE.md's own frontmatter/body updated manually here too, preserving this project's established format rather than reformatting it mid-phase-transition."
-state_head: de4a9f3c5db7b30c723aaa45d6f2d0cdaf0ce7c4
+state_head: b3d2311570492edd2e5320f6110bb2e4c74cb8a1
 progress:
   total_phases: 10
-  completed_phases: 7
+  completed_phases: 0
   total_plans: 52
-  completed_plans: 48
+  completed_plans: 49
   percent: 0
 ---
 
@@ -322,7 +322,7 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-09-22T01:30:00.000Z
-Stopped at: Completed 07-06-PLAN.md (Wave 3, final plan of Phase 7 — DISC-06 edge-state-table sweep, phase closed)
-Resume file: None — Phase 7 is complete; Phase 8 (LLM Job 1 — Category Suggestion) has not yet been discussed or planned.
+Last session: 2026-09-23T01:17:27.451Z
+Stopped at: Phase 3.2 context updated with repository-swap decision (D-11/D-12/D-13); existing plans 03.2-01/02/03 predate it, need replanning
+Resume file: .planning/phases/03.2-database-boundary-and-audit-immutability/03.2-CONTEXT.md
 Last activity: 2026-09-22 - Executed Phase 7 Plan 07-06, the final plan of the phase: all seven §10.7 edge-state-table rows proven end to end in tests/routes/edge-state-table.test.ts, with three plan/reality corrections recorded (No-pack's server refusal via a partial jurisdiction-packs.ts mock; Pack-STALE's new-matter half via packages/workflow's real guard table directly, since coercePackForDemoEngine's DEMO-ONLY coercion makes it unreachable through the live route; Currency-mismatch sub-case (a) proven as a structural guarantee, since ExpenseLineSchema has no currency field at all). DISC-06 marked Complete, closing all fifteen Phase 7 requirements. Full suite 1046 -> 1058 passing; typecheck/lint/depcruise clean. ROADMAP.md's Phase 7 entry marked complete and its Phase 6 Progress-table row corrected. See STATE.md frontmatter last_activity_desc and .planning/phases/07-sign-off-outputs-and-edge-states/07-06-SUMMARY.md for the full account.
