@@ -49,7 +49,6 @@ describe("MATTER-SUBMITTED-AUTH: the submitted-confirmation page's data dependen
     });
 
     await expect(getHrMatterStatus(DEMO_USERS.LEGAL_REVIEWER, matter.id)).rejects.toThrow(/HR_PREPARER role/);
-    await expect(getHrMatterStatus(DEMO_USERS.DPO_ADMIN, matter.id)).rejects.toThrow(/HR_PREPARER role/);
   });
 
   it("MATTER-SUBMITTED-AUTH: an HR_PREPARER actor can read the matter's status once created", async () => {

@@ -2,9 +2,10 @@
 //
 // getAuditTrailView(actor) — the /admin/audit screen's one data-layer call
 // (07.1-02-PLAN.md Task 1). Calls exportAuditLog(actor), inheriting its
-// requireRole(actor, "DPO_ADMIN") gate as the ONLY place this refusal can
-// be forgotten from (T-07.1-02-02) — this file imports neither requireRole
-// nor re-checks actor.role itself. Enriches each matter event with the
+// requireRole(actor, ["DPO_ADMIN", "LEGAL_REVIEWER"]) gate as the ONLY
+// place this refusal can be forgotten from (T-07.1-02-02) — this file
+// imports neither requireRole nor re-checks actor.role itself. Enriches
+// each matter event with the
 // human matter reference exportAuditLog's own AuditEvent shape does not
 // carry (it only has matterId), falling back to the raw id when the
 // matter cannot be found (e.g. a stale event referencing a since-deleted

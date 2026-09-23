@@ -25,7 +25,7 @@ import { POST as addLineRoute } from "../../apps/web/app/api/matters/[id]/lines/
 import { POST as submitRoute } from "../../apps/web/app/api/matters/[id]/submit/route.ts";
 import { DEMO_ROLE_COOKIE } from "../../apps/web/src/server/data/auth.ts";
 
-let mockRole = "DPO_ADMIN";
+let mockRole = "LEGAL_REVIEWER";
 vi.mock("next/headers", () => ({
   cookies: async () => ({ get: (name: string) => (name === DEMO_ROLE_COOKIE ? { value: mockRole } : undefined) }),
 }));
@@ -97,8 +97,8 @@ async function renderPage(): Promise<string> {
 }
 
 describe("ADMIN-AUDIT-TRAIL: /admin/audit", () => {
-  it("ADMIN-AUDIT-TRAIL: a DPO_ADMIN render shows the seeded matter's reference, both table sub-headings, and no raw JSON payload", async () => {
-    mockRole = "DPO_ADMIN";
+  it("ADMIN-AUDIT-TRAIL: a LEGAL_REVIEWER render shows the seeded matter's reference, both table sub-headings, and no raw JSON payload (combined Legal/DPO identity, 2026-09-23)", async () => {
+    mockRole = "LEGAL_REVIEWER";
     const seeded = await seedSubmittedMatter("DSAR-ADMIN-AUDIT-0001");
 
     const html = await renderPage();
@@ -112,17 +112,6 @@ describe("ADMIN-AUDIT-TRAIL: /admin/audit", () => {
   it("ADMIN-AUDIT-TRAIL: an HR_PREPARER render shows the restricted message, zero <table> elements, and no seeded matter reference", async () => {
     mockRole = "HR_PREPARER";
     const seeded = await seedSubmittedMatter("DSAR-ADMIN-AUDIT-0002");
-
-    const html = await renderPage();
-
-    expect(html).toContain("This screen is restricted to the DPO / audit role.");
-    expect(html).not.toContain("<table");
-    expect(html).not.toContain(seeded.reference);
-  });
-
-  it("ADMIN-AUDIT-TRAIL: a LEGAL_REVIEWER render shows the restricted message, zero <table> elements, and no seeded matter reference", async () => {
-    mockRole = "LEGAL_REVIEWER";
-    const seeded = await seedSubmittedMatter("DSAR-ADMIN-AUDIT-0003");
 
     const html = await renderPage();
 
