@@ -448,13 +448,16 @@ body {
   }
 
   /* A real bordered <table> for the notice document's line-item table,
-     using the existing --color-line tokens for row/column rules. */
-  .notice-table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  .notice-table td {
+     using the existing --color-line tokens for row/column rules. Reused
+     unchanged by the Audit trail screen's two event tables (07.1-02) — the
+     td/th rule below is widened to cover th too (that screen's column
+     headers), since the browser default agent stylesheet centre-aligns and
+     tightly pads a bare <th>, which would read inconsistently against this
+     table's own left-aligned, evenly-padded <td> cells. No new colour or
+     token is introduced by this widening — every value below already
+     existed on the td-only selector. */
+  .notice-table td,
+  .notice-table th {
     border-bottom: 1px solid var(--color-line-soft);
     padding: var(--spacing-sm) 0;
     text-align: left;

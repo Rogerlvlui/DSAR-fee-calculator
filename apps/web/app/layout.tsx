@@ -52,9 +52,14 @@ const newsreader = Newsreader({
 
 const FONT_VARIABLES = `${ibmPlexSans.variable} ${ibmPlexMono.variable} ${newsreader.variable}`;
 
+// DPO_ADMIN added 07.1-02: deliberately absent since 04-03 (auth.ts's own
+// header note) because no officer-facing screen existed yet — /admin/audit
+// now gives this identity somewhere to lead a presenter, so it belongs in
+// the switcher alongside the other two demo actors.
 const ACTOR_OPTIONS = [
   { value: "HR_PREPARER", label: DEMO_USERS.HR_PREPARER.user.displayName },
   { value: "LEGAL_REVIEWER", label: DEMO_USERS.LEGAL_REVIEWER.user.displayName },
+  { value: "DPO_ADMIN", label: DEMO_USERS.DPO_ADMIN.user.displayName },
 ] as const;
 
 const ROLE_SWITCH_CAPTION =
