@@ -345,7 +345,7 @@ DISC-06 sweeps §10.7 end to end here. Individual rows are implemented in their 
 **Goal**: `apps/web`'s four built screens visually match the Claude Design export's actual tokens and markup (not a Tailwind reinterpretation of them), and a new Audit trail screen exists for a read-only viewer role
 **Depends on**: Phase 7 (the screens being restyled already exist)
 **Parallel with**: Phase 3.2 and Phase 8 — this phase touches only presentation-layer code and one new read-only screen; no engine, schema, or persistence-layer overlap
-**Requirements**: Not yet assigned REQUIREMENTS.md IDs — to be captured during `/gsd-discuss-phase 7.1` / `/gsd-ui-phase 7.1`
+**Requirements**: None assigned — implementation-driven demo-prep work, not sourced from the PRD; the five success criteria above are this phase's traceability anchor instead
 **Success Criteria** (what must be TRUE):
 
   1. HR intake, Legal review, and HR result/notice screens render using the Claude Design export's actual design tokens (colours, type — Newsreader/IBM Plex Sans/IBM Plex Mono — spacing) and structure, sourced from `docs/design/`, not reproduced through Tailwind utility classes
@@ -354,7 +354,16 @@ DISC-06 sweeps §10.7 end to end here. Individual rows are implemented in their 
   4. No regression in the four already-passing PRD §10 screens' existing behaviour (all Phase 4–7 tests, including every §10.7 edge state, still pass) — this is a restyle plus one addition, not a rebuild of application logic
   5. WCAG 2.1 AA and "no verdict conveyed by colour alone" (per `.claude/CLAUDE.md`'s Constraints) hold under the new design system, verified against the design export's own semantic colour set (success/warning/error), not assumed from the old system
 
-**Plans**: Not yet planned — run `/gsd-discuss-phase 7.1` then `/gsd-plan-phase 7.1`
+**Plans**: 2 plans across 2 waves — Wave 1 (the restyle) is independently shippable if time runs out before Wave 2 (Audit trail)
+
+Plans:
+**Wave 1**
+
+- [ ] 07.1-01-PLAN.md — Font pipeline (self-hosted Newsreader/IBM Plex Sans/IBM Plex Mono), the DISALLOW verdict-colour correction, and the Legal review/HR intake/HR result-notice restyle
+
+**Wave 2** *(blocked on 07.1-01)*
+
+- [ ] 07.1-02-PLAN.md — The new `/admin/audit` Audit trail screen (DPO_ADMIN-gated, both event streams, Pack/Engine in place of the design's unbacked Hash column) and the phase-closing regression sweep
 
 ### Phase 8: LLM Job 1 — Category Suggestion
 
@@ -375,7 +384,7 @@ DISC-06 sweeps §10.7 end to end here. Individual rows are implemented in their 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 3.1 → 3.2 → 4 → 5 → 6 → 7 → 8
+Phases execute in numeric order: 1 → 2 → 3 → 3.1 → 3.2 → 4 → 5 → 6 → 7 → 7.1 → 8
 
 Where capacity allows, Phases 2, 3, 4 and 5 may run concurrently — they have zero ordering between them once Phase 1's types are frozen. Phase 3's PACK-09 authoring should be kicked off first regardless, as the likely schedule long pole.
 
@@ -392,4 +401,5 @@ Where capacity allows, Phases 2, 3, 4 and 5 may run concurrently — they have z
 | 5. HR Intake and Disclosure Shell | 6/6 | Complete    | 2026-09-20 |
 | 6. Convergence and Legal Review | 9/9 | Complete    | 2026-09-20 |
 | 7. Sign-off, Outputs and Edge States | 6/6 | Complete    | 2026-09-22 |
+| 7.1 UI Redesign — Claude Design Adoption | 0/2 | Planned | - |
 | 8. LLM Job 1 — Category Suggestion | 0/TBD | Not started | - |
