@@ -81,53 +81,76 @@ split against APP 12.7 and 12.8 directly, not against this extract alone.**
 
 ## Part 4 — Category rules (21 required for `ACTIVE`; six shown here as a starting subset)
 
-Same taxonomy as the SG/HK packs. The OAIC extract only speaks clearly to a handful of
-these — the rest are left as `FLAG`/`NEEDS_VERIFICATION` (i.e., unchanged from the current
-stub) until you've read the primary source.
+Same taxonomy as the SG/HK packs. **Update 2026-09-23:** you pasted a more complete, more
+literal quote of what looks like the same OAIC source (below, "AU source quote"). It's more
+authoritative than the earlier AI-paraphrased extract — treat it as the working text — but
+it's still not a citation until you confirm which page/instrument it's actually from (see
+the question at the end of this section). Everything not covered by it is still left as
+`FLAG`/`NEEDS_VERIFICATION` (unchanged from the stub) until you've read the primary source.
+
+> **AU source quote (pasted by you, 2026-09-23):** *"...an organisation may charge for
+> providing you access, but this charge can't be excessive. The organisation must tell you
+> there's a charge and explain the reasons for it. The charge may include the cost of:
+> staff searching for, locating and retrieving the requested information, and deciding
+> which personal information is relevant to the request; staff reproducing and sending the
+> personal information; the postage or materials involved in giving access; using an
+> intermediary, if necessary."*
 
 ### `AU-PRIVACY-ACT.STAFF_TIME_SEARCH`
-- **OAIC extract:** allowable cost — "staff costs for searching and retrieving personal information"
+- **AU source quote:** confirms — "staff searching for, locating and retrieving the requested information"
 - **Proposed treatment:** `ALLOW` · **Confirm / change:** ______________
-- **Proposed basis:** "Staff time searching for and retrieving the requested information is a cost of giving access, chargeable at a clerical rate."
-- **Citation:** Privacy Act 1988, APP 12.8 · **Confirm / change:** ______________
-- **Rate standard note:** the extract states clerical-rate staff time is chargeable for tasks "clerical staff can perform (such as photocopying, printing, collating and posting documents)" — search/retrieval itself isn't explicitly named as clerical-rate work in the extract; confirm which rate applies here specifically.
+- **Proposed basis:** "Staff time searching for and retrieving the requested information is a cost of giving access."
+- **Citation:** Privacy Act 1988, APP 12 (pinpoint TBC — see the citation question below) · **Confirm / change:** ______________
 
-### `AU-PRIVACY-ACT.STAFF_TIME_COLLATE`
-- **OAIC extract:** allowable cost — "staff costs for reproducing and sending information"; clerical rate expressly named for "photocopying, printing, collating and posting"
-- **Proposed treatment:** `ALLOW` · **Confirm / change:** ______________
-- **Proposed basis:** "Compiling, reproducing and sending the response is chargeable at a clerical rate."
-- **Citation:** APP 12.8 · **Confirm / change:** ______________
-
-### `AU-PRIVACY-ACT.STAFF_TIME_ASSESS_EXEMPTIONS`
-- **OAIC extract:** does not name this cost directly. It does say "professional rates may apply when professionals review files before providing access" — that's about *rate*, not about whether the underlying time is chargeable at all. SG's own pack treats the equivalent category as the organisation's own compliance cost, not a service to the applicant — **worth checking whether OAIC draws the same line, or treats exemption-review as part of "giving access" and therefore chargeable at a professional rate.**
-- **Proposed treatment:** ______________ (no proposal — genuinely ambiguous on this extract alone)
+### `AU-PRIVACY-ACT.STAFF_TIME_ASSESS_EXEMPTIONS` — **this is the one that changed**
+- **AU source quote:** the same sentence as STAFF_TIME_SEARCH above continues "...**and deciding which personal information is relevant to the request**" — named in the *same* allowable-cost clause as search/locate/retrieve, not carved out.
+- **This resolves the ambiguity the worksheet flagged, but resolves it the opposite way from SG.** SG's own pack treats the equivalent category (time spent deciding what to withhold) as the organisation's own compliance cost, `DISALLOW`. This AU text puts "deciding what's relevant" in the *same allowable clause* as searching and retrieving — textually, `ALLOW`, not `DISALLOW`.
+- ⚠ **One thing worth your own read before locking this in:** "deciding which personal information is **relevant to the request**" (scoping — is this document part of what was asked for) may not be the same decision as "deciding what may be **withheld/exempted**" (redaction — should this document be given at all). The PRD's `STAFF_TIME_ASSESS_EXEMPTIONS` category is named for the latter. If the source is only talking about scoping, it may not license charging for exemption-analysis time at all — the schema doesn't have a separate "scoping" category, so this is a real categorisation call, not a formality.
+- **Proposed treatment:** `ALLOW` **if** "relevant to the request" reading covers exemption/withholding analysis in your judgment; otherwise this category should stay closer to SG's `DISALLOW` and a new note added explaining AU's "relevant to the request" language is being read narrowly. **Your call:** ______________
 - **Your basis:** ________________________________________________
 
-### `AU-PRIVACY-ACT.PROFESSIONAL_REVIEW`
-- **OAIC extract:** "Professional rates may apply when professionals review files before providing access."
+### `AU-PRIVACY-ACT.STAFF_TIME_COLLATE`
+- **AU source quote:** confirms — "staff reproducing and sending the personal information"
 - **Proposed treatment:** `ALLOW` · **Confirm / change:** ______________
-- **Proposed basis:** "Professional review of files before access is given may be charged at a professional rate."
-- **Citation:** APP 12.8 (rate guidance) · **Confirm / change:** ______________
-- ⚠ Needs the actual rate figure or method — not in the extract.
+- **Proposed basis:** "Compiling, reproducing and sending the response is a cost of giving access."
+- **Citation:** APP 12 (pinpoint TBC) · **Confirm / change:** ______________
 
 ### `AU-PRIVACY-ACT.PHOTOCOPY_PRINT` / `POSTAGE_COURIER`
-- **OAIC extract:** allowable cost — "postage or material costs"; clerical rate for photocopying/printing/posting
+- **AU source quote:** confirms — "the postage or materials involved in giving access"
 - **Proposed treatment:** `ALLOW` (possibly `ALLOW_WITH_CAP`, matching SG's per-page approach) · **Confirm / change:** ______________
-- **Proposed basis:** "Reproduction and postage/material costs actually incurred, charged at a clerical rate."
-- **Citation:** APP 12.8 · **Confirm / change:** ______________
-- ⚠ Per-unit figure (if capping) not in the extract — same open question as SG's PHOTOCOPY_PRINT (whose cost rates feed this).
+- **Proposed basis:** "Postage and material costs actually incurred in giving access."
+- **Citation:** APP 12 (pinpoint TBC) · **Confirm / change:** ______________
+- ⚠ Per-unit figure (if capping) not in the source text — same open question as SG's PHOTOCOPY_PRINT (whose cost rates feed this).
+
+### A category not yet identified — "using an intermediary, if necessary"
+- **AU source quote:** this is a fourth allowable cost head with no obvious home in the
+  existing subset above. It doesn't map to `PROFESSIONAL_REVIEW` (nothing here mentions a
+  professional/rate distinction — that line from the earlier AI-fetched extract is not
+  repeated in your pasted text, so treat it as unconfirmed rather than assume it still
+  holds). It may belong under one of the 15 categories not yet drafted here (candidates:
+  `IDENTITY_VERIFICATION`, `ADMIN_OVERHEAD`, or a vendor/third-party category) — worth
+  identifying which once you're working through the remaining 15.
 
 ### `AU-PRIVACY-ACT.OTHER_UNCLASSIFIED`
 - **Treatment:** `FLAG` — fixed in every pack, not yours to change (AC-19), same as every other jurisdiction.
 - **Basis:** you may still word this one. **Your text:** ________________________________________________
 
-### The remaining 15 categories
+### The remaining ~14 categories
 
-Not addressed by the fetched extract at all. Left as `FLAG`/`NEEDS_VERIFICATION`
-(unchanged from the current stub) until read against APP 12 and the OAIC APP Guidelines
-Chapter 12 directly — the "excessive charge" factors (org size/resources, nature of
-information held, and legal-advice/system-deficiency costs being excessive) are the
-operative test to reason each of them against, per the extract.
+Still not addressed by any source text seen so far. Left as `FLAG`/`NEEDS_VERIFICATION`
+(unchanged from the stub) until read against APP 12 and the OAIC APP Guidelines Chapter 12
+directly — "not excessive" (org size/resources, nature of information held) is the
+operative test to reason each of them against.
+
+### New constraint signal from your pasted text: a notification requirement
+
+*"The organisation must tell you there's a charge and explain the reasons for it"* — this
+doesn't map cleanly onto any single one of the 11 `RulePackConstraintsSchema` fields (it's
+closer to `feeNotificationDeadlineDays`/`deadlineBasis` than the others, but those fields
+expect a deadline, and this text states an obligation with no stated timeframe). Confirm
+whether AU has an actual deadline for this notice (like SG's written-estimate requirement)
+or whether it's an unqualified "must explain" duty with no clock attached — that changes
+which field(s) this becomes.
 
 ---
 
@@ -135,19 +158,24 @@ operative test to reason each of them against, per the extract.
 
 1. **Is this in scope for v1 at all**, or does AU stay a stub alongside the other six
    non-HK/SG jurisdictions until a later milestone? (See the note at the top.)
-2. **The excessive-charge test cuts against several categories that HK/SG allow.** The
-   extract is explicit that "legal advice costs for deciding how to respond" are an
-   example of an *excessive* charge — this may mean `STAFF_TIME_ASSESS_EXEMPTIONS` (or
-   whichever category captures exemption/redaction-decision time) should lean toward
-   `DISALLOW`, similar to SG's own treatment of that category, but for a textually
-   different reason (excessiveness, not "not a service to the applicant"). Worth deciding
-   deliberately rather than copying SG's disposition for a different rationale.
-3. **Whose cost rates feed a clerical/professional rate distinction here**, if a per-unit
-   cap is added — same open question PRD §17 raises for Singapore's `rateSanityCeiling`.
-4. **The OAIC APP Guidelines Chapter 12 page the PRD actually cites has not been read in
-   this pass.** It is the more authoritative, more granular source than the general
-   "dealing with requests" page fetched here, and should be the next thing read before
-   any of the "no proposal" rows above are filled in.
+2. **What is the exact source of your pasted quote** — a URL, a named OAIC page, or the APP
+   Guidelines Chapter 12 itself? The pack's `citation` field needs an instrument + provision
+   (e.g. "Privacy Act 1988, APP 12.8"), not a paraphrase, and right now every citation in
+   Part 4 above reads "pinpoint TBC" because the quote alone doesn't carry a section number.
+3. **The `STAFF_TIME_ASSESS_EXEMPTIONS` categorisation call above** — whether "deciding
+   what's relevant to the request" (your source's words) is the same decision as "deciding
+   what may be withheld" (the schema category's meaning). This is the single highest-impact
+   open item: it flips one category between `ALLOW` and `DISALLOW`, and SG's pack currently
+   disagrees with a literal reading of your AU text on this exact point.
+4. **Whose cost rates feed a clerical/professional rate distinction here**, if a per-unit
+   cap is added — same open question PRD §17 raises for Singapore's `rateSanityCeiling`. Your
+   pasted text doesn't distinguish a clerical vs. professional rate at all (unlike the
+   earlier, now-superseded AI-fetched extract) — confirm whether that distinction exists in
+   AU or was an artifact of the earlier bad source.
+5. **"Using an intermediary" has no category home yet** — see Part 4's note above.
+6. **The OAIC APP Guidelines Chapter 12 page the PRD actually cites** may or may not be
+   where your pasted quote came from (see question 2) — worth confirming either way before
+   this worksheet's citations are treated as final.
 
 ---
 
