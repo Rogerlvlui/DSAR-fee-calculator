@@ -12,16 +12,25 @@ fully-authored jurisdiction is a v1 scope change, not just filling in a form. Wo
 deciding explicitly — this worksheet exists so there is something concrete to decide
 against, not as a signal the decision has already been made.
 
-**Provenance of the content below — read this before anything else.** Everything under
-"OAIC extract" was pulled by an AI-assisted fetch of one OAIC guidance page
-(`oaic.gov.au/.../dealing-with-requests-for-access-to-personal-information`), *not* by
-reading the primary sources. It has **not** been cross-checked against:
-- the Privacy Act 1988 (Cth), Schedule 1, APP 12 itself: the operative legal text;
-- the OAIC's own *APP Guidelines* Chapter 12 (`oaic.gov.au/.../chapter-12-app-12-access-to-personal-information`) — the source the PRD actually cites at §7.4's Australia row, which is a different page from the one just fetched and has not been checked at all in this pass.
+**Provenance of the content below — read this before anything else.**
+- Content under "OAIC extract" was pulled by an AI-assisted fetch of the OAIC page
+  *"Dealing with requests for access to personal information"* — an AI paraphrase, not a
+  direct quote. Superseded where the AU source quote below covers the same ground.
+- Content under "AU source quote" is text you pasted directly on 2026-09-23, confirmed as
+  coming from that same OAIC page — a more literal, more reliable rendering of it, and the
+  basis for the confirmed calls in Part 4 (STAFF_TIME_ASSESS_EXEMPTIONS in particular).
+- **Neither source is the primary legal text.** Nothing below has been cross-checked
+  against the Privacy Act 1988 (Cth), Schedule 1, APP 12 itself, or against the OAIC's own
+  *APP Guidelines* Chapter 12 (`oaic.gov.au/.../chapter-12-app-12-access-to-personal-information`)
+  — the more granular source the PRD actually cites at §7.4's Australia row. OAIC's own
+  guidance page is a reasonable secondary source for policy content, but the exact APP 12
+  pinpoint citations still need verifying against the Act's own text before `ACTIVE`.
 
-Treat every proposed value below exactly as the SG worksheet treats its own proposals:
-**a starting point for you to confirm or change, never a substitute for you reading the
-primary source.** Nothing here should be transcribed into the pack without that reading.
+Treat every remaining proposed (not yet confirmed) value below exactly as the SG worksheet
+treats its own proposals: **a starting point for you to confirm or change.** Items marked
+"confirmed" above have your explicit sign-off already, via direct conversation on
+2026-09-23 — but even those still need the citation pinpoint nailed down before this pack
+can reach `ACTIVE`.
 
 ---
 
@@ -100,26 +109,26 @@ the question at the end of this section). Everything not covered by it is still 
 - **AU source quote:** confirms — "staff searching for, locating and retrieving the requested information"
 - **Proposed treatment:** `ALLOW` · **Confirm / change:** ______________
 - **Proposed basis:** "Staff time searching for and retrieving the requested information is a cost of giving access."
-- **Citation:** Privacy Act 1988, APP 12 (pinpoint TBC — see the citation question below) · **Confirm / change:** ______________
+- **Citation:** OAIC guidance, *"Dealing with requests for access to personal information"*, read against Privacy Act 1988 (Cth), APP 12 (pinpoint TBC — see citation note below) · **Confirm / change:** ______________
 
-### `AU-PRIVACY-ACT.STAFF_TIME_ASSESS_EXEMPTIONS` — **this is the one that changed**
+### `AU-PRIVACY-ACT.STAFF_TIME_ASSESS_EXEMPTIONS` — **resolved 2026-09-23**
 - **AU source quote:** the same sentence as STAFF_TIME_SEARCH above continues "...**and deciding which personal information is relevant to the request**" — named in the *same* allowable-cost clause as search/locate/retrieve, not carved out.
-- **This resolves the ambiguity the worksheet flagged, but resolves it the opposite way from SG.** SG's own pack treats the equivalent category (time spent deciding what to withhold) as the organisation's own compliance cost, `DISALLOW`. This AU text puts "deciding what's relevant" in the *same allowable clause* as searching and retrieving — textually, `ALLOW`, not `DISALLOW`.
-- ⚠ **One thing worth your own read before locking this in:** "deciding which personal information is **relevant to the request**" (scoping — is this document part of what was asked for) may not be the same decision as "deciding what may be **withheld/exempted**" (redaction — should this document be given at all). The PRD's `STAFF_TIME_ASSESS_EXEMPTIONS` category is named for the latter. If the source is only talking about scoping, it may not license charging for exemption-analysis time at all — the schema doesn't have a separate "scoping" category, so this is a real categorisation call, not a formality.
-- **Proposed treatment:** `ALLOW` **if** "relevant to the request" reading covers exemption/withholding analysis in your judgment; otherwise this category should stay closer to SG's `DISALLOW` and a new note added explaining AU's "relevant to the request" language is being read narrowly. **Your call:** ______________
-- **Your basis:** ________________________________________________
+- **Confirmed by you:** this is the same decision as the schema's exemption/withholding analysis, not a narrower "scoping" question. **This is the opposite treatment from SG's equivalent category** (SG: `DISALLOW`, the organisation's own compliance cost, not a service to the applicant). Recorded here as a deliberate, confirmed cross-jurisdiction difference — not an inconsistency to "fix" later.
+- **Treatment:** `ALLOW` — **confirmed**.
+- **Basis:** "Deciding which personal information is relevant to the request, including what may be withheld, is a cost of giving access under Australian guidance — unlike Singapore's treatment of the equivalent decision as the organisation's own compliance cost."
+- **Citation:** OAIC guidance, *"Dealing with requests for access to personal information"* (charging section), read against Privacy Act 1988 (Cth), APP 12.8 — pinpoint APP 12 provision to be confirmed against the Act's own text before `ACTIVE` (see citation note below).
 
 ### `AU-PRIVACY-ACT.STAFF_TIME_COLLATE`
 - **AU source quote:** confirms — "staff reproducing and sending the personal information"
 - **Proposed treatment:** `ALLOW` · **Confirm / change:** ______________
 - **Proposed basis:** "Compiling, reproducing and sending the response is a cost of giving access."
-- **Citation:** APP 12 (pinpoint TBC) · **Confirm / change:** ______________
+- **Citation:** OAIC guidance, *"Dealing with requests for access to personal information"*, read against APP 12 (pinpoint TBC) · **Confirm / change:** ______________
 
 ### `AU-PRIVACY-ACT.PHOTOCOPY_PRINT` / `POSTAGE_COURIER`
 - **AU source quote:** confirms — "the postage or materials involved in giving access"
 - **Proposed treatment:** `ALLOW` (possibly `ALLOW_WITH_CAP`, matching SG's per-page approach) · **Confirm / change:** ______________
 - **Proposed basis:** "Postage and material costs actually incurred in giving access."
-- **Citation:** APP 12 (pinpoint TBC) · **Confirm / change:** ______________
+- **Citation:** OAIC guidance, *"Dealing with requests for access to personal information"*, read against APP 12 (pinpoint TBC) · **Confirm / change:** ______________
 - ⚠ Per-unit figure (if capping) not in the source text — same open question as SG's PHOTOCOPY_PRINT (whose cost rates feed this).
 
 ### A category not yet identified — "using an intermediary, if necessary"
@@ -158,24 +167,23 @@ which field(s) this becomes.
 
 1. **Is this in scope for v1 at all**, or does AU stay a stub alongside the other six
    non-HK/SG jurisdictions until a later milestone? (See the note at the top.)
-2. **What is the exact source of your pasted quote** — a URL, a named OAIC page, or the APP
-   Guidelines Chapter 12 itself? The pack's `citation` field needs an instrument + provision
-   (e.g. "Privacy Act 1988, APP 12.8"), not a paraphrase, and right now every citation in
-   Part 4 above reads "pinpoint TBC" because the quote alone doesn't carry a section number.
-3. **The `STAFF_TIME_ASSESS_EXEMPTIONS` categorisation call above** — whether "deciding
-   what's relevant to the request" (your source's words) is the same decision as "deciding
-   what may be withheld" (the schema category's meaning). This is the single highest-impact
-   open item: it flips one category between `ALLOW` and `DISALLOW`, and SG's pack currently
-   disagrees with a literal reading of your AU text on this exact point.
+2. ~~What is the exact source of your pasted quote~~ — **answered 2026-09-23:** the OAIC
+   "Dealing with requests for access to personal information" guidance page (same one
+   fetched earlier, just quoted more literally by you). Citations above now name that page
+   plus the underlying APP 12 provision it interprets — the remaining gap is the exact APP
+   12 pinpoint (12.7 vs 12.8 vs a sub-paragraph), which is guidance-page shorthand, not
+   something OAIC's own guidance text spells out. Confirm the pinpoint against the Privacy
+   Act 1988 (Cth) itself before `ACTIVE`.
+3. ~~The `STAFF_TIME_ASSESS_EXEMPTIONS` categorisation call~~ — **answered 2026-09-23:**
+   confirmed as the same decision as the schema's exemption/withholding analysis. `ALLOW`
+   for AU, a deliberate, confirmed difference from SG's `DISALLOW` on the equivalent
+   category — see Part 4 above.
 4. **Whose cost rates feed a clerical/professional rate distinction here**, if a per-unit
    cap is added — same open question PRD §17 raises for Singapore's `rateSanityCeiling`. Your
    pasted text doesn't distinguish a clerical vs. professional rate at all (unlike the
    earlier, now-superseded AI-fetched extract) — confirm whether that distinction exists in
    AU or was an artifact of the earlier bad source.
 5. **"Using an intermediary" has no category home yet** — see Part 4's note above.
-6. **The OAIC APP Guidelines Chapter 12 page the PRD actually cites** may or may not be
-   where your pasted quote came from (see question 2) — worth confirming either way before
-   this worksheet's citations are treated as final.
 
 ---
 
