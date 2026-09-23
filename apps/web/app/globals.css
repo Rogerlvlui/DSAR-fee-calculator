@@ -571,6 +571,56 @@ body {
     line-height: var(--text-label--line-height);
   }
 
+  /* Audit trail's two event tables (2026-09-24). The design source wraps
+     its "Events" table in a bordered card with a header bar and shaded
+     column headers; 07.1-02 originally reused .notice-table here for its
+     ready-made borders, but that is the requestor-facing document's
+     deliberately plain, undecorated look — it reads as a bare table with
+     no card boundary against the design's actual treatment. .data-table
+     (+ .data-table-card) is that treatment, kept independent of
+     .notice-table so the letter-styled document is untouched. */
+  .data-table-card {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .data-table-card > .eyebrow {
+    display: block;
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-bottom: 1px solid var(--color-line-soft);
+  }
+
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--text-body);
+  }
+
+  .data-table th {
+    text-align: left;
+    padding: var(--spacing-sm) var(--spacing-md);
+    background-color: var(--color-surface-sunk);
+    border-bottom: 1px solid var(--color-line-soft);
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+    font-weight: var(--text-label--font-weight);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-transform: uppercase;
+    color: var(--color-ink-4);
+  }
+
+  .data-table td {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-bottom: 1px solid var(--color-line-soft);
+    text-align: left;
+  }
+
+  .data-table tr:last-child td {
+    border-bottom: none;
+  }
+
   .btn {
     display: inline-flex;
     align-items: center;

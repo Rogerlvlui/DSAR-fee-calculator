@@ -83,7 +83,7 @@ export function AuditTrailView({ matterEvents, packLifecycleEvents }: AuditTrail
         </p>
       </div>
 
-      <section aria-labelledby="audit-matter-events-heading">
+      <section aria-labelledby="audit-matter-events-heading" className="data-table-card">
         <h2 id="audit-matter-events-heading" className="eyebrow">
           Matter events
         </h2>
@@ -93,17 +93,17 @@ export function AuditTrailView({ matterEvents, packLifecycleEvents }: AuditTrail
           // v1 scroll-only overflow, no pagination (07.1-02-PLAN.md Task 2's
           // recorded assumption resolution) — see this file's header note.
           <div className="overflow-x-auto">
-            <table className="notice-table min-w-[900px]" data-testid="audit-matter-events-table">
+            <table className="data-table min-w-[900px]" data-testid="audit-matter-events-table">
               <thead>
                 <tr>
-                  <th className="hint">Seq</th>
-                  <th className="hint">Timestamp</th>
-                  <th className="hint">Matter</th>
-                  <th className="hint">Actor</th>
-                  <th className="hint">Event</th>
-                  <th className="hint">Detail</th>
-                  <th className="hint">Pack</th>
-                  <th className="hint">Engine</th>
+                  <th>Seq</th>
+                  <th>Timestamp</th>
+                  <th>Matter</th>
+                  <th>Actor</th>
+                  <th>Event</th>
+                  <th>Detail</th>
+                  <th>Pack</th>
+                  <th>Engine</th>
                 </tr>
               </thead>
               <tbody>
@@ -125,7 +125,7 @@ export function AuditTrailView({ matterEvents, packLifecycleEvents }: AuditTrail
         )}
       </section>
 
-      <section aria-labelledby="audit-pack-lifecycle-heading">
+      <section aria-labelledby="audit-pack-lifecycle-heading" className="data-table-card">
         <h2 id="audit-pack-lifecycle-heading" className="eyebrow">
           Pack lifecycle events
         </h2>
@@ -135,15 +135,15 @@ export function AuditTrailView({ matterEvents, packLifecycleEvents }: AuditTrail
           // v1 scroll-only overflow, no pagination — same recorded
           // assumption as the matter-events table above.
           <div className="overflow-x-auto">
-            <table className="notice-table min-w-[900px]" data-testid="audit-pack-lifecycle-table">
+            <table className="data-table min-w-[900px]" data-testid="audit-pack-lifecycle-table">
               <thead>
                 <tr>
-                  <th className="hint">Seq</th>
-                  <th className="hint">Timestamp</th>
-                  <th className="hint">Pack</th>
-                  <th className="hint">Actor</th>
-                  <th className="hint">Event</th>
-                  <th className="hint">Detail</th>
+                  <th>Seq</th>
+                  <th>Timestamp</th>
+                  <th>Pack</th>
+                  <th>Actor</th>
+                  <th>Event</th>
+                  <th>Detail</th>
                 </tr>
               </thead>
               <tbody>
