@@ -49,30 +49,35 @@ export function ResultView({
       <h1 className="screen" data-testid="result-headline">
         Fee assessed: {formatMinor(finalAmount, currency)}
       </h1>
-      <p data-testid="result-signoff-meta" className="caption">
-        Matter {matterReference} — reviewed and signed off by {lawyerName}, {qualification}, on {signedAt}.
-      </p>
-      <ul data-testid="result-lines">
-        {lines.map((line) => (
-          <li
-            key={line.id}
-            data-testid="result-line"
-            data-outcome={line.struck ? "struck" : "allowed"}
-            className="summary-row"
-          >
-            <div data-testid="result-line-description">
-              Line {line.seq} · {line.categoryLabel} — {line.description}
-            </div>
-            {line.struck ? (
-              <div data-testid="result-line-basis" className="text-ink-3">
-                Not charged. {line.basis}
-              </div>
-            ) : (
-              <div data-testid="result-line-amount">{formatMinor(line.amount, currency)}</div>
-            )}
-          </li>
-        ))}
-      </ul>
+      <div className="notice-document">
+        <div className="row">
+          <span className="wordmark">Notice of fee — data access request</span>
+          <p data-testid="result-signoff-meta" className="caption">
+            Matter {matterReference} — reviewed and signed off by {lawyerName}, {qualification}, on {signedAt}.
+          </p>
+        </div>
+        <table data-testid="result-lines" className="notice-table">
+          <tbody>
+            {lines.map((line) => (
+              <tr key={line.id} data-testid="result-line" data-outcome={line.struck ? "struck" : "allowed"}>
+                <td data-testid="result-line-description">
+                  Line {line.seq} · {line.categoryLabel} — {line.description}
+                </td>
+                {line.struck ? (
+                  <td data-testid="result-line-basis" className="text-ink-3">
+                    Not charged. {line.basis}
+                  </td>
+                ) : (
+                  <td data-testid="result-line-amount">{formatMinor(line.amount, currency)}</td>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <p data-testid="result-footer" className="caption">
+          Reviewed by {lawyerName}, {qualification}.
+        </p>
+      </div>
     </div>
   );
 }

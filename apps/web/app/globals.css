@@ -425,6 +425,46 @@ body {
     color: var(--color-surface);
   }
 
+  /* The HR result and requestor-notice screens' letter-styled document
+     (07.1-01 Task 3) — a white-card variant with a wider max-width and a
+     bottom border under its own header block, built from existing surface/
+     border tokens only. Shared by ResultView and NoticeBlock so the
+     internal result and the requestor notice draft read as one visual
+     family. */
+  .notice-document {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: 10px;
+    max-width: 72ch;
+    padding: var(--spacing-2xl);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+  }
+
+  .notice-document > .row:first-child {
+    border-bottom: 1px solid var(--color-line);
+    padding-bottom: var(--spacing-md);
+  }
+
+  /* A real bordered <table> for the notice document's line-item table,
+     using the existing --color-line tokens for row/column rules. */
+  .notice-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .notice-table td {
+    border-bottom: 1px solid var(--color-line-soft);
+    padding: var(--spacing-sm) 0;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .notice-table tr:last-child td {
+    border-bottom: 1px solid var(--color-line);
+  }
+
   .summary-row {
     display: flex;
     flex-wrap: wrap;

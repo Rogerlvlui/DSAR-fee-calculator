@@ -133,4 +133,23 @@ describe("HR-RESULT", () => {
     expect(html).toContain('data-outcome="allowed"');
     expect(html).toContain('data-outcome="struck"');
   });
+
+  // 07.1-01 Task 3: the letter-styled document restructure — additive only,
+  // every assertion above this point must keep passing unmodified.
+  it("HR-RESULT: the line-item table renders as a real <table> element, with every existing data-testid preserved", () => {
+    const html = render();
+
+    expect(html).toMatch(/<table[^>]*data-testid="result-lines"[^>]*>/);
+    expect(html).toContain("<tbody>");
+    expect(html).toMatch(/<tr[^>]*data-testid="result-line"[^>]*>/);
+    expect(html).toContain('data-testid="result-line-description"');
+    expect(html).toContain('data-testid="result-line-amount"');
+    expect(html).toContain('data-testid="result-line-basis"');
+    expect(html).toContain('data-testid="result-signoff-meta"');
+  });
+
+  it("HR-RESULT: the pinned h1's opening tag remains byte-for-byte unchanged after the letter-format restructure", () => {
+    const html = render();
+    expect(html).toMatch(/<h1 class="screen" data-testid="result-headline">Fee assessed: /);
+  });
 });
