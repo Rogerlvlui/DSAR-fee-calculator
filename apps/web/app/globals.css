@@ -511,6 +511,66 @@ body {
     border-radius: 6px;
   }
 
+  /* status-strip.tsx — the Jurisdiction/Rule pack/Reviewed/Review due bar
+     shown at the top of every screen. Missed in the 07.1-01 restyle pass
+     (its files_modified list never named this component); added 2026-09-24
+     directly from the Claude Design export's own status-bar markup
+     (docs/design/dsar-fee-agent-claude-design.dc.html, the amber-left-edge
+     strip above "New fee claim"). The app's own cell set (Matter reference,
+     Pack status + its disclosure paragraph) is wider than the design's, but
+     every cell follows the same label/value pattern. */
+  .status-strip {
+    display: flex;
+    align-items: stretch;
+    flex-wrap: wrap;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-left: 3px solid var(--color-warn-edge);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .status-strip > div {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-right: 1px solid var(--color-line-soft);
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .status-strip > div:last-child {
+    border-right: none;
+    margin-left: auto;
+  }
+
+  .status-strip dt {
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+    font-weight: var(--text-label--font-weight);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-transform: uppercase;
+    color: var(--color-ink-4);
+  }
+
+  .status-strip dd {
+    margin: 0;
+    font-size: 0.78125rem;
+    font-weight: 500;
+    color: var(--color-ink-2);
+  }
+
+  /* Pack status's disclosure sentence is the one cell with a third line —
+     constrained so it doesn't stretch the whole strip disproportionately. */
+  .status-strip [data-testid="pack-status-cell"] {
+    max-width: 260px;
+  }
+
+  .status-strip [data-testid="pack-status-cell"] p {
+    margin: 0;
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+  }
+
   .btn {
     display: inline-flex;
     align-items: center;

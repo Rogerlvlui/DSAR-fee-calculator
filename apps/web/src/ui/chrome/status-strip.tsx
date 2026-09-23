@@ -75,7 +75,7 @@ export function StatusStrip({
   daysUntilReviewDue,
 }: StatusStripProps) {
   return (
-    <div role="group" aria-label="Rule pack status" data-testid="status-strip">
+    <div role="group" aria-label="Rule pack status" data-testid="status-strip" className="status-strip">
       <div>
         <dt>Matter reference</dt>
         <dd>{matterReference}</dd>
