@@ -24,8 +24,8 @@ const HR_PREPARER_USER: UserRef = UserRefSchema.parse({
 
 const LEGAL_REVIEWER_USER: UserRef = UserRefSchema.parse({
   id: "01K5GSD0RVWRPBKRDPTJTHDN93",
-  displayName: "Marcus Tan — Legal, Singapore",
-  email: "marcus.tan@example.invalid",
+  displayName: "Roger Lui — Legal, Singapore",
+  email: "roger.lui@example.invalid",
 });
 
 // Freshly generated (2026-09-19, plan 04-03) and verified against

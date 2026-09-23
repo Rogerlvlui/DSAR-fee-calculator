@@ -1,4 +1,5 @@
 import { defineConfig } from "vitest/config";
+import { fileURLToPath } from "node:url";
 
 // Vitest 5's `test.projects` field, in a single root config — NOT a
 // separate vitest.workspace.ts, which has been deprecated since Vitest 3.2.
@@ -56,6 +57,22 @@ export default defineConfig({
           jsx: {
             runtime: "automatic",
             importSource: "react",
+          },
+        },
+        resolve: {
+          alias: {
+            // 07.1-01 Task 1: layout.tsx now calls next/font/google's
+            // loaders at module scope. Real Next builds transform that
+            // import via a webpack/SWC font-loader plugin this plain
+            // Vitest run has no equivalent of — every named export
+            // resolves to `undefined` outside that pipeline (verified
+            // directly against the installed package). Aliased to a
+            // minimal stub with the same call shape; see that file's own
+            // header note for why this is scoped to this project only
+            // (the only test importing layout.tsx directly).
+            "next/font/google": fileURLToPath(
+              new URL("./tests/fixtures/next-font-google-mock.ts", import.meta.url)
+            ),
           },
         },
         test: {

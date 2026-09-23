@@ -35,8 +35,8 @@ export const IDENTITY_NOTE_WARNING =
 export function AttestationsPanel({ value, onChange, noteMaxLength }: AttestationsPanelProps) {
   const notePatternMatch = detectLikelyPersonalData(value.identityVerifiedNote);
   return (
-    <section data-testid="attestations-panel">
-      <h2>Attestations</h2>
+    <section data-testid="attestations-panel" className="why flex flex-col gap-lg">
+      <h2 className="eyebrow">Attestations</h2>
 
       <div className="row">
         <input

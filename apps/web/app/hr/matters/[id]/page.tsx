@@ -55,7 +55,7 @@ export default async function HrMatterPage({ params }: { params: Promise<{ id: s
     }));
 
     return (
-      <main>
+      <main className="flex flex-col gap-xl">
         <h1 className="screen">Fee assessment — {matter.reference}</h1>
         {statusStrip}
         <InfoRequestPanel matterId={matter.id} queries={queries} />
@@ -69,7 +69,7 @@ export default async function HrMatterPage({ params }: { params: Promise<{ id: s
   // closes. Every earlier status still falls into the waiting branch.
   if (matter.status !== "SIGNED_OFF" && matter.status !== "CLOSED") {
     return (
-      <main>
+      <main className="flex flex-col gap-xl">
         <h1 className="screen">Fee assessment — {matter.reference}</h1>
         {statusStrip}
         <p data-testid="hr-waiting">
@@ -122,7 +122,7 @@ export default async function HrMatterPage({ params }: { params: Promise<{ id: s
   const noticeSentAt = getNoticeSentAt(matter.id);
 
   return (
-    <main>
+    <main className="flex flex-col gap-xl">
       <h1 className="screen">Fee assessment — {matter.reference}</h1>
       <ResultView
         matterReference={matter.reference}

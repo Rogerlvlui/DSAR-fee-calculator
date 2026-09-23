@@ -64,51 +64,56 @@ export function TotalsRail({ assessment, currency }: TotalsRailProps) {
   const allowedByLawyer = sumLawyerAllowedAmount(assessment);
 
   return (
-    <aside data-testid="totals-rail">
+    <aside data-testid="totals-rail" className="card">
+      <div className="eyebrow">Totals</div>
       <div data-testid="totals-rows">
-        <div data-testid="total-row-claimed">
+        <div data-testid="total-row-claimed" className="summary-row">
           <dt>Claimed by HR</dt>
           <dd data-testid="total-claimed">{formatMinor(assessment.totals.claimedTotal, currency)}</dd>
         </div>
-        <div data-testid="total-row-supported">
+        <div data-testid="total-row-supported" className="summary-row">
           <dt>Supported by rules</dt>
           <dd data-testid="total-supported">{formatMinor(assessment.totals.draftBaseline, currency)}</dd>
         </div>
-        <div data-testid="total-row-resting-unverified" data-indent="true" className="text-ink-3">
+        <div data-testid="total-row-resting-unverified" data-indent="true" className="text-ink-3 summary-row">
           <dt>↳ resting on unverified rules</dt>
           <dd data-testid="total-resting-unverified">
             {formatMinor(assessment.totals.restingOnUnverifiedRules, currency)}
           </dd>
         </div>
-        <div data-testid="total-row-allowed-by-lawyer">
+        <div data-testid="total-row-allowed-by-lawyer" className="summary-row">
           <dt>Allowed by you, not by a rule</dt>
           <dd data-testid="total-allowed-by-lawyer">{formatMinor(allowedByLawyer, currency)}</dd>
         </div>
-        <div data-testid="total-row-not-supported">
+        <div data-testid="total-row-not-supported" className="summary-row">
           <dt>Not supported</dt>
           <dd data-testid="total-not-supported">{formatMinor(assessment.totals.disallowedTotal, currency)}</dd>
         </div>
-        <div data-testid="total-row-needs-decision">
+        <div data-testid="total-row-needs-decision" className="summary-row">
           <dt>Needs your decision</dt>
           <dd data-testid="total-needs-decision">{formatMinor(assessment.totals.flaggedTotal, currency)}</dd>
         </div>
-        <div data-testid="total-row-excluded" data-indent="true" className="text-ink-3">
+        <div data-testid="total-row-excluded" data-indent="true" className="text-ink-3 summary-row">
           <dt>↳ excluded from every total</dt>
           <dd data-testid="total-excluded-count">{excludedCountLabel(flaggedCount)}</dd>
         </div>
       </div>
 
-      <div data-testid="headline">
+      <div data-testid="headline" className="summary-total">
         <div>Recommended fee</div>
         {pendingCount > 0 ? (
           <>
             <div data-testid="headline-hidden">{HIDDEN_HEADLINE_TEXT}</div>
-            <div data-testid="headline-sub">{pendingCountSentence(pendingCount)}</div>
+            <div data-testid="headline-sub" className="hint">
+              {pendingCountSentence(pendingCount)}
+            </div>
           </>
         ) : (
           <>
             <div data-testid="headline-value">{formatMinor(previewHeadlineAmount(assessment), currency)}</div>
-            <div data-testid="headline-sub">{NOT_YET_SIGNED_OFF_TEXT}</div>
+            <div data-testid="headline-sub" className="hint">
+              {NOT_YET_SIGNED_OFF_TEXT}
+            </div>
           </>
         )}
       </div>

@@ -59,7 +59,7 @@ export interface NoticeBlockViewProps {
  * directly. */
 export function NoticeBlockView({ draft, noticeSentAt, pending, error, onMarkSent }: NoticeBlockViewProps) {
   return (
-    <div data-testid="notice-block">
+    <div data-testid="notice-block" className="notice-document">
       {noticeSentAt === null ? (
         <div data-testid="notice-watermark" className="text-warn">
           {NOTICE_DRAFT_WATERMARK}

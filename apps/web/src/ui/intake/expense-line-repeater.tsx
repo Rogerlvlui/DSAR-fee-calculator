@@ -310,18 +310,23 @@ export function ExpenseLineRepeater({ lines, onChange, categories, currency }: E
   }
 
   return (
-    <section data-testid="expense-line-repeater">
-      <h2>
-        What the response cost <span data-testid="line-count">{lineCountLabel(lines.length)}</span>
+    <section data-testid="expense-line-repeater" className="card">
+      <h2 className="eyebrow">
+        <span className="step-heading">
+          <span className="step-number" aria-hidden="true">
+            2
+          </span>
+          What the response cost <span data-testid="line-count">{lineCountLabel(lines.length)}</span>
+        </span>
       </h2>
 
       {lines.length === 0 ? (
-        <div data-testid="repeater-empty-state">
-          <p>{EMPTY_STATE_HEADING}</p>
-          <p>{EMPTY_STATE_BODY}</p>
+        <div data-testid="repeater-empty-state" className="card">
+          <p className="eyebrow">{EMPTY_STATE_HEADING}</p>
+          <p className="hint">{EMPTY_STATE_BODY}</p>
         </div>
       ) : (
-        <div data-testid="expense-line-rows">
+        <div data-testid="expense-line-rows" className="flex flex-col gap-md">
           {lines.map((line) => {
             const amountMinor = computeLineAmountMinor(line, currency);
             const hint = hintByCategory.get(line.categoryCode);
@@ -329,7 +334,7 @@ export function ExpenseLineRepeater({ lines, onChange, categories, currency }: E
             const thirdParty = isThirdPartyCategory(line.categoryCode);
 
             return (
-              <div key={line.key} data-testid="expense-line-row">
+              <div key={line.key} data-testid="expense-line-row" className="card">
                 <label>
                   <span>Category</span>
                   <select
@@ -355,7 +360,11 @@ export function ExpenseLineRepeater({ lines, onChange, categories, currency }: E
                   </select>
                 </label>
 
-                {hint ? <p data-testid="category-hint">{hint}</p> : null}
+                {hint ? (
+                  <p data-testid="category-hint" className="hint">
+                    {hint}
+                  </p>
+                ) : null}
 
                 <label>
                   <span>What this cost was for</span>
@@ -416,13 +425,16 @@ export function ExpenseLineRepeater({ lines, onChange, categories, currency }: E
                     min={0}
                     step="0.01"
                     value={line.rateMajor}
+                    className="font-mono"
                     onChange={(event) => updateLine(line.key, { rateMajor: event.target.value })}
                   />
                 </label>
 
                 <div>
                   <span>Amount</span>
-                  <div data-testid="line-amount">{formatMinor(toMinor(amountMinor), currency)}</div>
+                  <div data-testid="line-amount" className="fig">
+                    {formatMinor(toMinor(amountMinor), currency)}
+                  </div>
                 </div>
 
                 {staffGrade ? (
@@ -475,11 +487,11 @@ export function ExpenseLineRepeater({ lines, onChange, categories, currency }: E
                   </div>
                 ) : null}
 
-                <div>
-                  <button type="button" onClick={() => duplicateLine(line.key)}>
+                <div className="flex gap-xs">
+                  <button type="button" className="btn btn-secondary" onClick={() => duplicateLine(line.key)}>
                     Duplicate
                   </button>
-                  <button type="button" onClick={() => deleteLine(line.key)}>
+                  <button type="button" className="btn btn-tertiary" onClick={() => deleteLine(line.key)}>
                     Delete
                   </button>
                 </div>
@@ -489,14 +501,16 @@ export function ExpenseLineRepeater({ lines, onChange, categories, currency }: E
         </div>
       )}
 
-      <div>
-        <button type="button" onClick={addLine}>
+      <div className="flex items-center gap-xs">
+        <button type="button" className="btn btn-secondary" onClick={addLine}>
           + Add a cost line
         </button>
-        <button type="button" onClick={fillExampleRows}>
+        <button type="button" className="btn btn-tertiary" onClick={fillExampleRows}>
           Fill in the example rows
         </button>
-        <p>Populates the form fields only — every figure still comes from the engine after you submit.</p>
+        <p className="hint">
+          Populates the form fields only — every figure still comes from the engine after you submit.
+        </p>
       </div>
     </section>
   );

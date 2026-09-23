@@ -68,14 +68,14 @@ export function CapabilityStatement({ children }: CapabilityStatementProps) {
   }
 
   return (
-    <div data-testid="capability-statement">
+    <div data-testid="capability-statement" className="card flex flex-col gap-md">
       <p className="kicker">Layer 1 · shown once per user, and again on every material change</p>
-      <h1>Before you use this tool</h1>
+      <h1 className="screen">Before you use this tool</h1>
       <p className="lede">
         This tool applies fee rules that our lawyers have written down for each jurisdiction. It is
         a calculator, not a lawyer.
       </p>
-      <ul data-testid="capability-bullets">
+      <ul data-testid="capability-bullets" className="flex flex-col gap-sm text-body">
         <li>
           <span />
           <div>
@@ -134,7 +134,7 @@ export function CapabilityStatement({ children }: CapabilityStatementProps) {
             autoComplete="off"
           />
         </label>
-        <button type="button" disabled={!canContinue} onClick={handleContinue}>
+        <button type="button" className="btn btn-primary" disabled={!canContinue} onClick={handleContinue}>
           Continue to intake
         </button>
       </div>

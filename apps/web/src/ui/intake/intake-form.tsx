@@ -32,6 +32,7 @@ import {
   type ExpenseLineDraft,
   type RepeaterCategoryOption,
 } from "./expense-line-repeater.tsx";
+import { CategorizationSummary } from "./categorization-summary.tsx";
 import { ClaimFooter } from "./claim-footer.tsx";
 import { StatusStrip } from "../chrome/status-strip.tsx";
 import { useDraftAutosave } from "./use-draft-autosave.ts";
@@ -245,7 +246,7 @@ export function IntakeForm({ packsByJurisdiction, defaultReference }: IntakeForm
   }
 
   return (
-    <div data-testid="intake-form">
+    <div data-testid="intake-form" className="flex flex-col gap-xl">
       <AutosaveIndicator status={autosave.status} savedAt={autosave.savedAt} />
       <StatusStrip
         matterReference={matterDetails.reference}
@@ -272,12 +273,15 @@ export function IntakeForm({ packsByJurisdiction, defaultReference }: IntakeForm
       {matterDetailsValid ? <AttestationsPanel value={attestations} onChange={setAttestations} noteMaxLength={FREE_TEXT_LIMITS.identityVerifiedNote} /> : null}
 
       {matterDetailsValid && canOfferExpenseEntry(currentJurisdictionPack, matterDetails.controllerType) ? (
-        <ExpenseLineRepeater
-          lines={lines}
-          onChange={setLines}
-          categories={currentJurisdictionPack.categories}
-          currency={currency}
-        />
+        <>
+          <ExpenseLineRepeater
+            lines={lines}
+            onChange={setLines}
+            categories={currentJurisdictionPack.categories}
+            currency={currency}
+          />
+          <CategorizationSummary lines={lines} currency={currency} />
+        </>
       ) : null}
 
       <ClaimFooter

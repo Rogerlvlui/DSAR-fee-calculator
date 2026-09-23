@@ -22,7 +22,7 @@ export default async function NewMatterPage() {
   const packsByJurisdiction = buildJurisdictionPackViews();
 
   return (
-    <main>
+    <main className="flex flex-col gap-xl">
       <h1 className="screen">New fee claim</h1>
       <p className="caption">
         HR records what the response actually cost. <b>HR never sees a draft figure</b> — the

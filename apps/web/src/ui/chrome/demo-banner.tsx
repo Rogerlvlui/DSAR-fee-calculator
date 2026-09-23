@@ -11,8 +11,10 @@ export const DEMO_BANNER_TEXT =
 
 export function DemoBanner() {
   return (
-    <div role="note" aria-label="Demo build notice" data-testid="demo-banner">
-      <p>{DEMO_BANNER_TEXT}</p>
+    <div role="note" aria-label="Demo build notice" data-testid="demo-banner" className="posture">
+      <p>
+        <b>{DEMO_BANNER_TEXT}</b>
+      </p>
     </div>
   );
 }
