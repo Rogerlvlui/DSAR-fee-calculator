@@ -62,10 +62,17 @@
   --text-display--font-weight: 600;
   --text-display--letter-spacing: -0.015em;
 
-  /* System-only font stacks — no webfont, no network fetch. */
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-serif: ui-serif, Georgia, "Times New Roman", serif;
-  --font-mono: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  /* Self-hosted webfonts (07.1-01), chained ahead of the system-stack
+     fallbacks below — the fallbacks are never removed; they are the
+     resilience path if a self-hosted font file ever fails to load. The
+     --font-newsreader/--font-ibm-plex-sans/--font-ibm-plex-mono custom
+     properties are declared by next/font/google in apps/web/app/layout.tsx
+     (its `variable` option) on the <html> element; no @font-face or url()
+     rule is declared here — next/font generates and injects those itself,
+     in a separate build artifact. */
+  --font-sans: var(--font-ibm-plex-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-serif: var(--font-newsreader), ui-serif, Georgia, "Times New Roman", serif;
+  --font-mono: var(--font-ibm-plex-mono), ui-monospace, "SFMono-Regular", Menlo, monospace;
 
   /* Color — dominant surface, secondary backdrop/sunk zones, accent (seal),
      destructive (stop), plus the neutral text/border roles. */
@@ -304,7 +311,26 @@ body {
   article.card[data-disposition="REDUCED"],
   article.card[data-disposition="STRUCK"],
   article.card[data-disposition="ALLOWED_BY_LAWYER"] {
-    background-color: var(--color-ok-wash);
+    background-color: var(--color-surface-sunk);
+  }
+
+  /* The left-edge accent bar (07.1-01), colour-keyed to the SAME
+     article[data-verdict] attribute the pill rules below already read —
+     no line-card.tsx change needed. This is now the verdict-colour signal;
+     the disposition rule above is a neutral "settled" tint only, since a
+     uniform wash on every decided line (including a STRUCK or DISALLOW
+     one) was never correct. */
+  article.card[data-verdict="FLAG"] {
+    border-left: 3px solid var(--color-warn);
+  }
+
+  article.card[data-verdict="ALLOW"],
+  article.card[data-verdict="ALLOW_CAPPED"] {
+    border-left: 3px solid var(--color-ok);
+  }
+
+  article.card[data-verdict="DISALLOW"] {
+    border-left: 3px solid var(--color-deny);
   }
 
   /* The verdict badge's pill shape. Colour is never the only signal here —
@@ -338,9 +364,15 @@ body {
     color: var(--color-ok);
   }
 
+  /* Correction (07.1-01, UI-SPEC Color): the everyday "Not supported"
+     DISALLOW pill uses the neutral Deny (grey) tint, not Destructive
+     (red) — --color-stop stays reserved for the Strike button's
+     hover/text state, the two named blocking-error banners, and the
+     jurisdiction-level no-fee-basis case (a DISALLOW the posture gate
+     itself produces), none of which this selector touches. */
   article[data-verdict="DISALLOW"] .pill {
-    background-color: var(--color-stop-wash);
-    color: var(--color-stop);
+    background-color: var(--color-deny-wash);
+    color: var(--color-deny);
   }
 
   .eyebrow {
@@ -351,6 +383,22 @@ body {
     letter-spacing: 0.09em;
     text-transform: uppercase;
     color: var(--color-ink-3);
+  }
+
+  /* Legal review's sign-off panel header band (07.1-01) — wraps the
+     existing "Sign off" eyebrow row. Built from tokens already declared;
+     the eyebrow's own uppercase/label styling is unaffected since this
+     only supplies the band's own background/foreground. */
+  .signoff-band {
+    background-color: var(--color-seal);
+    color: var(--color-surface);
+    border-radius: 8px 8px 0 0;
+    padding: var(--spacing-sm) var(--spacing-lg);
+    margin: calc(var(--spacing-2xl) * -1) calc(var(--spacing-2xl) * -1) var(--spacing-lg);
+  }
+
+  .signoff-band .eyebrow {
+    color: var(--color-surface);
   }
 
   .summary-row {

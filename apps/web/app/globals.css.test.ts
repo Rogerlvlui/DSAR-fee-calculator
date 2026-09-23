@@ -64,4 +64,40 @@ describe("GLOBALS-CSS", () => {
     const indented = document.querySelectorAll('.summary-row[data-indent="true"]');
     expect(indented.length).toBe(1);
   });
+
+  // 07.1-01 Task 1 / UI-SPEC Color's verdict-colour correction: the everyday
+  // DISALLOW pill must resolve to Deny (grey, #565f6c), never Destructive/Stop
+  // (red, #a32020) — anchored on the literal resolved hex so a future
+  // accidental revert (even one that renames a token rather than reverting
+  // the selector) fails loudly here. The compiled @theme block declares
+  // each --color-* custom property's literal hex (see CSS-PIPELINE's own
+  // "(a)" case for the same pattern); this test resolves the pill rule's
+  // `color: var(--color-*)` reference against that declared value directly,
+  // rather than string-matching the rule text for a hex Tailwind's compiler
+  // never inlines into a hand-authored declaration.
+  it("GLOBALS-CSS CR-03: the DISALLOW pill rule resolves to the Deny hex, not the Stop hex", async () => {
+    const source = readFileSync(GLOBALS_CSS_PATH, "utf-8");
+    const result = await postcss([tailwindPostcss()]).process(source, {
+      from: GLOBALS_CSS_PATH,
+    });
+    const css = result.css;
+
+    const tokenValues = new Map<string, string>();
+    for (const match of css.matchAll(/(--color-[\w-]+):\s*(#[0-9a-fA-F]{6})\b/g)) {
+      tokenValues.set(match[1]!, match[2]!.toLowerCase());
+    }
+    expect(tokenValues.get("--color-deny")).toBe("#565f6c");
+    expect(tokenValues.get("--color-stop")).toBe("#a32020");
+
+    const ruleMatch = /article\[data-verdict="DISALLOW"\]\s*\.pill\s*\{[^}]*\}/.exec(css);
+    expect(ruleMatch).not.toBeNull();
+    const rule = ruleMatch![0];
+
+    const colorDeclMatch = /(?<!background-)color:\s*var\((--color-[\w-]+)\)/.exec(rule);
+    expect(colorDeclMatch).not.toBeNull();
+    const referencedToken = colorDeclMatch![1]!;
+
+    expect(tokenValues.get(referencedToken)).toBe("#565f6c");
+    expect(tokenValues.get(referencedToken)).not.toBe("#a32020");
+  });
 });

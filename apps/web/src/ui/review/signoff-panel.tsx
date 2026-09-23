@@ -82,7 +82,9 @@ export function SignOffPanelView({
 
   return (
     <div data-testid="signoff-panel" className="card">
-      <div className="eyebrow">Sign off</div>
+      <div className="signoff-band">
+        <div className="eyebrow">Sign off</div>
+      </div>
       <dl data-testid="signoff-tally">
         <div className="summary-row">
           <dt>Accepted as assessed</dt>
@@ -125,7 +127,7 @@ export function SignOffPanelView({
       ))}
 
       <div data-testid="signoff-attestation" className="why">
-        <p>{attestationText}</p>
+        <p className="font-serif">{attestationText}</p>
         {reviewedOnNotRecorded ? (
           <p data-testid="signoff-reviewed-on-note" className="hint">
             {REVIEWED_ON_NOT_RECORDED_NOTE}
