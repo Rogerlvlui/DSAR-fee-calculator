@@ -1,15 +1,15 @@
 ---
 gsd_state_version: "1.0"
-current_phase: 08
-current_phase_name: LLM Job 1 — Category Suggestion
+current_phase: 07.1
+current_phase_name: UI Redesign — Claude Design Adoption
 status: not_started
-stopped_at: Completed quick task 260922-jr4 (Tailwind CSS pipeline fix, mockup visual system applied, Legal reviewer renamed) — Phase 08 not yet started
-last_updated: "2026-09-22T09:45:00.000Z"
-last_activity: 2026-09-22
-last_activity_desc: "Completed quick task 260922-jr4, prompted by a request to apply dsar-fee-agent-mockup-simplified.html's visual style to the real app. Discovered mid-investigation that apps/web/app/globals.css's Tailwind v4 @theme block had never actually compiled — no @tailwindcss/postcss package and no postcss.config anywhere in the repo — so every screen had rendered in unstyled browser defaults since the token system was first authored; live-verified in a real browser before touching anything. Fixed the pipeline (apps/web/postcss.config.mjs, @tailwindcss/postcss@4.3.3 + postcss@8.5.28 exact-pinned, a permanent tests/toolchain/css-pipeline.test.ts regression gate), discovering along the way that this build machine's documented Turbopack segfault (.planning/WINDOWS.md entry 4) also affects next build/dev once the plugin is registered — worked around with next build/dev --webpack, consistent with the product owner's prior decision to proceed rather than block on that machine-specific issue. Renamed the demo LEGAL_REVIEWER_USER identity from Marcus Tan to Roger Lui across source and six test files. Authored a new @layer components block in globals.css (19 previously-orphaned CSS class names already used throughout the markup, plus the mockup's card/eyebrow/callout/summary-row/button patterns — all built from tokens already in the file, zero new colours, zero webfonts, zero network references) and applied it to the app chrome, legal review screen, HR intake and HR result screen. An independent code review (260922-jr4-REVIEW.md) found and fixed 2 Critical (a data-disposition CSS selector that tinted PENDING line cards the same as already-decided ones; totals-rail.tsx's own comment called its sub-row indentation 'load-bearing, not decorative' per PRD §10.3, but no CSS rule ever implemented it) plus 4 Warnings (dead CSS), all recorded in 260922-jr4-REVIEW-ADDENDUM.md. Full suite 1058 -> 1072 passing; typecheck/lint/depcruise clean throughout. Visually verified in a real browser (webpack dev server): capability gate, HR intake and the role-switcher all render with the design system applied — maroon seal accent, serif headings, warm callout banners, bordered cards, correct rename."
-state_head: 32ceeba76bff57bbc12b7b1814e6b2ff2f73d3e1
+stopped_at: Phase 7.1 inserted ahead of a Friday demo — not yet discussed or planned
+last_updated: "2026-09-23T11:15:00.000Z"
+last_activity: 2026-09-23
+last_activity_desc: "Inserted Phase 7.1 (UI Redesign — Claude Design Adoption) after Phase 7, ahead of a Friday demo. Product owner exported an interactive prototype from Claude Design (docs/design/dsar-fee-agent-claude-design.dc.html plus rendered/support files) and asked for apps/web's visual design to be adopted from it directly, replacing the current Tailwind-based styling — not reinterpreted through Tailwind utility classes. The design's fourth screen ('Audit trail', an append-only event log with a hash column) does not match PRD §10.6's actual fourth screen ('Rule pack admin'); discussed with the product owner, who confirmed Audit trail is new scope to add alongside the three screens the design does match, with Rule pack admin staying deferred rather than dropped. Also explored: a live-Postgres demo stretch goal (Phase 3.2 re-plan) was set aside after diagnosing that Docker Desktop's backend has been failing to start on this machine since 2026-09-20 with a stuck reparse-point socket file (sailor-ingest.sock) that survives a full reboot and resists fsutil-level repair — tracked as a known environment blocker, not attempted further; a doc-only commit (b7ed351) locked in the Phase 7 demo state as a fallback branch (demo-fallback-2026-09-23) before this insertion. Not yet discussed or planned — next step is /gsd-discuss-phase 7.1."
+state_head: b7ed3515bd2ee7a1294c07464c1cc03441217804
 progress:
-  total_phases: 10
+  total_phases: 11
   completed_phases: 7
   total_plans: 52
   completed_plans: 48
@@ -305,6 +305,7 @@ None yet.
 ### Roadmap Evolution
 
 - Phase 3.1 inserted after Phase 3: Demo Slice - In-Memory Determination Pipeline: live determination with no database, for a stakeholder presentation ~2 weeks out. Docker unavailable on the build machine; DB needed only for persistence and AC-34, neither exercised by a demo. (URGENT)
+- Phase 7.1 inserted after Phase 7: UI Redesign — Claude Design Adoption: adopt the Claude Design export (docs/design/) as apps/web's visual design system, replacing Tailwind-based styling, plus a new Audit trail screen as confirmed new scope (not a substitute for §10.6's Rule pack admin, which stays deferred). Ahead of a Friday demo; a live-Postgres stretch goal (Phase 3.2) was set aside first after Docker Desktop proved unfixable on this machine within the available time. (URGENT)
 
 ## Deferred Items
 
