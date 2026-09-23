@@ -18,10 +18,8 @@
 
 import { getCurrentActor } from "../../../src/server/current-actor.ts";
 import { getAuditTrailView } from "../../../src/server/data/audit-trail.ts";
-import { AuditTrailView } from "../../../src/ui/admin/audit-trail-view.tsx";
+import { AuditTrailView, AUDIT_TRAIL_RESTRICTED_MESSAGE } from "../../../src/ui/admin/audit-trail-view.tsx";
 import { ForbiddenError } from "../../../src/server/errors.ts";
-
-export const AUDIT_TRAIL_RESTRICTED_MESSAGE = "This screen is restricted to the DPO / audit role.";
 
 export default async function AdminAuditPage() {
   const actor = await getCurrentActor();

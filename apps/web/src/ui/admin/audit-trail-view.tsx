@@ -31,6 +31,15 @@ export const AUDIT_TRAIL_EMPTY_HEADING = "No audit events yet.";
 export const AUDIT_TRAIL_EMPTY_BODY =
   "Once a matter moves through intake, review or sign-off, every action taken against it is written here automatically — nothing here can be edited or removed.";
 
+// 07.1-02-PLAN.md Task 3 fix: this constant originally lived in
+// apps/web/app/admin/audit/page.tsx, but Next's page-export type checker
+// (`next build`'s generated .next/types/app/**/page.ts`) only permits a
+// page.tsx to export the framework's own known names (default, metadata,
+// config, ...) — any other named export fails `next build`'s TypeScript
+// pass with TS2344. Colocated here instead, alongside this file's other
+// Copywriting Contract constants, and imported by page.tsx.
+export const AUDIT_TRAIL_RESTRICTED_MESSAGE = "This screen is restricted to the DPO / audit role.";
+
 // The design's own "{{ auditCount }} · newest last" pattern (07.1-UI-SPEC.md
 // UI Considerations, "zero-one-many" row), reworded to plain English —
 // covers the combined total across both streams.
