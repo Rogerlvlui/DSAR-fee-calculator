@@ -312,7 +312,12 @@ export function ExpenseLineRepeater({ lines, onChange, categories, currency }: E
   return (
     <section data-testid="expense-line-repeater" className="card">
       <h2 className="eyebrow">
-        What the response cost <span data-testid="line-count">{lineCountLabel(lines.length)}</span>
+        <span className="step-heading">
+          <span className="step-number" aria-hidden="true">
+            2
+          </span>
+          What the response cost <span data-testid="line-count">{lineCountLabel(lines.length)}</span>
+        </span>
       </h2>
 
       {lines.length === 0 ? (

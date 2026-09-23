@@ -385,6 +385,30 @@ body {
     color: var(--color-ink-3);
   }
 
+  /* HR intake's numbered-step section headers (07.1-01 Task 2) — a small
+     monospace square badge ("1", "2", "3") followed by the section title.
+     .step-number is aria-hidden: the visual step order is redundant with
+     the heading's own reading order. */
+  .step-heading {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+  }
+
+  .step-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    background-color: var(--color-surface-sunk);
+    border: 1px solid var(--color-line);
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    line-height: 1;
+  }
+
   /* Legal review's sign-off panel header band (07.1-01) — wraps the
      existing "Sign off" eyebrow row. Built from tokens already declared;
      the eyebrow's own uppercase/label styling is unaffected since this

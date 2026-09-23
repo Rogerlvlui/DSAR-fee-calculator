@@ -131,7 +131,14 @@ export function MatterDetailsFields({ value, onChange, currency, jurisdictionPac
 
   return (
     <section data-testid="matter-details-fields" className="card">
-      <h2 className="eyebrow">Matter details</h2>
+      <h2 className="eyebrow">
+        <span className="step-heading">
+          <span className="step-number" aria-hidden="true">
+            1
+          </span>
+          Matter details
+        </span>
+      </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-md">
         <label className="flex flex-col gap-2xs">
           <span className="text-label text-ink-2">Matter reference</span>
