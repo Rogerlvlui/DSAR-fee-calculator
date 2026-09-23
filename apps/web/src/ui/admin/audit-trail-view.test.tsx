@@ -19,10 +19,12 @@ import {
 import type { PackLifecycleEvent } from "@dsar/audit/interface";
 import type { UserRef } from "@dsar/schemas/primitives";
 
+// Synthetic fixture data representing a past audit event's actor — has no
+// relation to the demo role switcher's identities (auth.ts's DEMO_USERS).
 const ACTOR: UserRef = {
   id: "01M2VQ03WC9DDCY458Y2YH1HNH",
-  displayName: "Wei Ling Ong — Data Protection Officer",
-  email: "wei.ling.ong@example.invalid",
+  displayName: "Sample Reviewer — Fixture Data",
+  email: "sample.reviewer@example.invalid",
 };
 
 function buildMatterEvent(overrides: Partial<MatterAuditEventRow> = {}): MatterAuditEventRow {

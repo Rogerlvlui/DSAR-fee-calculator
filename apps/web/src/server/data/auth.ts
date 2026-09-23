@@ -22,29 +22,22 @@ const HR_PREPARER_USER: UserRef = UserRefSchema.parse({
   email: "priya.nair@example.invalid",
 });
 
+// Combined identity (2026-09-23): this one person now covers both Legal
+// review/sign-off (LEGAL_REVIEWER) and the audit-export capability
+// (DPO_ADMIN) — see requireRole's call site in ./audit.ts, which accepts
+// either role for that one gate. The separate "Wei Ling Ong — Data
+// Protection Officer" demo identity (DPO_ADMIN_USER) that used to carry
+// the latter is retired; DPO_ADMIN remains a valid Role value in the
+// frozen schema, just with no demo persona attached to it any more.
 const LEGAL_REVIEWER_USER: UserRef = UserRefSchema.parse({
   id: "01K5GSD0RVWRPBKRDPTJTHDN93",
-  displayName: "Roger Lui — Legal, Singapore",
+  displayName: "Roger Lui — Privacy Lawyer, Singapore",
   email: "roger.lui@example.invalid",
 });
 
-// Freshly generated (2026-09-19, plan 04-03) and verified against
-// UlidSchema before being committed here, distinct from both ids above.
-// Deliberately NOT added to apps/web/app/layout.tsx's ACTOR_OPTIONS role
-// switcher: no officer-facing screen exists this phase, and a switcher
-// entry that leads a presenter only to refusals on every click is a worse
-// demo than no entry at all. The identity is reachable by cookie, which is
-// what tests/routes/audit-export.test.ts drives directly.
-const DPO_ADMIN_USER: UserRef = UserRefSchema.parse({
-  id: "01M2VQ03WC9DDCY458Y2YH1HNH",
-  displayName: "Wei Ling Ong — Data Protection Officer",
-  email: "wei.ling.ong@example.invalid",
-});
-
-export const DEMO_USERS: Record<"HR_PREPARER" | "LEGAL_REVIEWER" | "DPO_ADMIN", DemoActor> = {
+export const DEMO_USERS: Record<"HR_PREPARER" | "LEGAL_REVIEWER", DemoActor> = {
   HR_PREPARER: { user: HR_PREPARER_USER, role: RoleSchema.parse("HR_PREPARER") },
   LEGAL_REVIEWER: { user: LEGAL_REVIEWER_USER, role: RoleSchema.parse("LEGAL_REVIEWER") },
-  DPO_ADMIN: { user: DPO_ADMIN_USER, role: RoleSchema.parse("DPO_ADMIN") },
 };
 
 export const DEMO_ROLE_COOKIE = "dsar_demo_role";
@@ -58,7 +51,10 @@ export function resolveActorFromCookieHeader(cookieHeader: string | null): DemoA
   const match = new RegExp(`(?:^|;\\s*)${DEMO_ROLE_COOKIE}=([^;]+)`).exec(cookieHeader);
   const value = match?.[1];
   if (value === "LEGAL_REVIEWER") return DEMO_USERS.LEGAL_REVIEWER;
-  if (value === "DPO_ADMIN") return DEMO_USERS.DPO_ADMIN;
+  // "DPO_ADMIN" is deliberately NOT recognised here any more (2026-09-23):
+  // that identity is retired, combined into LEGAL_REVIEWER above. An
+  // unrecognised value falling back to the least-privileged preparer is
+  // the correct outcome, not a gap — see tests/routes/audit-export.test.ts.
   return DEMO_USERS.HR_PREPARER;
 }
 
@@ -66,8 +62,20 @@ export function resolveActorFromCookieHeader(cookieHeader: string | null): DemoA
 // never in middleware.ts (a documented bypass class) and never only at the
 // page level (a page-level check does not extend to anything the request
 // later calls).
-export function requireRole(actor: DemoActor, role: Role): void {
-  if (actor.role !== role) {
-    throw new ForbiddenError(`This action requires the ${role} role`);
-  }
+//
+// Accepts a single role (every call site but one) or an array of
+// acceptable roles — the array form exists for ./audit.ts's exportAuditLog,
+// whose one gate now accepts either DPO_ADMIN or LEGAL_REVIEWER since
+// Roger's combined demo identity carries both (2026-09-23).
+export function requireRole(actor: DemoActor, role: Role | Role[]): void {
+  const allowed = Array.isArray(role) ? role : [role];
+  if (allowed.includes(actor.role)) return;
+  // Single-role message preserved byte-for-byte from before this function
+  // accepted an array — several tests assert on this exact phrasing (e.g.
+  // /HR_PREPARER role/, /LEGAL_REVIEWER role/).
+  const message =
+    allowed.length === 1
+      ? `This action requires the ${allowed[0]} role`
+      : `This action requires one of these roles: ${allowed.join(", ")}`;
+  throw new ForbiddenError(message);
 }

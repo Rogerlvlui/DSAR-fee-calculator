@@ -1,11 +1,12 @@
 // apps/web/app/admin/audit/page.tsx
 //
-// /admin/audit — the DPO_ADMIN-gated whole-log Audit trail screen (D-2,
-// 07.1-02-PLAN.md Task 1). Resolves the actor via getCurrentActor() (the
-// same path every other page in this app uses), calls getAuditTrailView
-// inside a try/catch — that call inherits exportAuditLog's own
-// requireRole(actor, "DPO_ADMIN") gate; this file never re-checks the role
-// itself — and renders AuditTrailView on success. On a caught
+// /admin/audit — the Audit trail screen (D-2, 07.1-02-PLAN.md Task 1),
+// gated to DPO_ADMIN or LEGAL_REVIEWER (2026-09-23: the demo's Legal
+// reviewer identity now also carries DPO access — see auth.ts). Resolves
+// the actor via getCurrentActor() (the same path every other page in this
+// app uses), calls getAuditTrailView inside a try/catch — that call
+// inherits exportAuditLog's own requireRole(...) gate; this file never
+// re-checks the role itself — and renders AuditTrailView on success. On a caught
 // ForbiddenError, renders the Copywriting Contract's restricted-access
 // paragraph with no table element of any kind; any other error type is
 // re-thrown so it is never silently swallowed as a role refusal.

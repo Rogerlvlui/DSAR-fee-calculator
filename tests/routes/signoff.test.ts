@@ -25,7 +25,6 @@ const MATTERS_URL = "http://localhost/api/matters";
 const SIGNOFF_URL = "http://localhost/api/assessments";
 const LEGAL_COOKIE = `${DEMO_ROLE_COOKIE}=LEGAL_REVIEWER`;
 const HR_COOKIE = `${DEMO_ROLE_COOKIE}=HR_PREPARER`;
-const DPO_COOKIE = `${DEMO_ROLE_COOKIE}=DPO_ADMIN`;
 
 function jsonRequest(url: string, method: string, body: unknown, cookie: string = LEGAL_COOKIE): Request {
   return new Request(url, {
@@ -400,19 +399,12 @@ describe("SIGNOFF", () => {
     expect(stored?.signOff).toBeNull();
   });
 
-  it("SIGNOFF: sign-off carrying the DPO_ADMIN role cookie is refused with 403 on the same endpoint (ACCESS-04)", async () => {
-    const assessment = await buildFixtureAssessment();
-    await dispositionAllLines(assessment);
-
-    const response = await signoffRoute(
-      jsonRequest(`${SIGNOFF_URL}/${assessment.id}/signoff`, "POST", VALID_SIGNOFF_INPUT, DPO_COOKIE),
-      { params: Promise.resolve({ id: assessment.id }) }
-    );
-    expect(response.status).toBe(403);
-
-    const stored = await storedAssessment(assessment.id);
-    expect(stored?.signOff).toBeNull();
-  });
+  // The prior "DPO_ADMIN role cookie refused" ACCESS-04 case was removed
+  // 2026-09-23: that identity is retired (combined into LEGAL_REVIEWER —
+  // see auth.ts), so the DPO_ADMIN cookie value now resolves to the same
+  // HR_PREPARER fallback actor as any unrecognised value, making it a
+  // duplicate of the HR_COOKIE case directly above rather than independent
+  // coverage of a distinct role being refused.
 
   it("SIGNOFF: a successful sign-off writes the final amount as the tallies' integer sum, sets the matter signed off, and records provenance", async () => {
     const assessment = await buildFixtureAssessment();

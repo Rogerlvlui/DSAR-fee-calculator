@@ -52,14 +52,13 @@ const newsreader = Newsreader({
 
 const FONT_VARIABLES = `${ibmPlexSans.variable} ${ibmPlexMono.variable} ${newsreader.variable}`;
 
-// DPO_ADMIN added 07.1-02: deliberately absent since 04-03 (auth.ts's own
-// header note) because no officer-facing screen existed yet — /admin/audit
-// now gives this identity somewhere to lead a presenter, so it belongs in
-// the switcher alongside the other two demo actors.
+// Two entries only (2026-09-23): the DPO_ADMIN identity ("Wei Ling Ong")
+// added in 07.1-02 is retired — the Legal reviewer's identity now carries
+// both roles (auth.ts's own header note has the reason), so /admin/audit
+// is reachable from the same switcher entry as /legal/*, not a third one.
 const ACTOR_OPTIONS = [
   { value: "HR_PREPARER", label: DEMO_USERS.HR_PREPARER.user.displayName },
   { value: "LEGAL_REVIEWER", label: DEMO_USERS.LEGAL_REVIEWER.user.displayName },
-  { value: "DPO_ADMIN", label: DEMO_USERS.DPO_ADMIN.user.displayName },
 ] as const;
 
 const ROLE_SWITCH_CAPTION =
