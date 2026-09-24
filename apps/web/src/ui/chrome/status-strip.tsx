@@ -51,7 +51,7 @@ function formatReviewDueLabel(daysUntilReviewDue: number): string {
 // demo-specific hard constraint (the pack's real status must never be
 // mistaken for the coerced one the engine computes against).
 export const PACK_STATUS_DISCLOSURE =
-  "Real status. The engine computes against an in-memory copy coerced to Active for this demo only.";
+  "Real status shown; the engine uses an in-memory Active copy for this demo.";
 
 function formatAuthoredReviewedBy(
   authoredByDisplayName: string | null,

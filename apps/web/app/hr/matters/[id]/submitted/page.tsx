@@ -19,6 +19,8 @@ import { getHrMatterStatus } from "../../../../../src/server/data/matters.ts";
 import { buildJurisdictionPackViews } from "../../../../../src/server/jurisdiction-packs.ts";
 import { StatusStrip } from "../../../../../src/ui/chrome/status-strip.tsx";
 import { humanizePackDisplayStatus } from "../../../../../src/domain/pack-display-status.ts";
+import { RoleSwitchButton } from "../../../../../src/ui/chrome/app-header.tsx";
+import { DEMO_ROLE_COOKIE } from "../../../../../src/server/data/auth.ts";
 
 export default async function MatterSubmittedPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -28,7 +30,7 @@ export default async function MatterSubmittedPage({ params }: { params: Promise<
   const jurisdictionPack = buildJurisdictionPackViews(now)[matter.jurisdictionCode];
 
   return (
-    <main>
+    <main className="submission-page">
       <h1 className="screen">Claim submitted — {matter.reference}</h1>
       <StatusStrip
         matterReference={matter.reference}
@@ -41,10 +43,14 @@ export default async function MatterSubmittedPage({ params }: { params: Promise<
         reviewedOn={jurisdictionPack.reviewedOn}
         daysUntilReviewDue={jurisdictionPack.daysUntilReviewDue ?? 9999}
       />
-      <p data-testid="submitted-confirmation">
-        Legal has been notified. You&apos;ll see the assessed fee once a lawyer has reviewed and
-        signed it off. You will not see a draft figure before then.
-      </p>
+      <section className="card submission-card">
+        <h2>In Legal&apos;s review queue</h2>
+        <p data-testid="submitted-confirmation">Your claim is in Legal&apos;s review queue. HR sees the assessed fee after lawyer sign-off; no draft figure is shown here.</p>
+        <div className="submission-actions">
+          <a href={`/hr/matters/${id}`} className="btn btn-secondary">View HR status</a>
+          <RoleSwitchButton cookieName={DEMO_ROLE_COOKIE} role="LEGAL_REVIEWER" href="/legal/queue" className="btn btn-primary">Demo: switch to Legal queue</RoleSwitchButton>
+        </div>
+      </section>
     </main>
   );
 }

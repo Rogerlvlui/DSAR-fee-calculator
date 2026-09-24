@@ -103,6 +103,12 @@ export function conditionsNotMetMessage(failed: readonly Condition[]): string {
   const FLAG_REASON_MESSAGE_MAX = 200; // mirrors FlagReasonSchema.message max
 
   function describe(condition: Condition): string {
+    if (condition.field === "isThirdPartyInvoiced" && condition.op === "eq" && condition.value === true) {
+      return "third-party invoice not confirmed";
+    }
+    if (condition.field === "evidenceRef" && condition.op === "isNotNull") {
+      return "no invoice or DMS reference recorded";
+    }
     // Narrowing on `"value" in condition` rather than `condition.op ===
     // "isNull" | "isNotNull"` — the latter does not narrow this
     // three-armed zod union reliably under this codebase's tsconfig; `in`

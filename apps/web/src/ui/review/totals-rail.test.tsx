@@ -167,6 +167,20 @@ describe("TOTALS-RAIL", () => {
     expect(html).not.toContain('data-testid="headline-hidden"');
   });
 
+  it("TOTALS-RAIL: a signed assessment no longer says it is awaiting sign-off", () => {
+    const decided = buildAssessment({
+      lines: [{ ...pendingLine("line-1", "ALLOW", 26640), disposition: "ACCEPTED" as const }],
+      totals: { ...PENDING_ASSESSMENT.totals, finalAmount: 26640 },
+    });
+    const signed = {
+      ...decided,
+      signOff: { lawyerName: "Synthetic counsel" } as Assessment["signOff"],
+    };
+    const html = render(signed);
+    expect(html).toContain("Signed off — released to HR");
+    expect(html).not.toContain("Not yet signed off");
+  });
+
   it("TOTALS-RAIL: 'Allowed by you, not by a rule' sums lawyerAmount over ALLOWED_BY_LAWYER lines only", () => {
     const withLawyerAllowed = buildAssessment({
       lines: [

@@ -20,12 +20,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { CurrencyCode, Minor, MatterFlag } from "@dsar/schemas/primitives";
-import { formatMinor } from "@dsar/schemas/money";
+import { formatMinorWithCode } from "@dsar/schemas/money";
 import type { ReviewTallies } from "../../domain/review-tallies.ts";
 import { REVIEWED_ON_NOT_RECORDED_NOTE } from "../../domain/attestation.ts";
 
 export const SIGN_OFF_CTA = "Sign off and release to HR";
 export const SIGN_OFF_BLOCKING_REASON = "Every flag above must be acknowledged before you can sign off.";
+export const QUALIFICATION_REQUIRED_REASON = "Enter your qualification before signing off.";
 const SIGN_OFF_FAILURE_PREFIX = "Sign-off failed — ";
 const SIGN_OFF_FAILURE_SUFFIX = ". No changes were made; the assessment is still in Legal Review.";
 
@@ -78,7 +79,7 @@ export function SignOffPanelView({
   onSubmit,
 }: SignOffPanelViewProps) {
   const unacknowledged = flagsRequiringAck.filter((flag) => !acknowledged.has(flag.id));
-  const disabled = pending || unacknowledged.length > 0;
+  const disabled = pending || unacknowledged.length > 0 || qualification.trim().length === 0;
 
   return (
     <div data-testid="signoff-panel" className="card">
@@ -104,7 +105,7 @@ export function SignOffPanelView({
         </div>
         <div className="summary-total">
           <dt>Final fee</dt>
-          <dd data-testid="signoff-final-amount">{formatMinor(finalAmount, currency)}</dd>
+          <dd data-testid="signoff-final-amount">{formatMinorWithCode(finalAmount, currency)}</dd>
         </div>
       </dl>
 
@@ -158,6 +159,10 @@ export function SignOffPanelView({
       {unacknowledged.length > 0 ? (
         <span data-testid="signoff-blocking-reason" className="hint stern">
           {SIGN_OFF_BLOCKING_REASON}
+        </span>
+      ) : qualification.trim().length === 0 ? (
+        <span data-testid="signoff-blocking-reason" className="hint stern">
+          {QUALIFICATION_REQUIRED_REASON}
         </span>
       ) : null}
 

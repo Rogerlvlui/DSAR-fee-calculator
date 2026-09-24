@@ -26,7 +26,18 @@
 // Disposition columns already carry their state in words, and colour-coding
 // a legal conclusion is exactly the thing this document must not do.
 
-import { Document, Page, StyleSheet, Text, View, renderToBuffer } from "@react-pdf/renderer";
+// Next's RSC bundler aliases `react` inside the PDF reconciler to its
+// server-component build, which has different private internals and makes
+// renderToBuffer fail at runtime. Use Node's require from this package's
+// resolved source path so the renderer receives ordinary React. The eval
+// keeps webpack from rewriting this require into its RSC module graph.
+const nodeRequire = eval("require") as NodeRequire;
+const requirePdfRenderer = nodeRequire("node:module").createRequire(
+  nodeRequire.resolve("@dsar/documents/internal-record-document")
+) as NodeRequire;
+const { Document, Page, StyleSheet, Text, View, renderToBuffer } = requirePdfRenderer(
+  "@react-pdf/renderer"
+) as typeof import("@react-pdf/renderer");
 import {
   DISPOSITION_LABELS,
   renderInternalRecordFooter,

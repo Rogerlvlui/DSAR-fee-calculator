@@ -57,12 +57,12 @@ const FONT_VARIABLES = `${ibmPlexSans.variable} ${ibmPlexMono.variable} ${newsre
 // both roles (auth.ts's own header note has the reason), so /admin/audit
 // is reachable from the same switcher entry as /legal/*, not a third one.
 const ACTOR_OPTIONS = [
-  { value: "HR_PREPARER", label: DEMO_USERS.HR_PREPARER.user.displayName },
-  { value: "LEGAL_REVIEWER", label: DEMO_USERS.LEGAL_REVIEWER.user.displayName },
+  { value: "HR_PREPARER", label: DEMO_USERS.HR_PREPARER.user.displayName, homeHref: "/hr/matters" },
+  { value: "LEGAL_REVIEWER", label: DEMO_USERS.LEGAL_REVIEWER.user.displayName, homeHref: "/legal/queue" },
 ] as const;
 
 const ROLE_SWITCH_CAPTION =
-  "Stubbed identity, for this demo only — switching here sets a cookie, it does not authenticate you.";
+  "Demo roles use a browser cookie; this is not authentication.";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (

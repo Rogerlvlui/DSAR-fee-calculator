@@ -9,24 +9,27 @@
 // the gating itself is entirely client-side, in CapabilityStatement.
 
 import { CapabilityStatement } from "../src/ui/capability/capability-statement.tsx";
+import { RoleSwitchButton } from "../src/ui/chrome/app-header.tsx";
+import { DEMO_ROLE_COOKIE } from "../src/server/data/auth.ts";
 
 export default async function LandingPage() {
   return (
     <CapabilityStatement>
-      <main>
-        <h1>New here? Two ways in.</h1>
-        <p>
-          This is a working prototype of the DSAR fee determination pipeline — real engine, real
-          rule pack, no database yet.
-        </p>
-        <ul>
-          <li>
-            <a href="/hr/matters/new">Create a fee claim, as HR</a>
-          </li>
-          <li>
-            <a href="/legal/queue">Open the legal queue</a>
-          </li>
-        </ul>
+      <main className="landing">
+        <h1 className="screen">From cost claim to legal decision</h1>
+        <p className="lede">Record a data access request&apos;s costs, review each line against the draft Singapore rule pack, then release a signed result.</p>
+        <div className="landing-paths">
+          <section className="card landing-path">
+            <h2>Prepare a claim</h2>
+            <p>Enter the response costs and send them to Legal.</p>
+            <RoleSwitchButton cookieName={DEMO_ROLE_COOKIE} role="HR_PREPARER" href="/hr/matters/new" className="btn btn-primary">Continue as HR</RoleSwitchButton>
+          </section>
+          <section className="card landing-path">
+            <h2>Review a claim</h2>
+            <p>Decide each line and sign off the assessed fee.</p>
+            <RoleSwitchButton cookieName={DEMO_ROLE_COOKIE} role="LEGAL_REVIEWER" href="/legal/queue" className="btn btn-secondary">Continue as Legal</RoleSwitchButton>
+          </section>
+        </div>
       </main>
     </CapabilityStatement>
   );

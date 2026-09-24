@@ -13,7 +13,7 @@
 // empty state.
 
 import type { CurrencyCode, Minor } from "@dsar/schemas/primitives";
-import { formatMinor } from "@dsar/schemas/money";
+import { formatMinorWithCode } from "@dsar/schemas/money";
 
 export interface ResultViewLine {
   id: string;
@@ -47,7 +47,7 @@ export function ResultView({
   return (
     <div data-testid="result-view" className="card flex flex-col gap-lg">
       <h1 className="screen" data-testid="result-headline">
-        Fee assessed: {formatMinor(finalAmount, currency)}
+        Fee assessed: {formatMinorWithCode(finalAmount, currency)}
       </h1>
       <div className="notice-document">
         <div className="row">
@@ -61,14 +61,14 @@ export function ResultView({
             {lines.map((line) => (
               <tr key={line.id} data-testid="result-line" data-outcome={line.struck ? "struck" : "allowed"}>
                 <td data-testid="result-line-description">
-                  Line {line.seq} · {line.categoryLabel} — {line.description}
+                  Line {line.seq + 1} · {line.categoryLabel} — {line.description}
                 </td>
                 {line.struck ? (
                   <td data-testid="result-line-basis" className="text-ink-3">
                     Not charged. {line.basis}
                   </td>
                 ) : (
-                  <td data-testid="result-line-amount">{formatMinor(line.amount, currency)}</td>
+                  <td data-testid="result-line-amount">{formatMinorWithCode(line.amount, currency)}</td>
                 )}
               </tr>
             ))}

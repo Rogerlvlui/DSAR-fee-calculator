@@ -21,7 +21,7 @@ import { describe, expect, it } from "vitest";
 import { AssessmentLineSchema, AssessmentSchema, type Assessment, type AssessmentLine } from "@dsar/schemas/assessment";
 import { ExpenseLineSchema, type ExpenseLine } from "@dsar/schemas/expense-line";
 import { MatterSchema, type Matter } from "@dsar/schemas/matter";
-import { formatMinor } from "@dsar/schemas/money";
+import { formatMinorWithCode } from "@dsar/schemas/money";
 import type { Minor } from "@dsar/schemas/primitives";
 import { LoadableRulePackSchema, type LoadableRulePack } from "@dsar/schemas/rule-pack";
 import { EXPENSE_CATEGORY_LABELS } from "@dsar/schemas/taxonomy";
@@ -380,8 +380,8 @@ describe("buildInternalRecordView — line items", () => {
     expect(capped!.basis).toBe(LINE_CAPPED.basis);
     expect(capped!.citation).toBe(formatCitation(LINE_CAPPED.citation));
     expect(capped!.disposition).toBe("REDUCED");
-    expect(capped!.claimedAmount).toBe(formatMinor(3300 as Minor, CURRENCY));
-    expect(capped!.lawyerAmount).toBe(formatMinor(2000 as Minor, CURRENCY));
+    expect(capped!.claimedAmount).toBe(formatMinorWithCode(3300 as Minor, CURRENCY));
+    expect(capped!.lawyerAmount).toBe(formatMinorWithCode(2000 as Minor, CURRENCY));
     expect(capped!.lawyerReason).toBe(LINE_CAPPED.lawyerReason);
   });
 
@@ -572,7 +572,7 @@ describe("buildInternalRecordView — sign-off block", () => {
       expenseLines: MIXED_EXPENSE_LINES,
       attestation: VALID_ATTESTATION,
     });
-    expect(view.signOff.finalAmount).toBe(formatMinor(assessment.signOff!.finalAmount, CURRENCY));
+    expect(view.signOff.finalAmount).toBe(formatMinorWithCode(assessment.signOff!.finalAmount, CURRENCY));
   });
 
   it("INTERNAL-RECORD-VIEW: a matching attestation version renders the caller's supplied text verbatim", () => {

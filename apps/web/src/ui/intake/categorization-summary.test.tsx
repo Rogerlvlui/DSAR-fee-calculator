@@ -82,14 +82,13 @@ describe("CATEGORIZATION-SUMMARY: rendering", () => {
     expect(html).not.toContain("<section");
   });
 
-  it("CATEGORIZATION-SUMMARY: renders the numbered step-3 heading with an aria-hidden badge", () => {
+  it("CATEGORIZATION-SUMMARY: shows a compact breakdown without adding a duplicate step", () => {
     const html = renderToStaticMarkup(
       React.createElement(CategorizationSummary, { lines: MIXED_LINES, currency: "SGD" })
     );
     expect(html).toContain('data-testid="categorization-summary"');
-    expect(html).toContain('class="step-number"');
-    expect(html).toContain('aria-hidden="true"');
-    expect(html).toContain("How the engine sorted these lines");
+    expect(html).not.toContain('class="step-number"');
+    expect(html).toContain("Claim breakdown");
   });
 });
 

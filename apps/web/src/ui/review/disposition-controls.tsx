@@ -44,10 +44,10 @@ import {
 } from "../../domain/disposition-actions.ts";
 
 const REASON_LABEL: Record<Verdict, string> = {
-  ALLOW: "Reason required if you change the amount",
-  ALLOW_CAPPED: "Reason required if you change the amount",
-  FLAG: "Reason required",
-  DISALLOW: "Reason required to allow anyway",
+  ALLOW: "Required for Reduce or Strike; optional for Accept",
+  ALLOW_CAPPED: "Required for Reduce or Strike; optional for Accept",
+  FLAG: "Required for this decision",
+  DISALLOW: "Required to allow anyway; optional for Accept",
 };
 
 const ACTION_LABEL: Record<DispositionAction, (currency: CurrencyCode) => string> = {
@@ -216,7 +216,7 @@ export function DispositionControlsView({
           />
         </label>
         <div data-testid="disposition-reason-counter" className="hint">
-          {attemptedSubmit ? (reasonCounterFailureText(reason) ?? reasonCounterText(reason)) : reasonCounterText(reason)}
+          {attemptedSubmit ? (reasonCounterFailureText(reason) ?? reasonCounterText(reason)) : reason.length > 0 || verdict === "FLAG" ? reasonCounterText(reason) : "10 characters for a required reason"}
         </div>
       </div>
 
@@ -257,12 +257,13 @@ export function DispositionControls({
   const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit(action: DispositionAction) {
-    setAttemptedSubmit(true);
+    const needsReason = action !== "ACCEPT" || verdict === "FLAG" || reason.trim().length > 0;
+    setAttemptedSubmit(needsReason);
     // IN-01: the shared combined check (length AND not-a-stock-phrase), not
     // a length-only reimplementation — every stop-list entry is already
     // under the length minimum on its own, so this was never a behavior
     // change, only closing the drift-risk of two independent copies.
-    if (!hasSufficientAndGenuineReason(reason)) return;
+    if (needsReason && !hasSufficientAndGenuineReason(reason)) return;
 
     setSubmitting(true);
     setError(null);
@@ -272,7 +273,7 @@ export function DispositionControls({
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           action,
-          reason,
+          reason: reason.trim() || null,
           ...(ACTIONS_TAKING_AMOUNT.has(action) ? { amountMinor: majorToMinor(amountMajor, currency) } : {}),
         }),
       });

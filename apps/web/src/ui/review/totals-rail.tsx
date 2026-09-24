@@ -19,10 +19,11 @@
 
 import type { Assessment } from "@dsar/schemas/assessment";
 import type { CurrencyCode, Minor } from "@dsar/schemas/primitives";
-import { formatMinor } from "@dsar/schemas/money";
+import { formatMinorWithCode } from "@dsar/schemas/money";
 
 export const HIDDEN_HEADLINE_TEXT = "— hidden —";
 export const NOT_YET_SIGNED_OFF_TEXT = "Not yet signed off";
+export const SIGNED_OFF_TEXT = "Signed off — released to HR";
 
 function pendingCountSentence(pendingCount: number): string {
   return `${pendingCount} line${pendingCount === 1 ? "" : "s"} still need your decision`;
@@ -69,29 +70,29 @@ export function TotalsRail({ assessment, currency }: TotalsRailProps) {
       <div data-testid="totals-rows">
         <div data-testid="total-row-claimed" className="summary-row">
           <dt>Claimed by HR</dt>
-          <dd data-testid="total-claimed">{formatMinor(assessment.totals.claimedTotal, currency)}</dd>
+          <dd data-testid="total-claimed">{formatMinorWithCode(assessment.totals.claimedTotal, currency)}</dd>
         </div>
         <div data-testid="total-row-supported" className="summary-row">
           <dt>Supported by rules</dt>
-          <dd data-testid="total-supported">{formatMinor(assessment.totals.draftBaseline, currency)}</dd>
+          <dd data-testid="total-supported">{formatMinorWithCode(assessment.totals.draftBaseline, currency)}</dd>
         </div>
         <div data-testid="total-row-resting-unverified" data-indent="true" className="text-ink-3 summary-row">
           <dt>↳ resting on unverified rules</dt>
           <dd data-testid="total-resting-unverified">
-            {formatMinor(assessment.totals.restingOnUnverifiedRules, currency)}
+            {formatMinorWithCode(assessment.totals.restingOnUnverifiedRules, currency)}
           </dd>
         </div>
         <div data-testid="total-row-allowed-by-lawyer" className="summary-row">
           <dt>Allowed by you, not by a rule</dt>
-          <dd data-testid="total-allowed-by-lawyer">{formatMinor(allowedByLawyer, currency)}</dd>
+          <dd data-testid="total-allowed-by-lawyer">{formatMinorWithCode(allowedByLawyer, currency)}</dd>
         </div>
         <div data-testid="total-row-not-supported" className="summary-row">
           <dt>Not supported</dt>
-          <dd data-testid="total-not-supported">{formatMinor(assessment.totals.disallowedTotal, currency)}</dd>
+          <dd data-testid="total-not-supported">{formatMinorWithCode(assessment.totals.disallowedTotal, currency)}</dd>
         </div>
         <div data-testid="total-row-needs-decision" className="summary-row">
           <dt>Needs your decision</dt>
-          <dd data-testid="total-needs-decision">{formatMinor(assessment.totals.flaggedTotal, currency)}</dd>
+          <dd data-testid="total-needs-decision">{formatMinorWithCode(assessment.totals.flaggedTotal, currency)}</dd>
         </div>
         <div data-testid="total-row-excluded" data-indent="true" className="text-ink-3 summary-row">
           <dt>↳ excluded from every total</dt>
@@ -110,9 +111,9 @@ export function TotalsRail({ assessment, currency }: TotalsRailProps) {
           </>
         ) : (
           <>
-            <div data-testid="headline-value">{formatMinor(previewHeadlineAmount(assessment), currency)}</div>
+            <div data-testid="headline-value">{formatMinorWithCode(previewHeadlineAmount(assessment), currency)}</div>
             <div data-testid="headline-sub" className="hint">
-              {NOT_YET_SIGNED_OFF_TEXT}
+              {assessment.signOff ? SIGNED_OFF_TEXT : NOT_YET_SIGNED_OFF_TEXT}
             </div>
           </>
         )}

@@ -205,14 +205,11 @@ function renderEveryComponent(): string {
 
   const attestationsValue: AttestationsValue = {
     identityVerified: true,
-    // Pattern-triggering: an NRIC/FIN-shaped token, so the live warning
-    // sentence is scanned here too.
-    identityVerifiedNote: "Verified against S1234567A on file",
     scopeClarified: true,
     isKnownDisputeOrLitigation: false,
   };
   texts.push(
-    render(React.createElement(AttestationsPanel, { value: attestationsValue, onChange: () => {}, noteMaxLength: 200 }))
+    render(React.createElement(AttestationsPanel, { value: attestationsValue, onChange: () => {} }))
   );
 
   texts.push(
