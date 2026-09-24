@@ -262,6 +262,35 @@ describe("INTAKE-FORM: computeIntakeDisabledReason", () => {
     ).toBe("Fix the highlighted cost line before submitting.");
   });
 
+  it("INTAKE-FORM: names an under-described 'Something else' line by number", () => {
+    expect(
+      computeIntakeDisabledReason({
+        matterDetailsValid: true,
+        identityVerified: true,
+        scopeClarified: true,
+        lines: [
+          { categoryCode: "STAFF_TIME_SEARCH", description: "Search", quantity: 4, rateMajor: "40.00" },
+          { categoryCode: "OTHER_UNCLASSIFIED", description: "misc", quantity: 1, rateMajor: "45.00" },
+        ],
+      })
+    ).toBe(
+      'Describe what cost line 2 ("Something else") was for — at least 10 characters, so Legal can classify it.'
+    );
+  });
+
+  it("INTAKE-FORM: a sufficiently described 'Something else' line does not block submit", () => {
+    expect(
+      computeIntakeDisabledReason({
+        matterDetailsValid: true,
+        identityVerified: true,
+        scopeClarified: true,
+        lines: [
+          { categoryCode: "OTHER_UNCLASSIFIED", description: "Archive retrieval fee", quantity: 1, rateMajor: "45.00" },
+        ],
+      })
+    ).toBeNull();
+  });
+
   it("INTAKE-FORM: returns null once every condition is met", () => {
     expect(
       computeIntakeDisabledReason({

@@ -19,6 +19,12 @@ import type { ExpenseCategoryCode } from "@dsar/schemas/taxonomy";
 import type { VerificationStatus } from "@dsar/schemas/rule-pack";
 import { FREE_TEXT_LIMITS } from "@dsar/schemas/constants";
 import { detectLikelyPersonalData } from "@dsar/schemas/personal-data-pattern";
+import { countNonWhitespaceChars } from "../../domain/disposition-actions.ts";
+import {
+  MIN_OTHER_DESCRIPTION_NON_WHITESPACE_CHARS,
+  OTHER_UNCLASSIFIED_DESCRIPTION_HINT,
+  hasSufficientDescriptionForCategory,
+} from "../../domain/expense-description.ts";
 
 export interface RepeaterCategoryOption {
   categoryCode: ExpenseCategoryCode;
@@ -332,6 +338,8 @@ export function ExpenseLineRepeater({ lines, onChange, categories, currency }: E
             const hint = hintByCategory.get(line.categoryCode);
             const staffGrade = isStaffGradeCategory(line.categoryCode);
             const thirdParty = isThirdPartyCategory(line.categoryCode);
+            const isOther = line.categoryCode === "OTHER_UNCLASSIFIED";
+            const otherUndescribed = !hasSufficientDescriptionForCategory(line.categoryCode, line.description);
 
             return (
               <div key={line.key} data-testid="expense-line-row" className="card expense-line-row">
@@ -366,6 +374,11 @@ export function ExpenseLineRepeater({ lines, onChange, categories, currency }: E
                     {hint}
                   </p>
                 ) : null}
+                {isOther ? (
+                  <p data-testid="other-description-hint" className="hint expense-full">
+                    {OTHER_UNCLASSIFIED_DESCRIPTION_HINT}
+                  </p>
+                ) : null}
 
                 <label className="field expense-description">
                   <span>What this cost was for</span>
@@ -373,9 +386,17 @@ export function ExpenseLineRepeater({ lines, onChange, categories, currency }: E
                     name="description"
                     value={line.description}
                     maxLength={FREE_TEXT_LIMITS.description}
+                    required={isOther}
+                    aria-invalid={otherUndescribed || undefined}
                     onChange={(event) => updateLine(line.key, { description: event.target.value })}
                   />
                 </label>
+                {otherUndescribed ? (
+                  <p data-testid="other-description-required" className="hint stern expense-full">
+                    Required for “Something else”: at least {MIN_OTHER_DESCRIPTION_NON_WHITESPACE_CHARS} characters
+                    describing the cost ({countNonWhitespaceChars(line.description)} so far).
+                  </p>
+                ) : null}
                 {(() => {
                   const patternMatch = detectLikelyPersonalData(line.description);
                   return patternMatch.matched ? (

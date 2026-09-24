@@ -35,6 +35,10 @@ import { CategorizationSummary } from "./categorization-summary.tsx";
 import { ClaimFooter } from "./claim-footer.tsx";
 import { StatusStrip } from "../chrome/status-strip.tsx";
 import { useDraftAutosave } from "./use-draft-autosave.ts";
+import {
+  MIN_OTHER_DESCRIPTION_NON_WHITESPACE_CHARS,
+  hasSufficientDescriptionForCategory,
+} from "../../domain/expense-description.ts";
 import { AutosaveIndicator } from "./autosave-indicator.tsx";
 
 // Module-level so a future caller (or a test asserting on it) has one name
@@ -109,6 +113,12 @@ export function computeIntakeDisabledReason(input: DisabledReasonInput): string 
   }
   if (input.lines.length === 0) {
     return "Add at least one cost line.";
+  }
+  const undescribedIndex = input.lines.findIndex(
+    (line) => !hasSufficientDescriptionForCategory(line.categoryCode, line.description)
+  );
+  if (undescribedIndex !== -1) {
+    return `Describe what cost line ${undescribedIndex + 1} ("Something else") was for — at least ${MIN_OTHER_DESCRIPTION_NON_WHITESPACE_CHARS} characters, so Legal can classify it.`;
   }
   const invalidLine = input.lines.find(
     (line) => !line.description.trim() || line.quantity <= 0 || Number.parseFloat(line.rateMajor) <= 0
