@@ -55,8 +55,8 @@ describe("FLAT-FEE-CHOICE", () => {
   it("FLAT-FEE-CHOICE: renders both radios with their interpolated amounts when present", () => {
     const html = renderChoice({ flatFeeComparison: COMPARISON_NOT_EXCEEDING });
     expect(html).toContain("How should this fee be charged?");
-    expect(html).toContain("HK$200.00");
-    expect(html).toContain("HK$100.00");
+    expect(html).toContain("HKD 200.00");
+    expect(html).toContain("HKD 100.00");
   });
 
   it("FLAT-FEE-CHOICE: the flat radio is disabled and the blocked note renders when flatFeeExceedsItemisedCost is true", () => {

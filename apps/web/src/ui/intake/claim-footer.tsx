@@ -9,7 +9,7 @@
 "use client";
 
 import { toMinor, type CurrencyCode } from "@dsar/schemas/primitives";
-import { formatMinor } from "@dsar/schemas/money";
+import { formatMinorWithCode } from "@dsar/schemas/money";
 
 export interface ClaimFooterProps {
   claimedTotalMinor: number;
@@ -24,28 +24,27 @@ export interface ClaimFooterProps {
 // test can compare the rendered (tag-stripped) text against exactly this
 // string rather than reconstructing it from fragments around the <b> tag.
 export const CLAIM_NOT_FEE_SENTENCE =
-  "Total you are claiming — not the fee. Legal decides what can actually be charged, and will strike anything local law doesn't support.";
+  "Claimed costs — not the assessed fee.";
 
 export function ClaimFooter({ claimedTotalMinor, currency, disabledReason, submitting, onSubmit }: ClaimFooterProps) {
   const disabled = disabledReason !== null || submitting;
 
   return (
     <div data-testid="claim-footer" className="claimfoot">
-      <div className="lbl" data-testid="claim-not-fee">
-        Total you are claiming — <b>not the fee.</b> Legal decides what can actually be charged, and
-        will strike anything local law doesn&apos;t support.
-      </div>
-      <div>
+      <div className="claimfoot-total">
+        <div className="lbl" data-testid="claim-not-fee">{CLAIM_NOT_FEE_SENTENCE}</div>
         <div className="fig num" data-testid="claim-total">
-          {formatMinor(toMinor(claimedTotalMinor), currency)}
+          {formatMinorWithCode(toMinor(claimedTotalMinor), currency)}
         </div>
+      </div>
+      <div className="claimfoot-action">
         <button type="button" disabled={disabled} className="btn btn-primary" onClick={onSubmit}>
           Submit to Legal
         </button>
         {disabledReason ? (
-          <span data-testid="submit-disabled-reason" className="hint stern">
+          <p data-testid="submit-disabled-reason" className="hint stern">
             {disabledReason}
-          </span>
+          </p>
         ) : null}
       </div>
     </div>

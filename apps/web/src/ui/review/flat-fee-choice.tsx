@@ -31,7 +31,7 @@ import { useRouter } from "next/navigation";
 import type { FlatFeeComparison } from "@dsar/schemas/assessment";
 import type { CurrencyCode } from "@dsar/schemas/primitives";
 import type { VerificationStatus } from "@dsar/schemas/rule-pack";
-import { formatMinor } from "@dsar/schemas/money";
+import { formatMinorWithCode } from "@dsar/schemas/money";
 import { UNVERIFIED_RULE_MARKER } from "./line-card.tsx";
 
 export type FeeChoiceValue = "ITEMISED" | "FLAT";
@@ -85,7 +85,7 @@ export function FlatFeeChoiceView({
           disabled={pending}
           onChange={() => onSelect("ITEMISED")}
         />
-        Itemised — sum of every allowed line: {formatMinor(itemisedDirectCostAmount, currency)}
+        Itemised — sum of every allowed line: {formatMinorWithCode(itemisedDirectCostAmount, currency)}
       </label>
 
       <label>
@@ -97,7 +97,7 @@ export function FlatFeeChoiceView({
           disabled={pending || flatFeeExceedsItemisedCost}
           onChange={() => onSelect("FLAT")}
         />
-        Flat fee: {formatMinor(flatFeeAmount, currency)}
+        Flat fee: {formatMinorWithCode(flatFeeAmount, currency)}
         {flatFeeVerificationStatus === "NEEDS_VERIFICATION" ? (
           <span data-testid="flat-fee-unverified-marker" className="border border-dashed border-warn text-warn">
             {" "}

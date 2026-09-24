@@ -161,7 +161,8 @@ function findLine(assessment, verdict) {
 // The exact sequence tests/routes/signoff.test.ts already performs
 // in-process: create a matter as HR, add expense lines, submit for
 // assessment, switch to the legal reviewer role, disposition every
-// assessment line with a valid reason, sign off. Every step asserts its own
+// assessment line (routine Accept without a reason, flagged Strike with a
+// genuine reason), sign off. Every step asserts its own
 // status before continuing, so a failure here names precisely which step of
 // the real path broke, not just "something failed".
 async function driveToSignedOff(baseUrl) {
@@ -200,9 +201,9 @@ async function driveToSignedOff(baseUrl) {
   const assessment = await submitResponse.json();
 
   const dispositions = [
-    [findLine(assessment, "ALLOW"), { action: "ACCEPT", reason: GOOD_REASON }],
-    [findLine(assessment, "DISALLOW"), { action: "ACCEPT", reason: GOOD_REASON }],
-    [findLine(assessment, "ALLOW_CAPPED"), { action: "ACCEPT", reason: GOOD_REASON }],
+    [findLine(assessment, "ALLOW"), { action: "ACCEPT" }],
+    [findLine(assessment, "DISALLOW"), { action: "ACCEPT" }],
+    [findLine(assessment, "ALLOW_CAPPED"), { action: "ACCEPT" }],
     [findLine(assessment, "FLAG"), { action: "STRIKE", reason: GOOD_REASON }],
   ];
   for (const [line, body] of dispositions) {
@@ -264,17 +265,27 @@ async function assertInternalRecord(baseUrl, assessmentId) {
 }
 
 async function main() {
+  // Point this at an already-running production build to exercise the same
+  // HTTP path after `next build`, without starting a second dev server.
+  if (process.env.DSAR_SMOKE_BASE_URL) {
+    const baseUrl = process.env.DSAR_SMOKE_BASE_URL.replace(/\/$/, "");
+    const assessmentId = await driveToSignedOff(baseUrl);
+    await assertInternalRecord(baseUrl, assessmentId);
+    return;
+  }
+
   const port = await pickFreePort();
   const baseUrl = `http://127.0.0.1:${port}`;
 
   // Resolved through apps/web's OWN node_modules (createRequire anchored at
   // apps/web/package.json), exactly the way apps/web/scripts/dev.mjs
   // resolves it — not the repo root's copy, even though the root also
-  // depends on `next` directly.
+  // depends on `next` directly. Use the same webpack mode as the normal
+  // dev script so this checks the demo's actual runtime.
   const requireFromWebApp = createRequire(path.join(WEB_APP_DIR, "package.json"));
   const nextBin = requireFromWebApp.resolve("next/dist/bin/next");
 
-  const child = spawn(process.execPath, [nextBin, "dev", "-p", String(port)], {
+  const child = spawn(process.execPath, [nextBin, "dev", "--webpack", "-p", String(port)], {
     cwd: WEB_APP_DIR,
     stdio: ["ignore", "pipe", "pipe"],
     env: process.env,

@@ -123,6 +123,7 @@ export function AssessmentView({
 }: AssessmentViewProps) {
   const detailByLineId = new Map(lineDetails.map((detail) => [detail.assessmentLineId, detail]));
   const sortedLines = [...assessment.lines].sort(compareByVerdict);
+  const pendingCount = assessment.lines.filter((line) => line.disposition === "PENDING").length;
 
   return (
     <div data-testid="assessment-view" className="review-grid">
@@ -155,6 +156,11 @@ export function AssessmentView({
       </div>
 
       <div className="review-grid-main">
+        <p className="review-progress" data-testid="review-progress">
+          {pendingCount > 0
+            ? `${pendingCount} line${pendingCount === 1 ? "" : "s"} need a decision. The recommended fee stays hidden until every line is decided.`
+            : "Every line has a decision. Review the totals before sign-off."}
+        </p>
         {stalePackNotice}
         {recomputeBanner}
         <div data-testid="cards-region">

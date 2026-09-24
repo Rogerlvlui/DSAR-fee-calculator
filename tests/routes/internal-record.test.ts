@@ -26,7 +26,7 @@ import { describe, expect, it } from "vitest";
 import { deriveEffectiveStatus } from "@dsar/rulepacks/stale";
 import { renderInternalRecordPdf } from "@dsar/documents/internal-record-document";
 import { buildInternalRecordView } from "@dsar/documents/internal-record-view";
-import { formatMinor } from "@dsar/schemas/money";
+import { formatMinorWithCode } from "@dsar/schemas/money";
 import { POST as createMatterRoute } from "../../apps/web/app/api/matters/route.ts";
 import { POST as addLineRoute } from "../../apps/web/app/api/matters/[id]/lines/route.ts";
 import { POST as submitRoute } from "../../apps/web/app/api/matters/[id]/submit/route.ts";
@@ -491,7 +491,7 @@ describe("INTERNAL-RECORD", () => {
     await signOffFixture(assessment);
 
     const { view, assessment: realAssessment, matter } = await buildRealViewForAssessment(assessment.id);
-    expect(view.signOff.finalAmount).toBe(formatMinor(realAssessment.signOff!.finalAmount, matter.currency));
+    expect(view.signOff.finalAmount).toBe(formatMinorWithCode(realAssessment.signOff!.finalAmount, matter.currency));
   });
 
   it("INTERNAL-RECORD: the sign-off block's attestation text is strictly equal to renderAttestation's output for the same inputs", async () => {

@@ -92,13 +92,13 @@ export function BulkAcceptBarView({
   const disabled = pending || eligibleLineIds.length === 0;
 
   return (
-    <div data-testid="bulk-accept-bar">
+    <div data-testid="bulk-accept-bar" className="bulk-accept-bar">
       <button type="button" data-testid="bulk-accept-button" disabled={disabled} onClick={onSubmit}>
         {bulkAcceptLabel(eligibleLineIds.length)}
       </button>
       <span data-testid="bulk-accept-note">{BULK_ACCEPT_NOTE}</span>
 
-      <div data-testid="bulk-accept-reason">
+      {eligibleLineIds.length > 0 ? <div data-testid="bulk-accept-reason">
         <label>
           <span>Reason</span>
           <textarea
@@ -112,7 +112,7 @@ export function BulkAcceptBarView({
         <div data-testid="bulk-accept-reason-counter">
           {attemptedSubmit ? (reasonCounterFailureText(reason) ?? reasonCounterText(reason)) : reasonCounterText(reason)}
         </div>
-      </div>
+      </div> : null}
 
       {error ? (
         <p role="alert" data-testid="bulk-accept-error">

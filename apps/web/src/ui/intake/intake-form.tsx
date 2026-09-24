@@ -14,7 +14,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { JURISDICTION_CURRENCY, type CurrencyCode, type JurisdictionCode } from "@dsar/schemas/primitives";
-import { FREE_TEXT_LIMITS } from "@dsar/schemas/constants";
 import type { ExpenseCategoryCode } from "@dsar/schemas/taxonomy";
 import type { FeePosture, FeePostureMap, VerificationStatus } from "@dsar/schemas/rule-pack";
 
@@ -145,7 +144,6 @@ export function IntakeForm({ packsByJurisdiction, defaultReference }: IntakeForm
   });
   const [attestations, setAttestations] = useState<AttestationsValue>({
     identityVerified: false,
-    identityVerifiedNote: "",
     scopeClarified: false,
     isKnownDisputeOrLitigation: false,
   });
@@ -193,7 +191,7 @@ export function IntakeForm({ packsByJurisdiction, defaultReference }: IntakeForm
           requestorClass: matterDetails.requestorClass,
           currency,
           identityVerified: attestations.identityVerified,
-          identityVerifiedNote: attestations.identityVerifiedNote || null,
+          identityVerifiedNote: null,
           scopeClarified: attestations.scopeClarified,
           isRepeatRequestWithin12Months: false,
           isKnownDisputeOrLitigation: attestations.isKnownDisputeOrLitigation,
@@ -229,9 +227,7 @@ export function IntakeForm({ packsByJurisdiction, defaultReference }: IntakeForm
       });
       if (!submitResponse.ok) throw new Error(await readErrorMessage(submitResponse));
 
-      // 05-REVIEW-ADDENDUM.md WR-03: the autosaved draft can carry exactly
-      // the personal-data-shaped free text detectLikelyPersonalData exists
-      // to warn about (identityVerifiedNote, line descriptions) — it must
+      // The autosaved draft can carry free-text line descriptions and must
       // not persist in localStorage indefinitely once the matter it was
       // drafting is already submitted. Cleared immediately before
       // navigating away, mirroring this module's own "never reaches the
@@ -270,8 +266,6 @@ export function IntakeForm({ packsByJurisdiction, defaultReference }: IntakeForm
         jurisdictionPack={currentJurisdictionPack}
       />
 
-      {matterDetailsValid ? <AttestationsPanel value={attestations} onChange={setAttestations} noteMaxLength={FREE_TEXT_LIMITS.identityVerifiedNote} /> : null}
-
       {matterDetailsValid && canOfferExpenseEntry(currentJurisdictionPack, matterDetails.controllerType) ? (
         <>
           <ExpenseLineRepeater
@@ -283,6 +277,8 @@ export function IntakeForm({ packsByJurisdiction, defaultReference }: IntakeForm
           <CategorizationSummary lines={lines} currency={currency} />
         </>
       ) : null}
+
+      {matterDetailsValid ? <AttestationsPanel value={attestations} onChange={setAttestations} /> : null}
 
       <ClaimFooter
         claimedTotalMinor={claimedTotalMinor}

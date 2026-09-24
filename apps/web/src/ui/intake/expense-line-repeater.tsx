@@ -13,7 +13,7 @@
 "use client";
 
 import { toMinor, type CurrencyCode, type StaffGrade } from "@dsar/schemas/primitives";
-import { formatMinor, MINOR_UNIT_DECIMALS } from "@dsar/schemas/money";
+import { formatMinorWithCode, MINOR_UNIT_DECIMALS } from "@dsar/schemas/money";
 import type { ExpenseUnit } from "@dsar/schemas/expense-line";
 import type { ExpenseCategoryCode } from "@dsar/schemas/taxonomy";
 import type { VerificationStatus } from "@dsar/schemas/rule-pack";
@@ -326,16 +326,17 @@ export function ExpenseLineRepeater({ lines, onChange, categories, currency }: E
           <p className="hint">{EMPTY_STATE_BODY}</p>
         </div>
       ) : (
-        <div data-testid="expense-line-rows" className="flex flex-col gap-md">
-          {lines.map((line) => {
+        <div data-testid="expense-line-rows" className="expense-line-list">
+          {lines.map((line, index) => {
             const amountMinor = computeLineAmountMinor(line, currency);
             const hint = hintByCategory.get(line.categoryCode);
             const staffGrade = isStaffGradeCategory(line.categoryCode);
             const thirdParty = isThirdPartyCategory(line.categoryCode);
 
             return (
-              <div key={line.key} data-testid="expense-line-row" className="card">
-                <label>
+              <div key={line.key} data-testid="expense-line-row" className="card expense-line-row">
+                <div className="expense-line-heading">Cost line {index + 1}</div>
+                <label className="field expense-category">
                   <span>Category</span>
                   <select
                     name="categoryCode"
@@ -366,7 +367,7 @@ export function ExpenseLineRepeater({ lines, onChange, categories, currency }: E
                   </p>
                 ) : null}
 
-                <label>
+                <label className="field expense-description">
                   <span>What this cost was for</span>
                   <input
                     name="description"
@@ -378,20 +379,20 @@ export function ExpenseLineRepeater({ lines, onChange, categories, currency }: E
                 {(() => {
                   const patternMatch = detectLikelyPersonalData(line.description);
                   return patternMatch.matched ? (
-                    <p data-testid="description-pattern-warning" className="hint stern">
+                    <p data-testid="description-pattern-warning" className="hint stern expense-full">
                       This looks like it might contain personal data — {patternMatch.reason}. Personal data does
                       not belong in this field.
                     </p>
                   ) : null;
                 })()}
                 {line.description.length > 0 ? (
-                  <p data-testid="description-counter" className="hint">
+                  <p data-testid="description-counter" className="hint expense-full">
                     {line.description.length} / {FREE_TEXT_LIMITS.description} characters
                   </p>
                 ) : null}
 
-                <label>
-                  <span>Qty</span>
+                <label className="field expense-metric">
+                  <span>Quantity</span>
                   <input
                     name="quantity"
                     type="number"
@@ -402,7 +403,7 @@ export function ExpenseLineRepeater({ lines, onChange, categories, currency }: E
                   />
                 </label>
 
-                <label>
+                <label className="field expense-metric">
                   <span>Unit</span>
                   <select
                     name="unit"
@@ -417,8 +418,8 @@ export function ExpenseLineRepeater({ lines, onChange, categories, currency }: E
                   </select>
                 </label>
 
-                <label>
-                  <span>Rate</span>
+                <label className="field expense-metric">
+                  <span>Rate ({currency})</span>
                   <input
                     name="unitRate"
                     type="number"
@@ -430,15 +431,15 @@ export function ExpenseLineRepeater({ lines, onChange, categories, currency }: E
                   />
                 </label>
 
-                <div>
+                <div className="expense-amount">
                   <span>Amount</span>
                   <div data-testid="line-amount" className="fig">
-                    {formatMinor(toMinor(amountMinor), currency)}
+                    {formatMinorWithCode(toMinor(amountMinor), currency)}
                   </div>
                 </div>
 
                 {staffGrade ? (
-                  <label data-testid="staff-grade-field">
+                  <label data-testid="staff-grade-field" className="field expense-staff">
                     <span>Staff grade</span>
                     <select
                       name="incurredByGrade"
@@ -458,7 +459,7 @@ export function ExpenseLineRepeater({ lines, onChange, categories, currency }: E
                 ) : null}
 
                 {thirdParty ? (
-                  <div data-testid="third-party-fields">
+                  <div data-testid="third-party-fields" className="third-party-fields">
                     <label>
                       <input
                         type="checkbox"
@@ -487,7 +488,7 @@ export function ExpenseLineRepeater({ lines, onChange, categories, currency }: E
                   </div>
                 ) : null}
 
-                <div className="flex gap-xs">
+                <div className="expense-actions">
                   <button type="button" className="btn btn-secondary" onClick={() => duplicateLine(line.key)}>
                     Duplicate
                   </button>
@@ -501,16 +502,14 @@ export function ExpenseLineRepeater({ lines, onChange, categories, currency }: E
         </div>
       )}
 
-      <div className="flex items-center gap-xs">
+      <div className="expense-add-actions">
         <button type="button" className="btn btn-secondary" onClick={addLine}>
           + Add a cost line
         </button>
         <button type="button" className="btn btn-tertiary" onClick={fillExampleRows}>
           Fill in the example rows
         </button>
-        <p className="hint">
-          Populates the form fields only — every figure still comes from the engine after you submit.
-        </p>
+        <p className="hint">Example rows use synthetic costs. The engine assesses them after submission.</p>
       </div>
     </section>
   );

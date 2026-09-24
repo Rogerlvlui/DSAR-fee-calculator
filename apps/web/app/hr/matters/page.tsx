@@ -21,26 +21,26 @@ export default async function HrMattersListPage() {
   const packsByJurisdiction = buildJurisdictionPackViews(now);
 
   return (
-    <main>
-      <h1 className="screen">Your matters</h1>
+    <main className="worklist-page">
+      <div className="worklist-heading"><div><h1 className="screen">Your matters</h1><p className="lede">Track claims you have prepared.</p></div><a href="/hr/matters/new" className="btn btn-primary">New fee claim</a></div>
       {matters.length === 0 ? (
-        <p data-testid="matters-empty">
+        <p data-testid="matters-empty" className="card worklist-empty">
           No matters yet. <a href="/hr/matters/new">Create a fee claim</a> to get started.
         </p>
       ) : (
-        <ul data-testid="matters-list">
+        <ul data-testid="matters-list" className="worklist">
           {matters.map((matter) => {
             const jurisdictionPack = packsByJurisdiction[matter.jurisdictionCode];
             const advisoryDeadline = jurisdictionPack.constraints
               ? computeAdvisoryDeadline(matter, jurisdictionPack.constraints, now)
               : null;
             return (
-              <li key={matter.id}>
-                <a href={`/hr/matters/${matter.id}`}>
-                  {matter.reference} — {matterStatusLabelForHr(matter.status)}
+              <li key={matter.id} className="worklist-item">
+                <a href={`/hr/matters/${matter.id}`} className="worklist-link">
+                  <strong>{matter.reference}</strong><span className="worklist-status">{matterStatusLabelForHr(matter.status)}</span>
                 </a>
                 {advisoryDeadline ? (
-                  <div data-testid="advisory-deadline">
+                  <div data-testid="advisory-deadline" className="worklist-deadline">
                     {advisoryDeadline.basis === "FEE_NOTIFICATION" ? "Fee notification due " : "Response due "}
                     {advisoryDeadline.dueDateIso} — {advisoryDeadline.daysRemaining} days. <b>{ADVISORY_QUALIFIER}</b>
                   </div>

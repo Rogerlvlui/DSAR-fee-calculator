@@ -73,8 +73,8 @@ export default async function HrMatterPage({ params }: { params: Promise<{ id: s
         <h1 className="screen">Fee assessment — {matter.reference}</h1>
         {statusStrip}
         <p data-testid="hr-waiting">
-          Legal has been notified. You&apos;ll see the assessed fee once a lawyer has reviewed and
-          signed it off. You will not see a draft figure before then.
+          This claim is in Legal&apos;s review queue. You&apos;ll see the assessed fee after lawyer
+          sign-off; no draft figure is shown here.
         </p>
       </main>
     );

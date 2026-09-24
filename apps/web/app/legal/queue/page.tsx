@@ -85,10 +85,13 @@ export default async function LegalQueuePage({
   const sortedRows = sortQueueRows(rows, mode);
 
   return (
-    <main>
-      <h1 className="screen">Legal queue</h1>
+    <main className="worklist-page">
+      <div className="worklist-heading">
+        <div><h1 className="screen">Legal queue</h1><p className="lede">Claims awaiting a line-by-line decision.</p></div>
+        <span className="worklist-count">{sortedRows.length} {sortedRows.length === 1 ? "matter" : "matters"}</span>
+      </div>
 
-      <nav data-testid="queue-sort-toggle" aria-label="Sort">
+      <nav data-testid="queue-sort-toggle" aria-label="Sort" className="sort-toggle">
         <span>Sort: </span>
         <a
           href="?sort=deadline"
@@ -107,19 +110,19 @@ export default async function LegalQueuePage({
       </nav>
 
       {sortedRows.length === 0 ? (
-        <p data-testid="assessments-empty">
+        <p data-testid="assessments-empty" className="card worklist-empty">
           No claims are waiting on Legal right now. HR submits a claim, and it appears here.
         </p>
       ) : (
         <QueueKeyboardScope rowIds={sortedRows.map((row) => row.assessmentId)}>
-          <ul data-testid="assessments-list">
+          <ul data-testid="assessments-list" className="worklist">
             {sortedRows.map(({ matter, assessmentId, advisoryDeadline }) => (
-              <li key={assessmentId}>
-                <a href={`/legal/assessments/${assessmentId}`} data-row-id={assessmentId} className="focus:outline-2 focus:outline-seal">
-                  {matter.reference} — {rowStatusLabel(matter.status)}
+              <li key={assessmentId} className="worklist-item">
+                <a href={`/legal/assessments/${assessmentId}`} data-row-id={assessmentId} className="worklist-link focus:outline-2 focus:outline-seal">
+                  <strong>{matter.reference}</strong><span className="worklist-status">{rowStatusLabel(matter.status)}</span>
                 </a>
                 {advisoryDeadline ? (
-                  <div data-testid="advisory-deadline">
+                  <div data-testid="advisory-deadline" className="worklist-deadline">
                     {advisoryDeadline.basis === "FEE_NOTIFICATION" ? "Fee notification due " : "Response due "}
                     {advisoryDeadline.dueDateIso} — {advisoryDeadline.daysRemaining} days. <b>{ADVISORY_QUALIFIER}</b>
                   </div>

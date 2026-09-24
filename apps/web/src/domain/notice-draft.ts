@@ -16,7 +16,7 @@
 
 import { UNAUTHORED_TOKEN } from "@dsar/schemas/constants";
 import type { CurrencyCode, Minor } from "@dsar/schemas/primitives";
-import { formatMinor } from "@dsar/schemas/money";
+import { formatMinorWithCode } from "@dsar/schemas/money";
 
 export interface NoticeDraftAllowedLine {
   description: string;
@@ -48,7 +48,7 @@ function itemisation(allowedLines: readonly NoticeDraftAllowedLine[], currency: 
   if (allowedLines.length === 0) {
     return "This covers no chargeable items — no fee is charged.";
   }
-  return allowedLines.map((line) => `- ${line.description}: ${formatMinor(line.amount, currency)}`).join("\n");
+  return allowedLines.map((line) => `- ${line.description}: ${formatMinorWithCode(line.amount, currency)}`).join("\n");
 }
 
 // DOC-03/AC-17 — the requestor notice must carry no rule identifier, no
@@ -136,7 +136,7 @@ export function buildNoticeDraft({
 
   return [
     `Reference: ${matterReference}`,
-    `Amount: ${formatMinor(amount, currency)}`,
+    `Amount: ${formatMinorWithCode(amount, currency)}`,
     "",
     "What this covers:",
     itemisation(allowedLines, currency),

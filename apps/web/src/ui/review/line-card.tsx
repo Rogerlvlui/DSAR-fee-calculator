@@ -31,7 +31,7 @@ import type { AssessmentLine, Verdict } from "@dsar/schemas/assessment";
 import type { ExpenseUnit } from "@dsar/schemas/expense-line";
 import type { CurrencyCode, Minor } from "@dsar/schemas/primitives";
 import type { VerificationStatus } from "@dsar/schemas/rule-pack";
-import { formatMinor } from "@dsar/schemas/money";
+import { formatMinorWithCode } from "@dsar/schemas/money";
 
 // UI-SPEC Copywriting Contract, verbatim — the same table assessment-view.tsx
 // used before this task; kept here too since LineCard is now the one place
@@ -99,26 +99,26 @@ export function LineCard({
       tabIndex={-1}
       className="card focus:outline-2 focus:outline-seal flex flex-col gap-sm"
     >
-      <div data-testid="card-head" className="row">
+      <div data-testid="card-head" className="review-card-head">
         <span data-testid="verdict-badge" aria-label={VERDICT_LABELS[line.verdict]} className="pill">
           {VERDICT_LABELS[line.verdict]}
         </span>
         <span data-testid="line-seq" className="kicker">
           {" "}
-          Line {seq}
+          Line {seq + 1}
         </span>
-        <span data-testid="card-title" className="font-serif text-heading"> {categoryLabel}</span>
+        <h3 data-testid="card-title" className="review-card-title">{categoryLabel}</h3>
       </div>
 
-      <div data-testid="hr-description">
+      <div data-testid="hr-description" className="hr-description">
         <span className="hint">HR's description{categoryChosenByHr ? " · category chosen by HR" : ""}</span>
         <q>{description}</q>
       </div>
 
-      <div data-testid="claimed-arithmetic" className="fig">
-        Claimed {quantity} {UNIT_LABELS[unit]} × {formatMinor(unitRate, currency)} ={" "}
-        {formatMinor(claimedAmount, currency)}
-        {line.verdict !== "FLAG" ? <> → {formatMinor(line.engineAmount, currency)}</> : null}
+      <div data-testid="claimed-arithmetic" className="fig claimed-arithmetic">
+        Claimed {quantity} {UNIT_LABELS[unit]} × {formatMinorWithCode(unitRate, currency)} ={" "}
+        {formatMinorWithCode(claimedAmount, currency)}
+        {line.verdict !== "FLAG" ? <> → {formatMinorWithCode(line.engineAmount, currency)}</> : null}
       </div>
 
       {line.verdict === "FLAG" && line.flagReasons.length > 0 ? (
@@ -132,18 +132,19 @@ export function LineCard({
         </div>
       ) : null}
 
-      <div data-testid="provenance" className="hint">
-        <div data-testid="applied-rule-id">
+      <div data-testid="provenance" className="provenance">
+        <div className="provenance-label">Rule provenance</div>
+        <div data-testid="applied-rule-id" className="rule-id">
           {line.appliedRuleId}
           {verificationStatus === "NEEDS_VERIFICATION" ? (
-            <span data-testid="unverified-marker" className="border border-dashed border-warn text-warn">
+            <span data-testid="unverified-marker" className="unverified-marker text-warn">
               {" "}
               {UNVERIFIED_RULE_MARKER}
             </span>
           ) : null}
         </div>
-        <div data-testid="basis">{line.basis}</div>
-        <div data-testid="citation" className="fig">
+        <div data-testid="basis" className="rule-basis">{line.basis}</div>
+        <div data-testid="citation" className="rule-citation">
           <b>Citation:</b> {formatCitation(line.citation)}
         </div>
       </div>

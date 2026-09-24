@@ -14,7 +14,7 @@
 "use client";
 
 import { toMinor, type CurrencyCode } from "@dsar/schemas/primitives";
-import { formatMinor } from "@dsar/schemas/money";
+import { formatMinorWithCode } from "@dsar/schemas/money";
 import { computeLineAmountMinor, type ExpenseLineDraft } from "./expense-line-repeater.tsx";
 
 export interface CategorizationPartition {
@@ -61,22 +61,15 @@ export function CategorizationSummary({ lines, currency }: CategorizationSummary
 
   return (
     <section data-testid="categorization-summary" className="card">
-      <h2 className="eyebrow">
-        <span className="step-heading">
-          <span className="step-number" aria-hidden="true">
-            3
-          </span>
-          How the engine sorted these lines
-        </span>
-      </h2>
+      <h2 className="summary-heading">Claim breakdown</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-md">
         <div data-testid="categorization-summary-categorized" className="summary-row">
           <dt>Categorized — {lineCountLabel(categorized.length)}</dt>
-          <dd>{formatMinor(toMinor(categorizedTotal), currency)}</dd>
+          <dd>{formatMinorWithCode(toMinor(categorizedTotal), currency)}</dd>
         </div>
         <div data-testid="categorization-summary-other-claims" className="summary-row">
           <dt>Other claims — {lineCountLabel(otherClaims.length)}</dt>
-          <dd>{formatMinor(toMinor(otherClaimsTotal), currency)}</dd>
+          <dd>{formatMinorWithCode(toMinor(otherClaimsTotal), currency)}</dd>
         </div>
       </div>
     </section>

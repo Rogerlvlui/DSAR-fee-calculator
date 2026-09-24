@@ -24,7 +24,7 @@
 import type { Assessment, Disposition, Verdict } from "@dsar/schemas/assessment";
 import type { ExpenseLine } from "@dsar/schemas/expense-line";
 import type { Matter } from "@dsar/schemas/matter";
-import { formatMinor } from "@dsar/schemas/money";
+import { formatMinorWithCode } from "@dsar/schemas/money";
 import type { Citation, MatterFlagCode, Minor } from "@dsar/schemas/primitives";
 import type { FeePosture, LoadableRulePack, RulePackStatus } from "@dsar/schemas/rule-pack";
 import { EXPENSE_CATEGORY_LABELS } from "@dsar/schemas/taxonomy";
@@ -269,9 +269,9 @@ function buildLineRows(
       basis: line.basis,
       citation: formatCitation(line.citation),
       disposition: line.disposition,
-      claimedAmount: formatMinor(claimedAmount, matter.currency),
+      claimedAmount: formatMinorWithCode(claimedAmount, matter.currency),
       lawyerAmount:
-        line.lawyerAmount !== null ? formatMinor(line.lawyerAmount, matter.currency) : NO_LAWYER_REASON_PLACEHOLDER,
+        line.lawyerAmount !== null ? formatMinorWithCode(line.lawyerAmount, matter.currency) : NO_LAWYER_REASON_PLACEHOLDER,
       lawyerReason:
         line.lawyerReason !== null && line.lawyerReason.length > 0
           ? line.lawyerReason
@@ -382,7 +382,7 @@ function buildSignOffBlock(
     signedAt: signOff.signedAt,
     // Read from assessment.signOff.finalAmount only — never totals.draftBaseline,
     // never recomputed.
-    finalAmount: formatMinor(signOff.finalAmount, matter.currency),
+    finalAmount: formatMinorWithCode(signOff.finalAmount, matter.currency),
     attestationText,
   };
 }

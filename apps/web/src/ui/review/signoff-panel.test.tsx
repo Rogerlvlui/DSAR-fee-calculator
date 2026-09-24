@@ -7,7 +7,7 @@ import { describe, expect, it } from "vitest";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import type { MatterFlag } from "@dsar/schemas/primitives";
-import { SignOffPanelView, SIGN_OFF_BLOCKING_REASON, SIGN_OFF_CTA } from "./signoff-panel.tsx";
+import { SignOffPanelView, SIGN_OFF_BLOCKING_REASON, SIGN_OFF_CTA, QUALIFICATION_REQUIRED_REASON } from "./signoff-panel.tsx";
 import type { ReviewTallies } from "../../domain/review-tallies.ts";
 
 const TALLIES: ReviewTallies = {
@@ -70,8 +70,15 @@ describe("SIGNOFF", () => {
     expect(html).toContain(SIGN_OFF_BLOCKING_REASON);
   });
 
-  it("SIGNOFF: the panel enables once every acknowledgement is checked", () => {
+  it("SIGNOFF: still blocks sign-off when qualification is blank", () => {
     const html = renderPanel({ acknowledged: new Set(["LITIGATION_POSTURE"]) });
+
+    expect(html).toMatch(/data-testid="signoff-submit"[^>]*disabled/);
+    expect(html).toContain(QUALIFICATION_REQUIRED_REASON);
+  });
+
+  it("SIGNOFF: the panel enables once acknowledgements and qualification are complete", () => {
+    const html = renderPanel({ acknowledged: new Set(["LITIGATION_POSTURE"]), qualification: "Singapore lawyer" });
 
     expect(html).not.toMatch(/data-testid="signoff-submit"[^>]*disabled/);
     expect(html).not.toContain(SIGN_OFF_BLOCKING_REASON);
