@@ -28,14 +28,16 @@
 
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Verdict } from "@dsar/schemas/assessment";
 import type { CurrencyCode } from "@dsar/schemas/primitives";
 import { MINOR_UNIT_DECIMALS } from "@dsar/schemas/money";
 import {
+  ACTIONS_TAKING_AMOUNT,
   countNonWhitespaceChars,
   hasSufficientAndGenuineReason,
+  nothingChargedAction,
   hasSufficientReason,
   matchesReasonStopList,
   MIN_REASON_NON_WHITESPACE_CHARS,
@@ -58,7 +60,15 @@ const ACTION_LABEL: Record<DispositionAction, (currency: CurrencyCode) => string
   ALLOW_ANYWAY: (currency) => `Allow anyway ${currency}`,
 };
 
-const ACTIONS_TAKING_AMOUNT = new Set<DispositionAction>(["REDUCE", "ALLOW_WITH_AMOUNT", "ALLOW_ANYWAY"]);
+const AMOUNT_ACTION_VERB: Partial<Record<DispositionAction, string>> = {
+  REDUCE: "reduce",
+  ALLOW_WITH_AMOUNT: "allow",
+  ALLOW_ANYWAY: "allow anyway",
+};
+
+export function amountRequiredHint(action: DispositionAction): string {
+  return `Enter an amount above 0.00 to ${AMOUNT_ACTION_VERB[action] ?? "continue"}. To charge nothing for this line, use ${nothingChargedAction(action)}.`;
+}
 
 export const REASON_COUNTER_FAILURE_TEXT = "A reason of at least 10 characters is required — 'ok' will not do.";
 
@@ -85,11 +95,16 @@ function reasonCounterFailureText(reason: string): string | null {
   return null;
 }
 
-export function majorToMinor(major: string, currency: CurrencyCode): number {
+/** null when the box is empty or unreadable — never silently 0. */
+export function majorToMinor(major: string, currency: CurrencyCode): number | null {
   const decimals = MINOR_UNIT_DECIMALS[currency];
   const parsed = Number.parseFloat(major);
-  if (!Number.isFinite(parsed)) return 0;
+  if (!Number.isFinite(parsed)) return null;
   return Math.round(parsed * 10 ** decimals);
+}
+
+function isPositiveAmount(amountMinor: number | null): amountMinor is number {
+  return amountMinor !== null && amountMinor > 0;
 }
 
 async function readErrorMessage(response: Response): Promise<string> {
@@ -137,6 +152,9 @@ export function DispositionControlsView({
   onAskHr,
 }: DispositionControlsViewProps) {
   const actions = VERDICT_ACTIONS[verdict];
+  const amountAction = actions.find((action) => ACTIONS_TAKING_AMOUNT.has(action));
+  const amountReady = isPositiveAmount(majorToMinor(amountMajor, currency));
+  const amountHintId = useId();
 
   return (
     <div data-testid="disposition-controls" className="flex flex-col gap-sm">
@@ -161,7 +179,8 @@ export function DispositionControlsView({
                 type="button"
                 data-testid="disposition-action"
                 data-action={action.toLowerCase()}
-                disabled={pending}
+                disabled={pending || !amountReady}
+                aria-describedby={amountReady ? undefined : amountHintId}
                 className={actionBtnClass}
                 onClick={() => onSubmit(action)}
               >
@@ -200,6 +219,12 @@ export function DispositionControlsView({
           </button>
         ) : null}
       </div>
+
+      {amountAction && !amountReady ? (
+        <p id={amountHintId} data-testid="disposition-amount-hint" className="hint">
+          {amountRequiredHint(amountAction)}
+        </p>
+      ) : null}
 
       <div data-testid="disposition-reason">
         <label>
@@ -264,6 +289,8 @@ export function DispositionControls({
     // under the length minimum on its own, so this was never a behavior
     // change, only closing the drift-risk of two independent copies.
     if (needsReason && !hasSufficientAndGenuineReason(reason)) return;
+    const amountMinor = majorToMinor(amountMajor, currency);
+    if (ACTIONS_TAKING_AMOUNT.has(action) && !isPositiveAmount(amountMinor)) return;
 
     setSubmitting(true);
     setError(null);
@@ -274,7 +301,7 @@ export function DispositionControls({
         body: JSON.stringify({
           action,
           reason: reason.trim() || null,
-          ...(ACTIONS_TAKING_AMOUNT.has(action) ? { amountMinor: majorToMinor(amountMajor, currency) } : {}),
+          ...(ACTIONS_TAKING_AMOUNT.has(action) ? { amountMinor } : {}),
         }),
       });
       if (!response.ok) throw new Error(await readErrorMessage(response));

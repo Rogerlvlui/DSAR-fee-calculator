@@ -29,6 +29,7 @@ import {
   isActionPermitted,
   matchesReasonStopList,
   MIN_REASON_NON_WHITESPACE_CHARS,
+  nothingChargedAction,
   type DispositionAction,
 } from "../../domain/disposition-actions.ts";
 import { computeFinalAmount } from "../../domain/review-tallies.ts";
@@ -119,6 +120,19 @@ export interface DispositionLineInput {
   reason?: string | null;
 }
 
+function requirePositiveAmount(input: DispositionLineInput): Minor {
+  const label = input.action === "REDUCE" ? "A reduced amount" : "An allowed amount";
+  if (input.amountMinor === undefined || input.amountMinor === null) {
+    throw new ValidationError(`${label} is required for this action`);
+  }
+  if (!Number.isInteger(input.amountMinor) || input.amountMinor <= 0) {
+    throw new ValidationError(
+      `${label} must be above zero — to charge nothing for this line, use ${nothingChargedAction(input.action)}`
+    );
+  }
+  return MinorSchema.parse(input.amountMinor);
+}
+
 // requireRole first, then validate in order — action-permitted-for-verdict,
 // then the reason, then (where the action carries one) the amount — and
 // refuse with a typed error at the FIRST failure. A refusal writes nothing
@@ -170,8 +184,7 @@ export async function dispositionLine(
       break;
     }
     case "REDUCE": {
-      const amount = MinorSchema.parse(input.amountMinor);
-      if (amount < 0) throw new ValidationError("Reduced amount must not be negative");
+      const amount = requirePositiveAmount(input);
       if (amount > line.engineAmount) {
         throw new ValidationError("Reduced amount must not exceed the engine's own amount for this line");
       }
@@ -184,8 +197,7 @@ export async function dispositionLine(
     }
     case "ALLOW_WITH_AMOUNT":
     case "ALLOW_ANYWAY": {
-      const amount = MinorSchema.parse(input.amountMinor);
-      if (amount < 0) throw new ValidationError("Allowed amount must not be negative");
+      const amount = requirePositiveAmount(input);
       if (amount > expenseLine.claimedAmount) {
         throw new ValidationError("Allowed amount must not exceed the line's claimed amount");
       }

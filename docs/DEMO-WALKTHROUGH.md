@@ -72,8 +72,9 @@ Total claimed: **SGD 948.00**.
    - Line 7 (flagged — the locksmith line, HR's description quoted verbatim): type a
      reason, **type 60.00**, then **Allow**.
 
-   The Allow amount box starts empty — always type the amount before clicking Allow, or
-   the line is allowed at SGD 0.00.
+   Allow, Allow anyway and Reduce stay disabled until an amount above 0.00 is typed —
+   charging nothing is recorded as Strike (or Accept, on a not-supported line), never as an
+   allowance or reduction of zero.
 10. **Fill in a qualification** ("Advocate & Solicitor, Singapore") and click **"Sign off and
     release to HR."** The status changes in place to "Signed off — released to HR".
 11. **Switch back to HR** (header role switcher → My matters → the matter): the assessed fee,

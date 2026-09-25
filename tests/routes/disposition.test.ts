@@ -323,6 +323,27 @@ describe("DISPOSITION", () => {
     expect(stored?.disposition).toBe("PENDING");
   });
 
+  it("DISPOSITION: a zero or missing amount on Allow, Allow anyway or Reduce is refused with 400, naming the action that charges nothing", async () => {
+    const assessment = await buildFixtureAssessment();
+    const cases: [{ id: string }, Record<string, unknown>, RegExp][] = [
+      [findLine(assessment, "FLAG"), { action: "ALLOW_WITH_AMOUNT", amountMinor: 0 }, /use Strike/],
+      [findLine(assessment, "FLAG"), { action: "ALLOW_WITH_AMOUNT" }, /required/],
+      [findLine(assessment, "DISALLOW"), { action: "ALLOW_ANYWAY", amountMinor: 0 }, /use Accept/],
+      [findLine(assessment, "ALLOW"), { action: "REDUCE", amountMinor: 0 }, /use Strike/],
+      [findLine(assessment, "ALLOW"), { action: "REDUCE", amountMinor: -100 }, /above zero/],
+    ];
+
+    for (const [line, body, message] of cases) {
+      const response = await dispositionRoute(
+        jsonRequest(`${DISPOSITION_URL}/${line.id}/disposition`, "POST", { ...body, reason: GOOD_REASON }),
+        { params: Promise.resolve({ id: line.id }) }
+      );
+      expect(response.status).toBe(400);
+      expect(((await response.json()) as { error: string }).error).toMatch(message);
+      expect((await storedLine(line.id))?.disposition).toBe("PENDING");
+    }
+  });
+
   it("DISPOSITION: an action that does not belong to the line's verdict is refused with 400", async () => {
     const assessment = await buildFixtureAssessment();
     const flagLine = findLine(assessment, "FLAG");
