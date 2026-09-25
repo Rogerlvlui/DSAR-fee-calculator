@@ -8,124 +8,119 @@ outputs, running the real `packages/engine` against the real committed Singapore
 Start the app first — see the README's [Running the demo](../README.md#running-the-demo)
 section for the one command, the prerequisites, and what this build honestly is not yet
 (no persistent data, draft rule packs, stubbed identity — the audit backbone, sign-off
-gate, and internal-record PDF are all real and wired in, as of Phase 4 and Phase 7
-respectively).
+gate, and internal-record PDF are all real and wired in).
+
+Every figure below is pinned by `tests/routes/demo-flow.test.ts`, which drives this exact
+flow through the real HTTP routes and engine. If that test fails, this script is out of date.
 
 There is no database, no Docker and no network involved anywhere below. Restarting the
 server, or saving a source file while `pnpm dev` is running, loses everything typed in —
-that is expected, not a bug.
+that is expected, not a bug. Rehearse once shortly before presenting, then don't touch the
+code.
 
-## The six reference cost lines
+## The claim
 
-These are PRD §14's reference fixture, transcribed at
-`apps/web/src/server/__fixtures__/reference-fixture.ts` and reproduced through the real
-HTTP path in `tests/routes/reference-fixture.test.ts` and `tests/routes/walkthrough.test.ts`.
-The intake screen's "Fill in the example rows" control (see the note at the foot of this document)
-types exactly these six rows for you.
+The six example rows come from PRD §14's reference fixture — "Fill in the example rows"
+types them for you. The presenter then changes line 5 and types line 7 by hand, live.
 
-| # | Category | Description | Quantity | Unit | Rate |
-|---|----------|--------------|----------|------|------|
-| 1 | Staff time — locating and retrieving the data | Staff time locating and retrieving the requested personnel records | 4 | Hours | SGD 40.00 |
-| 2 | Staff time — collating, copying, compiling the response | Staff time compiling and paginating the response bundle | 2 | Hours | SGD 40.00 |
-| 3 | Staff time — deciding what may be withheld | Staff time deciding which items may be withheld under an exemption | 3 | Hours | SGD 40.00 |
-| 4 | Photocopying and printing | Photocopying the paginated response for physical delivery | 220 | Pages | SGD 0.15 |
-| 5 | Third-party payroll or tax-records vendor charge | Vendor extract of historical payroll and tax records from archive | 3 | Items | SGD 150.00 |
-| 6 | Something else (always referred to Legal) | Miscellaneous cost not covered by any other category | 1 | Fixed | SGD 45.00 |
+| # | Category | Description | Qty | Unit | Rate | Source |
+|---|----------|-------------|-----|------|------|--------|
+| 1 | Staff time — locating and retrieving the data | Staff time locating and retrieving the requested personnel records | 4 | Hours | SGD 40.00 | example row |
+| 2 | Staff time — collating, copying, compiling the response | Staff time compiling and paginating the response bundle | 2 | Hours | SGD 40.00 | example row |
+| 3 | Staff time — deciding what may be withheld | Staff time deciding which items may be withheld under an exemption | 3 | Hours | SGD 40.00 | example row |
+| 4 | Photocopying and printing | Photocopying the paginated response for physical delivery | 220 | Pages | SGD 0.15 | example row |
+| 5 | Third-party payroll or tax-records vendor charge | Vendor extract of historical payroll and tax records from archive | 3 | Items | SGD 150.00 | example row, **then tick "Third-party invoiced?", vendor "Payroll Archive Services Pte Ltd", invoice/DMS reference "INV-2026-0417"** |
+| 6 | Something else (always referred to Legal) | Miscellaneous cost not covered by any other category | 1 | Fixed | SGD 45.00 | example row |
+| 7 | Something else (always referred to Legal) | Locksmith fee to open a locked filing cabinet holding the requested records | 1 | Fixed | SGD 60.00 | **typed live** |
 
-Total claimed: **SGD 888.00** (16000 + 8000 + 12000 + 3300 + 45000 + 4500 minor units).
+Total claimed: **SGD 948.00**.
 
 ## The path
 
-1. **From the landing page, "Continue as HR."** Copy reads "From cost claim to legal
-   decision" with two cards — "Prepare a claim" (Continue as HR) and "Review a claim"
-   (Continue as Legal).
-2. **Acknowledge the capability statement.** Shown once per role per browser context —
-   type "I understand" and continue to intake.
-3. **Fill in matter details** (section 1): the default (Singapore-jurisdiction) reference;
-   a legal entity name; controller type "Private organisation"; request-received date
-   defaults to today. Requestor class is fixed at "Former employee" — there is no field
-   for the requestor's name or ID anywhere in the tool. Sections 2 (cost lines) and 3
-   (attestations) only appear once the legal entity is filled in.
-4. **Add the six rows** (section 2, "What the response cost") — above, or use "Fill in
-   the example rows" (see the note below).
-5. **Check the two required attestations** (section 3): "The requestor's identity has
-   been verified" and "The scope is clear, or clarifications have been resolved." Leave
-   **"The requestor is in a known dispute or litigation with the company"** unchecked for
-   the baseline path — check it instead if you want to demonstrate the sign-off panel's
-   dispute acknowledgement.
-6. **Submit to Legal.** The confirmation screen reads "In Legal's review queue" — "Your
-   claim is in Legal's review queue. HR sees the assessed fee after lawyer sign-off; no
-   draft figure is shown here." Use its "Demo: switch to Legal queue" shortcut, or the
-   role switcher in the header (a cookie, not real authentication; the demo says so).
-7. **Open the matter from the Legal queue** and disposition each of the six lines. As of
-   the 2026-09-23 relaxation to `assertSufficientReason` (`apps/web/src/server/data/assessments.ts`),
-   **a reason is required only for the two flagged lines, or when you depart from the
-   engine's own recommendation** (Reduce, Strike, or "Allow anyway" on a non-flagged
-   line) — a routine **Accept** never requires one, even on the capped or not-supported
-   lines:
-   - Lines 1 and 2 (supported by rule): **Accept** — no reason needed.
-   - Line 3 (not supported, engine amount already zero): **Accept** — no reason needed.
-   - Line 4 (capped): **Accept** — no reason needed.
-   - Line 5 (flagged, the vendor line — unconfirmed invoice, also referred for
-     materiality): type a reason (10+ characters) and **Allow at a reduced amount** —
-     e.g. SGD 200.00.
-   - Line 6 (flagged, unclassified — always referred to Legal): type a reason and
-     **Strike**.
-8. **Fill in a qualification** (e.g. "Advocate & Solicitor, Singapore") and **sign off**
-   — "Sign off and release to HR." If the dispute attestation was checked in step 5, the
-   panel also shows an acknowledgement to tick first.
-9. **Switch back to HR** and open the matter again: read the assessed fee, the struck
-   line's basis, and the draft notice (marked "DRAFT — for HR to send" — "Send this
-   yourself from your own mailbox. This tool does not email anyone," per NS-3).
-10. **(Optional, Legal-only) Download the internal record.** Back in the legal identity,
-    the signed-off matter now shows a "Download internal record (PDF)" trigger — this
-    control only ever appears on `/legal/*`, and only once a matter is `SIGNED_OFF` or
-    `CLOSED` (Phase 7). It opens the dense, ten-column line-item PDF with the matter, pack,
-    flags and sign-off sections, and a page-repeating footer — the internal compliance
-    record, never sent anywhere automatically (NS-3).
+1. **From the landing page, "Continue as HR."** ("From cost claim to legal decision" — two
+   cards, "Prepare a claim" and "Review a claim".)
+2. **Acknowledge the capability statement** if it appears — shown once per role per
+   browser. Type "I understand" and continue.
+3. **Fill in matter details** (section 1): keep the default Singapore reference; legal
+   entity e.g. "Acme Singapore Pte Ltd"; controller type "Private organisation"; the
+   request-received date defaults to today. Point out that there is no field for the
+   requestor's name or ID anywhere. Sections 2 and 3 appear once the legal entity is filled.
+4. **Click "Fill in the example rows."** Six lines appear; the footer reads SGD 888.00.
+5. **Line 5 — show evidence changing the outcome.** Tick **"Third-party invoiced?"**, enter
+   vendor "Payroll Archive Services Pte Ltd" and invoice/DMS reference "INV-2026-0417".
+6. **Add line 7 by hand — show HR choosing a category.** "+ Add a cost line", category
+   **"Something else (always referred to Legal)"**. The hint appears: describe the cost,
+   use a listed category if one fits (e.g. courier → "Postage, courier, delivery"), no
+   names or addresses. Type "misc" first: the line shows "Required for 'Something else': at
+   least 10 characters describing the cost (4 so far)" (and, once the attestations are
+   ticked, Submit names this line as the blocker). Then replace it with the locksmith
+   description above, quantity 1, rate 60.00. The footer now reads **SGD 948.00**.
+7. **Tick the two required attestations** (section 3): identity verified; scope clear.
+   Leave "known dispute or litigation" unchecked.
+8. **Submit to Legal.** The confirmation reads "In Legal's review queue … no draft figure is
+   shown here." Click **"Demo: switch to Legal queue"** (a cookie, not real authentication —
+   the header says so) and open the matter.
+9. **Decide each line.** A routine **Accept** needs no reason; the flagged lines and any
+   departure from the engine's recommendation (Reduce, Strike, Allow anyway) need one of
+   10+ characters.
+   - Lines 1 and 2 (supported by rule): **Accept**.
+   - Line 3 (not supported — the engine's amount is already zero): **Accept**.
+   - Line 4 (capped at SGD 26.40): **Accept**.
+   - Line 5 (flagged — **materiality only**): type a reason, **type 450.00 in the amount
+     box**, then **Allow**.
+   - Line 6 (flagged — the example's vague "Something else"): type a reason, **Strike**.
+   - Line 7 (flagged — the locksmith line, HR's description quoted verbatim): type a
+     reason, **type 60.00**, then **Allow**.
+
+   The Allow amount box starts empty — always type the amount before clicking Allow, or
+   the line is allowed at SGD 0.00.
+10. **Fill in a qualification** ("Advocate & Solicitor, Singapore") and click **"Sign off and
+    release to HR."** The status changes in place to "Signed off — released to HR".
+11. **Switch back to HR** (header role switcher → My matters → the matter): the assessed fee,
+    the struck line's basis, and the draft notice marked "DRAFT — for HR to send" ("Send
+    this yourself from your own mailbox. This tool does not email anyone.").
+12. **(Optional, Legal only) Download the internal record.** Back as Legal, the signed-off
+    matter shows "Download internal record (PDF)" — only on `/legal/*`, and only once a
+    matter is signed off or closed. The dense line-item record with matter, pack, flags and
+    sign-off sections; never sent anywhere automatically (NS-3).
 
 ## Figures to expect at each stage
 
 | Stage | What to look for |
 |-------|-------------------|
-| Intake, after all six rows | Claim footer reads **SGD 888.00**, labelled "Claimed costs — not the assessed fee." |
-| Review, before any disposition | Totals rail: claimed **888.00**, supported **266.40**, not supported **126.60**, needs-your-decision **495.00** across **2 items**. Headline reads "6 lines need a decision. The recommended fee stays hidden until every line is decided." Bulk-accept reads "Accept verified supported lines (0)" and is disabled ("Not available for capped, unverified or flagged lines."). |
-| Review, after all six dispositions | Headline reads "Every line has a decision. Review the totals before sign-off." Totals-rail still shows "Recommended fee SGD 266.40 — Not yet signed off" — the engine's own supported-by-rules figure, not yet the lawyer's total; that number appears one panel below, in sign-off. |
-| Sign-off panel | Accepted as assessed: **4**. Reduced by you: **0**. Struck by you: **1**. Allowed by you: **1**. Final fee: **SGD 466.40**. |
-| HR result, after sign-off | "Fee assessed: SGD 466.40", a notice document naming the reviewing lawyer and qualification; the struck line shown with its basis and no figure; the lawyer-allowed line shown at **SGD 200.00**, not the vendor's original claim |
+| Intake, after "Fill in the example rows" | Footer: **SGD 888.00**, "Claimed costs — not the assessed fee." |
+| Intake, after line 7 | Footer: **SGD 948.00** |
+| Review, before any decision | Totals: claimed **948.00**, supported by rules **266.40**, not supported **126.60**, needs your decision **555.00** across **3 items**. Headline: "7 lines need a decision. The recommended fee stays hidden until every line is decided." Bulk accept reads **(0)** and is disabled. |
+| Review, line 5 card | "Why this needs you" lists **only** the materiality item — no "Conditions not met", because the invoice was ticked and referenced. |
+| Review, line 7 card | "HR's description" quotes the locksmith text verbatim; the reason is "always referred to Legal for classification". |
+| Review, after all seven decisions | "Every line has a decision. Review the totals before sign-off." The rail still shows the engine's own **SGD 266.40** "Not yet signed off" — the lawyer's figure is in the sign-off panel below. |
+| Sign-off panel | Accepted as assessed **4**, Reduced by you **0**, Struck by you **1**, Allowed by you **2**. Final fee **SGD 776.40**. |
+| HR result, after sign-off | "Fee assessed: SGD 776.40"; the reviewing lawyer's name and qualification; line 6 struck, shown with its basis and no figure. |
 
-The final figure (466.40) is the arithmetic of what the lawyer actually decided, not a
-value the engine alone produced: 160.00 + 80.00 (the two accepted supported lines) + 0.00
-(the accepted not-supported line) + 26.40 (the accepted capped line) + 200.00 (the
-lawyer's own reduced allowance on the flagged vendor line) + 0.00 (the struck line). Note
-the totals-rail headline does not track this arithmetic live — it shows the engine's own
-draft figure until sign-off actually writes the final amount, so it is normal for it to
-read a smaller number than the sign-off panel directly below it once the lawyer has
-allowed extra on a flagged line.
+**Final fee arithmetic:** 160.00 + 80.00 + 0.00 + 26.40 (four accepted lines) + 450.00 (vendor,
+allowed by the lawyer) + 0.00 (struck) + 60.00 (locksmith, allowed by the lawyer) = **776.40**.
+The engine alone would have recommended 266.40 — the other 510.00 exists only because a named
+lawyer allowed it, and the sign-off records that.
 
-## Three moments worth pausing on
+## Moments worth pausing on
 
-These are the demonstration's actual argument, not incidental UI details:
+1. **At intake, the total is a claim, not a fee.** "Claimed costs — not the assessed fee." HR
+   never computes anything; it only itemises.
+2. **Evidence changes what Legal is asked.** Without the invoice, line 5 would read "Conditions
+   not met: third-party invoice not confirmed; no invoice or DMS reference recorded." With it,
+   only materiality remains — the engine lists exactly what is still unmet, nothing more.
+3. **"Something else" is never scored.** The engine refuses to guess; Legal classifies it from
+   HR's own words, which is why the form insists those words say something.
+4. **No final figure exists on the review screen until the last line is decided** — absent from
+   the markup, not hidden by a style rule.
+5. **Bulk accept reads zero, honestly,** because no rule in the draft SG pack is verified yet.
+6. **A routine Accept needs no reason; a departure always does.** The flagged lines always need
+   one, because Legal is the first human judgement applied to them.
 
-1. **At intake, the running total is labelled a claim, not a fee.** "Claimed costs — not
-   the assessed fee." HR never computes anything; it only itemises.
-2. **On the review screen, no final figure exists at all until the last line is decided.**
-   Not hidden by a style rule — absent from the markup. The headline names how many lines
-   still need a decision and says the recommended fee stays hidden until then.
-3. **The bulk-accept control reads zero, honestly, because no rule in this pack is
-   verified yet.** The real, committed `SG-PDPA/2026.09.1.json` pack marks every relevant
-   category rule `NEEDS_VERIFICATION` — this demo does not pretend otherwise by hard-coding
-   a nonzero count the way an earlier mockup did.
-4. **A routine Accept never requires a reason — only a departure from the engine's
-   recommendation does.** Reduce, Strike, and "Allow anyway" always require one (10+
-   characters); the two flagged lines always require one regardless of disposition,
-   because Legal is the first human judgement applied to them. This is a deliberate
-   relaxation (2026-09-23) from an earlier build that required a reason on every line —
-   see `apps/web/src/server/data/assessments.ts`'s `assertSufficientReason` call site.
+## Fallback: the six example rows only
 
-## The "Fill in the example rows" control
-
-The intake screen's expense-line repeater has a "Fill in the example rows" button. It populates
-the six form inputs above and nothing else — no request is sent, no figure is computed. Every
-number in the rest of this walkthrough still comes from the real engine, only after
-"Submit to Legal" is pressed.
+If time is short, skip steps 5 and 6. Figures are then the reference fixture's, pinned by
+`tests/routes/walkthrough.test.ts`: claimed **888.00**; supported **266.40**; not supported
+**126.60**; needs your decision **495.00** across **2 items** (line 5 shows both "Conditions not
+met" items and materiality). Allowing line 5 at 200.00 and striking line 6 gives a final fee of
+**SGD 466.40**.
