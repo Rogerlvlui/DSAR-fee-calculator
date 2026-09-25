@@ -14,9 +14,25 @@ Every figure below is pinned by `tests/routes/demo-flow.test.ts`, which drives t
 flow through the real HTTP routes and engine. If that test fails, this script is out of date.
 
 There is no database, no Docker and no network involved anywhere below. Restarting the
-server, or saving a source file while `pnpm dev` is running, loses everything typed in —
-that is expected, not a bug. Rehearse once shortly before presenting, then don't touch the
-code.
+server loses everything typed in — that is expected, not a bug.
+
+**Present from the production build, not `pnpm dev`.** Straight after a restart, the dev
+server compiles each page on its first visit and pushes a reload to every open tab — in
+rehearsal that wiped the confirmation screen right after "Submit to Legal". The production
+server has everything compiled in advance and never reloads. From the project folder:
+
+```bash
+pnpm.cmd --filter @dsar/web exec next build --webpack
+pnpm.cmd --filter @dsar/web start
+```
+
+(`--webpack` because Turbopack crashes on this machine; the build takes about 30 seconds.)
+To empty the queue before presenting, stop the server (Ctrl+C) and run only the second
+command again — no rebuild needed. Rebuild only after a code change. Close any other
+`localhost:3000` tabs before you start.
+
+In the production build every new claim gets the same suggested reference (it is fixed at
+build time), which is harmless for a single demo claim.
 
 ## The claim
 
