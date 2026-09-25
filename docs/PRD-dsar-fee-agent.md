@@ -278,7 +278,7 @@ type Verdict =
 type Disposition =
   | 'PENDING'        // lawyer has not acted
   | 'ACCEPTED'       // lawyer accepts the engine verdict
-  | 'REDUCED'        // lawyer allows a lower amount
+  | 'REDUCED'        // lawyer allows a lower, non-zero amount
   | 'STRUCK'         // lawyer disallows entirely
   | 'ALLOWED_BY_LAWYER'; // lawyer allows a FLAG or DISALLOW line
 type AssessmentLine = {
@@ -292,7 +292,11 @@ type AssessmentLine = {
   citation: Citation;                // pack-authored, never LLM-generated
   flagReasons: FlagReason[];         // non-empty iff verdict === 'FLAG'
   disposition: Disposition;
-  lawyerAmount: number | null;       // set for REDUCED / ALLOWED_BY_LAWYER
+  lawyerAmount: number | null;       // set for REDUCED / ALLOWED_BY_LAWYER, and always
+                                     // > 0 when set. Charging nothing for a line is
+                                     // STRUCK (or ACCEPTED on a DISALLOW line) — never
+                                     // a REDUCED or ALLOWED_BY_LAWYER line at zero, so
+                                     // the record says what the lawyer actually decided
   lawyerReason: string | null;       // max 1000 chars. REQUIRED for any disposition
                                      // ≠ ACCEPTED, and for ACCEPTED on a FLAG line.
                                      // Privileged: never leaves /legal/* or the

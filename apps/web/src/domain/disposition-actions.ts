@@ -43,9 +43,9 @@ export const ACTIONS_TAKING_AMOUNT: ReadonlySet<DispositionAction> = new Set<Dis
   "ALLOW_ANYWAY",
 ]);
 
-// PRD §6.3 is silent on a zero amount; the product owner decided (2026-09-25)
-// that charging nothing must be recorded as the action that means it, never
-// as a reduction or allowance of 0.00. On a DISALLOW line that is Accept.
+// PRD §6.4: a lawyerAmount is always > 0. Charging nothing is recorded as the
+// action that means it — Strike, or Accept on a DISALLOW line — never as a
+// reduction or allowance of 0.00.
 export function nothingChargedAction(action: DispositionAction): "Strike" | "Accept" {
   return action === "ALLOW_ANYWAY" ? "Accept" : "Strike";
 }
