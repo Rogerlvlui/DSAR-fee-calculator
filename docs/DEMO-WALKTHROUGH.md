@@ -60,7 +60,8 @@ Total claimed: **SGD 948.00**.
 8. **Submit to Legal.** The confirmation reads "In Legal's review queue … no draft figure is
    shown here." Click **"Demo: switch to Legal queue"** (a cookie, not real authentication —
    the header says so) and open the matter.
-9. **Decide each line.** A routine **Accept** needs no reason; the flagged lines and any
+9. **Decide each line.** The cards are not in line order: the three flagged lines come first
+   (5, 6, 7), then 4, 3, 1, 2. A routine **Accept** needs no reason; the flagged lines and any
    departure from the engine's recommendation (Reduce, Strike, Allow anyway) need one of
    10+ characters.
    - Lines 1 and 2 (supported by rule): **Accept**.
