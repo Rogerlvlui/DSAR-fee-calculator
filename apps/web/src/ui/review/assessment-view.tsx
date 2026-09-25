@@ -123,70 +123,83 @@ export function AssessmentView({
 }: AssessmentViewProps) {
   const detailByLineId = new Map(lineDetails.map((detail) => [detail.assessmentLineId, detail]));
   const sortedLines = [...assessment.lines].sort(compareByVerdict);
+  const pendingCount = assessment.lines.filter((line) => line.disposition === "PENDING").length;
 
   return (
-    <div data-testid="assessment-view">
-      <MatterRail
-        reference={matter.reference}
-        jurisdictionName={matter.jurisdictionName}
-        legalEntity={matter.legalEntity}
-        controllerType={matter.controllerType}
-        requestReceivedOn={matter.requestReceivedOn}
-        requestorClass={matter.requestorClass}
-        identityVerified={matter.identityVerified}
-        identityVerifiedNote={matter.identityVerifiedNote}
-        scopeClarified={matter.scopeClarified}
-        matterFlags={matterFlags}
-        advisoryDeadline={advisoryDeadline}
-      />
+    <div data-testid="assessment-view" className="review-grid">
+      <div className="review-grid-rails">
+        <MatterRail
+          reference={matter.reference}
+          jurisdictionName={matter.jurisdictionName}
+          legalEntity={matter.legalEntity}
+          controllerType={matter.controllerType}
+          requestReceivedOn={matter.requestReceivedOn}
+          requestorClass={matter.requestorClass}
+          identityVerified={matter.identityVerified}
+          identityVerifiedNote={matter.identityVerifiedNote}
+          scopeClarified={matter.scopeClarified}
+          matterFlags={matterFlags}
+          advisoryDeadline={advisoryDeadline}
+        />
 
-      <PackRail
-        packId={pack.packId}
-        version={pack.version}
-        status={pack.status}
-        feePosture={pack.feePosture}
-        authoredByDisplayName={pack.authoredByDisplayName}
-        reviewedByDisplayName={pack.reviewedByDisplayName}
-        reviewedOn={pack.reviewedOn}
-        reviewDueOn={pack.reviewDueOn}
-        openQuestions={pack.openQuestions}
-      />
-
-      {stalePackNotice}
-      {recomputeBanner}
-      <div data-testid="cards-region">
-        {bulkAcceptBar}
-        <ReviewKeyboardScope lineIds={sortedLines.map((line) => line.id)}>
-          <div data-testid="assessment-lines">
-            {sortedLines.map((line) => {
-              const detail = detailByLineId.get(line.id);
-              if (!detail) return null;
-              return (
-                <LineCard
-                  key={line.id}
-                  line={line}
-                  seq={detail.seq}
-                  categoryLabel={detail.categoryLabel}
-                  description={detail.description}
-                  quantity={detail.quantity}
-                  unit={detail.unit}
-                  unitRate={detail.unitRate}
-                  claimedAmount={detail.claimedAmount}
-                  currency={currency}
-                  verificationStatus={detail.verificationStatus}
-                >
-                  {renderLineControls ? renderLineControls(line.id) : null}
-                </LineCard>
-              );
-            })}
-          </div>
-        </ReviewKeyboardScope>
+        <PackRail
+          packId={pack.packId}
+          version={pack.version}
+          status={pack.status}
+          feePosture={pack.feePosture}
+          authoredByDisplayName={pack.authoredByDisplayName}
+          reviewedByDisplayName={pack.reviewedByDisplayName}
+          reviewedOn={pack.reviewedOn}
+          reviewDueOn={pack.reviewDueOn}
+          openQuestions={pack.openQuestions}
+        />
       </div>
 
-      {flatFeeChoice}
-      <TotalsRail assessment={assessment} currency={currency} />
-      {signOffPanel}
-      {internalRecordDownload}
+      <div className="review-grid-main">
+        <p className="review-progress" data-testid="review-progress">
+          {pendingCount > 0
+            ? `${pendingCount} ${pendingCount === 1 ? "line needs" : "lines need"} a decision. The recommended fee stays hidden until every line is decided.`
+            : "Every line has a decision. Review the totals before sign-off."}
+        </p>
+        {stalePackNotice}
+        {recomputeBanner}
+        <div data-testid="cards-region">
+          {bulkAcceptBar}
+          <ReviewKeyboardScope lineIds={sortedLines.map((line) => line.id)}>
+            <div data-testid="assessment-lines" className="flex flex-col gap-md">
+              {sortedLines.map((line) => {
+                const detail = detailByLineId.get(line.id);
+                if (!detail) return null;
+                return (
+                  <LineCard
+                    key={line.id}
+                    line={line}
+                    seq={detail.seq}
+                    categoryLabel={detail.categoryLabel}
+                    description={detail.description}
+                    quantity={detail.quantity}
+                    unit={detail.unit}
+                    unitRate={detail.unitRate}
+                    claimedAmount={detail.claimedAmount}
+                    currency={currency}
+                    verificationStatus={detail.verificationStatus}
+                  >
+                    {renderLineControls ? renderLineControls(line.id) : null}
+                  </LineCard>
+                );
+              })}
+            </div>
+          </ReviewKeyboardScope>
+        </div>
+
+        {flatFeeChoice}
+      </div>
+
+      <div className="review-grid-totals">
+        <TotalsRail assessment={assessment} currency={currency} />
+        {signOffPanel}
+        {internalRecordDownload}
+      </div>
     </div>
   );
 }

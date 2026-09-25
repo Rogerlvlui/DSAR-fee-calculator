@@ -17,7 +17,13 @@
  * block, declared but unused, so a later phase can wire dark mode without a
  * rename. No dark-mode interface is built this phase — light mode only.
  *
- * Later plans consume these tokens and must not add to this file.
+ * This file has two parts. The @theme block above is frozen — closed to
+ * additions, exactly as it always was. Below the body rule is a
+ * @layer components block (260922-jr4): every declaration in it consumes
+ * the tokens declared above (var(--color-*), var(--spacing-*),
+ * var(--text-*), var(--font-*)) and introduces no new theme entry and no
+ * new literal colour. Border radius, border width and box-shadow are the
+ * only raw literals in it, since the theme declares no token for them.
  */
 
 @import "tailwindcss";
@@ -56,10 +62,17 @@
   --text-display--font-weight: 600;
   --text-display--letter-spacing: -0.015em;
 
-  /* System-only font stacks — no webfont, no network fetch. */
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-serif: ui-serif, Georgia, "Times New Roman", serif;
-  --font-mono: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  /* Self-hosted webfonts (07.1-01), chained ahead of the system-stack
+     fallbacks below — the fallbacks are never removed; they are the
+     resilience path if a self-hosted font file ever fails to load. The
+     --font-newsreader/--font-ibm-plex-sans/--font-ibm-plex-mono custom
+     properties are declared by next/font/google in apps/web/app/layout.tsx
+     (its `variable` option) on the <html> element; no @font-face or url()
+     rule is declared here — next/font generates and injects those itself,
+     in a separate build artifact. */
+  --font-sans: var(--font-ibm-plex-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-serif: var(--font-newsreader), ui-serif, Georgia, "Times New Roman", serif;
+  --font-mono: var(--font-ibm-plex-mono), ui-monospace, "SFMono-Regular", Menlo, monospace;
 
   /* Color — dominant surface, secondary backdrop/sunk zones, accent (seal),
      destructive (stop), plus the neutral text/border roles. */
@@ -126,4 +139,789 @@ body {
   background-color: var(--color-ground);
   color: var(--color-ink);
   font-family: var(--font-sans);
+}
+
+/* ==========================================================================
+   Component layer (260922-jr4)
+
+   Two families. Family one rescues the nineteen bespoke class names already
+   present in this app's markup that no stylesheet has ever defined — every
+   one of them resolves here, from tokens only. Family two is the mockup's
+   own visual language (docs/dsar-fee-agent-mockup.html), applied under new
+   names: card, eyebrow, summary-row/summary-total, the three-tier button
+   set, page and review-grid. No selector below introduces a new @theme
+   token or a new literal colour — every colour is var(--color-*), every
+   space is var(--spacing-*), every typographic role is var(--text-*)/
+   var(--font-*). Radius, border width and box-shadow are plain literals,
+   since the theme declares no token for any of the three.
+   ========================================================================== */
+
+@layer components {
+  /* ---- Family one: the nineteen orphaned class names ---- */
+
+  .screen {
+    font-family: var(--font-serif);
+    font-size: var(--text-display);
+    line-height: var(--text-display--line-height);
+    font-weight: var(--text-display--font-weight);
+    letter-spacing: var(--text-display--letter-spacing);
+    color: var(--color-ink);
+  }
+
+  .caption {
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    color: var(--color-ink-3);
+  }
+
+  .kicker {
+    display: inline-block;
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+    font-weight: var(--text-label--font-weight);
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--color-seal);
+  }
+
+  .lede {
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    color: var(--color-ink-2);
+    max-width: 62ch;
+  }
+
+  .hint {
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+    font-weight: 400;
+    letter-spacing: normal;
+    text-transform: none;
+    color: var(--color-ink-3);
+  }
+
+  .hint.stern {
+    color: var(--color-stop);
+  }
+
+  .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--spacing-md);
+    border-bottom: 1px solid var(--color-line-soft);
+    padding-block: var(--spacing-sm);
+  }
+
+  .why,
+  .posture {
+    background-color: var(--color-warn-wash);
+    border: 1px solid var(--color-warn-edge);
+    border-radius: 8px;
+    padding: var(--spacing-md);
+  }
+
+  .why > :first-child,
+  .posture > :first-child {
+    font-weight: 600;
+    color: var(--color-warn);
+  }
+
+  .claimfoot {
+    position: sticky;
+    bottom: var(--spacing-md);
+    z-index: 5;
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: var(--spacing-xl);
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-top: 3px solid var(--color-seal);
+    border-radius: 8px;
+    padding: var(--spacing-lg) var(--spacing-xl);
+    box-shadow: 0 4px 16px rgba(23, 27, 34, 0.08);
+  }
+
+  .claimfoot .lbl {
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+    color: var(--color-ink-3);
+  }
+
+  .fig {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--color-ink);
+  }
+
+  .wordmark {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+  }
+
+  .why-layered {
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+    color: var(--color-ink-4);
+  }
+
+  .typein {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+  }
+
+  .typein .f {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2xs);
+  }
+
+  .typein .lb {
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+    color: var(--color-ink-3);
+  }
+
+  .typein .t {
+    font-family: var(--font-mono);
+    font-size: var(--text-body);
+    color: var(--color-ink);
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: 6px;
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+
+  /* ---- Family two: the mockup's patterns, under new names ---- */
+
+  .card {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: 10px;
+    box-shadow: 0 1px 2px rgba(23, 27, 34, 0.06);
+    padding: var(--spacing-2xl);
+  }
+
+  /* AC-39/PRD §0 non-negotiable #4: the decided state is already expressed
+     in the line card's own data-disposition attribute — the confirmation
+     ground needs no new markup, only a rule keyed to it. `disposition` is
+     a closed five-value enum (PENDING, ACCEPTED, REDUCED, STRUCK,
+     ALLOWED_BY_LAWYER) and PENDING is never an empty string, so this must
+     name the four decided values explicitly rather than testing for
+     attribute presence/non-emptiness — never applies while
+     data-disposition="PENDING". */
+  article.card[data-disposition="ACCEPTED"],
+  article.card[data-disposition="REDUCED"],
+  article.card[data-disposition="STRUCK"],
+  article.card[data-disposition="ALLOWED_BY_LAWYER"] {
+    background-color: var(--color-surface-sunk);
+  }
+
+  /* The left-edge accent bar (07.1-01), colour-keyed to the SAME
+     article[data-verdict] attribute the pill rules below already read —
+     no line-card.tsx change needed. This is now the verdict-colour signal;
+     the disposition rule above is a neutral "settled" tint only, since a
+     uniform wash on every decided line (including a STRUCK or DISALLOW
+     one) was never correct. */
+  article.card[data-verdict="FLAG"] {
+    border-left: 3px solid var(--color-warn);
+  }
+
+  article.card[data-verdict="ALLOW"],
+  article.card[data-verdict="ALLOW_CAPPED"] {
+    border-left: 3px solid var(--color-ok);
+  }
+
+  article.card[data-verdict="DISALLOW"] {
+    border-left: 3px solid var(--color-deny);
+  }
+
+  /* The verdict badge's pill shape. Colour is never the only signal here —
+     the badge's own visible text (VERDICT_LABELS) and aria-label carry the
+     verdict regardless of this rule; the tint is a secondary reinforcement
+     keyed to the SAME article[data-verdict] attribute line-card.tsx already
+     sets, so no new markup is needed to differentiate it by verdict.
+     Structural properties only, deliberately no default tint here: Verdict
+     is a closed four-value enum and the four article[data-verdict="..."]
+     rules below cover all of it, so a base deny-tinted fallback could never
+     be the winning rule for a real line card — worse, it would silently
+     read as "not supported" for any future fifth verdict added without a
+     matching override, rather than visibly failing unstyled. */
+  .pill {
+    display: inline-block;
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+    font-weight: var(--text-label--font-weight);
+    padding: var(--spacing-2xs) var(--spacing-sm);
+    border-radius: 999px;
+  }
+
+  article[data-verdict="FLAG"] .pill {
+    background-color: var(--color-warn-wash);
+    color: var(--color-warn);
+  }
+
+  article[data-verdict="ALLOW"] .pill,
+  article[data-verdict="ALLOW_CAPPED"] .pill {
+    background-color: var(--color-ok-wash);
+    color: var(--color-ok);
+  }
+
+  /* Correction (07.1-01, UI-SPEC Color): the everyday "Not supported"
+     DISALLOW pill uses the neutral Deny (grey) tint, not Destructive
+     (red) — --color-stop stays reserved for the Strike button's
+     hover/text state, the two named blocking-error banners, and the
+     jurisdiction-level no-fee-basis case (a DISALLOW the posture gate
+     itself produces), none of which this selector touches. */
+  article[data-verdict="DISALLOW"] .pill {
+    background-color: var(--color-deny-wash);
+    color: var(--color-deny);
+  }
+
+  .eyebrow {
+    display: inline-block;
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+    font-weight: var(--text-label--font-weight);
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--color-ink-3);
+  }
+
+  /* HR intake's numbered-step section headers (07.1-01 Task 2) — a small
+     monospace square badge ("1", "2", "3") followed by the section title.
+     .step-number is aria-hidden: the visual step order is redundant with
+     the heading's own reading order. */
+  .step-heading {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+  }
+
+  .step-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    background-color: var(--color-surface-sunk);
+    border: 1px solid var(--color-line);
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    line-height: 1;
+  }
+
+  /* Legal review's sign-off panel header band (07.1-01) — wraps the
+     existing "Sign off" eyebrow row. Built from tokens already declared;
+     the eyebrow's own uppercase/label styling is unaffected since this
+     only supplies the band's own background/foreground. */
+  .signoff-band {
+    background-color: var(--color-seal);
+    color: var(--color-surface);
+    border-radius: 8px 8px 0 0;
+    padding: var(--spacing-sm) var(--spacing-lg);
+    margin: calc(var(--spacing-2xl) * -1) calc(var(--spacing-2xl) * -1) var(--spacing-lg);
+  }
+
+  .signoff-band .eyebrow {
+    color: var(--color-surface);
+  }
+
+  /* The HR result and requestor-notice screens' letter-styled document
+     (07.1-01 Task 3) — a white-card variant with a wider max-width and a
+     bottom border under its own header block, built from existing surface/
+     border tokens only. Shared by ResultView and NoticeBlock so the
+     internal result and the requestor notice draft read as one visual
+     family. */
+  .notice-document {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: 10px;
+    max-width: 72ch;
+    padding: var(--spacing-2xl);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+  }
+
+  .notice-document > .row:first-child {
+    border-bottom: 1px solid var(--color-line);
+    padding-bottom: var(--spacing-md);
+  }
+
+  .notice-document pre {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    max-width: 100%;
+  }
+
+  /* A real bordered <table> for the notice document's line-item table,
+     using the existing --color-line tokens for row/column rules. Reused
+     unchanged by the Audit trail screen's two event tables (07.1-02) — the
+     td/th rule below is widened to cover th too (that screen's column
+     headers), since the browser default agent stylesheet centre-aligns and
+     tightly pads a bare <th>, which would read inconsistently against this
+     table's own left-aligned, evenly-padded <td> cells. No new colour or
+     token is introduced by this widening — every value below already
+     existed on the td-only selector. */
+  .notice-table td,
+  .notice-table th {
+    border-bottom: 1px solid var(--color-line-soft);
+    padding: var(--spacing-sm) 0;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .notice-table tr:last-child td {
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .summary-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--spacing-md);
+    border-bottom: 1px solid var(--color-line-soft);
+    padding-block: var(--spacing-sm);
+  }
+
+  /* A summary-row that carries a third, explanatory child (e.g. pack-rail's
+     status-disclosure paragraph) — the disclosure wraps to its own full-
+     width line below the dt/dd pair rather than fighting them for space. */
+  .summary-row > :nth-child(3) {
+    flex-basis: 100%;
+  }
+
+  /* totals-rail.tsx's own header comment: this indentation is load-bearing,
+     not decorative (PRD §10.3) — without it, "resting on unverified rules"
+     and "excluded from every total" read as a fourth/fifth top-level
+     figure rather than a sub-total of the row above them. */
+  .summary-row[data-indent="true"] {
+    padding-inline-start: var(--spacing-lg);
+  }
+
+  .summary-row dd,
+  .summary-total dd {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--color-ink);
+  }
+
+  .summary-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--spacing-md);
+    background-color: var(--color-surface-sunk);
+    border-bottom: none;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: 6px;
+  }
+
+  /* status-strip.tsx — the Jurisdiction/Rule pack/Reviewed/Review due bar
+     shown at the top of every screen. Missed in the 07.1-01 restyle pass
+     (its files_modified list never named this component); added 2026-09-24
+     directly from the Claude Design export's own status-bar markup
+     (docs/design/dsar-fee-agent-claude-design.dc.html, the amber-left-edge
+     strip above "New fee claim"). The app's own cell set (Matter reference,
+     Pack status + its disclosure paragraph) is wider than the design's, but
+     every cell follows the same label/value pattern. */
+  .status-strip {
+    display: flex;
+    align-items: stretch;
+    flex-wrap: wrap;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-left: 3px solid var(--color-warn-edge);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .status-strip > div {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-right: 1px solid var(--color-line-soft);
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .status-strip > div:last-child {
+    border-right: none;
+    margin-left: auto;
+  }
+
+  .status-strip dt {
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+    font-weight: var(--text-label--font-weight);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-transform: uppercase;
+    color: var(--color-ink-4);
+  }
+
+  .status-strip dd {
+    margin: 0;
+    font-size: 0.78125rem;
+    font-weight: 500;
+    color: var(--color-ink-2);
+  }
+
+  /* Pack status's disclosure sentence is the one cell with a third line —
+     constrained so it doesn't stretch the whole strip disproportionately. */
+  .status-strip [data-testid="pack-status-cell"] {
+    max-width: 260px;
+  }
+
+  .status-strip [data-testid="pack-status-cell"] p {
+    margin: 0;
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+  }
+
+  /* Audit trail's two event tables (2026-09-24). The design source wraps
+     its "Events" table in a bordered card with a header bar and shaded
+     column headers; 07.1-02 originally reused .notice-table here for its
+     ready-made borders, but that is the requestor-facing document's
+     deliberately plain, undecorated look — it reads as a bare table with
+     no card boundary against the design's actual treatment. .data-table
+     (+ .data-table-card) is that treatment, kept independent of
+     .notice-table so the letter-styled document is untouched. */
+  .data-table-card {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .data-table-card > .eyebrow {
+    display: block;
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-bottom: 1px solid var(--color-line-soft);
+  }
+
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--text-body);
+  }
+
+  .data-table th {
+    text-align: left;
+    padding: var(--spacing-sm) var(--spacing-md);
+    background-color: var(--color-surface-sunk);
+    border-bottom: 1px solid var(--color-line-soft);
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+    font-weight: var(--text-label--font-weight);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-transform: uppercase;
+    color: var(--color-ink-4);
+  }
+
+  .data-table td {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-bottom: 1px solid var(--color-line-soft);
+    text-align: left;
+  }
+
+  .data-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-2xs);
+    font-size: var(--text-body);
+    font-weight: 600;
+    border-radius: 8px;
+    padding: var(--spacing-xs) var(--spacing-lg);
+    cursor: pointer;
+  }
+
+  .btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  .btn-primary {
+    background-color: var(--color-seal);
+    color: var(--color-surface);
+    border: 1px solid var(--color-seal);
+  }
+
+  .btn-secondary {
+    background-color: var(--color-surface);
+    color: var(--color-ink-2);
+    border: 1px solid var(--color-line);
+  }
+
+  .btn-tertiary {
+    background-color: transparent;
+    color: var(--color-ink-2);
+    border: none;
+    text-decoration: underline;
+    padding-inline: var(--spacing-2xs);
+  }
+
+  .page {
+    max-width: 1400px;
+    margin-inline: auto;
+    padding: var(--spacing-3xl);
+  }
+
+  .review-grid {
+    display: grid;
+    grid-template-columns: minmax(280px, 300px) minmax(0, 1fr) minmax(280px, 300px);
+    gap: var(--spacing-xl);
+    align-items: start;
+  }
+
+  .review-grid-rails {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xl);
+  }
+
+  .review-grid-main {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xl);
+    min-width: 0;
+  }
+
+  .review-grid-totals {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xl);
+  }
+
+  @media (max-width: 1220px) {
+    .review-grid {
+      grid-template-columns: minmax(240px, 280px) minmax(0, 1fr);
+    }
+    .review-grid-rails { grid-column: 1; grid-row: 1 / span 2; }
+    .review-grid-main { grid-column: 2; grid-row: 1; }
+    .review-grid-totals { grid-column: 2; grid-row: 2; }
+  }
+
+  @media (max-width: 760px) {
+    .review-grid { grid-template-columns: 1fr; }
+    .review-grid-rails,
+    .review-grid-main,
+    .review-grid-totals { grid-column: 1; grid-row: auto; }
+  }
+
+  /* Native form controls are deliberately visible and share one focus
+     treatment. Tailwind's reset otherwise leaves several fields borderless. */
+  .page input:not([type="checkbox"]),
+  .page select,
+  .page textarea {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    min-height: 40px;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    color: var(--color-ink);
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: 6px;
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+  }
+
+  .page input[readonly] {
+    background-color: var(--color-surface-sunk);
+    color: var(--color-ink-2);
+  }
+
+  .page input[type="checkbox"] {
+    flex: 0 0 20px;
+    width: 20px;
+    height: 20px;
+    accent-color: var(--color-seal);
+  }
+
+  .page textarea { min-height: 72px; }
+
+  .page select { cursor: pointer; }
+
+  .field { display: flex; flex-direction: column; gap: var(--spacing-2xs); min-width: 0; }
+  .field > span:first-child,
+  .expense-amount > span:first-child {
+    color: var(--color-ink-2);
+    font-size: var(--text-body);
+    font-weight: 600;
+  }
+
+  [data-testid="matter-details-fields"] > h2,
+  [data-testid="expense-line-repeater"] > h2,
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
+    color: var(--color-ink);
+    font-family: var(--font-serif);
+    font-size: var(--text-display);
+    line-height: var(--text-display--line-height);
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: normal;
+  }
+
+  [data-testid="matter-details-fields"] label:has(input[name="legalEntity"]) { grid-column: 1 / -1; }
+  [data-testid="matter-details-fields"] label { min-width: 0; }
+
+  .attestations-panel { display: flex; flex-direction: column; }
+  .attestation-list { display: flex; flex-direction: column; gap: var(--spacing-xs); }
+  .attestation-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    border: 1px solid var(--color-line-soft);
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .attestation-item:has(input:checked) { background-color: var(--color-ok-wash); border-color: var(--color-ok); }
+  .attestation-item strong { display: block; font-weight: 600; line-height: 1.4; }
+  .attestation-item small { display: block; color: var(--color-ink-3); font-size: var(--text-body); margin-top: var(--spacing-2xs); }
+
+  .expense-line-list { display: flex; flex-direction: column; gap: var(--spacing-md); margin-block: var(--spacing-lg); }
+  .expense-line-row {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: end;
+    gap: var(--spacing-md);
+    box-shadow: none;
+    background-color: var(--color-surface-sunk);
+  }
+  .expense-line-heading { grid-column: 1 / -1; color: var(--color-ink-2); font-weight: 600; }
+  .expense-category, .expense-description, .expense-full, .expense-staff, .third-party-fields, .expense-actions,
+  .expense-line-row [data-testid="category-hint"] { grid-column: 1 / -1; }
+  .expense-line-row [data-testid="category-hint"] { margin-top: calc(var(--spacing-sm) * -1); }
+  .expense-amount { display: flex; flex-direction: column; justify-content: end; gap: var(--spacing-xs); min-width: 0; }
+  .expense-amount .fig { min-height: 40px; display: flex; align-items: center; font-weight: 600; }
+  .expense-actions, .expense-add-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-xs); }
+  .expense-actions { padding-top: var(--spacing-sm); border-top: 1px solid var(--color-line); }
+  .expense-add-actions { margin-top: var(--spacing-lg); }
+  .expense-add-actions .hint { flex-basis: 100%; }
+  .third-party-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--spacing-md); }
+  .third-party-fields label { display: flex; flex-direction: column; gap: var(--spacing-2xs); }
+  .third-party-fields label:first-child { grid-column: 1 / -1; flex-direction: row; align-items: center; }
+
+  .claimfoot-total { display: flex; flex-direction: column; gap: var(--spacing-2xs); }
+  .claimfoot .lbl { color: var(--color-ink-2); font-size: var(--text-body); }
+  .claimfoot .num { font-size: var(--text-display); font-weight: 600; }
+  .claimfoot-action { display: flex; flex-direction: column; align-items: flex-end; gap: var(--spacing-xs); }
+  .claimfoot-action .hint { max-width: 32ch; margin: 0; text-align: right; }
+  .summary-heading { color: var(--color-ink-2); font-size: var(--text-heading); font-weight: 600; margin-bottom: var(--spacing-sm); }
+
+  .app-header { background-color: var(--color-surface); border-bottom: 1px solid var(--color-line); }
+  .app-header-inner { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-lg); padding-block: var(--spacing-sm); }
+  .app-header .wordmark { color: var(--color-ink); white-space: nowrap; font-size: var(--text-heading); }
+  .app-header-nav { display: flex; align-items: center; flex-wrap: wrap; gap: var(--spacing-xs); }
+  .header-home { color: var(--color-seal); font-weight: 600; margin-right: var(--spacing-sm); }
+  .header-role { color: var(--color-ink-2); font-size: var(--text-label); font-weight: 600; }
+  .role-current { border-color: var(--color-seal); color: var(--color-seal); }
+  .header-caption { max-width: 1400px; padding: 0 var(--spacing-3xl) var(--spacing-xs); margin-inline: auto; color: var(--color-ink-3); font-size: var(--text-label); }
+  .demo-banner { padding: var(--spacing-xs) var(--spacing-3xl); background-color: var(--color-warn-wash); color: var(--color-warn); font-size: var(--text-body); border-bottom: 1px solid var(--color-warn-edge); }
+
+  .landing { display: flex; flex-direction: column; gap: var(--spacing-lg); max-width: 900px; margin-inline: auto; padding-block: var(--spacing-4xl); }
+  .landing .screen { font-size: var(--text-display); }
+  .landing-paths { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--spacing-xl); margin-top: var(--spacing-md); }
+  .landing-path { display: flex; flex-direction: column; align-items: flex-start; gap: var(--spacing-md); }
+  .landing-path h2, .submission-card h2 { font-family: var(--font-serif); font-size: var(--text-display); font-weight: 600; }
+  .landing-path p, .submission-card p { color: var(--color-ink-2); }
+  .landing-path .btn { margin-top: auto; }
+  .submission-page { display: flex; flex-direction: column; gap: var(--spacing-xl); }
+  .submission-card { max-width: 760px; display: flex; flex-direction: column; align-items: flex-start; gap: var(--spacing-md); }
+  .submission-actions { display: flex; flex-wrap: wrap; gap: var(--spacing-xs); margin-top: var(--spacing-sm); }
+
+  .worklist-page { display: flex; flex-direction: column; gap: var(--spacing-xl); }
+  .worklist-heading { display: flex; justify-content: space-between; align-items: end; gap: var(--spacing-md); }
+  .worklist-heading .lede { margin-top: var(--spacing-xs); }
+  .worklist-count { color: var(--color-ink-3); }
+  .sort-toggle { display: flex; gap: var(--spacing-sm); align-items: center; }
+  .sort-toggle a[aria-current="true"] { color: var(--color-seal); font-weight: 600; text-decoration: underline; }
+  .worklist { display: flex; flex-direction: column; gap: var(--spacing-sm); }
+  .worklist-item { background-color: var(--color-surface); border: 1px solid var(--color-line); border-radius: 8px; padding: var(--spacing-md) var(--spacing-lg); }
+  .worklist-link { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--spacing-sm); color: var(--color-seal); }
+  .worklist-link strong { font-size: var(--text-heading); }
+  .worklist-status { color: var(--color-ink-2); background: var(--color-surface-sunk); padding: var(--spacing-2xs) var(--spacing-xs); border-radius: 4px; }
+  .worklist-deadline { margin-top: var(--spacing-xs); color: var(--color-ink-3); font-size: var(--text-body); }
+  .worklist-empty { color: var(--color-ink-2); }
+
+  .review-grid > * { min-width: 0; }
+  .review-grid .card { overflow-wrap: break-word; }
+  .review-card-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-xs) var(--spacing-sm); border-bottom: 1px solid var(--color-line-soft); padding-bottom: var(--spacing-sm); }
+  .review-card-head .kicker { margin-left: auto; }
+  .review-card-title { flex-basis: 100%; font-family: var(--font-serif); font-size: var(--text-display); font-weight: 600; }
+  .hr-description { display: flex; flex-direction: column; gap: var(--spacing-2xs); }
+  .hr-description q { font-family: var(--font-serif); font-style: italic; font-size: var(--text-heading); }
+  .claimed-arithmetic { padding: var(--spacing-sm); background-color: var(--color-surface-sunk); border-radius: 6px; line-height: 1.6; }
+  .provenance { display: flex; flex-direction: column; gap: var(--spacing-xs); padding: var(--spacing-md); background-color: var(--color-surface-sunk); border: 1px solid var(--color-line-soft); border-radius: 6px; }
+  .provenance-label { color: var(--color-ink-3); font-size: var(--text-label); font-weight: 600; }
+  .rule-id { display: flex; align-items: center; flex-wrap: wrap; gap: var(--spacing-xs); font-family: var(--font-mono); font-size: var(--text-body); font-weight: 600; }
+  .unverified-marker { color: var(--color-warn); background-color: var(--color-warn-wash); border: 1px solid var(--color-warn-edge); border-radius: 4px; padding: var(--spacing-2xs) var(--spacing-xs); font-family: var(--font-sans); font-size: var(--text-label); }
+  .rule-basis { color: var(--color-ink-2); }
+  .rule-citation { padding-top: var(--spacing-xs); border-top: 1px solid var(--color-line); color: var(--color-ink-2); font-size: var(--text-body); }
+  .review-grid [data-testid="line-card-controls"] { padding-top: var(--spacing-sm); border-top: 1px solid var(--color-line); }
+  .review-grid [data-testid="disposition-reason"] label { display: flex; flex-direction: column; gap: var(--spacing-xs); }
+  .review-grid [data-testid="disposition-reason"] textarea { margin-top: var(--spacing-xs); }
+  .review-grid [data-testid="disposition-action-buttons"] > span { flex-wrap: wrap; }
+  .review-grid [data-testid="disposition-action-buttons"] input { width: 120px; }
+  .review-grid .summary-row dt { min-width: 0; flex: 1; }
+  .review-grid .summary-row dd { flex: 0 0 auto; max-width: 55%; text-align: right; white-space: nowrap; }
+  .review-grid [data-testid="pack-open-questions"] { margin-top: var(--spacing-lg); border-top: 1px solid var(--color-line); padding-top: var(--spacing-md); }
+  .review-grid [data-testid="pack-open-questions"] ul { list-style: disc; padding-left: var(--spacing-lg); margin-top: var(--spacing-xs); }
+  .review-grid [data-testid="pack-open-questions"] li + li { margin-top: var(--spacing-xs); }
+  .review-grid .summary-total { display: flex; flex-direction: column; align-items: flex-start; gap: var(--spacing-xs); margin-top: var(--spacing-lg); }
+  .review-grid [data-testid="headline-value"] { font-family: var(--font-mono); font-size: var(--text-display); font-weight: 600; }
+  .review-grid [data-testid="headline-hidden"] { font-family: var(--font-mono); font-size: var(--text-heading); }
+  .bulk-accept-bar { display: flex; flex-direction: column; align-items: flex-start; gap: var(--spacing-xs); background: var(--color-surface); border: 1px solid var(--color-line); border-radius: 8px; padding: var(--spacing-md); margin-bottom: var(--spacing-md); }
+  .review-progress { color: var(--color-ink-2); font-size: var(--text-body); font-weight: 600; }
+  .bulk-accept-bar [data-testid="bulk-accept-button"] { color: var(--color-seal); border: 1px solid var(--color-seal); border-radius: 6px; background: var(--color-surface); padding: var(--spacing-xs) var(--spacing-sm); font-weight: 600; }
+  .bulk-accept-bar [data-testid="bulk-accept-button"]:disabled { color: var(--color-ink-3); border-color: var(--color-line); cursor: not-allowed; }
+  .bulk-accept-bar [data-testid="bulk-accept-note"] { color: var(--color-ink-3); font-size: var(--text-body); }
+  .bulk-accept-bar [data-testid="bulk-accept-reason"] { width: 100%; }
+  .bulk-accept-bar [data-testid="bulk-accept-reason"] label { display: flex; flex-direction: column; gap: var(--spacing-xs); }
+  .bulk-accept-bar [data-testid="bulk-accept-reason-counter"] { color: var(--color-ink-3); font-size: var(--text-label); }
+
+  @media (max-width: 700px) {
+    .page { padding: var(--spacing-md); }
+    .app-header-inner { flex-direction: column; align-items: flex-start; }
+    .header-caption, .demo-banner { padding-inline: var(--spacing-md); }
+    .landing-paths { grid-template-columns: 1fr; }
+    .expense-line-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .expense-amount { grid-column: 1 / -1; }
+    .claimfoot { position: static; flex-direction: column; align-items: stretch; }
+    .claimfoot-action { align-items: stretch; }
+    .claimfoot-action .hint { max-width: none; text-align: left; }
+    .third-party-fields { grid-template-columns: 1fr; }
+    .worklist-heading { align-items: flex-start; flex-direction: column; }
+  }
+
+  /* WCAG 2.1 AA: every focusable element carries a visible focus ring keyed
+     to --color-seal, matching line-card.tsx's own pre-existing
+     focus:outline-2 focus:outline-seal treatment — a button whose only
+     focus signal was the browser default would lose it the moment .btn
+     sets a background. */
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 2px solid var(--color-seal);
+    outline-offset: 2px;
+  }
 }

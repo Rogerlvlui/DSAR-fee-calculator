@@ -22,6 +22,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 5: HR Intake and Disclosure Shell** - HR can itemise a claim inside a shell that states what the tool is and is not (completed 2026-09-20)
 - [x] **Phase 6: Convergence and Legal Review** - Golden files pass, then the line-by-line review screen with its automation-bias controls (completed 2026-09-20)
 - [x] **Phase 7: Sign-off, Outputs and Edge States** - The sign-off gate, the internal record, the requestor notice, and every §10.7 state (completed 2026-09-22)
+- [x] **Phase 7.1: UI Redesign — Claude Design Adoption** (INSERTED) - Adopt the Claude Design export as `apps/web`'s visual design system (replacing the current Tailwind-based styling) and add a new Audit trail screen (completed 2026-09-23)
 - [ ] **Phase 8: LLM Job 1 — Category Suggestion** - One advisory suggestion, verbatim-validated, that never moves a verdict or an amount
 
 ## Phase Details
@@ -337,6 +338,33 @@ Plans:
 
 DISC-06 sweeps §10.7 end to end here. Individual rows are implemented in their home phases — no usable pack and currency mismatch in Phase 5, pack-activated-mid-review in Phase 6, zero allowable with DOC-04 — and the LLM-unavailable row is delivered with LLM-08 in Phase 8.
 
+### Phase 7.1: UI Redesign — Claude Design Adoption (INSERTED) — COMPLETE (2026-09-23)
+
+**Provenance**: Inserted 2026-09-23, ahead of a demo, after the product owner exported an interactive prototype from Claude Design (`docs/design/dsar-fee-agent-claude-design.dc.html` + rendered/support files) and asked for it to replace the app's current Tailwind-based styling. Discussed and confirmed with the product owner: the design's fourth screen ("Audit trail" — an append-only, hash-chained event log) is new scope, added alongside the three PRD §10 screens the design already matches, not a substitute for §10.6's Rule pack admin screen, which stays deferred.
+
+**Goal**: `apps/web`'s four built screens visually match the Claude Design export's actual tokens and markup (not a Tailwind reinterpretation of them), and a new Audit trail screen exists for a read-only viewer role
+**Depends on**: Phase 7 (the screens being restyled already exist)
+**Parallel with**: Phase 3.2 and Phase 8 — this phase touches only presentation-layer code and one new read-only screen; no engine, schema, or persistence-layer overlap
+**Requirements**: None assigned — implementation-driven demo-prep work, not sourced from the PRD; the five success criteria above are this phase's traceability anchor instead
+**Success Criteria** (what must be TRUE):
+
+  1. HR intake, Legal review, and HR result/notice screens render using the Claude Design export's actual design tokens (colours, type — Newsreader/IBM Plex Sans/IBM Plex Mono — spacing) and structure, sourced from `docs/design/`, not reproduced through Tailwind utility classes
+  2. A new Audit trail screen exists, showing the append-only event log (actor, timestamp, event, detail) for a read-only viewer role, matching the design export's screen 4 — the hash-chaining shown in the design is a design-only proposal until confirmed as a real `packages/audit` capability, not assumed to already exist
+  3. PRD §10.6's Rule pack admin screen is explicitly out of scope for this phase and remains tracked separately, not silently dropped
+  4. No regression in the four already-passing PRD §10 screens' existing behaviour (all Phase 4–7 tests, including every §10.7 edge state, still pass) — this is a restyle plus one addition, not a rebuild of application logic
+  5. WCAG 2.1 AA and "no verdict conveyed by colour alone" (per `.claude/CLAUDE.md`'s Constraints) hold under the new design system, verified against the design export's own semantic colour set (success/warning/error), not assumed from the old system
+
+**Plans**: 2/2 plans executed across 2 waves — both complete
+
+Plans:
+**Wave 1**
+
+- [x] 07.1-01-PLAN.md — Font pipeline (self-hosted Newsreader/IBM Plex Sans/IBM Plex Mono), the DISALLOW verdict-colour correction, and the Legal review/HR intake/HR result-notice restyle (completed 2026-09-23 — full suite 1072 -> 1082 passing)
+
+**Wave 2** *(blocked on 07.1-01)*
+
+- [x] 07.1-02-PLAN.md — The new `/admin/audit` Audit trail screen (DPO_ADMIN-gated, both event streams, Pack/Engine in place of the design's unbacked Hash column) and the phase-closing regression sweep (completed 2026-09-23 — full suite 1082 -> 1095 passing; `next build --webpack` proven end to end with `/admin/audit` registered)
+
 ### Phase 8: LLM Job 1 — Category Suggestion
 
 **Goal**: The model makes exactly one advisory suggestion, inside a boundary that makes it structurally incapable of moving a verdict or an amount
@@ -356,7 +384,7 @@ DISC-06 sweeps §10.7 end to end here. Individual rows are implemented in their 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 3.1 → 3.2 → 4 → 5 → 6 → 7 → 8
+Phases execute in numeric order: 1 → 2 → 3 → 3.1 → 3.2 → 4 → 5 → 6 → 7 → 7.1 → 8
 
 Where capacity allows, Phases 2, 3, 4 and 5 may run concurrently — they have zero ordering between them once Phase 1's types are frozen. Phase 3's PACK-09 authoring should be kicked off first regardless, as the likely schedule long pole.
 
@@ -373,4 +401,5 @@ Where capacity allows, Phases 2, 3, 4 and 5 may run concurrently — they have z
 | 5. HR Intake and Disclosure Shell | 6/6 | Complete    | 2026-09-20 |
 | 6. Convergence and Legal Review | 9/9 | Complete    | 2026-09-20 |
 | 7. Sign-off, Outputs and Edge States | 6/6 | Complete    | 2026-09-22 |
+| 7.1 UI Redesign — Claude Design Adoption | 2/2 | Complete    | 2026-09-23 |
 | 8. LLM Job 1 — Category Suggestion | 0/TBD | Not started | - |

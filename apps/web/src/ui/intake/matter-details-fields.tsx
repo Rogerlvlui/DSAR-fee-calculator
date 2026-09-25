@@ -130,19 +130,26 @@ export function MatterDetailsFields({ value, onChange, currency, jurisdictionPac
   }
 
   return (
-    <section data-testid="matter-details-fields">
-      <h2>Matter details</h2>
-      <div>
-        <label>
-          <span>Matter reference</span>
+    <section data-testid="matter-details-fields" className="card">
+      <h2 className="eyebrow">
+        <span className="step-heading">
+          <span className="step-number" aria-hidden="true">
+            1
+          </span>
+          Matter details
+        </span>
+      </h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-md">
+        <label className="flex flex-col gap-2xs">
+          <span className="text-label text-ink-2">Matter reference</span>
           <input
             name="reference"
             value={value.reference}
             onChange={(event) => set("reference", event.target.value)}
           />
         </label>
-        <label>
-          <span>Jurisdiction</span>
+        <label className="flex flex-col gap-2xs">
+          <span className="text-label text-ink-2">Jurisdiction</span>
           <select
             name="jurisdictionCode"
             value={value.jurisdictionCode}
@@ -158,16 +165,16 @@ export function MatterDetailsFields({ value, onChange, currency, jurisdictionPac
             {jurisdictionStatusLabel(jurisdictionPack)}
           </p>
         </label>
-        <label>
-          <span>Legal entity</span>
+        <label className="flex flex-col gap-2xs">
+          <span className="text-label text-ink-2">Legal entity</span>
           <input
             name="legalEntity"
             value={value.legalEntity}
             onChange={(event) => set("legalEntity", event.target.value)}
           />
         </label>
-        <label>
-          <span>Controller type</span>
+        <label className="flex flex-col gap-2xs">
+          <span className="text-label text-ink-2">Controller type</span>
           <select
             name="controllerType"
             value={value.controllerType}
@@ -180,8 +187,8 @@ export function MatterDetailsFields({ value, onChange, currency, jurisdictionPac
             ))}
           </select>
         </label>
-        <label>
-          <span>Request received</span>
+        <label className="flex flex-col gap-2xs">
+          <span className="text-label text-ink-2">Request received</span>
           <input
             name="requestReceivedOn"
             type="date"
@@ -189,10 +196,10 @@ export function MatterDetailsFields({ value, onChange, currency, jurisdictionPac
             onChange={(event) => set("requestReceivedOn", event.target.value)}
           />
         </label>
-        <label>
-          <span>Currency</span>
-          <input name="currency" value={currency} readOnly />
-          <p data-testid="currency-explanation">
+        <label className="flex flex-col gap-2xs">
+          <span className="text-label text-ink-2">Currency</span>
+          <input name="currency" value={currency} className="font-mono" readOnly />
+          <p data-testid="currency-explanation" className="hint">
             Fixed by jurisdiction, not a free choice — every {value.jurisdictionCode} matter uses{" "}
             {JURISDICTION_CURRENCY[value.jurisdictionCode]}.
           </p>

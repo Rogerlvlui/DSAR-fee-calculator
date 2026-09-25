@@ -24,7 +24,7 @@ const FEE_POSTURE_LABELS: Record<FeePosture, string> = {
 };
 
 export const PACK_STATUS_DISCLOSURE =
-  "Real status. The engine computes against an in-memory copy coerced to Active for this demo only.";
+  "Real status shown; the engine uses an in-memory Active copy for this demo.";
 
 export interface PackRailProps {
   packId: string;
@@ -52,40 +52,40 @@ export function PackRail({
   openQuestions,
 }: PackRailProps) {
   return (
-    <aside data-testid="pack-rail">
-      <div>Rule pack</div>
+    <aside data-testid="pack-rail" className="card">
+      <div className="eyebrow">Rule pack</div>
       <dl>
-        <div>
+        <div className="summary-row">
           <dt>Pack</dt>
           <dd>
             {packId} {version}
           </dd>
         </div>
-        <div data-testid="pack-status-cell">
+        <div data-testid="pack-status-cell" className="summary-row">
           <dt>Pack status</dt>
           <dd className="text-warn">{status}</dd>
-          <p className="text-ink-3">{PACK_STATUS_DISCLOSURE}</p>
+          <p className="text-ink-3 hint">{PACK_STATUS_DISCLOSURE}</p>
         </div>
-        <div>
+        <div className="summary-row">
           <dt>Posture</dt>
           <dd>{FEE_POSTURE_LABELS[feePosture]}</dd>
         </div>
-        <div>
+        <div className="summary-row">
           <dt>Authored</dt>
           <dd>{authoredByDisplayName ?? "Not yet authored"}</dd>
         </div>
-        <div>
+        <div className="summary-row">
           <dt>Reviewed</dt>
           <dd>{reviewedByDisplayName ? `${reviewedByDisplayName} — ${reviewedOn}` : "Not yet reviewed"}</dd>
         </div>
-        <div>
+        <div className="summary-row">
           <dt>Review due</dt>
           <dd>{reviewDueOn}</dd>
         </div>
       </dl>
 
       <div data-testid="pack-open-questions">
-        <h3>This pack's open questions</h3>
+        <h3 className="eyebrow">This pack's open questions</h3>
         <ul>
           {openQuestions.map((question, index) => (
             <li key={index}>{question}</li>

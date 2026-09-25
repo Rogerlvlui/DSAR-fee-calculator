@@ -7,12 +7,10 @@
 // module tree.
 
 export const DEMO_BANNER_TEXT =
-  "DEMO BUILD — holds no persistent data. Nothing entered here is saved once this session or process ends.";
+  "Demo build · Data is held in memory and lost when the server restarts.";
 
 export function DemoBanner() {
   return (
-    <div role="note" aria-label="Demo build notice" data-testid="demo-banner">
-      <p>{DEMO_BANNER_TEXT}</p>
-    </div>
+    <div role="note" aria-label="Demo build notice" data-testid="demo-banner" className="demo-banner">{DEMO_BANNER_TEXT}</div>
   );
 }

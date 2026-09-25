@@ -28,14 +28,16 @@
 
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Verdict } from "@dsar/schemas/assessment";
 import type { CurrencyCode } from "@dsar/schemas/primitives";
 import { MINOR_UNIT_DECIMALS } from "@dsar/schemas/money";
 import {
+  ACTIONS_TAKING_AMOUNT,
   countNonWhitespaceChars,
   hasSufficientAndGenuineReason,
+  nothingChargedAction,
   hasSufficientReason,
   matchesReasonStopList,
   MIN_REASON_NON_WHITESPACE_CHARS,
@@ -44,10 +46,10 @@ import {
 } from "../../domain/disposition-actions.ts";
 
 const REASON_LABEL: Record<Verdict, string> = {
-  ALLOW: "Reason required if you change the amount",
-  ALLOW_CAPPED: "Reason required if you change the amount",
-  FLAG: "Reason required",
-  DISALLOW: "Reason required to allow anyway",
+  ALLOW: "Required for Reduce or Strike; optional for Accept",
+  ALLOW_CAPPED: "Required for Reduce or Strike; optional for Accept",
+  FLAG: "Required for this decision",
+  DISALLOW: "Required to allow anyway; optional for Accept",
 };
 
 const ACTION_LABEL: Record<DispositionAction, (currency: CurrencyCode) => string> = {
@@ -58,7 +60,15 @@ const ACTION_LABEL: Record<DispositionAction, (currency: CurrencyCode) => string
   ALLOW_ANYWAY: (currency) => `Allow anyway ${currency}`,
 };
 
-const ACTIONS_TAKING_AMOUNT = new Set<DispositionAction>(["REDUCE", "ALLOW_WITH_AMOUNT", "ALLOW_ANYWAY"]);
+const AMOUNT_ACTION_VERB: Partial<Record<DispositionAction, string>> = {
+  REDUCE: "reduce",
+  ALLOW_WITH_AMOUNT: "allow",
+  ALLOW_ANYWAY: "allow anyway",
+};
+
+export function amountRequiredHint(action: DispositionAction): string {
+  return `Enter an amount above 0.00 to ${AMOUNT_ACTION_VERB[action] ?? "continue"}. To charge nothing for this line, use ${nothingChargedAction(action)}.`;
+}
 
 export const REASON_COUNTER_FAILURE_TEXT = "A reason of at least 10 characters is required — 'ok' will not do.";
 
@@ -85,11 +95,16 @@ function reasonCounterFailureText(reason: string): string | null {
   return null;
 }
 
-export function majorToMinor(major: string, currency: CurrencyCode): number {
+/** null when the box is empty or unreadable — never silently 0. */
+export function majorToMinor(major: string, currency: CurrencyCode): number | null {
   const decimals = MINOR_UNIT_DECIMALS[currency];
   const parsed = Number.parseFloat(major);
-  if (!Number.isFinite(parsed)) return 0;
+  if (!Number.isFinite(parsed)) return null;
   return Math.round(parsed * 10 ** decimals);
+}
+
+function isPositiveAmount(amountMinor: number | null): amountMinor is number {
+  return amountMinor !== null && amountMinor > 0;
 }
 
 async function readErrorMessage(response: Response): Promise<string> {
@@ -137,15 +152,20 @@ export function DispositionControlsView({
   onAskHr,
 }: DispositionControlsViewProps) {
   const actions = VERDICT_ACTIONS[verdict];
+  const amountAction = actions.find((action) => ACTIONS_TAKING_AMOUNT.has(action));
+  const amountReady = isPositiveAmount(majorToMinor(amountMajor, currency));
+  const amountHintId = useId();
 
   return (
-    <div data-testid="disposition-controls">
-      <div data-testid="disposition-action-buttons">
-        {actions.map((action) =>
-          ACTIONS_TAKING_AMOUNT.has(action) ? (
-            <span key={action}>
-              <label>
-                <span>{ACTION_LABEL[action](currency)}</span>
+    <div data-testid="disposition-controls" className="flex flex-col gap-sm">
+      <div data-testid="disposition-action-buttons" className="flex flex-wrap gap-xs">
+        {actions.map((action) => {
+          const isPrimary = action === "ACCEPT" || action === "ALLOW_WITH_AMOUNT" || action === "ALLOW_ANYWAY";
+          const actionBtnClass = isPrimary ? "btn btn-primary" : "btn btn-secondary";
+          return ACTIONS_TAKING_AMOUNT.has(action) ? (
+            <span key={action} className="flex items-center gap-xs">
+              <label className="flex items-center gap-xs">
+                <span className="hint">{ACTION_LABEL[action](currency)}</span>
                 <input
                   type="number"
                   step="0.01"
@@ -159,7 +179,9 @@ export function DispositionControlsView({
                 type="button"
                 data-testid="disposition-action"
                 data-action={action.toLowerCase()}
-                disabled={pending}
+                disabled={pending || !amountReady}
+                aria-describedby={amountReady ? undefined : amountHintId}
+                className={actionBtnClass}
                 onClick={() => onSubmit(action)}
               >
                 {ACTION_LABEL[action](currency)}
@@ -172,12 +194,13 @@ export function DispositionControlsView({
               data-testid="disposition-action"
               data-action={action.toLowerCase()}
               disabled={pending}
+              className={actionBtnClass}
               onClick={() => onSubmit(action)}
             >
               {ACTION_LABEL[action](currency)}
             </button>
-          )
-        )}
+          );
+        })}
 
         {verdict === "FLAG" ? (
           // The reason field above doubles as the lawyer's query: askHr()
@@ -189,6 +212,7 @@ export function DispositionControlsView({
             data-testid="disposition-action"
             data-action="ask-hr"
             disabled={pending}
+            className="btn btn-secondary"
             onClick={() => onAskHr?.()}
           >
             Ask HR
@@ -196,9 +220,15 @@ export function DispositionControlsView({
         ) : null}
       </div>
 
+      {amountAction && !amountReady ? (
+        <p id={amountHintId} data-testid="disposition-amount-hint" className="hint">
+          {amountRequiredHint(amountAction)}
+        </p>
+      ) : null}
+
       <div data-testid="disposition-reason">
         <label>
-          <span>
+          <span className="hint">
             Reason <b>{REASON_LABEL[verdict]}</b>
           </span>
           <textarea
@@ -206,16 +236,17 @@ export function DispositionControlsView({
             value={reason}
             disabled={pending}
             maxLength={1000}
+            className="bg-surface border-line border"
             onChange={(event) => onReasonChange(event.target.value)}
           />
         </label>
-        <div data-testid="disposition-reason-counter">
-          {attemptedSubmit ? (reasonCounterFailureText(reason) ?? reasonCounterText(reason)) : reasonCounterText(reason)}
+        <div data-testid="disposition-reason-counter" className="hint">
+          {attemptedSubmit ? (reasonCounterFailureText(reason) ?? reasonCounterText(reason)) : reason.length > 0 || verdict === "FLAG" ? reasonCounterText(reason) : "10 characters for a required reason"}
         </div>
       </div>
 
       {error ? (
-        <p role="alert" data-testid="disposition-error">
+        <p role="alert" data-testid="disposition-error" className="hint stern">
           {error}
         </p>
       ) : null}
@@ -251,12 +282,15 @@ export function DispositionControls({
   const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit(action: DispositionAction) {
-    setAttemptedSubmit(true);
+    const needsReason = action !== "ACCEPT" || verdict === "FLAG" || reason.trim().length > 0;
+    setAttemptedSubmit(needsReason);
     // IN-01: the shared combined check (length AND not-a-stock-phrase), not
     // a length-only reimplementation — every stop-list entry is already
     // under the length minimum on its own, so this was never a behavior
     // change, only closing the drift-risk of two independent copies.
-    if (!hasSufficientAndGenuineReason(reason)) return;
+    if (needsReason && !hasSufficientAndGenuineReason(reason)) return;
+    const amountMinor = majorToMinor(amountMajor, currency);
+    if (ACTIONS_TAKING_AMOUNT.has(action) && !isPositiveAmount(amountMinor)) return;
 
     setSubmitting(true);
     setError(null);
@@ -266,8 +300,8 @@ export function DispositionControls({
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           action,
-          reason,
-          ...(ACTIONS_TAKING_AMOUNT.has(action) ? { amountMinor: majorToMinor(amountMajor, currency) } : {}),
+          reason: reason.trim() || null,
+          ...(ACTIONS_TAKING_AMOUNT.has(action) ? { amountMinor } : {}),
         }),
       });
       if (!response.ok) throw new Error(await readErrorMessage(response));

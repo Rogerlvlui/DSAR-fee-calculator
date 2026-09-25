@@ -21,7 +21,7 @@ import { describe, expect, it } from "vitest";
 import { AssessmentLineSchema, AssessmentSchema, type Assessment, type AssessmentLine } from "@dsar/schemas/assessment";
 import { ExpenseLineSchema, type ExpenseLine } from "@dsar/schemas/expense-line";
 import { MatterSchema, type Matter } from "@dsar/schemas/matter";
-import { formatMinor } from "@dsar/schemas/money";
+import { formatMinorWithCode } from "@dsar/schemas/money";
 import type { Minor } from "@dsar/schemas/primitives";
 import { LoadableRulePackSchema, type LoadableRulePack } from "@dsar/schemas/rule-pack";
 import { EXPENSE_CATEGORY_LABELS } from "@dsar/schemas/taxonomy";
@@ -67,7 +67,7 @@ const FOOTER: InternalRecordFooter = {
   packId: "SG-PDPA",
   packVersion: "2026.09.1",
   engineVersion: "0.1.0",
-  lawyerName: "Marcus Tan",
+  lawyerName: "Roger Lui",
   qualification: "Advocate & Solicitor, Singapore",
   date: "2026-09-20T10:00:00.000Z",
 };
@@ -79,7 +79,7 @@ describe("renderInternalRecordFooter", () => {
     expect(rendered).toContain("SG-PDPA");
     expect(rendered).toContain("2026.09.1");
     expect(rendered).toContain("0.1.0");
-    expect(rendered).toContain("Marcus Tan");
+    expect(rendered).toContain("Roger Lui");
     expect(rendered).toContain("Advocate & Solicitor, Singapore");
     expect(rendered).toContain("2026-09-20T10:00:00.000Z");
   });
@@ -296,8 +296,8 @@ const MIXED_LINES = [LINE_ALLOW, LINE_DISALLOW, LINE_CAPPED, LINE_FLAG];
 const MIXED_EXPENSE_LINES = [EL_ALLOW, EL_DISALLOW, EL_CAPPED, EL_FLAG];
 
 const FIXTURE_SIGN_OFF = {
-  lawyer: { id: "01K5GSD0RVWRPBKRDPTJTHDN93", displayName: "Marcus Tan — Legal, Singapore", email: "marcus.tan@example.invalid" },
-  lawyerName: "Marcus Tan",
+  lawyer: { id: "01K5GSD0RVWRPBKRDPTJTHDN93", displayName: "Roger Lui — Legal, Singapore", email: "roger.lui@example.invalid" },
+  lawyerName: "Roger Lui",
   qualification: "Advocate & Solicitor, Singapore",
   signedAt: "2026-09-20T10:00:00Z",
   finalAmount: 18000 as Minor,
@@ -380,8 +380,8 @@ describe("buildInternalRecordView — line items", () => {
     expect(capped!.basis).toBe(LINE_CAPPED.basis);
     expect(capped!.citation).toBe(formatCitation(LINE_CAPPED.citation));
     expect(capped!.disposition).toBe("REDUCED");
-    expect(capped!.claimedAmount).toBe(formatMinor(3300 as Minor, CURRENCY));
-    expect(capped!.lawyerAmount).toBe(formatMinor(2000 as Minor, CURRENCY));
+    expect(capped!.claimedAmount).toBe(formatMinorWithCode(3300 as Minor, CURRENCY));
+    expect(capped!.lawyerAmount).toBe(formatMinorWithCode(2000 as Minor, CURRENCY));
     expect(capped!.lawyerReason).toBe(LINE_CAPPED.lawyerReason);
   });
 
@@ -572,7 +572,7 @@ describe("buildInternalRecordView — sign-off block", () => {
       expenseLines: MIXED_EXPENSE_LINES,
       attestation: VALID_ATTESTATION,
     });
-    expect(view.signOff.finalAmount).toBe(formatMinor(assessment.signOff!.finalAmount, CURRENCY));
+    expect(view.signOff.finalAmount).toBe(formatMinorWithCode(assessment.signOff!.finalAmount, CURRENCY));
   });
 
   it("INTERNAL-RECORD-VIEW: a matching attestation version renders the caller's supplied text verbatim", () => {

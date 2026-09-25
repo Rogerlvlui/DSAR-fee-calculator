@@ -2,7 +2,12 @@
 
 **For:** the named authoring counsel (Roger Lui)
 **Feeds:** PACK-09, `packages/rulepacks/SG-PDPA/2026.09.1.json` (Phase 3)
-**Blocks:** Phase 3.1, the demo — the engine computes nothing without this
+**Status as of Phase 7 (2026-09-22): still open.** `authoredBy`/`reviewedBy`/`reviewedOn`
+are still `null` in the committed pack, and all six rules below are still
+`NEEDS_VERIFICATION` — none of this worksheet's proposals have been confirmed or changed
+yet. This no longer blocks the built demo (the app coerces an in-memory copy to `ACTIVE`
+regardless — see `docs/DEMO-WALKTHROUGH.md`), but it does block the pack from ever
+reaching a real `ACTIVE` status, which is what a pilot needs.
 
 Pre-populated from PRD §7.6, which drafts the SG posture, constraints, instruments and six of the twenty-one category rules. **Your job is to confirm or change, not to draft from zero.** PRD Annex B is explicit that its source checks are "the starting point for the authoring lawyer, not a substitute for that lawyer."
 

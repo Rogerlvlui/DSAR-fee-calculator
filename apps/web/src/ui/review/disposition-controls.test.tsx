@@ -15,14 +15,14 @@ import { DispositionControlsView, REASON_COUNTER_FAILURE_TEXT } from "./disposit
 function renderControls(
   verdict: Verdict,
   pending = false,
-  overrides: { reason?: string; attemptedSubmit?: boolean } = {}
+  overrides: { reason?: string; attemptedSubmit?: boolean; amountMajor?: string } = {}
 ): string {
   return renderToStaticMarkup(
     React.createElement(DispositionControlsView, {
       verdict,
       currency: "SGD",
       reason: overrides.reason ?? "",
-      amountMajor: "",
+      amountMajor: overrides.amountMajor ?? "",
       attemptedSubmit: overrides.attemptedSubmit ?? false,
       error: null,
       pending,
@@ -39,6 +39,12 @@ function offeredActions(html: string): string[] {
   return [...html.matchAll(/data-testid="disposition-action" data-action="([a-z_-]+)"/g)].map(
     (match) => match[1]!
   );
+}
+
+function actionButton(html: string, action: string): string {
+  const match = html.match(new RegExp(`<button[^>]*data-action="${action}"[^>]*>`));
+  if (!match) throw new Error(`no ${action} button rendered`);
+  return match[0];
 }
 
 describe("DISPOSITION-CONTROLS", () => {
@@ -71,6 +77,31 @@ describe("DISPOSITION-CONTROLS", () => {
     for (const block of buttonBlocks) {
       expect(block).toContain("disabled");
     }
+  });
+
+  it("DISPOSITION-CONTROLS: an amount-taking action stays disabled, with a visible reason, until an amount above zero is entered", () => {
+    const cases: [Verdict, string, string][] = [
+      ["FLAG", "allow_with_amount", "use Strike"],
+      ["DISALLOW", "allow_anyway", "use Accept"],
+      ["ALLOW", "reduce", "use Strike"],
+    ];
+    for (const [verdict, action, alternative] of cases) {
+      for (const amountMajor of ["", "0", "0.00", "0.001", "-5", "abc"]) {
+        const html = renderControls(verdict, false, { amountMajor });
+        expect(actionButton(html, action)).toContain("disabled");
+        expect(html).toContain('data-testid="disposition-amount-hint"');
+        expect(html).toContain(alternative);
+      }
+      const ready = renderControls(verdict, false, { amountMajor: "12.50" });
+      expect(actionButton(ready, action)).not.toContain("disabled");
+      expect(ready).not.toContain('data-testid="disposition-amount-hint"');
+    }
+  });
+
+  it("DISPOSITION-CONTROLS: the amount rule never disables actions that take no amount", () => {
+    const html = renderControls("FLAG");
+    expect(actionButton(html, "strike")).not.toContain("disabled");
+    expect(actionButton(html, "ask-hr")).not.toContain("disabled");
   });
 
   it("DISPOSITION-CONTROLS: an attempted submit with a reason that exactly matches a stop-list entry renders the stock-phrase copy, not the generic length-failure text", () => {

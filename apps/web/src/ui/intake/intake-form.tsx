@@ -14,7 +14,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { JURISDICTION_CURRENCY, type CurrencyCode, type JurisdictionCode } from "@dsar/schemas/primitives";
-import { FREE_TEXT_LIMITS } from "@dsar/schemas/constants";
 import type { ExpenseCategoryCode } from "@dsar/schemas/taxonomy";
 import type { FeePosture, FeePostureMap, VerificationStatus } from "@dsar/schemas/rule-pack";
 
@@ -32,9 +31,14 @@ import {
   type ExpenseLineDraft,
   type RepeaterCategoryOption,
 } from "./expense-line-repeater.tsx";
+import { CategorizationSummary } from "./categorization-summary.tsx";
 import { ClaimFooter } from "./claim-footer.tsx";
 import { StatusStrip } from "../chrome/status-strip.tsx";
 import { useDraftAutosave } from "./use-draft-autosave.ts";
+import {
+  MIN_OTHER_DESCRIPTION_NON_WHITESPACE_CHARS,
+  hasSufficientDescriptionForCategory,
+} from "../../domain/expense-description.ts";
 import { AutosaveIndicator } from "./autosave-indicator.tsx";
 
 // Module-level so a future caller (or a test asserting on it) has one name
@@ -110,6 +114,12 @@ export function computeIntakeDisabledReason(input: DisabledReasonInput): string 
   if (input.lines.length === 0) {
     return "Add at least one cost line.";
   }
+  const undescribedIndex = input.lines.findIndex(
+    (line) => !hasSufficientDescriptionForCategory(line.categoryCode, line.description)
+  );
+  if (undescribedIndex !== -1) {
+    return `Describe what cost line ${undescribedIndex + 1} ("Something else") was for — at least ${MIN_OTHER_DESCRIPTION_NON_WHITESPACE_CHARS} characters, so Legal can classify it.`;
+  }
   const invalidLine = input.lines.find(
     (line) => !line.description.trim() || line.quantity <= 0 || Number.parseFloat(line.rateMajor) <= 0
   );
@@ -144,7 +154,6 @@ export function IntakeForm({ packsByJurisdiction, defaultReference }: IntakeForm
   });
   const [attestations, setAttestations] = useState<AttestationsValue>({
     identityVerified: false,
-    identityVerifiedNote: "",
     scopeClarified: false,
     isKnownDisputeOrLitigation: false,
   });
@@ -192,7 +201,7 @@ export function IntakeForm({ packsByJurisdiction, defaultReference }: IntakeForm
           requestorClass: matterDetails.requestorClass,
           currency,
           identityVerified: attestations.identityVerified,
-          identityVerifiedNote: attestations.identityVerifiedNote || null,
+          identityVerifiedNote: null,
           scopeClarified: attestations.scopeClarified,
           isRepeatRequestWithin12Months: false,
           isKnownDisputeOrLitigation: attestations.isKnownDisputeOrLitigation,
@@ -228,9 +237,7 @@ export function IntakeForm({ packsByJurisdiction, defaultReference }: IntakeForm
       });
       if (!submitResponse.ok) throw new Error(await readErrorMessage(submitResponse));
 
-      // 05-REVIEW-ADDENDUM.md WR-03: the autosaved draft can carry exactly
-      // the personal-data-shaped free text detectLikelyPersonalData exists
-      // to warn about (identityVerifiedNote, line descriptions) — it must
+      // The autosaved draft can carry free-text line descriptions and must
       // not persist in localStorage indefinitely once the matter it was
       // drafting is already submitted. Cleared immediately before
       // navigating away, mirroring this module's own "never reaches the
@@ -245,7 +252,7 @@ export function IntakeForm({ packsByJurisdiction, defaultReference }: IntakeForm
   }
 
   return (
-    <div data-testid="intake-form">
+    <div data-testid="intake-form" className="flex flex-col gap-xl">
       <AutosaveIndicator status={autosave.status} savedAt={autosave.savedAt} />
       <StatusStrip
         matterReference={matterDetails.reference}
@@ -269,16 +276,19 @@ export function IntakeForm({ packsByJurisdiction, defaultReference }: IntakeForm
         jurisdictionPack={currentJurisdictionPack}
       />
 
-      {matterDetailsValid ? <AttestationsPanel value={attestations} onChange={setAttestations} noteMaxLength={FREE_TEXT_LIMITS.identityVerifiedNote} /> : null}
-
       {matterDetailsValid && canOfferExpenseEntry(currentJurisdictionPack, matterDetails.controllerType) ? (
-        <ExpenseLineRepeater
-          lines={lines}
-          onChange={setLines}
-          categories={currentJurisdictionPack.categories}
-          currency={currency}
-        />
+        <>
+          <ExpenseLineRepeater
+            lines={lines}
+            onChange={setLines}
+            categories={currentJurisdictionPack.categories}
+            currency={currency}
+          />
+          <CategorizationSummary lines={lines} currency={currency} />
+        </>
       ) : null}
+
+      {matterDetailsValid ? <AttestationsPanel value={attestations} onChange={setAttestations} /> : null}
 
       <ClaimFooter
         claimedTotalMinor={claimedTotalMinor}

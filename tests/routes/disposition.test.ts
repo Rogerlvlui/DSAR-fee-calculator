@@ -168,13 +168,27 @@ describe("DISPOSITION", () => {
     const line = findLine(assessment, "ALLOW");
 
     const response = await dispositionRoute(
-      jsonRequest(`${DISPOSITION_URL}/${line.id}/disposition`, "POST", { action: "ACCEPT", reason: "          " }),
+      jsonRequest(`${DISPOSITION_URL}/${line.id}/disposition`, "POST", { action: "STRIKE", reason: "          " }),
       { params: Promise.resolve({ id: line.id }) }
     );
     expect(response.status).toBe(400);
 
     const stored = await storedLine(line.id);
     expect(stored?.disposition).toBe("PENDING");
+  });
+
+  it("DISPOSITION: routine Accept commits without a reason and records null lawyerReason", async () => {
+    const assessment = await buildFixtureAssessment();
+    const line = findLine(assessment, "ALLOW");
+    const response = await dispositionRoute(
+      jsonRequest(`${DISPOSITION_URL}/${line.id}/disposition`, "POST", { action: "ACCEPT" }),
+      { params: Promise.resolve({ id: line.id }) }
+    );
+    expect(response.status).toBe(200);
+    const stored = await storedLine(line.id);
+    expect(stored?.disposition).toBe("ACCEPTED");
+    expect(stored?.lawyerReason).toBeNull();
+    expect(stored?.dispositionedBy?.displayName).toContain("Roger Lui");
   });
 
   it("DISPOSITION: a reason that is exactly a stop-list phrase (AC-23) is refused with 400, distinctly from a too-short reason, and the stored line is unchanged", async () => {
@@ -307,6 +321,27 @@ describe("DISPOSITION", () => {
 
     const stored = await storedLine(line.id);
     expect(stored?.disposition).toBe("PENDING");
+  });
+
+  it("DISPOSITION: a zero or missing amount on Allow, Allow anyway or Reduce is refused with 400, naming the action that charges nothing", async () => {
+    const assessment = await buildFixtureAssessment();
+    const cases: [{ id: string }, Record<string, unknown>, RegExp][] = [
+      [findLine(assessment, "FLAG"), { action: "ALLOW_WITH_AMOUNT", amountMinor: 0 }, /use Strike/],
+      [findLine(assessment, "FLAG"), { action: "ALLOW_WITH_AMOUNT" }, /required/],
+      [findLine(assessment, "DISALLOW"), { action: "ALLOW_ANYWAY", amountMinor: 0 }, /use Accept/],
+      [findLine(assessment, "ALLOW"), { action: "REDUCE", amountMinor: 0 }, /use Strike/],
+      [findLine(assessment, "ALLOW"), { action: "REDUCE", amountMinor: -100 }, /above zero/],
+    ];
+
+    for (const [line, body, message] of cases) {
+      const response = await dispositionRoute(
+        jsonRequest(`${DISPOSITION_URL}/${line.id}/disposition`, "POST", { ...body, reason: GOOD_REASON }),
+        { params: Promise.resolve({ id: line.id }) }
+      );
+      expect(response.status).toBe(400);
+      expect(((await response.json()) as { error: string }).error).toMatch(message);
+      expect((await storedLine(line.id))?.disposition).toBe("PENDING");
+    }
   });
 
   it("DISPOSITION: an action that does not belong to the line's verdict is refused with 400", async () => {

@@ -9,6 +9,7 @@
 // which needs an app-router context this glob's static render never
 // provides).
 
+import { connection } from "next/server";
 import { buildJurisdictionPackViews } from "../../../../src/server/jurisdiction-packs.ts";
 import { IntakeForm } from "../../../../src/ui/intake/intake-form.tsx";
 
@@ -19,10 +20,13 @@ function suggestReference(): string {
 }
 
 export default async function NewMatterPage() {
+  // Render per request: pack status (review-due, staleness) and the suggested
+  // reference would otherwise be frozen at build time in a production build.
+  await connection();
   const packsByJurisdiction = buildJurisdictionPackViews();
 
   return (
-    <main>
+    <main className="flex flex-col gap-xl">
       <h1 className="screen">New fee claim</h1>
       <p className="caption">
         HR records what the response actually cost. <b>HR never sees a draft figure</b> — the

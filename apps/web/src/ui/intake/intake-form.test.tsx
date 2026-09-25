@@ -19,7 +19,7 @@ import {
   type MatterDetailsJurisdictionPack,
   type MatterDetailsValue,
 } from "./matter-details-fields.tsx";
-import { AttestationsPanel, IDENTITY_NOTE_WARNING, type AttestationsValue } from "./attestations-panel.tsx";
+import { AttestationsPanel, type AttestationsValue } from "./attestations-panel.tsx";
 import { ClaimFooter, CLAIM_NOT_FEE_SENTENCE } from "./claim-footer.tsx";
 import {
   computeIntakeDisabledReason,
@@ -181,22 +181,16 @@ describe("INTAKE-FORM: expense-entry gating (real per-jurisdiction posture)", ()
 describe("INTAKE-FORM: attestations panel", () => {
   const VALUE: AttestationsValue = {
     identityVerified: false,
-    identityVerifiedNote: "",
     scopeClarified: false,
     isKnownDisputeOrLitigation: false,
   };
 
-  it("INTAKE-FORM: renders the do-not-enter-personal-data warning under the identity note field, and the note field's maximum length equals the frozen limit", () => {
+  it("INTAKE-FORM: omits the optional identity note input while retaining the three attestations", () => {
     const html = renderToStaticMarkup(
-      React.createElement(AttestationsPanel, { value: VALUE, onChange: () => {}, noteMaxLength: 200 })
+      React.createElement(AttestationsPanel, { value: VALUE, onChange: () => {} })
     );
-
-    // React escapes the apostrophe in IDENTITY_NOTE_WARNING's "requestor's"
-    // to the numeric entity when rendering a text node — compare against
-    // the same escaping renderToStaticMarkup produces.
-    const escapedWarning = IDENTITY_NOTE_WARNING.replace(/'/g, "&#x27;");
-    expect(html).toContain(escapedWarning);
-    expect(html).toContain('maxLength="200"');
+    expect(html).not.toContain('name="identityVerifiedNote"');
+    expect(html.match(/type="checkbox"/g)).toHaveLength(3);
   });
 });
 
@@ -219,7 +213,7 @@ describe("INTAKE-FORM: claim footer", () => {
       .replace(/&#x27;/g, "'")
       .trim();
     expect(plainText).toBe(CLAIM_NOT_FEE_SENTENCE);
-    expect(html).toContain("$888.00");
+    expect(html).toContain("SGD 888.00");
   });
 });
 
@@ -266,6 +260,35 @@ describe("INTAKE-FORM: computeIntakeDisabledReason", () => {
         lines: [{ categoryCode: "STAFF_TIME_SEARCH", description: "", quantity: 4, rateMajor: "40.00" }],
       })
     ).toBe("Fix the highlighted cost line before submitting.");
+  });
+
+  it("INTAKE-FORM: names an under-described 'Something else' line by number", () => {
+    expect(
+      computeIntakeDisabledReason({
+        matterDetailsValid: true,
+        identityVerified: true,
+        scopeClarified: true,
+        lines: [
+          { categoryCode: "STAFF_TIME_SEARCH", description: "Search", quantity: 4, rateMajor: "40.00" },
+          { categoryCode: "OTHER_UNCLASSIFIED", description: "misc", quantity: 1, rateMajor: "45.00" },
+        ],
+      })
+    ).toBe(
+      'Describe what cost line 2 ("Something else") was for — at least 10 characters, so Legal can classify it.'
+    );
+  });
+
+  it("INTAKE-FORM: a sufficiently described 'Something else' line does not block submit", () => {
+    expect(
+      computeIntakeDisabledReason({
+        matterDetailsValid: true,
+        identityVerified: true,
+        scopeClarified: true,
+        lines: [
+          { categoryCode: "OTHER_UNCLASSIFIED", description: "Archive retrieval fee", quantity: 1, rateMajor: "45.00" },
+        ],
+      })
+    ).toBeNull();
   });
 
   it("INTAKE-FORM: returns null once every condition is met", () => {

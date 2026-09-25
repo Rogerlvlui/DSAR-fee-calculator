@@ -9,10 +9,12 @@
 // whole system, and splitting this into two calls would invite a caller to
 // fetch one and believe it was the log.
 //
-// No route and no screen exist for this yet — AUDIT-04 only requires the
-// capability exist and be callable under the DPO_ADMIN role (04-RESEARCH.md
-// Architectural Responsibility Map). A route/screen belongs to a later
-// phase that owns screens.
+// AUDIT-04 requires the capability be callable under the DPO_ADMIN role
+// (04-RESEARCH.md Architectural Responsibility Map). Phase 7.1 gave it a
+// real screen (apps/web/app/admin/audit/page.tsx) and, as of 2026-09-23,
+// widened this one gate to also accept LEGAL_REVIEWER — the demo's Legal
+// reviewer identity now carries both roles (auth.ts's own header note has
+// the reason); DPO_ADMIN alone remains independently valid too.
 
 import "../server-only.ts";
 import { requireRole, type DemoActor } from "./auth.ts";
@@ -27,7 +29,7 @@ export interface AuditLogExport {
 }
 
 export async function exportAuditLog(actor: DemoActor): Promise<AuditLogExport> {
-  requireRole(actor, "DPO_ADMIN");
+  requireRole(actor, ["DPO_ADMIN", "LEGAL_REVIEWER"]);
 
   const [matterEvents, packLifecycleEvents] = await Promise.all([
     memoryAuditEventWriter.exportAll(),

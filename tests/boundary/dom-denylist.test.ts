@@ -221,12 +221,10 @@ describe("DOM form-input deny-list — intake component half (BOUND-02)", () => 
       React.createElement(AttestationsPanel, {
         value: {
           identityVerified: true,
-          identityVerifiedNote: "",
           scopeClarified: true,
           isKnownDisputeOrLitigation: false,
         },
         onChange: () => {},
-        noteMaxLength: 200,
       })
     );
 

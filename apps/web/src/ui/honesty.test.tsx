@@ -266,7 +266,7 @@ describe("HONESTY: no AI-drafted label or model-suggestion block anywhere in thi
         matterReference: "DSAR-2026-0001",
         finalAmount: 16000 as Minor,
         currency: CURRENCY,
-        lawyerName: "Marcus Tan — Legal, Singapore",
+        lawyerName: "Roger Lui — Legal, Singapore",
         qualification: "Advocate & Solicitor, Singapore",
         signedAt: "2026-09-18T12:00:00Z",
         lines,

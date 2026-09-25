@@ -48,6 +48,18 @@ export function formatMinor(value: Minor, currency: CurrencyCode, locale = "en-S
   }).format(majorUnits);
 }
 
+/** Use an explicit ISO currency code where the UI can show several currencies. */
+export function formatMinorWithCode(value: Minor, currency: CurrencyCode, locale = "en-SG"): string {
+  const decimalPlaces = MINOR_UNIT_DECIMALS[currency];
+  const majorUnits = value / 10 ** decimalPlaces;
+  const amount = new Intl.NumberFormat(locale, {
+    style: "decimal",
+    minimumFractionDigits: decimalPlaces,
+    maximumFractionDigits: decimalPlaces,
+  }).format(majorUnits);
+  return `${currency} ${amount}`;
+}
+
 /**
  * Splits a `Minor` integer into its major-unit and fractional-minor-unit
  * parts without a locale, using integer division and remainder so no float

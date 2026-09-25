@@ -278,7 +278,7 @@ type Verdict =
 type Disposition =
   | 'PENDING'        // lawyer has not acted
   | 'ACCEPTED'       // lawyer accepts the engine verdict
-  | 'REDUCED'        // lawyer allows a lower amount
+  | 'REDUCED'        // lawyer allows a lower, non-zero amount
   | 'STRUCK'         // lawyer disallows entirely
   | 'ALLOWED_BY_LAWYER'; // lawyer allows a FLAG or DISALLOW line
 type AssessmentLine = {
@@ -292,7 +292,11 @@ type AssessmentLine = {
   citation: Citation;                // pack-authored, never LLM-generated
   flagReasons: FlagReason[];         // non-empty iff verdict === 'FLAG'
   disposition: Disposition;
-  lawyerAmount: number | null;       // set for REDUCED / ALLOWED_BY_LAWYER
+  lawyerAmount: number | null;       // set for REDUCED / ALLOWED_BY_LAWYER, and always
+                                     // > 0 when set. Charging nothing for a line is
+                                     // STRUCK (or ACCEPTED on a DISALLOW line) — never
+                                     // a REDUCED or ALLOWED_BY_LAWYER line at zero, so
+                                     // the record says what the lawyer actually decided
   lawyerReason: string | null;       // max 1000 chars. REQUIRED for any disposition
                                      // ≠ ACCEPTED, and for ACCEPTED on a FLAG line.
                                      // Privileged: never leaves /legal/* or the
@@ -759,16 +763,17 @@ Three stacked sections, progressively disclosed. Section 2 stays locked until se
 On selecting a jurisdiction whose pack is `NO_EXPRESS_AUTHORITY` or `PROHIBITED`, show immediately, before any expense entry:
 > **Heads up — {Jurisdiction}.** Our rule pack records no clear legal basis for charging a fee for a data access request in this jurisdiction. You can still record the costs, but the likely outcome is that Legal advises charging nothing. Talk to Legal before spending time on this.
 Telling HR this *before* they spend twenty minutes itemising is the single highest-value piece of UX in the intake flow.
-**2. Attestations.** Three checkboxes, each with a one-line explanation of why it is being asked:
-- "The requestor's identity has been verified." + optional note, 200 chars, with a warning under the field: *"Do not enter the requestor's name, NRIC/ID number, or any personal data here. Reference your verification record instead."*
-- "The scope of the request is clear, or clarifications have been resolved."
-- "This requestor is, to my knowledge, in a dispute or litigation with the company." (unchecked default; checking it does not stop anything, it triggers §9.4)
-**3. Expense lines.** A repeater, not a spreadsheet grid — grids invite paste-bombing and hide validation. Each row:
+**2. Expense lines.** A repeater, not a spreadsheet grid — grids invite paste-bombing and hide validation. Each row:
 `Category` (select, grouped: Staff time / Materials & delivery / Third-party charges / Other) · `What this cost was for` (300 chars) · `Quantity` · `Unit` (constrained by category — hours for staff time, pages for photocopying) · `Rate per unit` · `Amount` (computed, read-only, greyed) · `Staff grade` (staff-time categories only) · `Third-party invoiced?` + vendor + evidence reference (third-party categories only) · row menu: duplicate, delete.
 Category-contextual hints, shown on selection, drawn from the pack — this is where HR learns the rules over time:
 > *Staff time — deciding what may be withheld.* In many jurisdictions this is **not** recoverable, even though the work is real. Record it if you incurred it; Legal will decide.
-Running claimed total in a sticky footer, labelled unambiguously: **"Total you are claiming — not the fee. Legal decides what can actually be charged."**
-Submit is disabled with the reason visible until: ≥1 line, all required fields valid, all attestations addressed, pack usable. On submit: state → `COMPUTING`, lines locked read-only, HR sees a confirmation screen with the matter reference and *"Legal has been notified. You'll see the assessed fee once a lawyer has reviewed and signed it off. You will not see a draft figure before then."*
+The claim breakdown separates categorised costs from Other claims, without adding another form step.
+**3. Attestations.** Three labelled checkboxes, each with one line of help:
+- "The requestor's identity has been verified." Verification happens in the existing process. The intake form has no free-text identity note field; the optional schema value is submitted as `null`.
+- "The scope of the request is clear, or clarifications have been resolved."
+- "This requestor is, to my knowledge, in a dispute or litigation with the company." (unchecked default; checking it does not stop anything, it triggers §9.4)
+Running claimed total in a sticky footer, labelled unambiguously: **"Claimed costs — not the assessed fee."**
+Submit is disabled with the reason visible until: ≥1 line, all required fields valid, all attestations addressed, pack usable. On submit: state → `COMPUTING`, lines locked read-only, HR sees a confirmation screen with the matter reference and *"Your claim is in Legal's review queue. HR sees the assessed fee after lawyer sign-off; no draft figure is shown here."* The prototype makes no claim to send an outbound notification.
 That last sentence matters. Without it, HR reads the silence as a bug and starts asking Legal for the draft.
 ### 10.3 Legal review — `/legal/assessments/{id}`
 Three regions. Match the mockup.
@@ -805,7 +810,7 @@ Design requirements for the card:
 - `NEEDS_VERIFICATION` rules carry a visible marker.
 - Any LLM-drafted text is labelled inline: *"AI-drafted wording — figures and rule from the engine."*
 - Controls are per-verdict: `ALLOW` lines get Accept / Reduce / Strike; `FLAG` lines get Allow-with-amount / Strike / Ask HR and cannot be "accepted" without a reason; `DISALLOW` lines get Accept / Allow-anyway (reason required).
-- Reason field is inline and required before the disposition commits. Do not use a modal — modals train people to type "ok".
+- Reason field is inline and required for the dispositions listed in AC-23. A routine Accept of a supported, capped, or disallowed verdict may commit without free text. Do not use a modal — modals train people to type "ok".
 **Right rail — running totals and sign-off.**
 Figures below are the §14 reference fixture, before any disposition. They must reconcile: `Supported + Not supported + Needs your decision = Claimed`.
 ```

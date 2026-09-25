@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { CurrencyCodeSchema, toMinor } from "./primitives.ts";
-import { MINOR_UNIT_DECIMALS, formatMinor, minorToMajorParts } from "./money.ts";
+import { MINOR_UNIT_DECIMALS, formatMinor, formatMinorWithCode, minorToMajorParts } from "./money.ts";
 
 describe("MINOR_UNIT_DECIMALS", () => {
   it("has exactly nine keys whose key set equals the CurrencyCode member set", () => {
@@ -67,5 +67,12 @@ describe("minorToMajorParts", () => {
 
   it("has zero fraction for a zero-decimal currency", () => {
     expect(minorToMajorParts(toMinor(1000), "JPY")).toEqual({ units: 1000, fraction: 0 });
+  });
+});
+
+describe("formatMinorWithCode", () => {
+  it("makes the currency unambiguous without changing minor-unit precision", () => {
+    expect(formatMinorWithCode(toMinor(88800), "SGD")).toBe("SGD 888.00");
+    expect(formatMinorWithCode(toMinor(1000), "JPY")).toBe("JPY 1,000");
   });
 });

@@ -39,7 +39,7 @@ function render(overrides: Partial<Parameters<typeof ResultView>[0]> = {}): stri
       matterReference: "DSAR-2026-0142",
       finalAmount: 16000 as never,
       currency: "SGD",
-      lawyerName: "Marcus Tan — Legal, Singapore",
+      lawyerName: "Roger Lui — Legal, Singapore",
       qualification: "Advocate & Solicitor, Singapore",
       signedAt: "2026-09-18T12:00:00Z",
       lines: LINES,
@@ -57,12 +57,12 @@ describe("HR-RESULT", () => {
     // own money.test.ts only ever asserts the numeric substring).
     expect(html).toContain("Fee assessed:");
     expect(html).toContain("160.00");
-    expect(html).toContain("Marcus Tan — Legal, Singapore");
+    expect(html).toContain("Roger Lui — Legal, Singapore");
     // React escapes "&" to "&amp;" in rendered text — assert around it
     // rather than the raw ampersand.
     expect(html).toContain("Advocate");
     expect(html).toContain("Solicitor, Singapore");
-    expect(html).toContain("2026-09-18T12:00:00Z");
+    expect(html).toContain("18 Sep 2026");
   });
 
   it("HR-RESULT: the itemisation lists every allowed line with its amount and every struck line with its pack-authored basis", () => {
@@ -132,5 +132,31 @@ describe("HR-RESULT", () => {
 
     expect(html).toContain('data-outcome="allowed"');
     expect(html).toContain('data-outcome="struck"');
+  });
+
+  // 07.1-01 Task 3: the letter-styled document restructure — additive only,
+  // every assertion above this point must keep passing unmodified.
+  it("HR-RESULT: the line-item table renders as a real <table> element, with every existing data-testid preserved", () => {
+    const html = render();
+
+    expect(html).toMatch(/<table[^>]*data-testid="result-lines"[^>]*>/);
+    expect(html).toContain("<tbody>");
+    expect(html).toMatch(/<tr[^>]*data-testid="result-line"[^>]*>/);
+    expect(html).toContain('data-testid="result-line-description"');
+    expect(html).toContain('data-testid="result-line-amount"');
+    expect(html).toContain('data-testid="result-line-basis"');
+    expect(html).toContain('data-testid="result-signoff-meta"');
+  });
+
+  it("HR-RESULT: the notice shows the sign-off as a calendar date, never a raw ISO timestamp", () => {
+    const meta = render().match(/data-testid="result-signoff-meta"[^>]*>([\s\S]*?)<\/p>/)?.[1] ?? "";
+    expect(meta).toMatch(/, on \d{1,2} [A-Z][a-z]{2} 2026\.$/);
+    expect(meta).not.toContain("T12:00:00");
+    expect(meta).not.toContain("Z.");
+  });
+
+  it("HR-RESULT: the pinned h1's opening tag remains byte-for-byte unchanged after the letter-format restructure", () => {
+    const html = render();
+    expect(html).toMatch(/<h1 class="screen" data-testid="result-headline">Fee assessed: /);
   });
 });

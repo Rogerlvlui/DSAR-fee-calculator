@@ -37,6 +37,19 @@ export function isActionPermitted(verdict: Verdict, action: DispositionAction): 
   return VERDICT_ACTIONS[verdict].includes(action);
 }
 
+export const ACTIONS_TAKING_AMOUNT: ReadonlySet<DispositionAction> = new Set<DispositionAction>([
+  "REDUCE",
+  "ALLOW_WITH_AMOUNT",
+  "ALLOW_ANYWAY",
+]);
+
+// PRD §6.4: a lawyerAmount is always > 0. Charging nothing is recorded as the
+// action that means it — Strike, or Accept on a DISALLOW line — never as a
+// reduction or allowance of 0.00.
+export function nothingChargedAction(action: DispositionAction): "Strike" | "Accept" {
+  return action === "ALLOW_ANYWAY" ? "Accept" : "Strike";
+}
+
 // The mockup's own counter ("0 / 10 characters minimum") — the length half
 // of AC-23 this phase implements; the stop-list half is Phase 6's.
 export const MIN_REASON_NON_WHITESPACE_CHARS = 10;

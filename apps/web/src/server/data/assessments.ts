@@ -29,6 +29,7 @@ import {
   isActionPermitted,
   matchesReasonStopList,
   MIN_REASON_NON_WHITESPACE_CHARS,
+  nothingChargedAction,
   type DispositionAction,
 } from "../../domain/disposition-actions.ts";
 import { computeFinalAmount } from "../../domain/review-tallies.ts";
@@ -94,30 +95,10 @@ export async function getSignedOffAssessmentForHr(
   return assessment;
 }
 
-// Every disposition requires a reason, uniformly, on the server — Annex A
-// varies the reason LABEL by verdict ("required" / "required if you change
-// the amount" / "required to allow anyway"), and disposition-controls.tsx
-// renders those labels verbatim, but the rule this function enforces is the
-// same for every action on every verdict, because this phase's success
-// criterion 3 states it plainly: every disposition demands its reason.
-// AC-23's stop-list check runs FIRST, before the length check — a deliberate
-// deviation from a length-then-stop-list ordering (06-05-PLAN.md's own
-// literal action text): every one of REASON_STOP_LIST's 11 entries is under
-// the 10-non-whitespace-character length minimum on its own (the longest,
-// "agreed", is 6), so a length-first ordering would make the stop-list
-// branch below permanently unreachable dead code — any bare stop-list
-// phrase would always be caught by the length check first, and the two
-// error messages could never actually differ for any real request. Stop-
-// list first mirrors this same function's client-side counterpart
-// (disposition-controls.tsx/bulk-accept-bar.tsx also check stop-list before
-// length, per their own module comment) and is what makes this file's own
-// acceptance criterion — a route test can tell which check refused a given
-// request, by a genuinely distinct message — actually achievable.
-//
-// IN-01: gated on the shared hasSufficientAndGenuineReason() first, rather
-// than reimplementing "stop-list OR too short" a second, independent way —
-// the two sub-checks below run only to pick which specific message to
-// throw once the combined check has already failed.
+// AC-23 requires a genuine reason for changes, exceptions, and flagged
+// decisions. A routine Accept may store null. For a supplied reason, use
+// the shared stop-list and non-whitespace count, checking the stop-list
+// first so a stock phrase gets a useful error instead of a generic count.
 function assertSufficientReason(reason: string): void {
   if (!hasSufficientAndGenuineReason(reason)) {
     const stopListMatch = matchesReasonStopList(reason);
@@ -136,7 +117,20 @@ function assertSufficientReason(reason: string): void {
 export interface DispositionLineInput {
   action: DispositionAction;
   amountMinor?: number;
-  reason: string;
+  reason?: string | null;
+}
+
+function requirePositiveAmount(input: DispositionLineInput): Minor {
+  const label = input.action === "REDUCE" ? "A reduced amount" : "An allowed amount";
+  if (input.amountMinor === undefined || input.amountMinor === null) {
+    throw new ValidationError(`${label} is required for this action`);
+  }
+  if (!Number.isInteger(input.amountMinor) || input.amountMinor <= 0) {
+    throw new ValidationError(
+      `${label} must be above zero — to charge nothing for this line, use ${nothingChargedAction(input.action)}`
+    );
+  }
+  return MinorSchema.parse(input.amountMinor);
 }
 
 // requireRole first, then validate in order — action-permitted-for-verdict,
@@ -162,7 +156,16 @@ export async function dispositionLine(
     throw new ValidationError(`Action '${input.action}' is not permitted for a '${line.verdict}' line`);
   }
 
-  assertSufficientReason(input.reason);
+  if (input.reason != null && typeof input.reason !== "string") {
+    throw new ValidationError("Reason must be text");
+  }
+  const reason = input.reason?.trim() ?? "";
+  // AC-23 requires a reason for a departure from the engine, not for a
+  // routine acceptance. A supplied optional reason still meets the same
+  // quality rule so the record cannot contain a stock or one-word note.
+  if (input.action !== "ACCEPT" || line.verdict === "FLAG" || reason.length > 0) {
+    assertSufficientReason(reason);
+  }
 
   const expenseLines = await memoryMatterRepository.listExpenseLines(assessment.matterId);
   const expenseLine = expenseLines.find((candidate) => candidate.id === line.expenseLineId);
@@ -181,8 +184,7 @@ export async function dispositionLine(
       break;
     }
     case "REDUCE": {
-      const amount = MinorSchema.parse(input.amountMinor);
-      if (amount < 0) throw new ValidationError("Reduced amount must not be negative");
+      const amount = requirePositiveAmount(input);
       if (amount > line.engineAmount) {
         throw new ValidationError("Reduced amount must not exceed the engine's own amount for this line");
       }
@@ -195,8 +197,7 @@ export async function dispositionLine(
     }
     case "ALLOW_WITH_AMOUNT":
     case "ALLOW_ANYWAY": {
-      const amount = MinorSchema.parse(input.amountMinor);
-      if (amount < 0) throw new ValidationError("Allowed amount must not be negative");
+      const amount = requirePositiveAmount(input);
       if (amount > expenseLine.claimedAmount) {
         throw new ValidationError("Allowed amount must not exceed the line's claimed amount");
       }
@@ -211,7 +212,7 @@ export async function dispositionLine(
     ...line,
     disposition,
     lawyerAmount,
-    lawyerReason: input.reason,
+    lawyerReason: reason || null,
     dispositionedBy: actor.user,
     dispositionedAt: new Date().toISOString(),
   };

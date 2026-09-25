@@ -205,14 +205,11 @@ function renderEveryComponent(): string {
 
   const attestationsValue: AttestationsValue = {
     identityVerified: true,
-    // Pattern-triggering: an NRIC/FIN-shaped token, so the live warning
-    // sentence is scanned here too.
-    identityVerifiedNote: "Verified against S1234567A on file",
     scopeClarified: true,
     isKnownDisputeOrLitigation: false,
   };
   texts.push(
-    render(React.createElement(AttestationsPanel, { value: attestationsValue, onChange: () => {}, noteMaxLength: 200 }))
+    render(React.createElement(AttestationsPanel, { value: attestationsValue, onChange: () => {} }))
   );
 
   texts.push(
@@ -248,7 +245,7 @@ function renderEveryComponent(): string {
         matterReference: "DSAR-2026-0001",
         finalAmount: 16000 as ResultViewLine["amount"],
         currency: "SGD",
-        lawyerName: "Marcus Tan",
+        lawyerName: "Roger Lui",
         qualification: "Advocate & Solicitor, Singapore",
         signedAt: "2026-09-15T00:00:00.000Z",
         lines: RESULT_VIEW_LINES,

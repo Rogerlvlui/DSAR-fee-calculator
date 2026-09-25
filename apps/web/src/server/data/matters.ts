@@ -32,6 +32,10 @@ import {
 } from "@dsar/audit/payload-builders";
 import type { Json } from "@dsar/schemas/primitives";
 import { ENGINE_VERSION } from "@dsar/engine";
+import {
+  MIN_OTHER_DESCRIPTION_NON_WHITESPACE_CHARS,
+  hasSufficientDescriptionForCategory,
+} from "../../domain/expense-description.ts";
 
 // Added post-plan (05-REVIEW-ADDENDUM.md security finding, low severity):
 // mirrors apps/web/src/ui/intake/matter-details-fields.tsx's
@@ -67,6 +71,14 @@ function assertJurisdictionAllowsExpenseEntry(matter: Matter): void {
   if (posture && BLOCKING_FEE_POSTURES.has(posture)) {
     throw new ConflictError(
       `Matter '${matter.id}' — jurisdiction '${matter.jurisdictionCode}' does not currently permit charging a fee for controller type '${matter.controllerType}'; cost lines cannot be added`
+    );
+  }
+}
+
+function assertDescriptionSufficientForCategory(input: AddExpenseLineInput): void {
+  if (!hasSufficientDescriptionForCategory(input.categoryCode, input.description)) {
+    throw new ValidationError(
+      `A "Something else" (OTHER_UNCLASSIFIED) line needs a description of at least ${MIN_OTHER_DESCRIPTION_NON_WHITESPACE_CHARS} non-whitespace characters`
     );
   }
 }
@@ -176,6 +188,7 @@ export async function addExpenseLine(
   const matter = await memoryMatterRepository.getMatter(matterId);
   if (!matter) throw new NotFoundError(`No matter with id '${matterId}'`);
   assertJurisdictionAllowsExpenseEntry(matter);
+  assertDescriptionSufficientForCategory(input);
 
   const existingLines = await memoryMatterRepository.listExpenseLines(matterId);
 
@@ -237,6 +250,7 @@ export async function replaceExpenseLine(
   const existingLines = await memoryMatterRepository.listExpenseLines(matterId);
   const existing = existingLines.find((candidate) => candidate.id === lineId);
   if (!existing) throw new NotFoundError(`No expense line with id '${lineId}' on matter '${matterId}'`);
+  assertDescriptionSufficientForCategory(input);
 
   const line = ExpenseLineSchema.parse({
     id: lineId,

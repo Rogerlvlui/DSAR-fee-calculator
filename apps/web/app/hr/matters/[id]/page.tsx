@@ -55,7 +55,7 @@ export default async function HrMatterPage({ params }: { params: Promise<{ id: s
     }));
 
     return (
-      <main>
+      <main className="flex flex-col gap-xl">
         <h1 className="screen">Fee assessment — {matter.reference}</h1>
         {statusStrip}
         <InfoRequestPanel matterId={matter.id} queries={queries} />
@@ -69,12 +69,12 @@ export default async function HrMatterPage({ params }: { params: Promise<{ id: s
   // closes. Every earlier status still falls into the waiting branch.
   if (matter.status !== "SIGNED_OFF" && matter.status !== "CLOSED") {
     return (
-      <main>
+      <main className="flex flex-col gap-xl">
         <h1 className="screen">Fee assessment — {matter.reference}</h1>
         {statusStrip}
         <p data-testid="hr-waiting">
-          Legal has been notified. You&apos;ll see the assessed fee once a lawyer has reviewed and
-          signed it off. You will not see a draft figure before then.
+          This claim is in Legal&apos;s review queue. You&apos;ll see the assessed fee after lawyer
+          sign-off; no draft figure is shown here.
         </p>
       </main>
     );
@@ -122,7 +122,7 @@ export default async function HrMatterPage({ params }: { params: Promise<{ id: s
   const noticeSentAt = getNoticeSentAt(matter.id);
 
   return (
-    <main>
+    <main className="flex flex-col gap-xl">
       <h1 className="screen">Fee assessment — {matter.reference}</h1>
       <ResultView
         matterReference={matter.reference}
