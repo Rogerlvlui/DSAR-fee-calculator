@@ -66,15 +66,18 @@ Total claimed: **SGD 948.00**.
    - Lines 1 and 2 (supported by rule): **Accept**.
    - Line 3 (not supported — the engine's amount is already zero): **Accept**.
    - Line 4 (capped at SGD 26.40): **Accept**.
-   - Line 5 (flagged — **materiality only**): type a reason, **type 450.00 in the amount
-     box**, then **Allow**.
+   - Line 5 (flagged — **materiality only**): type a reason. Point out that **Allow is
+     disabled** and the card reads "Enter an amount above 0.00 to allow. To charge nothing
+     for this line, use Strike." Optionally type 0 to show it stays disabled. Then **type
+     450.00** — the hint disappears and Allow enables — and click **Allow**.
    - Line 6 (flagged — the example's vague "Something else"): type a reason, **Strike**.
    - Line 7 (flagged — the locksmith line, HR's description quoted verbatim): type a
      reason, **type 60.00**, then **Allow**.
 
-   Allow, Allow anyway and Reduce stay disabled until an amount above 0.00 is typed —
-   charging nothing is recorded as Strike (or Accept, on a not-supported line), never as an
-   allowance or reduction of zero.
+   Every undecided card with an amount box (Reduce, Allow, Allow anyway) shows that hint
+   until an amount above 0.00 is typed — it does not stop Accept or Strike. Charging nothing
+   is recorded as Strike (or Accept, on a not-supported line), never as an allowance or
+   reduction of zero (PRD §6.4).
 10. **Fill in a qualification** ("Advocate & Solicitor, Singapore") and click **"Sign off and
     release to HR."** The status changes in place to "Signed off — released to HR".
 11. **Switch back to HR** (header role switcher → My matters → the matter): the assessed fee,
@@ -92,7 +95,9 @@ Total claimed: **SGD 948.00**.
 | Intake, after "Fill in the example rows" | Footer: **SGD 888.00**, "Claimed costs — not the assessed fee." |
 | Intake, after line 7 | Footer: **SGD 948.00** |
 | Review, before any decision | Totals: claimed **948.00**, supported by rules **266.40**, not supported **126.60**, needs your decision **555.00** across **3 items**. Headline: "7 lines need a decision. The recommended fee stays hidden until every line is decided." Bulk accept reads **(0)** and is disabled. |
+| Review, every undecided card with an amount box | The Reduce / Allow / Allow anyway button is disabled, with "Enter an amount above 0.00 to reduce." (or "to allow" / "to allow anyway") and "To charge nothing for this line, use Strike." — "use Accept." on line 3, the not-supported line. |
 | Review, line 5 card | "Why this needs you" lists **only** the materiality item — no "Conditions not met", because the invoice was ticked and referenced. |
+| Review, after allowing line 5 at 450.00 | Totals rail: "Allowed by you, not by a rule" **SGD 450.00**. Following the step order (lines 1–4 already accepted), the headline reads "2 lines need a decision". |
 | Review, line 7 card | "HR's description" quotes the locksmith text verbatim; the reason is "always referred to Legal for classification". |
 | Review, after all seven decisions | "Every line has a decision. Review the totals before sign-off." The rail still shows the engine's own **SGD 266.40** "Not yet signed off" — the lawyer's figure is in the sign-off panel below. |
 | Sign-off panel | Accepted as assessed **4**, Reduced by you **0**, Struck by you **1**, Allowed by you **2**. Final fee **SGD 776.40**. |
@@ -117,6 +122,9 @@ lawyer allowed it, and the sign-off records that.
 5. **Bulk accept reads zero, honestly,** because no rule in the draft SG pack is verified yet.
 6. **A routine Accept needs no reason; a departure always does.** The flagged lines always need
    one, because Legal is the first human judgement applied to them.
+7. **The record says what the lawyer actually decided.** There is no "allowed at 0.00": a line
+   that charges nothing is struck (or accepted, where the engine already said zero). The button
+   refuses until there is a real amount, and the server refuses it too.
 
 ## Fallback: the six example rows only
 
