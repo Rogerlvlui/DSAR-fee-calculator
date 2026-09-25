@@ -62,7 +62,7 @@ describe("HR-RESULT", () => {
     // rather than the raw ampersand.
     expect(html).toContain("Advocate");
     expect(html).toContain("Solicitor, Singapore");
-    expect(html).toContain("2026-09-18T12:00:00Z");
+    expect(html).toContain("18 Sep 2026");
   });
 
   it("HR-RESULT: the itemisation lists every allowed line with its amount and every struck line with its pack-authored basis", () => {
@@ -146,6 +146,13 @@ describe("HR-RESULT", () => {
     expect(html).toContain('data-testid="result-line-amount"');
     expect(html).toContain('data-testid="result-line-basis"');
     expect(html).toContain('data-testid="result-signoff-meta"');
+  });
+
+  it("HR-RESULT: the notice shows the sign-off as a calendar date, never a raw ISO timestamp", () => {
+    const meta = render().match(/data-testid="result-signoff-meta"[^>]*>([\s\S]*?)<\/p>/)?.[1] ?? "";
+    expect(meta).toMatch(/, on \d{1,2} [A-Z][a-z]{2} 2026\.$/);
+    expect(meta).not.toContain("T12:00:00");
+    expect(meta).not.toContain("Z.");
   });
 
   it("HR-RESULT: the pinned h1's opening tag remains byte-for-byte unchanged after the letter-format restructure", () => {

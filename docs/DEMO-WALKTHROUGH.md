@@ -22,17 +22,14 @@ rehearsal that wiped the confirmation screen right after "Submit to Legal". The 
 server has everything compiled in advance and never reloads. From the project folder:
 
 ```bash
-pnpm.cmd --filter @dsar/web exec next build --webpack
+pnpm.cmd --filter @dsar/web build
 pnpm.cmd --filter @dsar/web start
 ```
 
-(`--webpack` because Turbopack crashes on this machine; the build takes about 30 seconds.)
-To empty the queue before presenting, stop the server (Ctrl+C) and run only the second
-command again — no rebuild needed. Rebuild only after a code change. Close any other
+(The build uses webpack, because Turbopack crashes on this machine; it takes about 30
+seconds.) To empty the queue before presenting, stop the server (Ctrl+C) and run only the
+second command again — no rebuild needed. Rebuild only after a code change. Close any other
 `localhost:3000` tabs before you start.
-
-In the production build every new claim gets the same suggested reference (it is fixed at
-build time), which is harmless for a single demo claim.
 
 ## The claim
 
@@ -118,7 +115,7 @@ Total claimed: **SGD 948.00**.
 | Review, line 7 card | "HR's description" quotes the locksmith text verbatim; the reason is "always referred to Legal for classification". |
 | Review, after all seven decisions | "Every line has a decision. Review the totals before sign-off." The rail still shows the engine's own **SGD 266.40** "Not yet signed off" — the lawyer's figure is in the sign-off panel below. |
 | Sign-off panel | Accepted as assessed **4**, Reduced by you **0**, Struck by you **1**, Allowed by you **2**. Final fee **SGD 776.40**. |
-| HR result, after sign-off | "Fee assessed: SGD 776.40"; the reviewing lawyer's name and qualification; line 6 struck, shown with its basis and no figure. |
+| HR result, after sign-off | "Fee assessed: SGD 776.40"; the reviewing lawyer's name, qualification and sign-off date (e.g. "on 25 Sep 2026"); line 6 struck, shown with its basis and no figure. |
 
 **Final fee arithmetic:** 160.00 + 80.00 + 0.00 + 26.40 (four accepted lines) + 450.00 (vendor,
 allowed by the lawyer) + 0.00 (struck) + 60.00 (locksmith, allowed by the lawyer) = **776.40**.

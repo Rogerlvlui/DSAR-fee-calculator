@@ -14,6 +14,7 @@
 
 import type { CurrencyCode, Minor } from "@dsar/schemas/primitives";
 import { formatMinorWithCode } from "@dsar/schemas/money";
+import { formatDisplayDate } from "../../domain/display-date.ts";
 
 export interface ResultViewLine {
   id: string;
@@ -53,7 +54,8 @@ export function ResultView({
         <div className="row">
           <span className="wordmark">Notice of fee — data access request</span>
           <p data-testid="result-signoff-meta" className="caption">
-            Matter {matterReference} — reviewed and signed off by {lawyerName}, {qualification}, on {signedAt}.
+            Matter {matterReference} — reviewed and signed off by {lawyerName}, {qualification}, on{" "}
+            {formatDisplayDate(signedAt)}.
           </p>
         </div>
         <table data-testid="result-lines" className="notice-table">

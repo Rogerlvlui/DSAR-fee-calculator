@@ -158,7 +158,7 @@ export function AssessmentView({
       <div className="review-grid-main">
         <p className="review-progress" data-testid="review-progress">
           {pendingCount > 0
-            ? `${pendingCount} line${pendingCount === 1 ? "" : "s"} need a decision. The recommended fee stays hidden until every line is decided.`
+            ? `${pendingCount} ${pendingCount === 1 ? "line needs" : "lines need"} a decision. The recommended fee stays hidden until every line is decided.`
             : "Every line has a decision. Review the totals before sign-off."}
         </p>
         {stalePackNotice}

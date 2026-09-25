@@ -83,6 +83,33 @@ const LINE_DETAILS: AssessmentViewLineDetail[] = LINE_SPECS.map((spec, index) =>
   verificationStatus: "NEEDS_VERIFICATION",
 }));
 
+function withAllDecidedExcept(pendingLineIds: readonly string[]): Assessment {
+  const assessment = buildAssessment();
+  return {
+    ...assessment,
+    lines: assessment.lines.map((line) =>
+      pendingLineIds.includes(line.id)
+        ? line
+        : {
+            ...line,
+            disposition: line.verdict === "FLAG" ? "STRUCK" : "ACCEPTED",
+            lawyerReason: line.verdict === "FLAG" ? "Struck during the fixture's review." : null,
+            dispositionedBy: { id: "01J8Z0000000000000000000AA", displayName: "Reviewer", email: "reviewer@example.com" },
+            dispositionedAt: "2026-09-18T01:00:00Z",
+          }
+    ),
+  };
+}
+
+describe("ASSESSMENT-VIEW: progress headline", () => {
+  it("ASSESSMENT-VIEW: agrees in number — 'lines need' for several, 'line needs' for one", () => {
+    expect(renderView()).toContain("6 lines need a decision.");
+    const one = renderView({ assessment: withAllDecidedExcept(["line-flag-2"]) });
+    expect(one).toContain("1 line needs a decision.");
+    expect(one).not.toContain("1 line need a decision");
+  });
+});
+
 function renderView(overrides: Partial<React.ComponentProps<typeof AssessmentView>> = {}): string {
   return renderToStaticMarkup(
     React.createElement(AssessmentView, {
