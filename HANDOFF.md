@@ -1,12 +1,27 @@
-# HANDOFF — Phase 7 complete, preparing to demo
+# HANDOFF — Phase 7.1 complete, Phase 8 next, both remaining pieces re-planned
 
-## Branch state
+**Written 2026-09-28.** This account loses access to this Claude Code session in ~2 days.
+This file is the landing point for whoever picks the project up next — read this first,
+then `.planning/STATE.md` (full decision log) and `docs/PRD-dsar-fee-agent.md` (the spec —
+if the app and the PRD ever disagree, the PRD wins).
 
-- Branch: `claude/gsd-execute-phase-3-8d8826`, pushed to `origin`, no PR open.
-- Worktree: `.claude/worktrees/gsd-execute-phase-3-96530d`.
-- HEAD: `de23bb6` — `docs(quick-260922-jr4): Fix broken Tailwind v4 CSS pipeline, apply the mockup's visual design system to the HR/legal review screens, and rename the demo Legal reviewer identity from Marcus Tan to Roger Lui`.
-- Working tree: clean except `.planning/state.json` (a stale copy of phase status the newer `.planning/STATE.md` has superseded — harmless, not yet reconciled) and `apps/web/next-env.d.ts` (Next's own regenerated file).
-- Full suite: 1072 tests passing; `typecheck`/`lint`/`depcruise` clean.
+## Repo / branch state
+
+- Primary repo: `Rogerlvlui/DSAR-fee-calculator`, branch `main`, local and origin both at
+  `8186f74` (pushed 2026-09-26 — confirm this is still the HEAD when you resume).
+- A second copy of this build lives in the LQ residency cohort repo,
+  `LegalQuants/lq-residency-september-2026`, folder `lui-chun-fai/`, pushed to the same
+  `8186f74` content as commit `d948fef` (2026-09-25). That copy is submission-facing, not a
+  place to keep developing — do further work in the primary repo and re-sync that folder
+  later if it needs to be current again.
+- Working tree at last check: clean except normal untracked scratch files at the project
+  root (docx notes, zips, `Copilot/`) — none of these are part of the product and none are
+  tracked by git; ignore them.
+- Full suite: **1112/1112 tests passing** as of quick task 260925-w7p; `typecheck`/`lint`/
+  `depcruise` clean; `pnpm --filter @dsar/web build` (webpack) green.
+- One known, pre-existing, not-yours-to-fix failure: `packages/schemas/src/json-schema.test.ts`'s
+  byte-identical drift check fails on Windows checkouts (CRLF vs LF). Logged in
+  `.planning/WINDOWS.md` (id 1, open).
 
 ## What's built vs. not, by phase
 
@@ -16,96 +31,111 @@
 | 2 | Deterministic Fee Engine | ✅ complete |
 | 3 | Rule Packs and Pack Admin | ✅ complete |
 | 3.1 | Demo Slice — In-Memory Determination Pipeline | ✅ complete |
-| 3.2 | Database Boundary and Audit Immutability | ❌ not started |
+| 3.2 | Database Boundary and Audit Immutability | ❌ not started (re-planned, see below) |
 | 4 | Workflow and Audit Backbone | ✅ complete |
 | 5 | HR Intake and Disclosure Shell | ✅ complete |
 | 6 | Convergence and Legal Review | ✅ complete |
 | 7 | Sign-off, Outputs and Edge States | ✅ complete |
-| 8 | LLM Job 1 — Category Suggestion | ❌ not started |
+| 7.1 | UI Redesign — Claude Design Adoption | ✅ complete |
+| 8 | LLM Job 1 — Category Suggestion | ❌ not started, not yet discussed/planned |
 
-Phases 4–7 mean `apps/web` now delivers the full PRD §10 screen set — HR intake, legal
-review, sign-off, the internal-record PDF, HR/requestor outputs, and every §10.7 edge
-state (stale pack, no pack, currency mismatch, zero-fee outcome) — end to end. All of it
-runs against the in-memory repository built in Phase 3.1; nothing in Phases 4–7 touched
-persistence. Phase 3.2 (Postgres, the `dsar_migrator`/`dsar_runtime` GRANT/REVOKE
-boundary, real audit immutability) is the one architectural piece genuinely still
-outstanding, followed by Phase 8 (the LLM boundary, `packages/agent`).
+`apps/web` delivers the full PRD §10 screen set — HR intake, legal review, sign-off, the
+internal-record PDF, HR/requestor outputs, every §10.7 edge state, and (new in 7.1) a
+`DPO_ADMIN`-gated `/admin/audit` trail screen — all restyled to match
+`docs/dsar-fee-agent-mockup-simplified.html`'s actual visual system (self-hosted
+Newsreader/IBM Plex Sans/IBM Plex Mono, card/eyebrow/callout/summary-row patterns). All of
+it still runs against the **in-memory repository** — Phase 3.2 (Postgres) is the one
+architectural piece genuinely still outstanding.
 
-Full detail on every phase's requirements, decisions, and deviations lives in
-`.planning/STATE.md` (Decisions log, per-phase) and `.planning/phases/<NN>/`
-(PLAN/SUMMARY/REVIEW/VERIFICATION per plan). This file is a landing point, not a
-duplicate of that record.
+## What's happened since the last handoff snapshot (2026-09-22 → 2026-09-26)
 
-## What just happened (2026-09-22, quick task 260922-jr4)
+In rough order:
 
-A request to apply `docs/dsar-fee-agent-mockup-simplified.html`'s visual style to the real
-app surfaced that `apps/web/app/globals.css`'s Tailwind v4 `@theme` block had **never
-actually compiled** — no `@tailwindcss/postcss` package and no `postcss.config` existed
-anywhere in the repo, so every screen had rendered in unstyled browser defaults since the
-token system was first authored (Phase 3.1). This had passed every prior phase's tests and
-reviews because nothing exercised the built CSS output; only opening the app in a real
-browser surfaced it.
+1. **Fixed the Tailwind v4 pipeline** that had silently never compiled since Phase 3.1 (no
+   `@tailwindcss/postcss`/postcss config existed) — added the plugin, a permanent
+   regression gate (`tests/toolchain/css-pipeline.test.ts`), and worked around this build
+   machine's Turbopack segfault with `--webpack` (`.planning/WINDOWS.md` entry 4).
+2. **Phase 7.1 executed in full** (both plans): Claude-Design restyle wave (fonts, DISALLOW
+   pill colour fix, verdict-accent bars, HR intake's numbered sections, letter-styled HR
+   result/notice) and the new `/admin/audit` Audit trail screen end to end. Suite went
+   1072 → 1095. Independently verified, all 5 ROADMAP success criteria met.
+3. **Phase 3.2 context session** (2026-09-23): a repository-swap approach was decided
+   (D-11/D-12/D-13, in `.planning/phases/03.2-.../03.2-CONTEXT.md`) — but this **postdates**
+   the existing `03.2-01/02/03-PLAN.md` files, which the context file itself flags:
+   **"Plans 03.2-01/02/03 predate the repository-swap decision above — replan before
+   executing."** Don't execute those plans as written; replan Phase 3.2 first.
+4. **A string of quick tasks** (260923-w1p through 260925-w7p) fixing things found in demo
+   rehearsals: restyled the status strip and audit-trail table (missed spots in 7.1),
+   combined the Legal and DPO demo identities, required a real description on "Something
+   else" lines, required a positive amount on Allow/Reduce dispositions, and four small
+   rehearsal fixes (headline pluralisation, sign-off date on the HR notice, `/hr/matters/new`
+   dynamic rendering, `apps/web`'s build script pinned to `--webpack`).
+5. **A separate PR (#4, `codex/demo-ux-review-fixes`)** merged in "Polish DSAR demo flow and
+   fix PDF runtime" — worth reading its diff if you weren't the one who reviewed it, since
+   it didn't go through the usual GSD quick-task flow.
+6. `docs/DEMO-WALKTHROUGH.md` was kept current throughout — it's now the accurate
+   presenter script against the production (`--webpack`) build, including the zero-amount
+   rule (PRD §6.4, newly documented) and the review-card order actually seen in rehearsal.
 
-Fixed: `apps/web/postcss.config.mjs` added, `@tailwindcss/postcss@4.3.3` +
-`postcss@8.5.28` exact-pinned, and a permanent regression gate
-(`tests/toolchain/css-pipeline.test.ts`) added so this class of failure cannot recur
-silently. Once the plugin was registered, this build machine's documented Turbopack
-segfault (`.planning/WINDOWS.md` entry 4) also started affecting `next build`/`dev` —
-worked around with `--webpack`, consistent with the product owner's prior decision to
-proceed rather than block on that machine-specific issue.
+## The two remaining pieces, and what each actually needs
 
-Also in this pass: a new `@layer components` block in `globals.css` (19 previously
-orphaned class names already used throughout the markup, plus the mockup's
-card/eyebrow/callout/summary-row/button patterns, all built from tokens already in the
-file — zero new colours, zero webfonts, zero network references), applied to the app
-chrome, legal review screen, HR intake, and HR result screen; and the demo
-`LEGAL_REVIEWER_USER` identity renamed from Marcus Tan to Roger Lui across source and
-tests. An independent review (`260922-jr4-REVIEW.md` /
-`260922-jr4-REVIEW-ADDENDUM.md`) found and fixed 2 Critical issues (a CSS selector
-that tinted PENDING line cards the same as already-decided ones; a sub-row indentation a
-code comment called "load-bearing" per PRD §10.3 but no CSS rule actually implemented)
-plus 4 Warnings (dead CSS), before this HEAD.
+**Phase 3.2 — Database Boundary and Audit Immutability.**
+- Needs Docker available (it wasn't on this build machine as of Phase 1 — check first).
+- **Replan before executing** — see point 3 above. The context/decisions (D-04 through D-13)
+  are current and correct; only the three PLAN.md files need redoing against them.
+- Scope: `prisma migrate dev`'s first migration; the two Postgres roles (`dsar_migrator` /
+  `dsar_runtime`) with GRANT/REVOKE; a startup assertion that fails fast if the runtime
+  connects as `dsar_migrator` (D-08); a Testcontainers-backed integration test proving the
+  GRANT boundary (AC-34); Prisma-backed implementations of `MatterRepository`/
+  `AssessmentRepository` dropped in behind the existing in-memory ones via a new
+  `repositories/active.ts` composition module (D-11/D-12), selected by whether
+  `RUNTIME_DATABASE_URL` is set (D-13) — **`apps/web/src/server/repositories/interface.ts`
+  itself must not change**, and no UI/route call site should need to.
 
-## Two remaining pieces, and what each actually needs
+**Phase 8 — LLM Job 1 (Category Suggestion).**
+- Not yet discussed or planned at all — start with a discuss-phase session.
+- Builds `packages/agent`: suggests a category for an unclassified expense line only — no
+  arithmetic, no rationale text the engine didn't already produce, no citation the engine
+  didn't already cite (Non-negotiable #1, PRD §8.2).
+- `/evals` gates any deploy of this package and nothing else.
 
-**Phase 3.2 — Database Boundary and Audit Immutability.** Separately planned already (not
-discussed against this HEAD). Needs: `prisma migrate dev`'s first migration, the two
-Postgres roles (`dsar_migrator` / `dsar_runtime`) with GRANT/REVOKE separating who can
-write the audit table from who can merely append to it, a real Testcontainers-backed
-integration test proving the boundary (AC-34), and a Prisma-backed implementation of
-`apps/web/src/server/repositories/interface.ts` dropped in behind the existing in-memory
-one — the interface itself was authored in Phase 3.1 specifically so this swap touches no
-call site.
+Neither phase depends on the other; either can go first. `.planning/STATE.md`'s
+frontmatter (`current_phase: 8`) reflects the last planning session's intent, not a
+requirement that 3.2 wait — but given 3.2 needs a replan and Docker, confirm Docker's
+available before committing to it over Phase 8.
 
-**Phase 8 — LLM Job 1 (Category Suggestion).** Not yet discussed or planned. Builds
-`packages/agent`: the LLM suggests a category for an unclassified expense line only: no
-arithmetic, no rationale text the engine didn't already produce, no citation the engine
-didn't already cite. Per PRD §8.2 and this repo's own Non-negotiables, evals
-(`/evals`) gate any deploy of this package and nothing else.
-
-Neither phase depends on the other; either can be planned next. `.planning/STATE.md`'s
-frontmatter (`current_phase: 08`) reflects the last planning session's intent, not a
-requirement that 3.2 wait.
-
-## Assumptions a fresh session would get wrong
+## Assumptions a fresh session (or a new person) would get wrong
 
 - **`apps/web` is not a demo-only slice waiting to be replaced.** Phase 3.1 built an
-  in-memory demo shape; Phases 4–7 built the actual PRD §10 product on top of the *same*
-  routes and repository interface — there is no separate "real" `apps/web` to build later.
-  Only the persistence layer underneath it is provisional.
-- **Both reference rule packs (`SG-PDPA`, `HK-PDPO`) are still `status: "DRAFT"`.** This is
-  not a bug or an oversight — full 21-category authoring and a named lawyer's sign-off are
-  legal work, tracked separately (see `docs/sg-pack-authoring-worksheet.md`), and a pack
-  cannot reach `ACTIVE` while any `UNAUTHORED_TOKEN`-marked rule remains. The engine
-  coerces an in-memory copy to `ACTIVE` for local running only; the committed file is never
-  edited.
-- **The CSS pipeline bug (above) hid behind a fully green test suite for six phases.** If a
-  future visual change looks unstyled in the browser despite passing tests, check
-  `tests/toolchain/css-pipeline.test.ts` is actually running and actually compiling —
-  don't assume the test suite alone proves the UI renders as designed.
-- **A known, pre-existing test failure is expected and is not yours to fix:**
-  `packages/schemas/src/json-schema.test.ts`'s byte-identical drift check fails on this
-  Windows checkout (CRLF-committed artifact vs. LF-regenerated output). Logged in
-  `.planning/WINDOWS.md` (id 1, open).
+  in-memory demo shape; Phases 4–7.1 built the actual PRD §10 product on top of the *same*
+  routes and repository interface. Only the persistence layer underneath is provisional.
+- **Both reference rule packs (`SG-PDPA`, `HK-PDPO`) are still `status: "DRAFT"`.** Not a
+  bug — full 21-category authoring and a named lawyer's sign-off are legal work, tracked in
+  `docs/sg-pack-authoring-worksheet.md` / the AU worksheet. A pack can't reach `ACTIVE`
+  while any `UNAUTHORED_TOKEN`-marked rule remains. The engine coerces an in-memory copy to
+  `ACTIVE` for local running only; the committed file is never edited.
+- **The CSS pipeline bug hid behind a fully green test suite for six phases.** If a future
+  visual change looks unstyled in the browser despite passing tests, check
+  `tests/toolchain/css-pipeline.test.ts` is actually running and compiling — a green suite
+  alone doesn't prove the UI renders as designed.
+- **This build machine has a documented Turbopack segfault** (`.planning/WINDOWS.md` #4).
+  `apps/web`'s `build`/`dev` scripts are pinned to `--webpack` deliberately — don't "fix"
+  them back to Turbopack without checking whether the new machine has the same issue.
 - **`workflow.use_worktrees` is `false` project-wide.** Plans execute sequentially on the
   main tree regardless of whether their `files_modified` lists overlap.
+- **Phase 3.2's existing PLAN.md files are stale relative to its own CONTEXT.md.** See "the
+  two remaining pieces" above — don't execute them without replanning first.
+- **PR #4 (`codex/demo-ux-review-fixes`) landed outside the GSD quick-task flow.** If you're
+  auditing what changed and why, its own PR description is the record, not a
+  `.planning/quick/` entry.
+
+## Where everything lives
+
+- Spec: `docs/PRD-dsar-fee-agent.md` (source of truth), `docs/dsar-fee-agent-mockup.html`
+  (Annex A structure), `docs/dsar-fee-agent-mockup-simplified.html` (current visual design
+  reference — self-extracting bundle, not readable as source).
+- Full decision log, per phase: `.planning/STATE.md` + `.planning/phases/<NN>/`
+  (PLAN/SUMMARY/REVIEW/VERIFICATION per plan).
+- Windows-specific gotchas (Turbopack segfault, the schema drift test): `.planning/WINDOWS.md`.
+- Presenter script for demoing the app: `docs/DEMO-WALKTHROUGH.md`.
+- Build/test commands: root `package.json` scripts, also listed in `CLAUDE.md`.
