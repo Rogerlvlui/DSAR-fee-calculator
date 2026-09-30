@@ -8,10 +8,10 @@ if the app and the PRD ever disagree, the PRD wins).
 ## Repo / branch state
 
 - Primary repo: `Rogerlvlui/DSAR-fee-calculator`, branch `main`. Local and origin were both
-  at `5c97a35` on 2026-09-30 (plus this handoff update). Confirm the HEAD when you resume.
+  at `3b816e6` on 2026-09-30 (plus this handoff update). Confirm the HEAD when you resume.
 - A second copy of this build lives in the LQ residency cohort repo,
   `LegalQuants/lq-residency-september-2026`, folder `lui-chun-fai/`. It was synced to
-  `5c97a35` as commit `826fe8e` on 2026-09-30, and it's the link submitted to LQ. It is
+  `3b816e6` as commit `cfa40cd` on 2026-09-30, and it's the link submitted to LQ. It is
   for submission, not development: work in the primary repo, then re-sync the folder.
   - **Local clone:** `C:\Users\Roger\Desktop\AI Tooling\lq-residency-september-2026`, next to
     the project, not inside it. It was moved out on 2026-09-30 because a clone inside the
@@ -20,14 +20,22 @@ if the app and the PRD ever disagree, the PRD wins).
   - **To re-sync:** pull the clone, replace `lui-chun-fai/` with `git archive HEAD` of this
     repo's main, stage only `lui-chun-fai/`, commit, push. Never touch other residents' folders.
 - **Demo ZIP for audiences outside LQ:** `DSAR-Fee-Agent-demo-2026-09-30.zip` in the project
-  root (untracked). It is `git archive` of main without `.claude`, `.gsd`, `.planning` and the
-  PRD brief docx, plus a `START-HERE.md` with run steps (Node 20.9+, pnpm 11.27.0,
-  `pnpm install` → `pnpm --filter @dsar/web build` → `start`, then http://localhost:3000).
-  It was tested from clean on this machine. Rebuild it the same way after any code change.
-  The older `Demo DSAR fee calculator.zip` is the 22 Sep static design mockup, not the app.
+  root (untracked), last built from `3b816e6`. It is `git archive` of main without `.claude`,
+  `.gsd`, `.planning`, the PRD brief docx and **`HANDOFF.md`** (left out at the product
+  owner's request because it's internal), plus a `START-HERE.md` with run steps (Node 20.9+,
+  pnpm 11.27.0, `pnpm install` → `pnpm --filter @dsar/web build` → `start`, then
+  http://localhost:3000). It was tested from clean on this machine. Rebuild it the same way
+  after any code change.
+  - **Zip it with forward-slash paths.** Don't use PowerShell's `Compress-Archive`: on Windows
+    PowerShell 5.1 it writes backslash paths, so on Mac or Linux the ZIP unpacks into one flat
+    folder and the app won't run. The current ZIP is built with Python's `zipfile`, with each
+    path converted to `/`. Check with `unzip -Z1 <zip> | grep -cF '\'`, which must print 0.
+  - `README.md` and `apps/web/scripts/dev.mjs` still mention `HANDOFF.md`. In the ZIP those
+    pointers lead nowhere; that's harmless.
+  - The older `Demo DSAR fee calculator.zip` is the 22 Sep static design mockup, not the app.
 - Working tree at last check: clean except untracked scratch files at the project root (docx
   notes, zips, `Copilot/`). None of them are part of the product or tracked by git.
-- Full suite: **1116/1116 tests passing** as of quick task 260930-w8p. `typecheck`, `lint` and
+- Full suite: **1117/1117 tests passing** as of quick task 260930-w9p. `typecheck`, `lint` and
   `depcruise` are clean, and `pnpm --filter @dsar/web build` (webpack) is green.
 - `packages/schemas/src/json-schema.test.ts`'s byte-identical drift check has failed on
   Windows checkouts before (CRLF vs LF; `.planning/WINDOWS.md` id 1, still open). It passed
@@ -87,7 +95,7 @@ In rough order:
    presenter script against the production (`--webpack`) build, including the zero-amount
    rule (PRD §6.4, newly documented) and the review-card order actually seen in rehearsal.
 
-## What changed on 2026-09-30 (quick task 260930-w8p, commit `e21d427`)
+## What changed on 2026-09-30 (quick tasks 260930-w8p and 260930-w9p)
 
 1. **Counsel authored the Singapore requestor notice.** SG-PDPA's `requestorNoticeTemplate`
    now holds Roger Lui's letter, word for word. It opens "Subject: Your data access request
@@ -117,6 +125,18 @@ In rough order:
      needs a new product decision, not a quiet re-add of the button.
 3. `docs/DEMO-WALKTHROUGH.md` updated: at step 11 the letter reads "…this access fee of SGD
    776.40", "Dear [Name]," stays a placeholder, and there's no mark-sent button.
+4. **The legal review headline is relabelled** (quick task 260930-w9p, commit `d5426db`). The
+   Totals panel box said "Recommended fee". It now says **"Engine's figure (rules only)"**
+   (`HEADLINE_LABEL` in `totals-rail.tsx`), and the hidden-state sentence reads "The engine's
+   figure stays hidden until every line is decided."
+   - **Why:** after all seven demo decisions the box showed SGD 266.40, the engine's figure,
+     which leaves out what the lawyer allowed or reduced. The sign-off panel below showed the
+     SGD 776.40 final fee, so the two read as conflicting fees.
+   - **Product-owner decision, recorded in PRD §10.3:** rename only. The figure, the
+     hide-until-decided gate and every engine number are unchanged. The other two options
+     offered, making the box follow the lawyer's decisions or removing it, were not taken.
+   - A test fails if "recommended fee" ever reappears on that panel. The static mockups under
+     `docs/` still say "Recommended fee"; they're reference files and weren't edited.
 
 ## The two remaining pieces, and what each actually needs
 
