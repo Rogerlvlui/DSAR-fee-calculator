@@ -24,6 +24,10 @@ import { formatMinorWithCode } from "@dsar/schemas/money";
 export const HIDDEN_HEADLINE_TEXT = "— hidden —";
 export const NOT_YET_SIGNED_OFF_TEXT = "Not yet signed off";
 export const SIGNED_OFF_TEXT = "Signed off — released to HR";
+// Named for what it is, so it cannot be read as the fee (product-owner decision,
+// 2026-09-30, PRD §10.3). It leaves out anything the lawyer allowed or
+// reduced; the sign-off panel carries the lawyer's final fee.
+export const HEADLINE_LABEL = "Engine's figure (rules only)";
 
 function pendingCountSentence(pendingCount: number): string {
   return `${pendingCount} line${pendingCount === 1 ? "" : "s"} still need your decision`;
@@ -101,7 +105,7 @@ export function TotalsRail({ assessment, currency }: TotalsRailProps) {
       </div>
 
       <div data-testid="headline" className="summary-total">
-        <div>Recommended fee</div>
+        <div>{HEADLINE_LABEL}</div>
         {pendingCount > 0 ? (
           <>
             <div data-testid="headline-hidden">{HIDDEN_HEADLINE_TEXT}</div>

@@ -111,12 +111,12 @@ Total claimed: **SGD 948.00**.
 |-------|-------------------|
 | Intake, after "Fill in the example rows" | Footer: **SGD 888.00**, "Claimed costs — not the assessed fee." |
 | Intake, after line 7 | Footer: **SGD 948.00** |
-| Review, before any decision | Totals: claimed **948.00**, supported by rules **266.40**, not supported **126.60**, needs your decision **555.00** across **3 items**. Headline: "7 lines need a decision. The recommended fee stays hidden until every line is decided." Bulk accept reads **(0)** and is disabled. |
+| Review, before any decision | Totals: claimed **948.00**, supported by rules **266.40**, not supported **126.60**, needs your decision **555.00** across **3 items**. Headline: "7 lines need a decision. The engine's figure stays hidden until every line is decided." Bulk accept reads **(0)** and is disabled. |
 | Review, every undecided card with an amount box | The Reduce / Allow / Allow anyway button is disabled, with "Enter an amount above 0.00 to reduce." (or "to allow" / "to allow anyway") and "To charge nothing for this line, use Strike." — "use Accept." on line 3, the not-supported line. |
 | Review, line 5 card | "Why this needs you" lists **only** the materiality item — no "Conditions not met", because the invoice was ticked and referenced. |
 | Review, after allowing line 5 at 450.00 | Totals rail: "Allowed by you, not by a rule" **SGD 450.00**. Following the step order (lines 1–4 already accepted), the headline reads "2 lines need a decision". |
 | Review, line 7 card | "HR's description" quotes the locksmith text verbatim; the reason is "always referred to Legal for classification". |
-| Review, after all seven decisions | "Every line has a decision. Review the totals before sign-off." The rail still shows the engine's own **SGD 266.40** "Not yet signed off" — the lawyer's figure is in the sign-off panel below. |
+| Review, after all seven decisions | "Every line has a decision. Review the totals before sign-off." The rail's "Engine's figure (rules only)" shows **SGD 266.40**, "Not yet signed off". That is the engine's number without your allowances; your fee is in the sign-off panel below. |
 | Sign-off panel | Accepted as assessed **4**, Reduced by you **0**, Struck by you **1**, Allowed by you **2**. Final fee **SGD 776.40**. |
 | HR result, after sign-off | "Fee assessed: SGD 776.40"; the reviewing lawyer's name, qualification and sign-off date (e.g. "on 25 Sep 2026"); line 6 struck, shown with its basis and no figure. The notice letter reads "Dear [Name]," and "… this access fee of SGD 776.40."; no "Mark notice sent" button. |
 

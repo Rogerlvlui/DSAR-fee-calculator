@@ -13,7 +13,7 @@ import { describe, expect, it } from "vitest";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { AssessmentSchema, type Assessment } from "@dsar/schemas/assessment";
-import { TotalsRail } from "./totals-rail.tsx";
+import { HEADLINE_LABEL, TotalsRail } from "./totals-rail.tsx";
 
 const CURRENCY = "SGD" as const;
 
@@ -145,6 +145,14 @@ describe("TOTALS-RAIL", () => {
     const needsDecision = extractMinor(html, "total-needs-decision");
 
     expect(supported + notSupported + needsDecision).toBe(claimed);
+  });
+
+  // Product-owner decision, 2026-09-30: the engine's figure is labelled as
+  // such so it can't be read as the fee, which only the sign-off panel shows.
+  it("TOTALS-RAIL: the headline is labelled as the engine's figure, never as a recommended fee", () => {
+    const html = render(PENDING_ASSESSMENT);
+    expect(html.replaceAll("&#x27;", "'")).toContain(HEADLINE_LABEL);
+    expect(html).not.toMatch(/recommended fee/i);
   });
 
   it("TOTALS-RAIL: while any line is pending, the headline renders the hidden-state label and pending-count sentence with no currency figure", () => {
