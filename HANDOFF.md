@@ -21,8 +21,11 @@ if the app and the PRD ever disagree, the PRD wins).
     repo's main, stage only `lui-chun-fai/`, commit, push. Never touch other residents' folders.
 - **Demo ZIP for audiences outside LQ:** `DSAR-Fee-Agent-demo-2026-09-30.zip` in the project
   root (untracked), last built from `3b816e6`. It is `git archive` of main without `.claude`,
-  `.gsd`, `.planning`, the PRD brief docx and **`HANDOFF.md`** (left out at the product
-  owner's request because it's internal), plus a `START-HERE.md` with run steps (Node 20.9+,
+  `.gsd`, `.planning`, the PRD brief docx, **`HANDOFF.md`** and **both `CLAUDE.md` files**
+  (root and `apps/web/`). These last three were left out at the product owner's request
+  because they're internal: the handover notes, and the AI assistant's instructions with
+  Roger's working preferences. `apps/web/AGENTS.md` stays in; it's generic Next.js
+  boilerplate. The ZIP adds a `START-HERE.md` with run steps (Node 20.9+,
   pnpm 11.27.0, `pnpm install` → `pnpm --filter @dsar/web build` → `start`, then
   http://localhost:3000). It was tested from clean on this machine. Rebuild it the same way
   after any code change.
@@ -30,8 +33,10 @@ if the app and the PRD ever disagree, the PRD wins).
     PowerShell 5.1 it writes backslash paths, so on Mac or Linux the ZIP unpacks into one flat
     folder and the app won't run. The current ZIP is built with Python's `zipfile`, with each
     path converted to `/`. Check with `unzip -Z1 <zip> | grep -cF '\'`, which must print 0.
-  - `README.md` and `apps/web/scripts/dev.mjs` still mention `HANDOFF.md`. In the ZIP those
-    pointers lead nowhere; that's harmless.
+  - `README.md` and some code comments still mention `HANDOFF.md` and `CLAUDE.md`. In the ZIP
+    those pointers lead nowhere; that's harmless.
+  - The file list above is the whole exclusion list. Remove all of it every time you rebuild,
+    because `git archive` puts it all back.
   - The older `Demo DSAR fee calculator.zip` is the 22 Sep static design mockup, not the app.
 - Working tree at last check: clean except untracked scratch files at the project root (docx
   notes, zips, `Copilot/`). None of them are part of the product or tracked by git.
