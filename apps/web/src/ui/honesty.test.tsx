@@ -25,7 +25,7 @@ import type { Minor } from "@dsar/schemas/primitives";
 import { CapabilityStatement } from "./capability/capability-statement.tsx";
 import { DemoBanner, DEMO_BANNER_TEXT } from "./chrome/demo-banner.tsx";
 import { StatusStrip } from "./chrome/status-strip.tsx";
-import { NoticeBlockView, NOTICE_DRAFT_WATERMARK } from "./hr/notice-block.tsx";
+import { NoticeBlock, NOTICE_DRAFT_WATERMARK } from "./hr/notice-block.tsx";
 import { ResultView, type ResultViewLine } from "./hr/result-view.tsx";
 import { LineCard } from "./review/line-card.tsx";
 import { AssessmentView, type AssessmentViewLineDetail } from "./review/assessment-view.tsx";
@@ -80,12 +80,9 @@ describe("HONESTY: the notice's draft watermark", () => {
   it("HONESTY: renders verbatim, as text inside the same copyable block as the draft — not a decorative overlay excluded from a selection or copy", () => {
     const draft = "Reference: DSAR-2026-0142\nAmount: SGD 466.40";
     const html = renderToStaticMarkup(
-      React.createElement(NoticeBlockView, {
+      React.createElement(NoticeBlock, {
         draft,
         noticeSentAt: null,
-        pending: false,
-        error: null,
-        onMarkSent: () => {},
       })
     );
 
@@ -278,15 +275,12 @@ describe("HONESTY: no AI-drafted label or model-suggestion block anywhere in thi
 
   it("HONESTY: the notice block carries no language-model-provenance badge or category-suggestion block", () => {
     const html = renderToStaticMarkup(
-      React.createElement(NoticeBlockView, {
+      React.createElement(NoticeBlock, {
         draft: "Reference: DSAR-2026-0001\nAmount: SGD 160.00",
         noticeSentAt: null,
-        pending: false,
-        error: null,
-        onMarkSent: () => {},
       })
     );
 
-    assertNoAiProvenance(html, "NoticeBlockView");
+    assertNoAiProvenance(html, "NoticeBlock");
   });
 });

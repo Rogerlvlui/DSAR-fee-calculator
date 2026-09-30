@@ -360,6 +360,7 @@ async function buildHrRenderedPayload(matterId: string): Promise<{ resultLines: 
     currency: "SGD",
     allowedLines: allowedLinesForNotice,
     matterReference: matterId,
+    requestReceivedOn: "2026-09-18",
   });
 
   return { resultLines, noticeDraft };

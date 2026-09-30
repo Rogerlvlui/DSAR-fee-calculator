@@ -10,6 +10,12 @@
 // supplied one anyway would be inventing a legal position, which is the one
 // thing this product exists not to do.
 //
+// An authored template may carry three placeholders. [amount] and [date] are
+// filled from figures this system already holds (the assessed fee; the date
+// the request was received). [Name] is never filled: this system must be
+// incapable of holding the requestor's name (NS-4), so HR types it in their
+// own mailbox.
+//
 // The draft carries no legal reasoning, no rule citations, and no reference
 // to any tool or model — it is a business letter (PRD §10.5(b)). Pure and
 // lives under src/domain/ so it needs no server import to test or reuse.
@@ -17,6 +23,7 @@
 import { UNAUTHORED_TOKEN } from "@dsar/schemas/constants";
 import type { CurrencyCode, Minor } from "@dsar/schemas/primitives";
 import { formatMinorWithCode } from "@dsar/schemas/money";
+import { formatIsoCalendarDate } from "./display-date.ts";
 
 export interface NoticeDraftAllowedLine {
   description: string;
@@ -29,6 +36,8 @@ export interface BuildNoticeDraftInput {
   currency: CurrencyCode;
   allowedLines: readonly NoticeDraftAllowedLine[];
   matterReference: string;
+  /** ISO calendar date the request was received; fills the template's [date]. */
+  requestReceivedOn: string;
 }
 
 // Rendered in place of the pack's template whenever that template still
@@ -131,8 +140,13 @@ export function buildNoticeDraft({
   currency,
   allowedLines,
   matterReference,
+  requestReceivedOn,
 }: BuildNoticeDraftInput): string {
-  const wording = isUnauthoredTemplate(template) ? NOTICE_NOT_YET_AUTHORED_STATEMENT : template;
+  const wording = isUnauthoredTemplate(template)
+    ? NOTICE_NOT_YET_AUTHORED_STATEMENT
+    : template
+        .replaceAll("[amount]", formatMinorWithCode(amount, currency))
+        .replaceAll("[date]", formatIsoCalendarDate(requestReceivedOn));
 
   return [
     `Reference: ${matterReference}`,

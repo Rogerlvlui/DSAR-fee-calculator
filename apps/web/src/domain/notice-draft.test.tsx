@@ -28,10 +28,27 @@ describe("HR-RESULT", () => {
       currency: CURRENCY,
       allowedLines: ALLOWED_LINES,
       matterReference: "DSAR-2026-0142",
+      requestReceivedOn: "2026-09-18",
     });
 
     expect(draft).toContain("Dear Sir/Madam, this is our estimate of the fee for your request.");
     expect(draft).not.toContain("Counsel has not yet authored");
+  });
+
+  it("HR-RESULT: buildNoticeDraft fills [amount] and [date] and always leaves [Name] for HR to type (NS-4)", () => {
+    const draft = buildNoticeDraft({
+      template: "Dear [Name], your request dated [date] carries a fee of [amount].",
+      amount: 18640 as never,
+      currency: CURRENCY,
+      allowedLines: ALLOWED_LINES,
+      matterReference: "DSAR-2026-0142",
+      requestReceivedOn: "2026-09-18",
+    });
+
+    expect(draft).toContain("Dear [Name], your request dated 18 Sep 2026 carries a fee of ");
+    expect(draft).not.toContain("[amount]");
+    expect(draft).not.toContain("[date]");
+    expect(draft.split("\n").at(-1)).toMatch(/186\.40\.$/);
   });
 
   it("HR-RESULT: buildNoticeDraft renders the not-yet-authored statement instead of inventing a letter when the template carries the UNAUTHORED marker", () => {
@@ -41,6 +58,7 @@ describe("HR-RESULT", () => {
       currency: CURRENCY,
       allowedLines: [],
       matterReference: "DSAR-2026-0142",
+      requestReceivedOn: "2026-09-18",
     });
 
     expect(draft).toContain(NOTICE_NOT_YET_AUTHORED_STATEMENT);
@@ -54,6 +72,7 @@ describe("HR-RESULT", () => {
       currency: CURRENCY,
       allowedLines: ALLOWED_LINES,
       matterReference: "DSAR-2026-0142",
+      requestReceivedOn: "2026-09-18",
     });
 
     // Never assert a currency-symbol prefix ("SGD"/"$") — Intl's
@@ -73,6 +92,7 @@ describe("HR-RESULT", () => {
       currency: CURRENCY,
       allowedLines: [],
       matterReference: "DSAR-2026-0142",
+      requestReceivedOn: "2026-09-18",
     });
 
     expect(draft).toContain("no fee is charged");
@@ -85,6 +105,7 @@ describe("HR-RESULT", () => {
       currency: CURRENCY,
       allowedLines: ALLOWED_LINES,
       matterReference: "DSAR-2026-0142",
+      requestReceivedOn: "2026-09-18",
     });
 
     expect(draft).not.toMatch(/SG-PDPA\./);
@@ -103,6 +124,7 @@ describe("HR-RESULT", () => {
         currency: CURRENCY,
         allowedLines: ALLOWED_LINES,
         matterReference: "DSAR-2026-0142",
+        requestReceivedOn: "2026-09-18",
       });
 
       expect(findAc17Violations(draft)).toEqual([]);
@@ -116,6 +138,7 @@ describe("HR-RESULT", () => {
         currency: CURRENCY,
         allowedLines: ALLOWED_LINES,
         matterReference: "DSAR-2026-0142",
+        requestReceivedOn: "2026-09-18",
       });
 
       expect(findAc17Violations(draft)).toEqual([]);
@@ -128,6 +151,7 @@ describe("HR-RESULT", () => {
         currency: CURRENCY,
         allowedLines: [],
         matterReference: "DSAR-2026-0142",
+        requestReceivedOn: "2026-09-18",
       });
 
       expect(findAc17Violations(draft)).toEqual([]);

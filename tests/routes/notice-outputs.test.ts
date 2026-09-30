@@ -267,6 +267,7 @@ async function buildRealNoticeForMatter(matterId: string): Promise<{ notice: str
     currency: matter.currency,
     allowedLines: allowedLinesForNotice as never,
     matterReference: matter.reference,
+    requestReceivedOn: matter.requestReceivedOn,
   });
 
   const basisStrings = pack.categoryRules.map((rule) => rule.basis);
@@ -362,6 +363,25 @@ describe("NOTICE-OUTPUTS", () => {
     for (const basis of basisStrings) {
       expect(notice).not.toContain(basis);
     }
+  });
+
+  // Counsel authored the SG wording on 2026-09-30; HK's is still pending.
+  it("NOTICE-OUTPUTS: the real SG-PDPA notice renders counsel's letter with [amount] and [date] filled and [Name] left for HR", async () => {
+    const { matterId } = await buildSignedOffMatter("SG", "SGD", "DSAR-NOTICEOUT-SG-LETTER");
+    const { notice } = await buildRealNoticeForMatter(matterId);
+
+    expect(notice).toContain("Subject: Your data access request — access fee");
+    expect(notice).toContain("Dear [Name],");
+    expect(notice).not.toContain("[amount]");
+    expect(notice).not.toContain("[date]");
+    expect(notice).not.toContain("Counsel has not yet authored");
+  });
+
+  it("NOTICE-OUTPUTS: the real HK-PDPO notice still states its wording is not yet authored", async () => {
+    const { matterId } = await buildSignedOffMatter("HK", "HKD", "DSAR-NOTICEOUT-HK-PENDING");
+    const { notice } = await buildRealNoticeForMatter(matterId);
+
+    expect(notice).toContain("Counsel has not yet authored");
   });
 
   it("NOTICE-OUTPUTS: the real HK-PDPO-derived notice carries zero AC-17 violations and no pack basis string", async () => {

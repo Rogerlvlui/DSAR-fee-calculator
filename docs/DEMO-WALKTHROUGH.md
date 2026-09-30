@@ -96,7 +96,10 @@ Total claimed: **SGD 948.00**.
     release to HR."** The status changes in place to "Signed off — released to HR".
 11. **Switch back to HR** (header role switcher → My matters → the matter): the assessed fee,
     the struck line's basis, and the draft notice marked "DRAFT — for HR to send" ("Send
-    this yourself from your own mailbox. This tool does not email anyone.").
+    this yourself from your own mailbox. This tool does not email anyone."). The notice is
+    counsel's Singapore letter, with the fee (**SGD 776.40**) and the request date filled in.
+    "Dear [Name]" stays a placeholder on purpose: the system never holds the requestor's name,
+    so HR types it in their own mailbox. There is no "Mark notice sent" button.
 12. **(Optional, Legal only) Download the internal record.** Back as Legal, the signed-off
     matter shows "Download internal record (PDF)" — only on `/legal/*`, and only once a
     matter is signed off or closed. The dense line-item record with matter, pack, flags and
@@ -115,7 +118,7 @@ Total claimed: **SGD 948.00**.
 | Review, line 7 card | "HR's description" quotes the locksmith text verbatim; the reason is "always referred to Legal for classification". |
 | Review, after all seven decisions | "Every line has a decision. Review the totals before sign-off." The rail still shows the engine's own **SGD 266.40** "Not yet signed off" — the lawyer's figure is in the sign-off panel below. |
 | Sign-off panel | Accepted as assessed **4**, Reduced by you **0**, Struck by you **1**, Allowed by you **2**. Final fee **SGD 776.40**. |
-| HR result, after sign-off | "Fee assessed: SGD 776.40"; the reviewing lawyer's name, qualification and sign-off date (e.g. "on 25 Sep 2026"); line 6 struck, shown with its basis and no figure. |
+| HR result, after sign-off | "Fee assessed: SGD 776.40"; the reviewing lawyer's name, qualification and sign-off date (e.g. "on 25 Sep 2026"); line 6 struck, shown with its basis and no figure. The notice letter reads "Dear [Name]," and "… this access fee of SGD 776.40."; no "Mark notice sent" button. |
 
 **Final fee arithmetic:** 160.00 + 80.00 + 0.00 + 26.40 (four accepted lines) + 450.00 (vendor,
 allowed by the lawyer) + 0.00 (struck) + 60.00 (locksmith, allowed by the lawyer) = **776.40**.

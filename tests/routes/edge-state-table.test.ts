@@ -621,6 +621,7 @@ row("Zero allowable", () => {
       currency: "JPY",
       allowedLines: [],
       matterReference: draftMatter.reference,
+      requestReceivedOn: draftMatter.requestReceivedOn,
     });
     expect(notice).toContain("This covers no chargeable items — no fee is charged.");
 

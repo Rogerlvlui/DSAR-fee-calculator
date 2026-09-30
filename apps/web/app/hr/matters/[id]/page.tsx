@@ -117,6 +117,7 @@ export default async function HrMatterPage({ params }: { params: Promise<{ id: s
     currency: matter.currency,
     allowedLines: allowedLinesForNotice,
     matterReference: matter.reference,
+    requestReceivedOn: matter.requestReceivedOn,
   });
 
   const noticeSentAt = getNoticeSentAt(matter.id);
@@ -133,7 +134,7 @@ export default async function HrMatterPage({ params }: { params: Promise<{ id: s
         signedAt={assessment.signOff?.signedAt ?? ""}
         lines={resultLines}
       />
-      <NoticeBlock matterId={matter.id} draft={noticeDraft} noticeSentAt={noticeSentAt} />
+      <NoticeBlock draft={noticeDraft} noticeSentAt={noticeSentAt} />
     </main>
   );
 }

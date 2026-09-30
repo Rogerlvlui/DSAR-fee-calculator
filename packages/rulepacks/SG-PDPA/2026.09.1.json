@@ -367,7 +367,7 @@
       "requiresAcknowledgement": false
     }
   ],
-  "requestorNoticeTemplate": "UNAUTHORED — counsel must author the requestor-facing fee notice for this jurisdiction before this pack can reach ACTIVE.",
+  "requestorNoticeTemplate": "Subject: Your data access request — access fee\n\nDear [Name],\n\nThank you for your data access request dated [date].\n\nWe have completed the relevant intake, identity verification, review of information and documents, and preparation steps as per your request. Based on the work required to provide access to the requested personal data, the finalized fee is set out above, calculated in accordance with applicable law and our data subject access request (“DSAR”) handling process.\n\nIf you wish to proceed, please confirm in writing within the next two weeks that you agree to pay this access fee of [amount]. Once the fee has been received, we will continue with delivery of the response.\n\nRegards,\nHR",
   "openQuestions": [
     "Whether staff time is being costed at incremental cost or at a loaded charge-out rate. A loaded rate with a profit element is not defensible.",
     "Whether any element of the claim relates to assessing exceptions rather than providing access.",

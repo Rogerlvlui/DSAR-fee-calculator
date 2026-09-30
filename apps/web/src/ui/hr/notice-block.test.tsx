@@ -6,7 +6,7 @@
 import { describe, expect, it } from "vitest";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { NoticeBlockView, NOTICE_BOUNDARY_NOTE, NOTICE_DRAFT_WATERMARK } from "./notice-block.tsx";
+import { NoticeBlock, NOTICE_BOUNDARY_NOTE, NOTICE_DRAFT_WATERMARK } from "./notice-block.tsx";
 
 const SENT_INSTANT = "2026-09-20T14:32:07.000Z";
 
@@ -21,14 +21,11 @@ const SAMPLE_DRAFT = [
     "this sentence keeps going well past a single-line width on purpose, so a naive truncation rule would clip it.",
 ].join("\n");
 
-function render(overrides: Partial<Parameters<typeof NoticeBlockView>[0]> = {}): string {
+function render(overrides: Partial<Parameters<typeof NoticeBlock>[0]> = {}): string {
   return renderToStaticMarkup(
-    React.createElement(NoticeBlockView, {
+    React.createElement(NoticeBlock, {
       draft: SAMPLE_DRAFT,
       noticeSentAt: null,
-      pending: false,
-      error: null,
-      onMarkSent: () => {},
       ...overrides,
     })
   );
@@ -59,15 +56,16 @@ describe("HR-RESULT", () => {
     expect(html).not.toContain("…");
   });
 
-  it("HR-RESULT: shows the mark-sent control before sending and the recorded date after", () => {
+  // Product-owner decision, 2026-09-30: no "Mark notice sent" button.
+  it("HR-RESULT: renders no mark-sent button, and shows the recorded date only once a send is on record", () => {
     const beforeHtml = render({ noticeSentAt: null });
-    expect(beforeHtml).toContain('data-testid="notice-mark-sent"');
+    expect(beforeHtml).not.toContain("<button");
+    expect(beforeHtml).not.toContain("Mark notice sent");
     expect(beforeHtml).not.toContain('data-testid="notice-sent-confirmation"');
 
     const afterHtml = render({ noticeSentAt: SENT_INSTANT });
     expect(afterHtml).toContain('data-testid="notice-sent-confirmation"');
     expect(afterHtml).toContain("2026-09-20");
-    expect(afterHtml).not.toContain('data-testid="notice-mark-sent"');
   });
 
   // DOC-02: the watermark is queryable exactly while the notice is still a
@@ -110,10 +108,5 @@ describe("HR-RESULT", () => {
     expect(afterHtml).toContain('data-testid="notice-boundary-note"');
     expect(beforeHtml).toContain(NOTICE_BOUNDARY_NOTE);
     expect(afterHtml).toContain(NOTICE_BOUNDARY_NOTE);
-  });
-
-  it("HR-RESULT: the mark-sent button is absent once the notice has been marked sent", () => {
-    const afterHtml = render({ noticeSentAt: SENT_INSTANT });
-    expect(afterHtml).not.toContain('data-testid="notice-mark-sent"');
   });
 });

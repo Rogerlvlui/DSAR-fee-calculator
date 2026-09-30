@@ -67,9 +67,9 @@ interface InfoRequestPanelQueryLike {
 }
 
 const ROOT = path.resolve(fileURLToPath(import.meta.url), "../../..");
-const { NoticeBlockView } = (await import(
+const { NoticeBlock } = (await import(
   pathToFileURL(path.join(ROOT, "apps", "web", "src", "ui", "hr", "notice-block.tsx")).href
-)) as { NoticeBlockView: (props: Record<string, unknown>) => React.ReactElement };
+)) as { NoticeBlock: (props: Record<string, unknown>) => React.ReactElement };
 const { InfoRequestPanelView } = (await import(
   pathToFileURL(path.join(ROOT, "apps", "web", "src", "ui", "hr", "info-request-panel.tsx")).href
 )) as { InfoRequestPanelView: (props: Record<string, unknown>) => React.ReactElement };
@@ -255,12 +255,9 @@ function renderEveryComponent(): string {
 
   texts.push(
     render(
-      React.createElement(NoticeBlockView, {
+      React.createElement(NoticeBlock, {
         draft: "Reference: DSAR-2026-0142\nAmount: SGD 160.00",
         noticeSentAt: null,
-        pending: false,
-        error: null,
-        onMarkSent: () => {},
       })
     )
   );
@@ -269,8 +266,6 @@ function renderEveryComponent(): string {
     render(
       React.createElement(InfoRequestPanelView, {
         queries: INFO_REQUEST_QUERIES,
-        pending: false,
-        error: null,
         onResubmit: () => {},
       })
     )

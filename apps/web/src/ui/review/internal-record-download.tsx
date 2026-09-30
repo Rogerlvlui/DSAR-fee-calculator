@@ -12,7 +12,7 @@
 // The button is a real, focusable, labelled control — never a bare filename
 // link with no label (07-UI-SPEC.md's own Copywriting Contract entry). While
 // the request is in flight the button is disabled and its label is
-// unchanged — no spinner, matching signoff-submit/notice-mark-sent. On
+// unchanged — no spinner, matching signoff-submit. On
 // failure nothing is downloaded: no partial file, no corrupt file, no empty
 // file is offered — the wrapper only ever triggers a save once the response
 // is confirmed ok.

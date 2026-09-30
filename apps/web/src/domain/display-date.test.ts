@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatDisplayDate } from "./display-date.ts";
+import { formatDisplayDate, formatIsoCalendarDate } from "./display-date.ts";
 
 describe("DISPLAY-DATE: formatDisplayDate", () => {
   it("DISPLAY-DATE: formats an ISO timestamp as day, short month, year — no time, no raw ISO", () => {
@@ -15,5 +15,18 @@ describe("DISPLAY-DATE: formatDisplayDate", () => {
   it("DISPLAY-DATE: returns an empty string for a missing or unreadable timestamp", () => {
     expect(formatDisplayDate("")).toBe("");
     expect(formatDisplayDate("not a date")).toBe("");
+  });
+});
+
+describe("DISPLAY-DATE: formatIsoCalendarDate", () => {
+  it("DISPLAY-DATE: formats an ISO calendar date as day, short month, year", () => {
+    expect(formatIsoCalendarDate("2026-09-05")).toBe("5 Sep 2026");
+    expect(formatIsoCalendarDate("2026-12-31")).toBe("31 Dec 2026");
+  });
+
+  it("DISPLAY-DATE: returns an empty string for anything that is not an ISO calendar date", () => {
+    expect(formatIsoCalendarDate("")).toBe("");
+    expect(formatIsoCalendarDate("2026-13-01")).toBe("");
+    expect(formatIsoCalendarDate("2026-09-25T00:00:00Z")).toBe("");
   });
 });
