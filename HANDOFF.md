@@ -1,27 +1,37 @@
 # HANDOFF — Phase 7.1 complete, Phase 8 next, both remaining pieces re-planned
 
-**Written 2026-09-28.** This account loses access to this Claude Code session in ~2 days.
+**Written 2026-09-28, updated 2026-09-30.** This account loses access to this Claude Code session around 2026-09-30.
 This file is the landing point for whoever picks the project up next — read this first,
 then `.planning/STATE.md` (full decision log) and `docs/PRD-dsar-fee-agent.md` (the spec —
 if the app and the PRD ever disagree, the PRD wins).
 
 ## Repo / branch state
 
-- Primary repo: `Rogerlvlui/DSAR-fee-calculator`, branch `main`, local and origin both at
-  `8186f74` (pushed 2026-09-26 — confirm this is still the HEAD when you resume).
+- Primary repo: `Rogerlvlui/DSAR-fee-calculator`, branch `main`. Local and origin were both
+  at `5c97a35` on 2026-09-30 (plus this handoff update). Confirm the HEAD when you resume.
 - A second copy of this build lives in the LQ residency cohort repo,
-  `LegalQuants/lq-residency-september-2026`, folder `lui-chun-fai/`, pushed to the same
-  `8186f74` content as commit `d948fef` (2026-09-25). That copy is submission-facing, not a
-  place to keep developing — do further work in the primary repo and re-sync that folder
-  later if it needs to be current again.
-- Working tree at last check: clean except normal untracked scratch files at the project
-  root (docx notes, zips, `Copilot/`) — none of these are part of the product and none are
-  tracked by git; ignore them.
-- Full suite: **1112/1112 tests passing** as of quick task 260925-w7p; `typecheck`/`lint`/
-  `depcruise` clean; `pnpm --filter @dsar/web build` (webpack) green.
-- One known, pre-existing, not-yours-to-fix failure: `packages/schemas/src/json-schema.test.ts`'s
-  byte-identical drift check fails on Windows checkouts (CRLF vs LF). Logged in
-  `.planning/WINDOWS.md` (id 1, open).
+  `LegalQuants/lq-residency-september-2026`, folder `lui-chun-fai/`. It was synced to
+  `5c97a35` as commit `826fe8e` on 2026-09-30, and it's the link submitted to LQ. It is
+  for submission, not development: work in the primary repo, then re-sync the folder.
+  - **Local clone:** `C:\Users\Roger\Desktop\AI Tooling\lq-residency-september-2026`, next to
+    the project, not inside it. It was moved out on 2026-09-30 because a clone inside the
+    project made `pnpm lint` load another resident's eslint config and crash. Don't clone it
+    back into the project folder.
+  - **To re-sync:** pull the clone, replace `lui-chun-fai/` with `git archive HEAD` of this
+    repo's main, stage only `lui-chun-fai/`, commit, push. Never touch other residents' folders.
+- **Demo ZIP for audiences outside LQ:** `DSAR-Fee-Agent-demo-2026-09-30.zip` in the project
+  root (untracked). It is `git archive` of main without `.claude`, `.gsd`, `.planning` and the
+  PRD brief docx, plus a `START-HERE.md` with run steps (Node 20.9+, pnpm 11.27.0,
+  `pnpm install` → `pnpm --filter @dsar/web build` → `start`, then http://localhost:3000).
+  It was tested from clean on this machine. Rebuild it the same way after any code change.
+  The older `Demo DSAR fee calculator.zip` is the 22 Sep static design mockup, not the app.
+- Working tree at last check: clean except untracked scratch files at the project root (docx
+  notes, zips, `Copilot/`). None of them are part of the product or tracked by git.
+- Full suite: **1116/1116 tests passing** as of quick task 260930-w8p. `typecheck`, `lint` and
+  `depcruise` are clean, and `pnpm --filter @dsar/web build` (webpack) is green.
+- `packages/schemas/src/json-schema.test.ts`'s byte-identical drift check has failed on
+  Windows checkouts before (CRLF vs LF; `.planning/WINDOWS.md` id 1, still open). It passed
+  in the 2026-09-30 run. If it fails again, that is the known issue, not a regression.
 
 ## What's built vs. not, by phase
 
@@ -77,6 +87,37 @@ In rough order:
    presenter script against the production (`--webpack`) build, including the zero-amount
    rule (PRD §6.4, newly documented) and the review-card order actually seen in rehearsal.
 
+## What changed on 2026-09-30 (quick task 260930-w8p, commit `e21d427`)
+
+1. **Counsel authored the Singapore requestor notice.** SG-PDPA's `requestorNoticeTemplate`
+   now holds Roger Lui's letter, word for word. It opens "Subject: Your data access request
+   — access fee" and closes "Regards, HR". The HR result screen renders it below the
+   Reference / Amount / "What this covers" block, which is what the letter's "set out above"
+   refers to.
+   - `[amount]` is filled with the assessed fee and `[date]` with the request-received date
+     ("1 Sep 2026", via the new `formatIsoCalendarDate`, read without any time-zone shift).
+   - `[Name]` is **never** filled. The system must not hold the requestor's name (NS-4), so HR
+     types it in their own mailbox. Don't "fix" this by adding a name field.
+   - **Singapore only**, a legal decision. HK-PDPO and the seven stubs still render "Counsel
+     has not yet authored the requestor-facing wording for this jurisdiction…".
+   - **Counsel's legal decision:** the SG letter states a *finalized* fee and asks the
+     requestor to confirm in writing that they agree to pay it. This replaces PRD §10.4's
+     earlier "for Singapore, framed as a written estimate" and is recorded in §10.4.
+   - The SG pack is **still `DRAFT`**. Authoring the notice removes one UNAUTHORED marker,
+     but the pack still needs full category authoring and a named lawyer's sign-off before
+     it can be `ACTIVE`.
+2. **The "Mark notice sent" button is removed** from the HR result screen (product-owner
+   decision, recorded in PRD §10.4). This is UI only: the `/api/matters/[id]/notice-sent`
+   route and the `SIGNED_OFF → CLOSED` transition are unchanged, the "DRAFT — for HR to send"
+   watermark and the no-email boundary note still render, and a send already on record still
+   shows its date. `notice-block.tsx` is now a plain component (no client state or fetch);
+   `NoticeBlockView` was folded into `NoticeBlock`.
+   - **Consequence for the next person:** with no button, nothing in the UI moves a matter to
+     `CLOSED` any more. If a later phase needs closed matters (reporting, retention), that
+     needs a new product decision, not a quiet re-add of the button.
+3. `docs/DEMO-WALKTHROUGH.md` updated: at step 11 the letter reads "…this access fee of SGD
+   776.40", "Dear [Name]," stays a placeholder, and there's no mark-sent button.
+
 ## The two remaining pieces, and what each actually needs
 
 **Phase 3.2 — Database Boundary and Audit Immutability.**
@@ -125,6 +166,14 @@ available before committing to it over Phase 8.
   main tree regardless of whether their `files_modified` lists overlap.
 - **Phase 3.2's existing PLAN.md files are stale relative to its own CONTEXT.md.** See "the
   two remaining pieces" above — don't execute them without replanning first.
+- **"Dear [Name]," in the Singapore notice is intentional.** It is not an unfilled-template
+  bug. The system is built to be incapable of holding the requestor's name (NS-4).
+- **The notice wording is counsel's, not the code's.** Change it only in the pack's
+  `requestorNoticeTemplate`, and only with counsel's sign-off. Never edit or "improve" it
+  in `notice-draft.ts`.
+- **gsd-tools isn't installed on this machine.** Quick tasks are run by hand following the
+  existing `.planning/quick/<id>/` PLAN/SUMMARY pattern, with a row in STATE.md's "Quick
+  Tasks Completed" table and a follow-up commit recording the hash.
 - **PR #4 (`codex/demo-ux-review-fixes`) landed outside the GSD quick-task flow.** If you're
   auditing what changed and why, its own PR description is the record, not a
   `.planning/quick/` entry.
