@@ -48,7 +48,9 @@ Nine rule packs in v1, one per jurisdiction, each with its own lifecycle and a r
 |---|---|---|
 | Worked | Hong Kong (PDPO), Singapore (PDPA) | Reference packs, fully specified |
 | Stub | Australia, New Zealand, Japan, South Korea, China, India, Vietnam | Correct posture and skeleton; every category flagged until local counsel authors it |
-| Future | EU/EEA (GDPR) | Out of scope (NS-10); recorded only so the schema is not later found to be EU-hostile |
+| Future | Other jurisdictions | Out of scope (NS-10) |
+
+This DSAR fee calculator is suited to Asia Pacific jurisdictions. It is not necessarily suited to other regimes, such as the EU/EEA under the GDPR, where a data controller's right to charge a DSAR fee is limited.
 
 A stub pack is unusable until counsel authors it. That is the intended behaviour, and better than a plausible guess.
 
@@ -172,6 +174,10 @@ It is not the code. Nothing can be activated in any jurisdiction until a named l
 If you are working on this with a coding agent, read [CLAUDE.md](CLAUDE.md) first — it carries the non-negotiables, the out-of-scope list, and the architectural boundaries in the form an agent needs them.
 
 One rule governs the rest: **if you cannot satisfy a requirement in the PRD, stop and raise it rather than inventing a legal rule.**
+
+## Disclaimer
+
+This is an automation tool. It does not constitute legal advice, and using it does not create a lawyer–client relationship. Its rule packs, outputs and documentation are provided for general information and workflow support only, may not reflect the current law in any jurisdiction, and are not a substitute for advice from a qualified lawyer on the facts of a specific matter. Any fee determination remains the responsibility of the reviewing lawyer and the organisation using the tool. The tool is provided "as is", without warranty of any kind, and no liability is accepted for any reliance placed on it.
 
 ---
 
