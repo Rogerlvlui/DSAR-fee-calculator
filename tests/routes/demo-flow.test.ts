@@ -120,7 +120,7 @@ describe("DEMO-FLOW: the presenter flow in docs/DEMO-WALKTHROUGH.md", () => {
     expect(assessment.lines[4]!.flagReasons.map((reason) => reason.code)).toEqual(["MATERIALITY"]);
   });
 
-  it("DEMO-FLOW: four reasonless Accepts, vendor allowed at 450.00, example 'Something else' struck, locksmith allowed at 60.00 — final fee 776.40", async () => {
+  it("DEMO-FLOW: four reasonless Accepts, vendor allowed at 450.00, example 'Something else' struck, locksmith rejected (struck) — final fee 716.40", async () => {
     const assessment = await submitDemoClaim();
     const [line1, line2, line3, line4, vendor, exampleOther, locksmith] = assessment.lines;
     const reason = "Invoice and reference sighted; amount is consistent with the request.";
@@ -134,7 +134,7 @@ describe("DEMO-FLOW: the presenter flow in docs/DEMO-WALKTHROUGH.md", () => {
         .status
     ).toBe(200);
     expect(
-      (await disposition(locksmith!.id, { action: "ALLOW_WITH_AMOUNT", amountMinor: 6000, reason: "Necessary to reach the requested records." }))
+      (await disposition(locksmith!.id, { action: "STRIKE", reason: "Not a chargeable cost of responding to this request, because company, rather than requestor, should be responsible for fixing deficiency in its storage equipment." }))
         .status
     ).toBe(200);
 
@@ -148,7 +148,7 @@ describe("DEMO-FLOW: the presenter flow in docs/DEMO-WALKTHROUGH.md", () => {
     );
     expect(signoff.status).toBe(200);
     const body = (await signoff.json()) as { assessment: { totals: { finalAmount: number } } };
-    // 16000 + 8000 + 0 + 2640 + 45000 + 0 + 6000
-    expect(body.assessment.totals.finalAmount).toBe(77640);
+    // 16000 + 8000 + 0 + 2640 + 45000 + 0 + 0 (locksmith struck)
+    expect(body.assessment.totals.finalAmount).toBe(71640);
   });
 });

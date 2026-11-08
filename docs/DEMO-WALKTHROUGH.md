@@ -85,8 +85,9 @@ Total claimed: **SGD 948.00**.
      for this line, use Strike." Optionally type 0 to show it stays disabled. Then **type
      450.00** — the hint disappears and Allow enables — and click **Allow**.
    - Line 6 (flagged — the example's vague "Something else"): type a reason, **Strike**.
-   - Line 7 (flagged — the locksmith line, HR's description quoted verbatim): type a
-     reason, **type 60.00**, then **Allow**.
+   - Line 7 (flagged — the locksmith line, HR's description quoted verbatim): the lawyer
+     rejects it. Type a reason (e.g. "Not a chargeable cost of responding to this request, because company, rather than requestor, should be responsible for fixing deficiency in its storage equipment.")
+     and click **Strike**. No amount is needed — charging nothing is a Strike.
 
    Every undecided card with an amount box (Reduce, Allow, Allow anyway) shows that hint
    until an amount above 0.00 is typed — it does not stop Accept or Strike. Charging nothing
@@ -97,7 +98,7 @@ Total claimed: **SGD 948.00**.
 11. **Switch back to HR** (header role switcher → My matters → the matter): the assessed fee,
     the struck line's basis, and the draft notice marked "DRAFT — for HR to send" ("Send
     this yourself from your own mailbox. This tool does not email anyone."). The notice is
-    counsel's Singapore letter, with the fee (**SGD 776.40**) and the request date filled in.
+    counsel's Singapore letter, with the fee (**SGD 716.40**) and the request date filled in.
     "Dear [Name]" stays a placeholder on purpose: the system never holds the requestor's name,
     so HR types it in their own mailbox. There is no "Mark notice sent" button.
 12. **(Optional, Legal only) Download the internal record.** Back as Legal, the signed-off
@@ -117,13 +118,14 @@ Total claimed: **SGD 948.00**.
 | Review, after allowing line 5 at 450.00 | Totals rail: "Allowed by you, not by a rule" **SGD 450.00**. Following the step order (lines 1–4 already accepted), the headline reads "2 lines need a decision". |
 | Review, line 7 card | "HR's description" quotes the locksmith text verbatim; the reason is "always referred to Legal for classification". |
 | Review, after all seven decisions | "Every line has a decision. Review the totals before sign-off." The rail's "Engine's figure (rules only)" shows **SGD 266.40**, "Not yet signed off". That is the engine's number without your allowances; your fee is in the sign-off panel below. |
-| Sign-off panel | Accepted as assessed **4**, Reduced by you **0**, Struck by you **1**, Allowed by you **2**. Final fee **SGD 776.40**. |
-| HR result, after sign-off | "Fee assessed: SGD 776.40"; the reviewing lawyer's name, qualification and sign-off date (e.g. "on 25 Sep 2026"); line 6 struck, shown with its basis and no figure. The notice letter reads "Dear [Name]," and "… this access fee of SGD 776.40."; no "Mark notice sent" button. |
+| Sign-off panel | Accepted as assessed **4**, Reduced by you **0**, Struck by you **2**, Allowed by you **1**. Final fee **SGD 716.40**. |
+| HR result, after sign-off | "Fee assessed: SGD 716.40"; the reviewing lawyer's name, qualification and sign-off date (e.g. "on 25 Sep 2026"); lines 6 and 7 struck, each shown with its basis and no figure. The notice letter reads "Dear [Name]," and "… this access fee of SGD 716.40."; no "Mark notice sent" button. |
 
 **Final fee arithmetic:** 160.00 + 80.00 + 0.00 + 26.40 (four accepted lines) + 450.00 (vendor,
-allowed by the lawyer) + 0.00 (struck) + 60.00 (locksmith, allowed by the lawyer) = **776.40**.
-The engine alone would have recommended 266.40 — the other 510.00 exists only because a named
-lawyer allowed it, and the sign-off records that.
+allowed by the lawyer) + 0.00 (line 6, struck) + 0.00 (locksmith, rejected by the lawyer — struck) =
+**716.40**. The engine alone would have recommended 266.40 — the other 450.00 exists only because a
+named lawyer allowed it, and the 60.00 locksmith claim is gone because a named lawyer rejected it;
+the sign-off records both.
 
 ## Moments worth pausing on
 
